@@ -1,0 +1,6 @@
+#modelName remarks candidate noo time mem maxActiveFragments maxWeakFragments loads unloads weakLoads weakUnloads
+testmodel_3 index 2 0 902 0 0 0 0 0 0 0
+testmodel_4 index 2 0 951 0 0 0 0 0 0 0
+testmodel_0 noindex 2 1 15754 2845360 0 0 0 0 0 0
+testmodel_0 index 2 1 1329 0 0 0 0 0 0 0
+testmodel_1 noindex 2 2 40059 3583736 0 0 0 0 0 0

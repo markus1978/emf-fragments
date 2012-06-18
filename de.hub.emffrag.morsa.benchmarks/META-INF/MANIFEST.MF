@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Benchmarks
+Bundle-SymbolicName: de.hub.emffrag.morsa.benchmarks
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: de.hub.emffrag.benchmarks;bundle-version="1.0.0",
+ es.modelum.morsa.source;bundle-version="1.0.0"

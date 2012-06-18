@@ -1,0 +1,4 @@
+#modelName remarks candidate noo time mem maxActiveFragments maxWeakFragments loads unloads weakLoads weakUnloads
+testmodel_f2_4 f2 3 4961779 1093367 2824809224 4607 0 4607 0 0 0
+testmodel_t3_f2_1 f2 3 197699 13588 146729192 6018 0 6018 0 0 0
+testmodel_t3_f2_1 f2 3 197699 11645 146643192 6018 0 6018 0 0 0

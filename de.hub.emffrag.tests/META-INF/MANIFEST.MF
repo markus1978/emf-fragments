@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests
+Bundle-SymbolicName: de.hub.emffrag.tests
+Bundle-Version: 1.0.0.qualifier
+Export-Package: de.hub.emffrag.test
+Require-Bundle: de.hub.emffrag;bundle-version="1.0.0",
+ de.hub.emffrag.testmodels;bundle-version="1.0.0",
+ de.hub.emffrag.hbase;bundle-version="1.0.0"
+Import-Package: com.google.inject,
+ com.google.inject.name;version="1.2.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

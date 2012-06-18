@@ -1,0 +1,8 @@
+#modelName remarks candidate noo time mem maxActiveFragments maxWeakFragments loads unloads weakLoads weakUnloads
+testmodel_0 null 2 69680 20411 3251360 0 0 0 0 0 0
+testmodel_1 null 2 197699 37113 3254688 0 0 0 0 0 0
+testmodel_2 null 2 2082841 377916 3874440 0 0 0 0 0 0
+testmodel_0 null 2 69680 14906 3244496 0 0 0 0 0 0
+testmodel_1 null 2 197699 36692 3254944 0 0 0 0 0 0
+testmodel_2 null 2 2082841 365575 3874440 0 0 0 0 0 0
+testmodel_0 null 2 69680 15438 3244496 0 0 0 0 0 0
