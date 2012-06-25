@@ -47,7 +47,7 @@ public class Fragment extends XMIResourceImpl {
 		if (isWeaklyUnloaded) {
 			isWeaklyUnloaded = false;
 			lastWeakLoad = System.currentTimeMillis();
-			((FragmentSet)getResourceSet()).weaklyLoad(this);
+			((FragmentedModel)getResourceSet()).weaklyLoad(this);
 		}
 		return cache;
 	}

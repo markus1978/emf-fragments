@@ -49,7 +49,7 @@ import de.hub.emffrag.kvstore.IKeyValueStore;
 import de.hub.emffrag.kvstore.IKeyValueStore.Table;
 import de.hub.emffrag.kvstore.TestKeyValueStore;
 import de.hub.emffrag.reflective.FStoreImpl;
-import de.hub.emffrag.reflective.FragmentSet;
+import de.hub.emffrag.reflective.FragmentedModel;
 import de.hub.emffrag.testmodels.frag.Core.CorePackage;
 import de.hub.emffrag.testmodels.frag.Core.IJavaModel;
 import de.hub.emffrag.testmodels.frag.DOM.DOMPackage;
@@ -81,7 +81,7 @@ public class FragTests extends RegularTest {
 					System.out.println("[" + level + "] " + message);
 				}
 			});
-			binder.bind(Integer.class).annotatedWith(Names.named(FragmentSet.OPTION_WEAK_UNLOAD_CACHE_SIZE)).toInstance(0);
+			binder.bind(Integer.class).annotatedWith(Names.named(FragmentedModel.OPTION_WEAK_UNLOAD_CACHE_SIZE)).toInstance(0);
 		}
 	}
 
@@ -232,66 +232,53 @@ public class FragTests extends RegularTest {
 	}
 
 	@Test
-	public void testFragmentedStore() throws Exception {
-		String testTable = "testtable";
-		// initialize the FStore for testing
-		Injector injector = Guice.createInjector(new MyModule() {
-			@Override
-			public void configure(Binder binder) {
-				super.configure(binder);
-				binder.bind(IKeyValueStore.class).to(TestKeyValueStore.class);
-			}
-		});
-		FStoreImpl.INSTANCE = injector.getInstance(FStoreImpl.class);
-
-		// initialize the FStore as a user would
-		Collection<EPackage> packages = new ArrayList<EPackage>();
-		packages.add(TestModelPackage.eINSTANCE);
-		FStoreImpl.INSTANCE.initialize(packages, testTable, false);
-
-		Container container = ContainerBuilder.newContainerBuilder()
-				.withContents(ContentsBuilder.newContentsBuilder().withValue("testValue")).build();
-		FStoreImpl.INSTANCE.addContent(container);
-
-		FStoreImpl.INSTANCE.save();
-
-		EList<EObject> contents = FStoreImpl.INSTANCE.getContents();
+	public void testFragmentedStore() throws Exception {		
+		TestKeyValueStore keyValueStore = new TestKeyValueStore();
+		FragmentedModel model = new FragmentedModel(keyValueStore, "testtable", TestModelPackage.eINSTANCE);
+		Container container = ContainerBuilder.newContainerBuilder().withContents(ContentsBuilder.newContentsBuilder().withValue("testValue")).build();
+		
+		model.addContent(container);
+		model.save();
+		EList<EObject> contents = model.getContents();
+		
 		Assert.assertEquals(1, contents.size());
 		Assert.assertEquals(1, container.getContents().size());
 		Contents content = container.getContents().get(0);
 		Assert.assertEquals("testValue", content.getValue());
 		Assert.assertEquals(container, content.eContainer());
-		Table table = injector.getInstance(IKeyValueStore.class).getTable(testTable, false);
+		Table table = keyValueStore.getTable("testtable", false);
 		Assert.assertNotNull(table);
 		Assert.assertNotNull(table.get("0"));
 		Assert.assertEquals("0", table.getLargestKey());
 
 		container.getFragmentedContents().add(content);
-		FStoreImpl.INSTANCE.save();
-
-		contents = FStoreImpl.INSTANCE.getContents();
+		
+		model.save();
+		contents = model.getContents();
+		
 		Assert.assertEquals(1, contents.size());
 		Assert.assertEquals(0, container.getContents().size());
 		Assert.assertEquals(1, container.getFragmentedContents().size());
 		content = container.getFragmentedContents().get(0);
 		Assert.assertEquals("testValue", content.getValue());
 		Assert.assertEquals(container, content.eContainer());
-		table = injector.getInstance(IKeyValueStore.class).getTable(testTable, false);
+		table = keyValueStore.getTable("testtable", false);
 		Assert.assertNotNull(table);
 		Assert.assertNotNull(table.get("0"));
 		Assert.assertNotNull(table.get("1"));
 		Assert.assertEquals("1", table.getLargestKey());
 
 		container.getFragmentedContents().clear();
-		FStoreImpl.INSTANCE.save();
-
-		contents = FStoreImpl.INSTANCE.getContents();
+		
+		model.save();
+		contents = model.getContents();
+		
 		Assert.assertEquals(1, contents.size());
 		Assert.assertEquals(0, container.getContents().size());
 		Assert.assertEquals(0, container.getFragmentedContents().size());
 		Assert.assertEquals("testValue", content.getValue());
 		Assert.assertEquals(null, content.eContainer());
-		table = injector.getInstance(IKeyValueStore.class).getTable(testTable, false);
+		table = keyValueStore.getTable("testtable", false);
 		Assert.assertNotNull(table);
 		Assert.assertNotNull(table.get("0"));
 		Assert.assertEquals("0", table.getLargestKey());

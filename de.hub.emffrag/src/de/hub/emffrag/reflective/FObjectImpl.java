@@ -22,9 +22,9 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.EStoreEObjectImpl;
 
 public class FObjectImpl extends EStoreEObjectImpl {
-	
+
 	private EObject fiObject = null;
-	
+
 	public FObjectImpl() {
 		eSetStore(FStoreImpl.INSTANCE);
 	}
@@ -36,7 +36,7 @@ public class FObjectImpl extends EStoreEObjectImpl {
 	public void eSetFIObject(EObject fiObject) {
 		this.fiObject = fiObject;
 	}
-	
+
 	@Override
 	protected void eBasicSetContainer(InternalEObject newContainer, int newContainerFeatureID) {
 		super.eBasicSetContainer(newContainer, newContainerFeatureID);
@@ -44,23 +44,25 @@ public class FObjectImpl extends EStoreEObjectImpl {
 			int featureID = EOPPOSITE_FEATURE_BASE - newContainerFeatureID;
 			EStructuralFeature feature = newContainer.eClass().getEStructuralFeature(featureID);
 			if (feature != null && feature.getEAnnotation("de.hub.emfhbase") != null) {
-				((FStoreImpl)eStore()).fragment(this, newContainer, feature);
+				((FStoreImpl) eStore()).fragment(this, newContainer, feature);
 			}
 		} else {
-			((FStoreImpl)eStore).deFragment(this);
+			((FStoreImpl) eStore).deFragment(this);
 		}
 	}
 
 	@Override
 	public NotificationChain eBasicRemoveFromContainer(NotificationChain msgs) {
-		// disables to avoid instant remove through double realization of containment
+		// disables superclass implementation to avoid instant remove through
+		// double realization of containment
 		return msgs;
 	}
 
 	@Override
 	public NotificationChain eBasicRemoveFromContainerFeature(NotificationChain msgs) {
-		// disables to avoid instant remove through double realization of containment
+		// disables superclass implementation to avoid instant remove through
+		// double realization of containment
 		return msgs;
 	}
-	
+
 }

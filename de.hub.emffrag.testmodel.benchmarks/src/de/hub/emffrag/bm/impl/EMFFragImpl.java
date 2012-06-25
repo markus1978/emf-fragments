@@ -44,8 +44,8 @@ import de.hub.emffrag.bm.benchmark.SaveBenchmark;
 import de.hub.emffrag.hbase.HBaseKeyValueStore;
 import de.hub.emffrag.kvstore.IKeyValueStore;
 import de.hub.emffrag.reflective.FStoreImpl;
-import de.hub.emffrag.reflective.FragmentSet;
-import de.hub.emffrag.reflective.FragmentSet.Statitics;
+import de.hub.emffrag.reflective.FragmentedModel;
+import de.hub.emffrag.reflective.FragmentedModel.Statitics;
 import de.hub.emffrag.testmodels.frag.Core.CorePackage;
 import de.hub.emffrag.testmodels.frag.DOM.DOMPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
@@ -83,7 +83,7 @@ public class EMFFragImpl extends XMIImpl {
                     }
                 });
                 binder.bind(IKeyValueStore.class).to(HBaseKeyValueStore.class);
-                binder.bind(Integer.class).annotatedWith(Names.named(FragmentSet.OPTION_WEAK_UNLOAD_CACHE_SIZE)).toInstance(100);
+                binder.bind(Integer.class).annotatedWith(Names.named(FragmentedModel.OPTION_WEAK_UNLOAD_CACHE_SIZE)).toInstance(100);
             }           
         });        
         FStoreImpl.INSTANCE = injector.getInstance(FStoreImpl.class);
