@@ -61,7 +61,9 @@ public class FragmentedModel extends ResourceSetImpl {
 				binder.bind(ILogger.class).toInstance(new ILogger() {
 					@Override
 					public void log(int level, String message, Throwable exception) {
-						System.out.println("[" + level + "] " + message);
+						if (level <= ILogger.WARNING) {
+							System.out.println("[" + level + "] " + message);
+						}
 					}
 				});
 				binder.bind(Integer.class).annotatedWith(Names.named(FragmentedModel.OPTION_WEAK_UNLOAD_CACHE_SIZE)).toInstance(0);
