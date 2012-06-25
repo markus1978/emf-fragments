@@ -72,7 +72,7 @@ public class RegularTest {
 	private void loadAndTraverseGrabatsModel() throws IOException {
     	long start = System.currentTimeMillis();
     	ResourceSet rs = new ResourceSetImpl();
-        Resource resource = rs.getResource(URI.createURI("models/set0.xmi"), true);
+        Resource resource = rs.getResource(URI.createURI("../de.hub.emffrag.testmodels/models/set0.xmi"), true);
         resource.load(null);
         long end = System.currentTimeMillis();
         
