@@ -7,18 +7,7 @@ Bundle-ClassPath: .
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: de.hub.emffrag.testmodels.cdo.Core,
- de.hub.emffrag.testmodels.cdo.Core.impl,
- de.hub.emffrag.testmodels.cdo.Core.util,
- de.hub.emffrag.testmodels.cdo.DOM,
- de.hub.emffrag.testmodels.cdo.DOM.impl,
- de.hub.emffrag.testmodels.cdo.DOM.util,
- de.hub.emffrag.testmodels.cdo.PrimitiveTypes,
- de.hub.emffrag.testmodels.cdo.PrimitiveTypes.impl,
- de.hub.emffrag.testmodels.cdo.testmodel,
- de.hub.emffrag.testmodels.cdo.testmodel.impl,
- de.hub.emffrag.testmodels.cdo.testmodel.util,
- de.hub.emffrag.testmodels.frag.Core,
+Export-Package: de.hub.emffrag.testmodels.frag.Core,
  de.hub.emffrag.testmodels.frag.Core.impl,
  de.hub.emffrag.testmodels.frag.Core.util,
  de.hub.emffrag.testmodels.frag.DOM,
@@ -59,6 +48,6 @@ Export-Package: de.hub.emffrag.testmodels.cdo.Core,
  de.hub.emffrag.testmodels.regular.PrimitiveTypes.impl
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.ecore;visibility:=reexport,
- de.hub.emffrag;bundle-version="1.0.0",
- org.eclipse.emf.cdo
+ de.hub.emffrag,
+ com.google.guava;bundle-version="10.0.1";visibility:=reexport
 Bundle-ActivationPolicy: lazy

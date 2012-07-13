@@ -95,8 +95,9 @@ public class HBasePerformance {
     }
     
     public void performExperiment() {
+    	PrintStream out = null;
         try {
-            PrintStream out = new PrintStream(new File("out.csv"));
+            out = new PrintStream(new File("out.csv"));
             System.out.println(sizes.toString());
             for (int run = 0; run < 1; run++) {         
                 for (double size: sizes) {
@@ -109,6 +110,8 @@ public class HBasePerformance {
             }
         } catch (Exception e) {
             System.err.println("IO error: " + e.getMessage());
+        } finally {
+        	out.close();
         }
     }
     

@@ -154,8 +154,9 @@ public class XMIPerformance {
     }
     
     public void performExperiment() {
+    	PrintStream out = null;
         try {
-            PrintStream out = new PrintStream(new File("out.csv"));
+            out = new PrintStream(new File("out.csv"));
             System.out.println(sizes.toString());
             for (int run = 0; run < 23; run++) {
                 for (double objectSize: objectSizes) {      
@@ -170,6 +171,8 @@ public class XMIPerformance {
             }
         } catch (Exception e) {
             System.err.println("IO error: " + e.getMessage());
+        } finally {
+        	out.close();
         }
     }
     

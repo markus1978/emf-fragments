@@ -52,6 +52,7 @@ import de.hub.emffrag.testmodels.cdo.Core.IJavaModel;
 import de.hub.emffrag.testmodels.cdo.Core.IJavaProject;
 import de.hub.emffrag.testmodels.cdo.DOM.DOMPackage;
 
+@SuppressWarnings("deprecation")
 public class CDOImpl extends XMIImpl {
     
     private ResourceSet rs = null;

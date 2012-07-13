@@ -176,7 +176,7 @@ public class FragTests extends RegularTest {
 		FStoreImpl.INSTANCE.initialize(packages, testTable, true);
 
 		Container container = ContainerBuilder.newContainerBuilder()
-				.withFragmentedContents(ContentsBuilder.newContentsBuilder().withValue("testValue")).build();
+				.fragmentedContents(ContentsBuilder.newContentsBuilder().value("testValue")).build();
 		FStoreImpl.INSTANCE.addContent(container);
 
 		EList<Contents> fragmentedContents = container.getFragmentedContents();
@@ -235,7 +235,7 @@ public class FragTests extends RegularTest {
 	public void testFragmentedStore() throws Exception {		
 		TestKeyValueStore keyValueStore = new TestKeyValueStore();
 		FragmentedModel model = new FragmentedModel(keyValueStore, "testtable", TestModelPackage.eINSTANCE);
-		Container container = ContainerBuilder.newContainerBuilder().withContents(ContentsBuilder.newContentsBuilder().withValue("testValue")).build();
+		Container container = ContainerBuilder.newContainerBuilder().contents(ContentsBuilder.newContentsBuilder().value("testValue")).build();
 		
 		model.addContent(container);
 		model.save();

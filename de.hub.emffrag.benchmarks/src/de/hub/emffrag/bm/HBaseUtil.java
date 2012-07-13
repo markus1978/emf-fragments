@@ -63,18 +63,25 @@ public class HBaseUtil {
 	}
 
 	public boolean dropTable(String tableName) {
+		HBaseAdmin admin = null;
 	    try {
             if (config == null) {
                 getHBaseConfig(null);
             }
-            HBaseAdmin admin = new HBaseAdmin(config);
+            admin = new HBaseAdmin(config);
     	    if (admin.tableExists(tableName)) {
         	    admin.disableTable(tableName);
         	    admin.deleteTable(tableName);
         	    return true;
-    	    }
+    	    }    	    
 	    } catch (Exception e) {
 	        Throwables.propagate(e);
+	    } finally {
+	    	try {
+				admin.close();
+			} catch (IOException e) {
+				Throwables.propagate(e);
+			}
 	    }
 	    return false;
 	}
@@ -82,11 +89,12 @@ public class HBaseUtil {
 	public HTable getHBaseTable(String tableName) {
 	    Preconditions.checkArgument(tableName != null);
 		HTable table = null;
+		HBaseAdmin admin = null;
 		try {
 			if (config == null) {
 				getHBaseConfig(null);
 			}
-			HBaseAdmin admin = new HBaseAdmin(config);
+			admin = new HBaseAdmin(config);
 			
 			boolean tableExists = admin.tableExists(tableName);
 			
@@ -99,6 +107,12 @@ public class HBaseUtil {
 			table = new HTable(config, tableName);				
 		} catch (Exception e) {
 			Throwables.propagate(e);
+		} finally {
+			try {
+				admin.close();
+			} catch (IOException e) {
+				Throwables.propagate(e);
+			}
 		}
 		return table;
 	}
@@ -107,12 +121,19 @@ public class HBaseUtil {
         if (config == null) {
             getHBaseConfig(null);
         }
+        HBaseAdmin admin = null;
         try {
-            HBaseAdmin admin = new HBaseAdmin(config);
+            admin = new HBaseAdmin(config);
             return admin.tableExists(tableName);
         } catch (Exception e) {
             Throwables.propagate(e);
             return false;
+        } finally {
+        	try {
+				admin.close();
+			} catch (IOException e) {
+				Throwables.propagate(e);
+			}
         }
      }
 }
