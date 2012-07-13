@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="emffrag" nsURI="http://de.hub.emffrag/emffrag" nsPrefix="ef">
+  <eClassifiers xsi:type="ecore:EClass" name="IndexedMap">
+    <eTypeParameters name="K"/>
+    <eTypeParameters name="V"/>
+    <eOperations name="iterator">
+      <eGenericType eClassifier="#//Iterator">
+        <eTypeArguments eTypeParameter="#//IndexedMap/V"/>
+      </eGenericType>
+    </eOperations>
+    <eOperations name="iterator">
+      <eGenericType eClassifier="#//Iterator">
+        <eTypeArguments eTypeParameter="#//IndexedMap/V"/>
+      </eGenericType>
+      <eParameters name="from">
+        <eGenericType eTypeParameter="#//IndexedMap/K"/>
+      </eParameters>
+      <eParameters name="to">
+        <eGenericType eTypeParameter="#//IndexedMap/K"/>
+      </eParameters>
+    </eOperations>
+    <eOperations name="exact">
+      <eGenericType eTypeParameter="#//IndexedMap/V"/>
+      <eParameters name="key" lowerBound="1">
+        <eGenericType eTypeParameter="#//IndexedMap/K"/>
+      </eParameters>
+    </eOperations>
+    <eOperations name="next">
+      <eGenericType eTypeParameter="#//IndexedMap/V"/>
+      <eParameters name="key" lowerBound="1">
+        <eGenericType eTypeParameter="#//IndexedMap/K"/>
+      </eParameters>
+    </eOperations>
+    <eOperations name="put">
+      <eParameters name="key" lowerBound="1">
+        <eGenericType eTypeParameter="#//IndexedMap/K"/>
+      </eParameters>
+      <eParameters name="value">
+        <eGenericType eTypeParameter="#//IndexedMap/V"/>
+      </eParameters>
+    </eOperations>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="Iterator" instanceClassName="java.util.Iterator"
+      serializable="false">
+    <eTypeParameters name="E"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="IndexedList">
+    <eTypeParameters name="V"/>
+    <eOperations name="add">
+      <eParameters name="value">
+        <eGenericType eTypeParameter="#//IndexedList/V"/>
+      </eParameters>
+    </eOperations>
+    <eGenericSuperTypes eClassifier="#//IndexedMap">
+      <eTypeArguments eClassifier="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"/>
+      <eTypeArguments eTypeParameter="#//IndexedList/V"/>
+    </eGenericSuperTypes>
+  </eClassifiers>
+</ecore:EPackage>
