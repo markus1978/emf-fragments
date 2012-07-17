@@ -1,0 +1,133 @@
+
+=URLs=
+
+==Grammar==
+URL := relativeURL |ÊabsolutURL
+absoluteURL := protocol "://" domain "/" table "/" relativeURL
+relativeURL := extrinsicID | instrinsicID
+protocol := "hbase"
+
+key := index_indexKey
+index := "$refs" | "$frags" | customIndex
+customIndex := relativeURL
+
+indexKey := ByteArray
+table := String^[_]
+
+==Constraints==
+- all hbase keys describe indexes, there are no other structures
+- the $refs index does only contain references (values are relativeURLs with instrinsicIDs, i.e. emfURIFragments)
+- the $frags index do only contain fragments (values are XMIResources)
+- custom containment indices contain fragments
+- custom non containment indices contain references to the $refs index which contains references to actual objects [sqr(log n)]
+- extrinsicIds are $refs keys and therefore also UUIDs
+
+=Actions=
+
+=add=
+
+- to reference
+	- toContainment
+		- to index
+			- isFragmentRoot
+				* add fragment to new index
+				* remove from old index (has to be $frags or other containment index)
+			- isContained
+				* remove from old feature
+				* create new fragment
+				* add fragment to index
+				* update references
+				* keep extrinsicId
+			- isFree
+				* create new fragment
+				* add to index
+		- fragmented
+			- isFragmentRoot
+				- $frags fragmentRoot
+					* add to feature as containment proxy
+					* remove from old container	
+				- custom containment index fragment root
+					* add to feature as containment proxy
+					* remove fragment from index
+					* add fragment to $frags
+			- isContained
+				* create new fragment
+				* add new fragment to $frags
+				* add to feature as containment proxy
+				? update references
+				? transfer extrinsicId				
+				* remove from old container
+			- isFree
+				* create new fragment
+				* add new fragment to $frags
+				* add to feature as containment proxy
+		- notFragmented
+			- isFragmentRoot				
+				* add to feature
+				* remove from old container
+				? update references
+				? transfer extrinsicId
+				* delete old fragment
+			- isContained
+				* add to feature
+				* remove from old container
+				? update references
+				? transfer extrinsicId
+			- isFree
+				* add to feature
+	- toNonContainment
+		- toindex
+			- isFragmentRoot | isContained
+				? create extrinsicId
+				? add to refs
+				? add ref to index
+			- isFree
+				* create a new fragment and add it to $frags
+				* l.b.
+		- to reference
+			- isFragmentRoot |ÊisContained
+				? create extrinsicId
+				? add to $refs
+				add to feature
+			- isFree
+				* create fragment
+				* add to $frags
+				? create extrinsicId
+				? add to $refs
+			
+=remove=
+
+- from reference
+	- is containment
+		- from index
+			- isFragmentRoot
+				* move to $frags
+				* update $refs
+			- isContained -> impossible
+			- isFree -> impossibe
+		- from fragmented
+			- isFragmentRoot
+				* remove from feature
+			- isContained -> impossible
+			- isFree -> impossible
+		- from not fragmented
+			- isFragmentRoot -> impossible
+			- isContained
+				* remove from feature
+				* add as new fragment to $frags
+				* update $refs
+			- isFree -> impossible
+	- is non containment
+		- from index
+			- isFragmentRoot, isContained
+				* remove from index
+			- isFree -> impossible
+		- from reference
+			- isFragmentRoot, isContained
+				- remove from feature
+			- isFree -> impossible
+			
+=Problems=
+* to take objects from the model, they have to be explicitly removed from the $frags and ($refs indexes)
+* multi, values non containment indexes should be possible (index value contain lists of references to $ref) or we facilitate version-values in HBase
+* it would be nice if we could get the index as the container from its values: FStoreImpl#getContainer()
