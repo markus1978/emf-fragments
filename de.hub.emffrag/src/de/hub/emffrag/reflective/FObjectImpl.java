@@ -21,6 +21,8 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.EStoreEObjectImpl;
 
+import de.hub.emffrag.util.EMFFragUtil;
+
 public class FObjectImpl extends EStoreEObjectImpl {
 
 	private EObject fiObject = null;
@@ -43,7 +45,7 @@ public class FObjectImpl extends EStoreEObjectImpl {
 		if (newContainer != null) {
 			int featureID = EOPPOSITE_FEATURE_BASE - newContainerFeatureID;
 			EStructuralFeature feature = newContainer.eClass().getEStructuralFeature(featureID);
-			if (feature != null && feature.getEAnnotation("de.hub.emfhbase") != null) {
+			if (feature != null && EMFFragUtil.isFragFreature(feature)) {
 				((FStoreImpl) eStore()).fragment(this, newContainer, feature);
 			}
 		} else {
