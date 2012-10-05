@@ -49,5 +49,5 @@ Export-Package: de.hub.emffrag.testmodels.frag.Core,
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.ecore;visibility:=reexport,
  de.hub.emffrag,
- com.google.guava;bundle-version="10.0.1";visibility:=reexport
+ com.google.collect;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
