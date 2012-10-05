@@ -63,7 +63,7 @@ import de.hub.emffrag.testmodels.frag.testmodel.util.builder.ContainerBuilder;
 import de.hub.emffrag.testmodels.frag.testmodel.util.builder.ContentsBuilder;
 import de.hub.emffrag.util.ILogger;
 
-public class FragTests extends RegularTest {
+public class FragTests extends CommonTests {
 
 	public void clearDB(String testTable) {
 		HBaseKeyValueStore hBaseKeyValueStore = new HBaseKeyValueStore();
@@ -86,7 +86,6 @@ public class FragTests extends RegularTest {
 	}
 
 	@Before
-	@Override
 	public void registerPackages() {
 		if (!EPackage.Registry.INSTANCE.containsKey(TestModelPackage.eINSTANCE.getNsURI())) {
 			EPackage.Registry.INSTANCE.put(TestModelPackage.eINSTANCE.getNsURI(), TestModelPackage.eINSTANCE);
@@ -108,6 +107,9 @@ public class FragTests extends RegularTest {
 		}
 	}
 
+	/**
+	 * This test loads the smallest grabats model.
+	 */
 	@Test
 	public void testResourceLoadReflective() throws Exception {
 		Collection<EPackage> packages = new ArrayList<EPackage>();
@@ -125,6 +127,7 @@ public class FragTests extends RegularTest {
 
 		EList<EObject> contents = resource.getContents();
 		Assert.assertEquals(1, contents.size());
+		// TODO add additional assertions
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -416,8 +419,6 @@ public class FragTests extends RegularTest {
 
 		System.out.println("## " + contents.size() + " in " + (end - start));
 	}
-	
-	
 
 	@Override
 	public void complexJObjectTest() throws Exception {
