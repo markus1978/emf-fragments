@@ -43,7 +43,7 @@ public class FragmentedModel extends ResourceSetImpl {
 
 	/**
 	 * Creates a {@link FragmentedModel}. This is the only difference to
-	 * {@link ResourceSetImpl}. Afterwards the model can be handles as usual
+	 * {@link ResourceSetImpl}. Afterwards the model can be handled as usual
 	 * with EMF.
 	 * 
 	 * @param keyValueStore
@@ -80,7 +80,7 @@ public class FragmentedModel extends ResourceSetImpl {
 
 	/**
 	 * Creates a {@link FragmentedModel}. This is the only difference to
-	 * {@link ResourceSetImpl}. Afterwards the model can be handles as usual
+	 * {@link ResourceSetImpl}. Afterwards the model can be handled as usual
 	 * with EMF.
 	 * 
 	 * @param module
