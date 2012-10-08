@@ -27,7 +27,7 @@ import org.eclipse.emf.ecore.resource.impl.URIHandlerImpl;
 
 import com.google.common.base.Preconditions;
 
-public class KeyValueStoreURIHandler extends URIHandlerImpl{
+public class KeyValueStoreURIHandler extends URIHandlerImpl {
     
     private final IKeyValueStore kvs;
 

@@ -1,0 +1,288 @@
+<class-diagram version="1.0.10" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
+  associations="true" dependencies="false" nesting-relationships="true">  
+  <class id="1" corner="BOTTOM_RIGHT" language="java" name="de.hub.emffrag.kvstore.KeyValueStoreURIHandler" 
+    project="de.hub.emffrag" file="/de.hub.emffrag/src/de/hub/emffrag/kvstore/KeyValueStoreURIHandler.java" 
+    binary="false">    
+    <position height="145" width="298" x="157" y="72"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <interface id="2" corner="BOTTOM_RIGHT" language="java" name="de.hub.emffrag.kvstore.IKeyValueStore" 
+    project="de.hub.emffrag" file="/de.hub.emffrag/src/de/hub/emffrag/kvstore/IKeyValueStore.java" binary="false">    
+    <position height="-1" width="-1" x="302" y="373"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </interface>  
+  <class id="3" corner="BOTTOM_RIGHT" language="java" name="de.hub.emffrag.kvstore.TestKeyValueStore" 
+    project="de.hub.emffrag" file="/de.hub.emffrag/src/de/hub/emffrag/kvstore/TestKeyValueStore.java" binary="false">    
+    <position height="-1" width="-1" x="117" y="540"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <interface id="4" corner="BOTTOM_RIGHT" language="java" name="de.hub.emffrag.kvstore.IKeyValueStore.Table" 
+    project="de.hub.emffrag" file="/de.hub.emffrag/src/de/hub/emffrag/kvstore/IKeyValueStore.java" binary="false">    
+    <position height="162" width="146" x="378" y="537"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </interface>  
+  <class id="5" corner="BOTTOM_RIGHT" language="java" name="de.hub.emffrag.kvstore.TestKeyValueStore.TestTable" 
+    project="de.hub.emffrag" file="/de.hub.emffrag/src/de/hub/emffrag/kvstore/TestKeyValueStore.java" binary="false">    
+    <position height="-1" width="-1" x="136" y="850"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="6" corner="BOTTOM_RIGHT" language="java" name="de.hub.emffrag.reflective.FObjectImpl" 
+    project="de.hub.emffrag" file="/de.hub.emffrag/src/de/hub/emffrag/reflective/FObjectImpl.java" binary="false">    
+    <position height="-1" width="-1" x="1548" y="767"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="7" corner="BOTTOM_RIGHT" language="java" name="de.hub.emffrag.reflective.FDynamicEObjectImpl" 
+    project="de.hub.emffrag" file="/de.hub.emffrag/src/de/hub/emffrag/reflective/FDynamicEObjectImpl.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="262" y="1659"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="8" corner="BOTTOM_RIGHT" language="java" name="de.hub.emffrag.reflective.FObjectCache" 
+    project="de.hub.emffrag" file="/de.hub.emffrag/src/de/hub/emffrag/reflective/FObjectCache.java" binary="false">    
+    <position height="-1" width="-1" x="1223" y="1586"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="9" corner="BOTTOM_RIGHT" language="java" name="de.hub.emffrag.reflective.Fragment.Factory" 
+    project="de.hub.emffrag" file="/de.hub.emffrag/src/de/hub/emffrag/reflective/Fragment.java" binary="false">    
+    <position height="-1" width="-1" x="669" y="1905"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="10" corner="BOTTOM_RIGHT" language="java" name="de.hub.emffrag.reflective.FragmentedModel.Statitics" 
+    project="de.hub.emffrag" file="/de.hub.emffrag/src/de/hub/emffrag/reflective/FragmentedModel.java" binary="false">    
+    <position height="-1" width="-1" x="844" y="1330"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="11" corner="BOTTOM_RIGHT" language="java" 
+    name="de.hub.emffrag.reflective.FragmentedModel.WeakUnloadedFragmentsCache" project="de.hub.emffrag" 
+    file="/de.hub.emffrag/src/de/hub/emffrag/reflective/FragmentedModel.java" binary="false">    
+    <position height="-1" width="-1" x="405" y="1349"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="12" corner="BOTTOM_RIGHT" language="java" name="de.hub.emffrag.reflective.Fragment.CompareByLastWeakLoad" 
+    project="de.hub.emffrag" file="/de.hub.emffrag/src/de/hub/emffrag/reflective/Fragment.java" binary="false">    
+    <position height="-1" width="-1" x="937" y="1906"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="13" corner="BOTTOM_RIGHT" language="java" name="de.hub.emffrag.reflective.FragmentedModel" 
+    project="de.hub.emffrag" file="/de.hub.emffrag/src/de/hub/emffrag/reflective/FragmentedModel.java" binary="false">    
+    <position height="-1" width="-1" x="590" y="982"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="14" corner="BOTTOM_RIGHT" language="java" name="de.hub.emffrag.reflective.FStoreImpl" 
+    project="de.hub.emffrag" file="/de.hub.emffrag/src/de/hub/emffrag/reflective/FStoreImpl.java" binary="false">    
+    <position height="-1" width="-1" x="1126" y="522"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="15" corner="BOTTOM_RIGHT" language="java" name="de.hub.emffrag.reflective.Fragment" 
+    project="de.hub.emffrag" file="/de.hub.emffrag/src/de/hub/emffrag/reflective/Fragment.java" binary="false">    
+    <position height="-1" width="-1" x="790" y="1626"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <nesting id="16">    
+    <end type="SOURCE" refId="13"/>    
+    <end type="TARGET" refId="10"/>  
+  </nesting>  
+  <association id="17">    
+    <end type="SOURCE" refId="9" navigable="false">      
+      <attribute id="18" name="INSTANCE"/>      
+      <multiplicity id="19" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="9" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="20">    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="21" name="idTable"/>      
+      <multiplicity id="22" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="23">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="4"/>  
+  </nesting>  
+  <realization id="24">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="2"/>  
+  </realization>  
+  <association id="25">    
+    <bendpoint x="959" y="1027"/>    
+    <bendpoint x="959" y="1450"/>    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="26" name="rootFragment"/>      
+      <multiplicity id="27" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="15" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="28">    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="29" name="INSTANCE"/>      
+      <multiplicity id="30" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="14" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="31">    
+    <end type="SOURCE" refId="13" navigable="false">      
+      <attribute id="32" name="statistics"/>      
+      <multiplicity id="33" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="10" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="34">    
+    <end type="SOURCE" refId="13" navigable="false">      
+      <attribute id="35" name="weakUnloadedFragmentsCache"/>      
+      <multiplicity id="36" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="11" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="37">    
+    <end type="SOURCE" refId="11" navigable="false">      
+      <attribute id="38" name="fragments"/>      
+      <multiplicity id="39" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="15" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="40">    
+    <end type="SOURCE" refId="15"/>    
+    <end type="TARGET" refId="12"/>  
+  </nesting>  
+  <association id="41">    
+    <end type="SOURCE" refId="3" navigable="false">      
+      <attribute id="42" name="tables"/>      
+      <multiplicity id="43" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="5" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="44">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="5"/>  
+  </nesting>  
+  <association id="45">    
+    <end type="SOURCE" refId="3" navigable="false">      
+      <attribute id="46" name="INSTANCE"/>      
+      <multiplicity id="47" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="3" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="48">    
+    <bendpoint x="980" y="1027"/>    
+    <bendpoint x="980" y="1450"/>    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="49" name="looseObjectsCache"/>      
+      <multiplicity id="50" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="8" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="51">    
+    <end type="SOURCE" refId="13"/>    
+    <end type="TARGET" refId="11"/>  
+  </nesting>  
+  <association id="52">    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="53" name="kvs"/>      
+      <multiplicity id="54" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="2" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="55">    
+    <end type="SOURCE" refId="15" navigable="false">      
+      <attribute id="56" name="cache"/>      
+      <multiplicity id="57" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="8" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="58">    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="59" name="resourceSet"/>      
+      <multiplicity id="60" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="13" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="61">    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="62" name="keyValueStore"/>      
+      <multiplicity id="63" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="2" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization id="64">    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="4"/>  
+  </realization>  
+  <association id="65">    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="66" name="table"/>      
+      <multiplicity id="67" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="68">    
+    <end type="SOURCE" refId="15"/>    
+    <end type="TARGET" refId="9"/>  
+  </nesting>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true"/>    
+    <operations public="true" package="true" protected="true" private="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>
