@@ -48,6 +48,5 @@ Export-Package: de.hub.emffrag.testmodels.frag.Core,
  de.hub.emffrag.testmodels.regular.PrimitiveTypes.impl
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.ecore;visibility:=reexport,
- de.hub.emffrag,
- com.google.collect;bundle-version="1.0.0"
+ de.hub.emffrag
 Bundle-ActivationPolicy: lazy
