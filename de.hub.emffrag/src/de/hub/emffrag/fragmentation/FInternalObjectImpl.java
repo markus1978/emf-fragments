@@ -1,9 +1,14 @@
 package de.hub.emffrag.fragmentation;
 
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.impl.DynamicEObjectImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 
 public class FInternalObjectImpl extends DynamicEObjectImpl {
+	
+	public FInternalObjectImpl(EClass eClass) {
+		super(eClass);
+	}
 
 	/*
 	 * Marks that this object is now cross references. Is called even if this

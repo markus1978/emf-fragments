@@ -16,8 +16,7 @@ public class UserObjectsCache {
 	}
 	
 	public FObjectImpl createUserObject(FInternalObjectImpl internalObject) {
-		// TODO investigate the need for internal and user meta-models
-		FObjectImpl userObject = null;
+		FObjectImpl userObject = (FObjectImpl)internalObject.eClass().getEPackage().getEFactoryInstance().create(internalObject.eClass());
 		userObject.internalObject = internalObject;
 		UserObjectsCache.newUserObjectsCache.addUserObjectToCache(internalObject, (FObjectImpl)userObject);
 		return userObject;
@@ -25,10 +24,9 @@ public class UserObjectsCache {
 	
 	public FInternalObjectImpl createInternalObject(FObjectImpl userObject) {
 		assert(userObject.internalObject == null);
-		// TODO investigate the need for internal and user meta-models
 		// create an uncontained internal object
 		// add the new internal object to the map for all uncontained (not added) internal objects
-		FInternalObjectImpl internalObject = null;
+		FInternalObjectImpl internalObject = new FInternalObjectImpl(userObject.eClass());
 		UserObjectsCache.newUserObjectsCache.addUserObjectToCache(internalObject, (FObjectImpl)userObject);
 		return internalObject;
 	}
