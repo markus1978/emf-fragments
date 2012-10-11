@@ -32,7 +32,7 @@ public class FragmentedModel {
 	public FragmentedModel(IKeyValueTable persistence, URI rootFragmentKeyURI, Collection<EPackage> metaModel) {
 		this.persistence = persistence;
 		this.metaModelPackages = metaModel;
-		this.rootFragmentKeyURI = rootFragmentKeyURI;
+		this.rootFragmentKeyURI = (rootFragmentKeyURI == null ? createNewFragmentURI() : rootFragmentKeyURI);
 
 		resourceSet = new ResourceSetImpl();
 		fragmentCache = new FragmentCache();
@@ -54,7 +54,7 @@ public class FragmentedModel {
 		rootFragment = (Fragment)resourceSet.getResource(rootFragmentKeyURI, true);
 		if (rootFragment == null) {
 			// it is a totally new model
-			// TODO load/handle root fragment
+			rootFragment = (Fragment)resourceSet.createResource(rootFragmentKeyURI);
 		}
 	}
 
