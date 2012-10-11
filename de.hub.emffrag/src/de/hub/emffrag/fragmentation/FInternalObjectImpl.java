@@ -26,4 +26,12 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 		return null;
 	}
 
+	public Fragment getFragment() {
+		Resource eResource = eResource();
+		if (eResource instanceof Fragment) {
+			return ((Fragment)eResource);
+		}
+		return null;
+	}
+
 }

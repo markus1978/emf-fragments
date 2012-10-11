@@ -89,10 +89,10 @@ public class FragmentedModel {
 		}
 		newFragment.getContents().add(fragmentRoot);
 		if (fragmentRootUserObject != null) {
-			newFragment.addUserObjectToCache(fragmentRoot, fragmentRootUserObject);
+			newFragment.getUserObjectsCache().addUserObjectToCache(fragmentRoot, fragmentRootUserObject);
 		}
 		if (oldFragment != null) {
-			oldFragment.removeCachedUserObject(fragmentRoot);
+			oldFragment.getUserObjectsCache().removeCachedUserObject(fragmentRoot);
 		}
 		// TODO fire an event that causes reevaluation of fragmented model cache
 		// TODO handle fragment caching issues
@@ -111,10 +111,9 @@ public class FragmentedModel {
 	 * 
 	 * @param fObjectImpl The root of the fragment to delete.
 	 */
-	public void removeFragment(FObjectImpl fragmentRoot) {
-		Fragment oldFragment = (Fragment)fragmentRoot.eResource();
+	public void removeFragment(FInternalObjectImpl fragmentRoot) {
+		Fragment oldFragment = fragmentRoot.getFragment();
 		try {
-			oldFragment.removeCachedUserObject(fragmentRoot);
 			oldFragment.setFragmentedModel(null);
 			oldFragment.delete(null);
 		} catch (IOException e) {

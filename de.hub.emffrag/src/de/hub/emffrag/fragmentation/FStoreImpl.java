@@ -13,6 +13,10 @@ import org.eclipse.emf.ecore.InternalEObject.EStore;
 import org.eclipse.emf.ecore.impl.DynamicEObjectImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
+import com.sun.corba.se.impl.ior.NewObjectKeyTemplateBase;
+
+import de.hub.emffrag.reflective.FDynamicEObjectImpl;
+
 public class FStoreImpl implements EStore {
 
 	private static FStoreImpl instance = new FStoreImpl();
@@ -29,16 +33,15 @@ public class FStoreImpl implements EStore {
 			Fragment fragment = (Fragment) internalObject.eResource();
 			EObject userObject = null;
 			if (fragment != null) {
-				// TODO manage user object cache in fragments
-				// Retrieve the user object from the fragment's object cache
+				userObject = fragment.getUserObjectsCache().getUserObject((FInternalObjectImpl)internalObject);
 			} else {
-				// TODO  realm for new objects
-				// Retrieve the user object. I do not yet know how to do that. 
+				userObject = UserObjectsCache.newUserObjectsCache.getUserObject((FInternalObjectImpl)internalObject);
 			}
 
 			if (userObject == null) {
+				// TODO create user objects
 				// create a new user object and add it to the appropriate cache;
-				// or use caches that create new user objects if asked for one before
+				// or use caches that create new user objects if asked for one before				
 			}
 			return userObject;
 		} else {
@@ -47,18 +50,19 @@ public class FStoreImpl implements EStore {
 	}
 
 	private EObject getInternalObject(InternalEObject userObject) {
-		EObject internalObject = ((FObjectImpl) userObject).internalObject;
+		FInternalObjectImpl internalObject = ((FObjectImpl) userObject).internalObject;
 		if (internalObject == null) {
-			// TODO realm for new objects
-			// instantiate an internal object ... this requires the fragmented
-			// model as context information
+			// This object was not yet added to a model
+			internalObject = UserObjectsCache.newUserObjectsCache.createInternalObject((FObjectImpl)userObject);
 		}
 		if (internalObject.eIsProxy()) {
-			// TODO realm for new objects
-			// resolve the internal object ... this requires the fragmented
-			// model as context information (more specifically it requires the
-			// resource set)
-			// internalObject = EcoreUtil.resolve(internalObject, resourceSet);
+			// TODO Does an unresolved proxy object has a resource attached?
+			FragmentedModel model = internalObject.getFragmentation();
+			if (model != null) {
+				internalObject = (FInternalObjectImpl)EcoreUtil.resolve(internalObject, model.getResourceSet());
+			} else {
+				throw new RuntimeException("An user object that appreas to be new is a proxy.");
+			}			
 		}
 		return internalObject;
 	}

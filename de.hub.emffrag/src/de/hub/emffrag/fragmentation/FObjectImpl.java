@@ -35,17 +35,17 @@ public class FObjectImpl extends EStoreEObjectImpl {
 				// if the object was root of a fragment, this fragment has to be
 				// removed now
 				if (internalObject.isFragmentRoot()) {
-					internalObject.getFragmentation().removeFragment(this);
+					internalObject.getFragmentation().removeFragment(this.internalObject);
 				}
 			}
 		} else {			
 			// this object was removed from the model, it has to be moved to the
 			// new objects realm (if necessary) and if it was a fragment root the
 			// fragment has to be deleted.
-			// TODO realm for new objects
 			if (internalObject.isFragmentRoot()) {
-				internalObject.getFragmentation().removeFragment(this);
+				internalObject.getFragmentation().removeFragment(this.internalObject);
 			}
+			UserObjectsCache.newUserObjectsCache.addUserObjectToCache(internalObject, this);
 		}
 	}
 
