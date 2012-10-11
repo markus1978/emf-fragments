@@ -13,10 +13,6 @@ import org.eclipse.emf.ecore.InternalEObject.EStore;
 import org.eclipse.emf.ecore.impl.DynamicEObjectImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
-import com.sun.corba.se.impl.ior.NewObjectKeyTemplateBase;
-
-import de.hub.emffrag.reflective.FDynamicEObjectImpl;
-
 public class FStoreImpl implements EStore {
 
 	private static FStoreImpl instance = new FStoreImpl();
@@ -29,20 +25,21 @@ public class FStoreImpl implements EStore {
 		if (userFeature != null && userFeature.getEType() instanceof EEnum) {
 			return EcoreUtil.createFromString((EDataType) userFeature.getEType(), internalValue.toString());
 		} else if (internalValue != null && internalValue instanceof DynamicEObjectImpl) {
-			EObject internalObject = (EObject) internalValue;
+			FInternalObjectImpl internalObject = (FInternalObjectImpl) internalValue;
 			Fragment fragment = (Fragment) internalObject.eResource();
 			EObject userObject = null;
 			if (fragment != null) {
-				userObject = fragment.getUserObjectsCache().getUserObject((FInternalObjectImpl)internalObject);
+				userObject = fragment.getUserObjectsCache().getUserObject(internalObject);
+				if (userObject == null) {
+					fragment.getUserObjectsCache().createUserObject(internalObject);					
+				}
 			} else {
-				userObject = UserObjectsCache.newUserObjectsCache.getUserObject((FInternalObjectImpl)internalObject);
+				userObject = UserObjectsCache.newUserObjectsCache.getUserObject(internalObject);
+				if (userObject == null) {
+					UserObjectsCache.newUserObjectsCache.createUserObject(internalObject);
+				}
 			}
 
-			if (userObject == null) {
-				// TODO create user objects
-				// create a new user object and add it to the appropriate cache;
-				// or use caches that create new user objects if asked for one before				
-			}
 			return userObject;
 		} else {
 			return internalValue;
@@ -56,7 +53,7 @@ public class FStoreImpl implements EStore {
 			internalObject = UserObjectsCache.newUserObjectsCache.createInternalObject((FObjectImpl)userObject);
 		}
 		if (internalObject.eIsProxy()) {
-			// TODO Does an unresolved proxy object has a resource attached?
+			// TODO does an unresolved proxy object has a resource attached?
 			FragmentedModel model = internalObject.getFragmentation();
 			if (model != null) {
 				internalObject = (FInternalObjectImpl)EcoreUtil.resolve(internalObject, model.getResourceSet());

@@ -94,7 +94,6 @@ public class FragmentedModel {
 		if (oldFragment != null) {
 			oldFragment.getUserObjectsCache().removeCachedUserObject(fragmentRoot);
 		}
-		// TODO fire an event that causes reevaluation of fragmented model cache
 		// TODO handle fragment caching issues
 	}
 
