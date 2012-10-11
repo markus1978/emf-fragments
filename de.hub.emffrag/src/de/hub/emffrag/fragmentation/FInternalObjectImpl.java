@@ -1,6 +1,7 @@
 package de.hub.emffrag.fragmentation;
 
 import org.eclipse.emf.ecore.impl.DynamicEObjectImpl;
+import org.eclipse.emf.ecore.resource.Resource;
 
 public class FInternalObjectImpl extends DynamicEObjectImpl {
 
@@ -9,7 +10,20 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 	 * object is already cross references.
 	 */
 	public void setIsCrossReferenced() {
-		// TODO Auto-generated method stub
+		// TODO cross reference support
+	}
+
+	public boolean isFragmentRoot() {
+		Resource eResource = eResource();
+		return eResource != null && eResource instanceof Fragment && eResource != eContainer().eResource();
+	}
+
+	public FragmentedModel getFragmentation() {
+		Resource eResource = eResource();
+		if (eResource instanceof Fragment) {
+			return ((Fragment)eResource).getFragmentedModel();
+		}
+		return null;
 	}
 
 }

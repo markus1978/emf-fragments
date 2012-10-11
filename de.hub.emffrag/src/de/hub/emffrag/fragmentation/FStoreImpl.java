@@ -29,10 +29,10 @@ public class FStoreImpl implements EStore {
 			Fragment fragment = (Fragment) internalObject.eResource();
 			EObject userObject = null;
 			if (fragment != null) {
-				// TODO
+				// TODO manage user object cache in fragments
 				// Retrieve the user object from the fragment's object cache
 			} else {
-				// TODO
+				// TODO  realm for new objects
 				// Retrieve the user object. I do not yet know how to do that. 
 			}
 
@@ -49,12 +49,12 @@ public class FStoreImpl implements EStore {
 	private EObject getInternalObject(InternalEObject userObject) {
 		EObject internalObject = ((FObjectImpl) userObject).internalObject;
 		if (internalObject == null) {
-			// TODO
+			// TODO realm for new objects
 			// instantiate an internal object ... this requires the fragmented
 			// model as context information
 		}
 		if (internalObject.eIsProxy()) {
-			// TODO
+			// TODO realm for new objects
 			// resolve the internal object ... this requires the fragmented
 			// model as context information (more specifically it requires the
 			// resource set)
@@ -64,7 +64,7 @@ public class FStoreImpl implements EStore {
 	}
 
 	private EStructuralFeature getInternalFeature(EStructuralFeature feature) {
-		// TODO
+		// TODO investigate the need for internal and user meta-models
 		// Previously we used two meta-models, one for the user and one for the
 		// internal model. The reason is that there is no known way to create
 		// both user and internal objects from the same factory.

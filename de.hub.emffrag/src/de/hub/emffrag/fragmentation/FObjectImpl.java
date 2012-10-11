@@ -10,7 +10,7 @@ import de.hub.emffrag.util.EMFFragUtil;
 public class FObjectImpl extends EStoreEObjectImpl {
 
 	protected FInternalObjectImpl internalObject;
-	
+
 	public FObjectImpl() {
 		eSetStore(FStoreImpl.getInstance());
 	}
@@ -18,19 +18,34 @@ public class FObjectImpl extends EStoreEObjectImpl {
 	@Override
 	protected void eBasicSetContainer(InternalEObject newContainer, int newContainerFeatureID) {
 		super.eBasicSetContainer(newContainer, newContainerFeatureID);
+
+		// The object was moved to a new (including null) container. This can
+		// have an effect on the fragmentation. The following code realizes
+		// these effects.
 		if (newContainer != null) {
 			int featureID = EOPPOSITE_FEATURE_BASE - newContainerFeatureID;
 			EStructuralFeature feature = newContainer.eClass().getEStructuralFeature(featureID);
 			if (feature != null && EMFFragUtil.isFragFreature(feature)) {
-				// TODO 
-				// create a new fragment, if necessary
+				// if the object is not yet root of a fragment, a new fragment
+				// has to be created
+				if (!internalObject.isFragmentRoot()) {
+					internalObject.getFragmentation().crateFragment(this.internalObject, this, newContainer, feature);
+				}
 			} else {
-				// TODO
-				// remove an old fragment, if necessary
+				// if the object was root of a fragment, this fragment has to be
+				// removed now
+				if (internalObject.isFragmentRoot()) {
+					internalObject.getFragmentation().removeFragment(this);
+				}
 			}
-		} else {
-			// TODO
-			// what if the object was a fragment root before?			
+		} else {			
+			// this object was removed from the model, it has to be moved to the
+			// new objects realm (if necessary) and if it was a fragment root the
+			// fragment has to be deleted.
+			// TODO realm for new objects
+			if (internalObject.isFragmentRoot()) {
+				internalObject.getFragmentation().removeFragment(this);
+			}
 		}
 	}
 
