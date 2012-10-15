@@ -91,11 +91,11 @@ public class EMFFragImpl extends XMIImpl {
     
     private void clearDB(String testTable) {
         HBaseKeyValueStore hBaseKeyValueStore = new HBaseKeyValueStore();
-        if (hBaseKeyValueStore.tableExists(testTable)) {
-            hBaseKeyValueStore.deleteTable(testTable);
+        if (hBaseKeyValueStore.tableExists(URI.createURI("hbase://localhost/" + testTable))) {
+            hBaseKeyValueStore.deleteTable(URI.createURI("hbase://localhost/" + testTable));
         }
-        if (hBaseKeyValueStore.tableExists(testTable + "_OIDs")) {
-            hBaseKeyValueStore.deleteTable(testTable + "_OIDs");
+        if (hBaseKeyValueStore.tableExists(URI.createURI("hbase://localhost/" + testTable + "_OIDs"))) {
+            hBaseKeyValueStore.deleteTable(URI.createURI("hbase://localhost/" + testTable + "_OIDs"));
         }
     }
 
@@ -103,9 +103,9 @@ public class EMFFragImpl extends XMIImpl {
         clearDB(modelName);        
         initializeResourceSet(benchmark.isFrag2());                        
         if (benchmark.isFrag2()) {
-        	FStoreImpl.INSTANCE.initialize(Arrays.asList(getFrag2Packages()), modelName, true);
+        	FStoreImpl.INSTANCE.initialize(Arrays.asList(getFrag2Packages()), URI.createURI("hbase://localhost/" + modelName), true);
         } else {
-        	FStoreImpl.INSTANCE.initialize(Arrays.asList(getFragPackages()), modelName, true);
+        	FStoreImpl.INSTANCE.initialize(Arrays.asList(getFragPackages()), URI.createURI("hbase://localhost/" + modelName), true);
         }
                 
         gauge.startTimeMeasure();     
@@ -141,7 +141,7 @@ public class EMFFragImpl extends XMIImpl {
     
     public int traverseModel(LoadBenchmark benchmark, String xmiFileName, String modelName,  Gauge gauge) {
         initializeResourceSet(false);                        
-        FStoreImpl.INSTANCE.initialize(Arrays.asList(getFragPackages()), modelName, true);
+        FStoreImpl.INSTANCE.initialize(Arrays.asList(getFragPackages()), URI.createURI("hbase://localhost/" + modelName), true);
         
         gauge.startTimeMeasure();        
         EObject content = FStoreImpl.INSTANCE.getContents().get(0);        
@@ -162,7 +162,7 @@ public class EMFFragImpl extends XMIImpl {
     @Override
     public int grabatsQueryModel(QueryBenchmark benchmark, Gauge gauge) {
         initializeResourceSet(false);                        
-        FStoreImpl.INSTANCE.initialize(Arrays.asList(getFragPackages()), benchmark.getPModelName(), true);
+        FStoreImpl.INSTANCE.initialize(Arrays.asList(getFragPackages()), URI.createURI("hbase://localhost/" + benchmark.getPModelName()), true);
         
         gauge.startTimeMeasure();
         int result = grabatsQueryAsCode(FStoreImpl.INSTANCE.getContents().get(0), gauge,
@@ -180,7 +180,7 @@ public class EMFFragImpl extends XMIImpl {
     		id = 0;
     		clearDB(benchmark.getPModelName());
 	    	initializeResourceSet(false);
-	        FStoreImpl.INSTANCE.initialize(Arrays.asList(getFragPackages()), benchmark.getPModelName(), false);
+	        FStoreImpl.INSTANCE.initialize(Arrays.asList(getFragPackages()), URI.createURI("hbase://localhost/" + benchmark.getPModelName()), false);
 	        importTestModelInitialized = true;
     	}
     }
@@ -224,7 +224,7 @@ public class EMFFragImpl extends XMIImpl {
 	@Override
 	public int traverse(LoadFromTestModel benchmark, Gauge gauge, int loadSize) {
         initializeResourceSet(false);                        
-        FStoreImpl.INSTANCE.initialize(Arrays.asList(getFragPackages()), benchmark.getPModelName(), false);
+        FStoreImpl.INSTANCE.initialize(Arrays.asList(getFragPackages()), URI.createURI("hbase://localhost/" + benchmark.getPModelName()), false);
         
         gauge.startTimeMeasure();        
         EObject content = FStoreImpl.INSTANCE.getContents().get(0);        

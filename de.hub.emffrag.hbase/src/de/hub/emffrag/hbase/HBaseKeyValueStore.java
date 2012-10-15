@@ -16,7 +16,10 @@
 package de.hub.emffrag.hbase;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,11 +34,13 @@ import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
+import org.eclipse.emf.common.util.URI;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.inject.Singleton;
 
+import de.hub.emffrag.fragmentation.IKeyValueTable;
 import de.hub.emffrag.kvstore.IKeyValueStore;
 
 @Singleton
@@ -47,7 +52,7 @@ public class HBaseKeyValueStore implements IKeyValueStore {
     public static final byte[] col = "value".getBytes();
 
     private HBaseAdmin admin = null;    
-    private Map<String, Table> tables = new HashMap<String, IKeyValueStore.Table>();
+    private Map<String, IKeyValueTable> tables = new HashMap<String, IKeyValueTable>();
 
     private Configuration getHBaseConfig(String hbaseRootDir) {
         if (config == null) {
@@ -104,26 +109,29 @@ public class HBaseKeyValueStore implements IKeyValueStore {
         }
     }
 
-    public boolean tableExists(String tableName) {
+    @Override
+	public boolean tableExists(URI uri) {
         initialize();
         try {
-            return admin.tableExists(tableName);
+            return admin.tableExists(uri.segment(0));
         } catch (Exception e) {
             Throwables.propagate(e);
             return false;
         }
-    }
+	}
 
-    @Override
-    public Table getTable(String tableName, boolean createOnDemand) {
-        Preconditions.checkArgument(tableName != null);
+	@Override
+    public IKeyValueTable getTable(URI tableURI, boolean createOnDemand) {
+        Preconditions.checkArgument(tableURI != null);
         
-        Table result = tables.get(tableName);
+        IKeyValueTable result = tables.get(tableURI);
+        String tableName = tableURI.segment(0);
         if (result == null) {
 	        try {
 	            initialize();
 	            if (createOnDemand) {
-	                boolean tableExists = admin.tableExists(tableName);
+
+					boolean tableExists = admin.tableExists(tableName);
 	
 	                if (!tableExists) {
 	                    HTableDescriptor tableDescr = new HTableDescriptor(tableName);
@@ -131,7 +139,7 @@ public class HBaseKeyValueStore implements IKeyValueStore {
 	                    admin.createTable(tableDescr);
 	                }
 	            }
-	            result = new TableImpl(new HTable(config, tableName));
+	            result = new TableImpl(tableURI, new HTable(config, tableName));
 	        } catch (Exception e) {
 	            Throwables.propagate(e);
 	            return null;
@@ -142,7 +150,8 @@ public class HBaseKeyValueStore implements IKeyValueStore {
     }
 
     @Override
-    public void deleteTable(String tableName) {
+    public void deleteTable(URI tableURI) {
+    	String tableName = tableURI.segment(0);
         try {
             initialize();
             if (admin.tableExists(tableName)) {
@@ -154,12 +163,14 @@ public class HBaseKeyValueStore implements IKeyValueStore {
         }
     }
 
-    private class TableImpl implements IKeyValueStore.Table {
+    private class TableImpl implements IKeyValueTable {
         private final HTable hTable;
+        private final URI baseURI;
         private final Map<String, Put> putsCache = new HashMap<String, Put>();
 
-        public TableImpl(HTable hTable) {
+        public TableImpl(URI uri, HTable hTable) {
             super();
+            this.baseURI = uri;
             this.hTable = hTable;
             hTable.setAutoFlush(false);
             try {
@@ -170,13 +181,13 @@ public class HBaseKeyValueStore implements IKeyValueStore {
         }
 
         @Override
-        public String get(String key) {
+        public String read(URI key) {
         	if (putsCache.get(key) != null) {
         		flush();
         	}
             Result result = null;
             try {
-                result = hTable.get(new Get(key.getBytes()));
+                result = hTable.get(new Get(key.segment(1).getBytes()));
             } catch (IOException e) {
                 Throwables.propagate(e);
             }
@@ -189,19 +200,56 @@ public class HBaseKeyValueStore implements IKeyValueStore {
         }
 
         @Override
-        public void set(String key, String value) {        	
-            Put put = new Put(key.getBytes());
+        public void write(URI key, String value) {        	
+            Put put = new Put(key.segment(1).getBytes());
             put.add(colFamily, col, value.getBytes());
-            putsCache.put(key, put);
+            putsCache.put(key.segment(1), put);
             if (putsCache.size() > 100) {
             	flush();
             }            
         }
 
-        @Override
-		public void remove(String key) {
+		@Override
+		public URI createEntry(URI uri) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public OutputStream createOutputStream(final URI key) {
+			return new ByteArrayOutputStream() {
+				@Override
+				public void close() throws IOException {
+					super.close();
+					Put put = new Put(key.segment(1).getBytes());
+					put.add(colFamily, col, toByteArray());
+					putsCache.put(key.segment(1), put);
+					if (putsCache.size() > 100) {
+						flush();
+					}
+				}
+			};
+		}
+
+		@Override
+		public InputStream createInputStream(URI key) {
+			if (putsCache.get(key) != null) {
+        		flush();
+        	}
+            Result result = null;
+            try {
+                result = hTable.get(new Get(key.segment(1).getBytes()));
+            } catch (IOException e) {
+                Throwables.propagate(e);
+            }
+            byte[] value = result.getValue(colFamily, col);
+            return new ByteArrayInputStream(value);			
+		}
+
+		@Override
+		public void removeAnEntry(URI key) {
         	try {
-				hTable.delete(new Delete(key.getBytes()));
+				hTable.delete(new Delete(key.segment(1).getBytes()));
 			} catch (IOException e) {
 				Throwables.propagate(e);
 			}
@@ -223,25 +271,24 @@ public class HBaseKeyValueStore implements IKeyValueStore {
         }
 
         @Override
-        public boolean exists(String key) {
+        public boolean entryExists(URI key) {
             try {
-                return hTable.exists(new Get(key.getBytes()));
+                return hTable.exists(new Get(key.segment(1).getBytes()));
             } catch (IOException e) {
                 Throwables.propagate(e);
                 return false;
             }
         }
-
+        
         @Override
-        public String getLargestKey() {
-            byte[] lastKey = null;
-            try {
-                lastKey = hTable.getRowOrBefore(new Long(Long.MAX_VALUE).toString().getBytes(), colFamily).getRow();
-            } catch (IOException e) {
-                Throwables.propagate(e);
-            }
-            return new String(lastKey);            
-        }
-
+		public URI createNewEntry() {
+    	   byte[] lastKey = null;
+           try {
+               lastKey = hTable.getRowOrBefore(new Long(Long.MAX_VALUE).toString().getBytes(), colFamily).getRow();
+           } catch (IOException e) {
+               Throwables.propagate(e);
+           }
+           return baseURI.appendSegment(new String(lastKey));
+		}
     }
 }

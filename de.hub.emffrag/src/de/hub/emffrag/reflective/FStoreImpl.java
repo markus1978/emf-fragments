@@ -16,6 +16,9 @@
 package de.hub.emffrag.reflective;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,9 +41,12 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.XMLParserPoolImpl;
 
+import sun.misc.IOUtils;
+
 import com.google.common.base.Throwables;
 import com.google.inject.Inject;
 
+import de.hub.emffrag.fragmentation.IKeyValueTable;
 import de.hub.emffrag.kvstore.IKeyValueStore;
 import de.hub.emffrag.kvstore.KeyValueStoreURIHandler;
 import de.hub.emffrag.util.ILogger;
@@ -69,9 +75,10 @@ public class FStoreImpl implements EStore {
 	private FObjectCache looseObjectsCache = new FObjectCache();
 	
 	// TODO why do we need to deal with table names?
-	private String tableName = null;
-	private IKeyValueStore.Table table = null;
-	private IKeyValueStore.Table idTable = null;
+	private URI tableURI = null;
+	private URI idTableURI = null;
+	private IKeyValueTable table = null;
+	private IKeyValueTable idTable = null;
 	private Fragment rootFragment = null;
 
 	private static XMLParserPoolImpl xmlParserPool = new XMLParserPoolImpl(true);
@@ -86,7 +93,7 @@ public class FStoreImpl implements EStore {
 		options.put(XMLResource.OPTION_PARSER_FEATURES, parserFeatures);
 	}
 
-	public void initialize(Collection<EPackage> packages, String tableName, boolean isReadOnly) {
+	public void initialize(Collection<EPackage> packages, URI tableURI, boolean isReadOnly) {
 		this.isReadOnly = isReadOnly;
 		packages = EcoreUtil.copyAll(packages);
 		for (EPackage ePackage : packages) {
@@ -102,15 +109,17 @@ public class FStoreImpl implements EStore {
 		resourceSet.getURIConverter().getURIHandlers().add(0, new KeyValueStoreURIHandler(keyValueStore));
 		resourceSet.getLoadOptions().putAll(options);
 
-		this.tableName = tableName;
-		table = keyValueStore.getTable(tableName, true);
-		if (table.exists("0")) {
-			rootFragment = (Fragment) resourceSet.getResource(createURI(0), true);
+		this.tableURI = tableURI;
+		table = keyValueStore.getTable(tableURI, true);
+		URI rootEntry = tableURI.appendSegment("0");
+		if (table.entryExists(rootEntry)) {
+			rootFragment = (Fragment) resourceSet.getResource(rootEntry, true);
 		} else {
-			rootFragment = (Fragment) resourceSet.createResource(createURI(0));
-			table.set("0", "");
+			rootFragment = (Fragment) resourceSet.createResource(rootEntry);
+			table.createEntry(rootEntry);
 		}
-		idTable = keyValueStore.getTable(tableName + "_OIDs", true);
+		idTableURI = URI.createURI(tableURI.toString() + "_OIDs");
+		idTable = keyValueStore.getTable(idTableURI, true);
 	}
 
 	public void save() {
@@ -133,32 +142,29 @@ public class FStoreImpl implements EStore {
 		return null;
 	}
 
-	private URI createURI(String key) {
-		return URI.createURI("hbase://localhost/" + tableName + "/" + key);
-	}
-
-	private URI createURI(long key) {
-		return createURI(new Long(key).toString());
-	}
-
 	// TODO: this needs to be replaced since HBase sorts on byte arrays not
 	// numbers
 	// BIG TODO
-	long largestKey = 0;
+//	long largestKey = 0;
 
 	private URI createNewFragmentURI() {
-		if (largestKey == -1) {
-			largestKey = new Long(table.getLargestKey());
-		}
-		String key = new Long(++largestKey).toString();
-		if (!table.exists(key)) {
-			table.set(key, "");
-		}
-		return createURI(key);
+//		if (largestKey == -1) {
+//			largestKey = new Long(table.getLargestKey());
+//		}
+//		String key = new Long(++largestKey).toString();
+//		if (!table.exists(key)) {
+//			table.set(key, "");
+//		}
+		return table.createNewEntry();
 	}
 
 	public EObject resolve(String oid) {
-		String uriStr = idTable.get(oid);
+		String uriStr = null;
+		try {
+			uriStr = read(idTable, tableURI.appendSegment(oid));
+		} catch (IOException e) {
+			Throwables.propagate(e);
+		}
 		if (uriStr == null) {
 			return null;
 		}
@@ -170,17 +176,38 @@ public class FStoreImpl implements EStore {
 	long largestOIDKey = 0;
 
 	public String updateOIDTable(String id, EObject eObject) {
+		URI idUri = null;
 		if (id == null) {
-			if (largestOIDKey == -1) {
-				largestOIDKey = new Long(idTable.getLargestKey());
-			}
-			id = new Long(++largestKey).toString();
+			idUri = idTable.createNewEntry();
+		} else {
+			idUri = idTableURI.appendSegment(id);
 		}
 		Resource eResource = eObject.eResource();
 		URI uri = eResource.getURI().appendFragment(eResource.getURIFragment(eObject));
-		idTable.set(id, uri.toString());
+		try {
+			write(idTable, idUri, uri.toString());
+		} catch (IOException e) {
+			Throwables.propagate(e);
+		}
 		logger.log(ILogger.DEBUG, "update id table with " + id + "=" + uri.toString(), null);
 		return id;
+	}
+	
+	private static void write(IKeyValueTable table, URI key, String value) throws IOException {
+		PrintWriter printWriter = new PrintWriter(table.createOutputStream(key));
+		printWriter.print(value);
+		printWriter.close();
+	}
+	
+	private static String read(IKeyValueTable table, URI key) throws IOException {
+		try {
+	        InputStream is = table.createInputStream(key);
+			String result = new java.util.Scanner(is).useDelimiter("\\A").next();
+			is.close();
+			return result;
+	    } catch (java.util.NoSuchElementException e) {
+	        return null;
+	    }
 	}
 
 	public Map<Object, Object> getLoadOptions() {

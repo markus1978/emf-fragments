@@ -75,7 +75,7 @@ public class FragmentedModel extends ResourceSetImpl {
 		// TODO FStoreImpl is build as a singleton, which is wrong with the
 		// current design.
 		FStoreImpl.INSTANCE = Guice.createInjector(module).getInstance(FStoreImpl.class);
-		FStoreImpl.INSTANCE.initialize(Arrays.asList(packages), name, false);
+		FStoreImpl.INSTANCE.initialize(Arrays.asList(packages), URI.createURI("hbase://localhost/" + name), false);
 	}
 
 	/**
@@ -102,7 +102,7 @@ public class FragmentedModel extends ResourceSetImpl {
 		// TODO FStoreImpl is build as a singleton, which is wrong with the
 		// current design.
 		FStoreImpl.INSTANCE = Guice.createInjector(module).getInstance(FStoreImpl.class);
-		FStoreImpl.INSTANCE.initialize(Arrays.asList(packages), name, readOnly);
+		FStoreImpl.INSTANCE.initialize(Arrays.asList(packages), URI.createURI("hbase://localhost/" + name), readOnly);
 	}
 
 	/**

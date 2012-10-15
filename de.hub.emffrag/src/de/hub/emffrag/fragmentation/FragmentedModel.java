@@ -102,7 +102,7 @@ public class FragmentedModel {
 	 * @return The URI for a new fragment.
 	 */
 	private URI createNewFragmentURI() {
-		return persistence.createANewEntry();
+		return persistence.createNewEntry();
 	}
 
 	/**

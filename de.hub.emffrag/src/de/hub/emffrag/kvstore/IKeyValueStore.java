@@ -15,21 +15,19 @@
  ******************************************************************************/
 package de.hub.emffrag.kvstore;
 
-public interface IKeyValueStore {
+import java.io.InputStream;
+import java.io.OutputStream;
 
-    public interface Table {    
-        public String get(String key);        
-        public void set(String key, String value);
-        public boolean exists(String key);
-        public String getLargestKey();
-        public void flush();
-		public void remove(String key);
-    }
+import org.eclipse.emf.common.util.URI;
+
+import de.hub.emffrag.fragmentation.IKeyValueTable;
+
+public interface IKeyValueStore {
     
-    public Table getTable(String name, boolean createOnDemand);
+    public IKeyValueTable getTable(URI uri, boolean createOnDemand);
     
-    public boolean tableExists(String name);
+    public boolean tableExists(URI uri);
     
-    public void deleteTable(String name);
+    public void deleteTable(URI uri);
     
 }
