@@ -5,6 +5,7 @@ import java.io.OutputStream;
 
 import org.eclipse.emf.common.util.URI;
 
+@Deprecated
 public interface IKeyValueTable {
 
 	/**

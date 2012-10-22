@@ -1,10 +1,15 @@
-package de.hub.emffrag.kvstore;
+package de.hub.emffrag.datastore;
 
 import java.nio.ByteBuffer;
 
-import de.hub.emffrag.datastore.KeyType;
-
-class LongKeyType implements KeyType<Long> {
+public class LongKeyType implements KeyType<Long> {
+	
+	public final static LongKeyType instance = new LongKeyType();
+	
+	private LongKeyType() {
+		
+	}
+	
 	private byte[] longToByte(long l) {
 		return ByteBuffer.allocate(Long.SIZE / 8).putLong(l).array();
 	}

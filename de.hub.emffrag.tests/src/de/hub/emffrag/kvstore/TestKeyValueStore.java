@@ -12,6 +12,7 @@ import org.eclipse.emf.common.util.URI;
 
 import de.hub.emffrag.fragmentation.IKeyValueTable;
 
+@Deprecated
 public class TestKeyValueStore implements IKeyValueStore {
 	
 	private Map<String, IKeyValueTable> tables = new HashMap<String, IKeyValueTable>();

@@ -47,4 +47,8 @@ public abstract class DataStore {
 		return dataStoreId;
 	}
 
+	public String getURIString() {
+		return protocol + "://" + domain + "/" + dataStoreId;
+	}
+
 }

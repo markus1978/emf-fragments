@@ -15,6 +15,10 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 
 import com.google.common.base.Throwables;
 
+import de.hub.emffrag.datastore.DataIndex;
+import de.hub.emffrag.datastore.DataStore;
+import de.hub.emffrag.datastore.LongKeyType;
+
 public class FragmentedModel {
 
 	private final ResourceSet resourceSet;
@@ -22,15 +26,17 @@ public class FragmentedModel {
 	private final FragmentCache fragmentCache; // TODO handle fragment caching issues
 
 	private final Collection<EPackage> metaModelPackages; // TODO investigate the need for internal and user meta-models
-	private final IKeyValueTable persistence;
+	private final DataStore persistence;
+	private final DataIndex<Long> fragmentIndex;
 	private final URI rootFragmentKeyURI;
 
 	private class FragmentCache {
 
 	}
 
-	public FragmentedModel(IKeyValueTable persistence, URI rootFragmentKeyURI, Collection<EPackage> metaModel) {
+	public FragmentedModel(DataStore persistence, URI rootFragmentKeyURI, Collection<EPackage> metaModel) {
 		this.persistence = persistence;
+		this.fragmentIndex = new DataIndex<Long>(persistence, "f", LongKeyType.instance);
 		this.metaModelPackages = metaModel;
 		this.rootFragmentKeyURI = (rootFragmentKeyURI == null ? createNewFragmentURI() : rootFragmentKeyURI);
 
@@ -102,7 +108,7 @@ public class FragmentedModel {
 	 * @return The URI for a new fragment.
 	 */
 	private URI createNewFragmentURI() {
-		return persistence.createNewEntry();
+		return URI.createURI(persistence.getURIString()).appendSegment(new String(LongKeyType.instance.serialize(fragmentIndex.add())));
 	}
 
 	/**
