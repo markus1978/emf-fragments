@@ -15,16 +15,103 @@
  */
 package de.hub.emffrag.testmodels.regular.DOM.impl;
 
-import de.hub.emffrag.testmodels.regular.DOM.*;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-
 import org.eclipse.emf.ecore.impl.EFactoryImpl;
-
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
+
+import de.hub.emffrag.testmodels.regular.DOM.AST;
+import de.hub.emffrag.testmodels.regular.DOM.AnnotationTypeDeclaration;
+import de.hub.emffrag.testmodels.regular.DOM.AnnotationTypeMemberDeclaration;
+import de.hub.emffrag.testmodels.regular.DOM.AnonymousClassDeclaration;
+import de.hub.emffrag.testmodels.regular.DOM.ArrayAccess;
+import de.hub.emffrag.testmodels.regular.DOM.ArrayCreation;
+import de.hub.emffrag.testmodels.regular.DOM.ArrayInitializer;
+import de.hub.emffrag.testmodels.regular.DOM.ArrayType;
+import de.hub.emffrag.testmodels.regular.DOM.AssertStatement;
+import de.hub.emffrag.testmodels.regular.DOM.Assignment;
+import de.hub.emffrag.testmodels.regular.DOM.AssignmentOperatorKind;
+import de.hub.emffrag.testmodels.regular.DOM.Block;
+import de.hub.emffrag.testmodels.regular.DOM.BlockComment;
+import de.hub.emffrag.testmodels.regular.DOM.BooleanLiteral;
+import de.hub.emffrag.testmodels.regular.DOM.BreakStatement;
+import de.hub.emffrag.testmodels.regular.DOM.CastExpression;
+import de.hub.emffrag.testmodels.regular.DOM.CatchClause;
+import de.hub.emffrag.testmodels.regular.DOM.CharacterLiteral;
+import de.hub.emffrag.testmodels.regular.DOM.ClassInstanceCreation;
+import de.hub.emffrag.testmodels.regular.DOM.CompilationUnit;
+import de.hub.emffrag.testmodels.regular.DOM.ConditionalExpression;
+import de.hub.emffrag.testmodels.regular.DOM.ConstructorInvocation;
+import de.hub.emffrag.testmodels.regular.DOM.ContinueStatement;
+import de.hub.emffrag.testmodels.regular.DOM.DOMFactory;
+import de.hub.emffrag.testmodels.regular.DOM.DOMPackage;
+import de.hub.emffrag.testmodels.regular.DOM.DoStatement;
+import de.hub.emffrag.testmodels.regular.DOM.EmptyStatement;
+import de.hub.emffrag.testmodels.regular.DOM.EnhancedForStatement;
+import de.hub.emffrag.testmodels.regular.DOM.EnumConstantDeclaration;
+import de.hub.emffrag.testmodels.regular.DOM.EnumDeclaration;
+import de.hub.emffrag.testmodels.regular.DOM.ExpressionStatement;
+import de.hub.emffrag.testmodels.regular.DOM.FieldAccess;
+import de.hub.emffrag.testmodels.regular.DOM.FieldDeclaration;
+import de.hub.emffrag.testmodels.regular.DOM.ForStatement;
+import de.hub.emffrag.testmodels.regular.DOM.IfStatement;
+import de.hub.emffrag.testmodels.regular.DOM.ImportDeclaration;
+import de.hub.emffrag.testmodels.regular.DOM.InfixExpression;
+import de.hub.emffrag.testmodels.regular.DOM.InfixExpressionOperatorKind;
+import de.hub.emffrag.testmodels.regular.DOM.Initializer;
+import de.hub.emffrag.testmodels.regular.DOM.InstanceofExpression;
+import de.hub.emffrag.testmodels.regular.DOM.Javadoc;
+import de.hub.emffrag.testmodels.regular.DOM.LabeledStatement;
+import de.hub.emffrag.testmodels.regular.DOM.LineComment;
+import de.hub.emffrag.testmodels.regular.DOM.MarkerAnnotation;
+import de.hub.emffrag.testmodels.regular.DOM.MemberRef;
+import de.hub.emffrag.testmodels.regular.DOM.MemberValuePair;
+import de.hub.emffrag.testmodels.regular.DOM.MethodDeclaration;
+import de.hub.emffrag.testmodels.regular.DOM.MethodInvocation;
+import de.hub.emffrag.testmodels.regular.DOM.MethodRef;
+import de.hub.emffrag.testmodels.regular.DOM.MethodRefParameter;
+import de.hub.emffrag.testmodels.regular.DOM.Modifier;
+import de.hub.emffrag.testmodels.regular.DOM.NormalAnnotation;
+import de.hub.emffrag.testmodels.regular.DOM.NullLiteral;
+import de.hub.emffrag.testmodels.regular.DOM.NumberLiteral;
+import de.hub.emffrag.testmodels.regular.DOM.PackageDeclaration;
+import de.hub.emffrag.testmodels.regular.DOM.ParameterizedType;
+import de.hub.emffrag.testmodels.regular.DOM.ParenthesizedExpression;
+import de.hub.emffrag.testmodels.regular.DOM.PostfixExpression;
+import de.hub.emffrag.testmodels.regular.DOM.PostfixExpressionOperatorKind;
+import de.hub.emffrag.testmodels.regular.DOM.PrefixExpression;
+import de.hub.emffrag.testmodels.regular.DOM.PrefixExpressionOperatorKind;
+import de.hub.emffrag.testmodels.regular.DOM.PrimitiveType;
+import de.hub.emffrag.testmodels.regular.DOM.QualifiedName;
+import de.hub.emffrag.testmodels.regular.DOM.QualifiedType;
+import de.hub.emffrag.testmodels.regular.DOM.ReturnStatement;
+import de.hub.emffrag.testmodels.regular.DOM.SimpleName;
+import de.hub.emffrag.testmodels.regular.DOM.SimpleType;
+import de.hub.emffrag.testmodels.regular.DOM.SingleMemberAnnotation;
+import de.hub.emffrag.testmodels.regular.DOM.SingleVariableDeclaration;
+import de.hub.emffrag.testmodels.regular.DOM.StringLiteral;
+import de.hub.emffrag.testmodels.regular.DOM.SuperConstructorInvocation;
+import de.hub.emffrag.testmodels.regular.DOM.SuperFieldAccess;
+import de.hub.emffrag.testmodels.regular.DOM.SuperMethodInvocation;
+import de.hub.emffrag.testmodels.regular.DOM.SwitchCase;
+import de.hub.emffrag.testmodels.regular.DOM.SwitchStatement;
+import de.hub.emffrag.testmodels.regular.DOM.SynchronizedStatement;
+import de.hub.emffrag.testmodels.regular.DOM.TagElement;
+import de.hub.emffrag.testmodels.regular.DOM.TextElement;
+import de.hub.emffrag.testmodels.regular.DOM.ThisExpression;
+import de.hub.emffrag.testmodels.regular.DOM.ThrowStatement;
+import de.hub.emffrag.testmodels.regular.DOM.TryStatement;
+import de.hub.emffrag.testmodels.regular.DOM.TypeDeclaration;
+import de.hub.emffrag.testmodels.regular.DOM.TypeDeclarationStatement;
+import de.hub.emffrag.testmodels.regular.DOM.TypeLiteral;
+import de.hub.emffrag.testmodels.regular.DOM.TypeParameter;
+import de.hub.emffrag.testmodels.regular.DOM.VariableDeclarationExpression;
+import de.hub.emffrag.testmodels.regular.DOM.VariableDeclarationFragment;
+import de.hub.emffrag.testmodels.regular.DOM.VariableDeclarationStatement;
+import de.hub.emffrag.testmodels.regular.DOM.WhileStatement;
+import de.hub.emffrag.testmodels.regular.DOM.WildcardType;
 
 /**
  * <!-- begin-user-doc -->

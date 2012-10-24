@@ -15,8 +15,10 @@
  */
 package de.hub.emffrag.testmodels.frag.DOM.impl;
 
-import de.hub.emffrag.testmodels.frag.Core.IMethod;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EClass;
 
+import de.hub.emffrag.testmodels.frag.Core.IMethod;
 import de.hub.emffrag.testmodels.frag.DOM.Block;
 import de.hub.emffrag.testmodels.frag.DOM.DOMPackage;
 import de.hub.emffrag.testmodels.frag.DOM.MethodDeclaration;
@@ -25,10 +27,6 @@ import de.hub.emffrag.testmodels.frag.DOM.SimpleName;
 import de.hub.emffrag.testmodels.frag.DOM.SingleVariableDeclaration;
 import de.hub.emffrag.testmodels.frag.DOM.Type;
 import de.hub.emffrag.testmodels.frag.DOM.TypeParameter;
-
-import org.eclipse.emf.common.util.EList;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

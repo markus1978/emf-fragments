@@ -15,13 +15,13 @@
  */
 package de.hub.emffrag.testmodels.frag.Core.impl;
 
+import org.eclipse.emf.ecore.EClass;
+
 import de.hub.emffrag.testmodels.frag.Core.CorePackage;
 import de.hub.emffrag.testmodels.frag.Core.ISourceRange;
 import de.hub.emffrag.testmodels.frag.Core.ISourceReference;
 import de.hub.emffrag.testmodels.frag.Core.ITypeRoot;
 import de.hub.emffrag.testmodels.frag.Core.PhysicalElement;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

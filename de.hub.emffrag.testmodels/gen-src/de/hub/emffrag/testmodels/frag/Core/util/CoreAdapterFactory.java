@@ -15,14 +15,33 @@
  */
 package de.hub.emffrag.testmodels.frag.Core.util;
 
-import de.hub.emffrag.testmodels.frag.Core.*;
-
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notifier;
-
 import org.eclipse.emf.common.notify.impl.AdapterFactoryImpl;
-
 import org.eclipse.emf.ecore.EObject;
+
+import de.hub.emffrag.testmodels.frag.Core.BinaryPackageFragmentRoot;
+import de.hub.emffrag.testmodels.frag.Core.CorePackage;
+import de.hub.emffrag.testmodels.frag.Core.IClassFile;
+import de.hub.emffrag.testmodels.frag.Core.ICompilationUnit;
+import de.hub.emffrag.testmodels.frag.Core.IField;
+import de.hub.emffrag.testmodels.frag.Core.IImportDeclaration;
+import de.hub.emffrag.testmodels.frag.Core.IInitializer;
+import de.hub.emffrag.testmodels.frag.Core.IJavaElement;
+import de.hub.emffrag.testmodels.frag.Core.IJavaModel;
+import de.hub.emffrag.testmodels.frag.Core.IJavaProject;
+import de.hub.emffrag.testmodels.frag.Core.IMember;
+import de.hub.emffrag.testmodels.frag.Core.IMethod;
+import de.hub.emffrag.testmodels.frag.Core.IPackageFragment;
+import de.hub.emffrag.testmodels.frag.Core.IPackageFragmentRoot;
+import de.hub.emffrag.testmodels.frag.Core.ISourceRange;
+import de.hub.emffrag.testmodels.frag.Core.ISourceReference;
+import de.hub.emffrag.testmodels.frag.Core.IType;
+import de.hub.emffrag.testmodels.frag.Core.ITypeParameter;
+import de.hub.emffrag.testmodels.frag.Core.ITypeRoot;
+import de.hub.emffrag.testmodels.frag.Core.Parameter;
+import de.hub.emffrag.testmodels.frag.Core.PhysicalElement;
+import de.hub.emffrag.testmodels.frag.Core.SourcePackageFragmentRoot;
 
 /**
  * <!-- begin-user-doc -->

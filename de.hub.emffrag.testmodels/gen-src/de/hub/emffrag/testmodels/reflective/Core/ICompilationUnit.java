@@ -15,9 +15,9 @@
  */
 package de.hub.emffrag.testmodels.reflective.Core;
 
-import de.hub.emffrag.testmodels.reflective.DOM.CompilationUnit;
-
 import org.eclipse.emf.common.util.EList;
+
+import de.hub.emffrag.testmodels.reflective.DOM.CompilationUnit;
 
 /**
  * <!-- begin-user-doc -->

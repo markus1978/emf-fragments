@@ -15,12 +15,14 @@
  */
 package de.hub.emffrag.testmodels.reflective.testmodel.util;
 
-import de.hub.emffrag.testmodels.reflective.testmodel.*;
-
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-
 import org.eclipse.emf.ecore.util.Switch;
+
+import de.hub.emffrag.testmodels.reflective.testmodel.Container;
+import de.hub.emffrag.testmodels.reflective.testmodel.Contents;
+import de.hub.emffrag.testmodels.reflective.testmodel.TestModelPackage;
+import de.hub.emffrag.testmodels.reflective.testmodel.TestObject;
 
 /**
  * <!-- begin-user-doc -->

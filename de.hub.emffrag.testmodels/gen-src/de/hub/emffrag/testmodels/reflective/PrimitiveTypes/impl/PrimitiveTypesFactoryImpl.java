@@ -15,16 +15,15 @@
  */
 package de.hub.emffrag.testmodels.reflective.PrimitiveTypes.impl;
 
-import de.hub.emffrag.testmodels.reflective.PrimitiveTypes.*;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-
 import org.eclipse.emf.ecore.impl.EFactoryImpl;
-
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
+
+import de.hub.emffrag.testmodels.reflective.PrimitiveTypes.PrimitiveTypesFactory;
+import de.hub.emffrag.testmodels.reflective.PrimitiveTypes.PrimitiveTypesPackage;
 
 /**
  * <!-- begin-user-doc -->

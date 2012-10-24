@@ -15,13 +15,12 @@
  */
 package de.hub.emffrag.testmodels.frag.Core.impl;
 
-import de.hub.emffrag.reflective.FObjectImpl;
+import org.eclipse.emf.ecore.EClass;
 
+import de.hub.emffrag.reflective.FObjectImpl;
 import de.hub.emffrag.testmodels.frag.Core.CorePackage;
 import de.hub.emffrag.testmodels.frag.Core.ISourceRange;
 import de.hub.emffrag.testmodels.frag.Core.ISourceReference;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

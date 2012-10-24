@@ -15,10 +15,10 @@
  */
 package de.hub.emffrag.testmodels.frag.DOM.impl;
 
+import org.eclipse.emf.ecore.EClass;
+
 import de.hub.emffrag.testmodels.frag.DOM.DOMPackage;
 import de.hub.emffrag.testmodels.frag.DOM.MarkerAnnotation;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

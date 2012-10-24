@@ -34,6 +34,8 @@ public abstract class DataStore {
 	public abstract boolean check(byte[] key);
 
 	public abstract boolean ckeckAndCreate(byte[] key);
+	
+	public abstract void delete(byte[] bytes);
 
 	public String getProtocol() {
 		return protocol;

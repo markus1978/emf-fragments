@@ -2,6 +2,7 @@ package de.hub.emffrag.fragmentation;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EObject;
@@ -29,15 +30,9 @@ public class FStoreImpl implements EStore {
 			Fragment fragment = (Fragment) internalObject.eResource();
 			EObject userObject = null;
 			if (fragment != null) {
-				userObject = fragment.getUserObjectsCache().getUserObject(internalObject);
-				if (userObject == null) {
-					fragment.getUserObjectsCache().createUserObject(internalObject);					
-				}
+				userObject = fragment.getUserObjectsCache().getUserObject(internalObject);				
 			} else {
-				userObject = UserObjectsCache.newUserObjectsCache.getUserObject(internalObject);
-				if (userObject == null) {
-					UserObjectsCache.newUserObjectsCache.createUserObject(internalObject);
-				}
+				userObject = UserObjectsCache.newUserObjectsCache.getUserObject(internalObject);				
 			}
 
 			return userObject;
@@ -47,7 +42,7 @@ public class FStoreImpl implements EStore {
 	}
 
 	private EObject getInternalObject(InternalEObject userObject) {
-		FInternalObjectImpl internalObject = ((FObjectImpl) userObject).internalObject;
+		FInternalObjectImpl internalObject = ((FObjectImpl) userObject).internalObject();
 		if (internalObject == null) {
 			// This object was not yet added to a model
 			internalObject = UserObjectsCache.newUserObjectsCache.createInternalObject((FObjectImpl)userObject);
@@ -65,11 +60,7 @@ public class FStoreImpl implements EStore {
 	}
 
 	private EStructuralFeature getInternalFeature(EStructuralFeature feature) {
-		// TODO investigate the need for internal and user meta-models
-		// Previously we used two meta-models, one for the user and one for the
-		// internal model. The reason is that there is no known way to create
-		// both user and internal objects from the same factory.
-		return feature;
+		return ReflectiveMetaModelRegistry.instance.getOppositeFeature(feature);		
 	}
 
 	private Object getInternalValue(Object userValue, EStructuralFeature internalFeature) {

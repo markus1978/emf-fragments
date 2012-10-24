@@ -15,16 +15,31 @@
  */
 package de.hub.emffrag.testmodels.regular.Core.impl;
 
-import de.hub.emffrag.testmodels.regular.Core.*;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-
 import org.eclipse.emf.ecore.impl.EFactoryImpl;
-
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
+
+import de.hub.emffrag.testmodels.regular.Core.BinaryPackageFragmentRoot;
+import de.hub.emffrag.testmodels.regular.Core.CoreFactory;
+import de.hub.emffrag.testmodels.regular.Core.CorePackage;
+import de.hub.emffrag.testmodels.regular.Core.IClassFile;
+import de.hub.emffrag.testmodels.regular.Core.ICompilationUnit;
+import de.hub.emffrag.testmodels.regular.Core.IField;
+import de.hub.emffrag.testmodels.regular.Core.IImportDeclaration;
+import de.hub.emffrag.testmodels.regular.Core.IInitializer;
+import de.hub.emffrag.testmodels.regular.Core.IJavaModel;
+import de.hub.emffrag.testmodels.regular.Core.IJavaProject;
+import de.hub.emffrag.testmodels.regular.Core.IMethod;
+import de.hub.emffrag.testmodels.regular.Core.IPackageFragment;
+import de.hub.emffrag.testmodels.regular.Core.ISourceRange;
+import de.hub.emffrag.testmodels.regular.Core.IType;
+import de.hub.emffrag.testmodels.regular.Core.ITypeParameter;
+import de.hub.emffrag.testmodels.regular.Core.Modifiers;
+import de.hub.emffrag.testmodels.regular.Core.Parameter;
+import de.hub.emffrag.testmodels.regular.Core.SourcePackageFragmentRoot;
 
 /**
  * <!-- begin-user-doc -->

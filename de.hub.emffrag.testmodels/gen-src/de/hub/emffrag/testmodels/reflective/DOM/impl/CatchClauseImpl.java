@@ -15,12 +15,12 @@
  */
 package de.hub.emffrag.testmodels.reflective.DOM.impl;
 
+import org.eclipse.emf.ecore.EClass;
+
 import de.hub.emffrag.testmodels.reflective.DOM.Block;
 import de.hub.emffrag.testmodels.reflective.DOM.CatchClause;
 import de.hub.emffrag.testmodels.reflective.DOM.DOMPackage;
 import de.hub.emffrag.testmodels.reflective.DOM.SingleVariableDeclaration;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

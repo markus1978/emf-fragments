@@ -15,17 +15,18 @@
  */
 package de.hub.emffrag.testmodels.frag.testmodel.impl;
 
-import de.hub.emffrag.testmodels.frag.testmodel.Contents;
-import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
-import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
-import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
+import static de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage.CONTAINER;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
-
 import org.eclipse.emf.ecore.impl.EPackageImpl;
+
+import de.hub.emffrag.testmodels.frag.testmodel.Contents;
+import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
+import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
+import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 
 /**
  * <!-- begin-user-doc -->

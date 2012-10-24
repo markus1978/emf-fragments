@@ -15,15 +15,14 @@
  */
 package de.hub.emffrag.testmodels.reflective.DOM.impl;
 
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EClass;
+
 import de.hub.emffrag.testmodels.reflective.DOM.ArrayCreation;
 import de.hub.emffrag.testmodels.reflective.DOM.ArrayInitializer;
 import de.hub.emffrag.testmodels.reflective.DOM.ArrayType;
 import de.hub.emffrag.testmodels.reflective.DOM.DOMPackage;
 import de.hub.emffrag.testmodels.reflective.DOM.Expression;
-
-import org.eclipse.emf.common.util.EList;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

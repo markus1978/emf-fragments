@@ -15,15 +15,14 @@
  */
 package de.hub.emffrag.testmodels.fragf2.DOM.impl;
 
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EClass;
+
 import de.hub.emffrag.testmodels.fragf2.DOM.ArrayCreation;
 import de.hub.emffrag.testmodels.fragf2.DOM.ArrayInitializer;
 import de.hub.emffrag.testmodels.fragf2.DOM.ArrayType;
 import de.hub.emffrag.testmodels.fragf2.DOM.DOMPackage;
 import de.hub.emffrag.testmodels.fragf2.DOM.Expression;
-
-import org.eclipse.emf.common.util.EList;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

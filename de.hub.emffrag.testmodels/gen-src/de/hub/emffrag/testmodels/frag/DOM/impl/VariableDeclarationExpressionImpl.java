@@ -15,15 +15,14 @@
  */
 package de.hub.emffrag.testmodels.frag.DOM.impl;
 
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EClass;
+
 import de.hub.emffrag.testmodels.frag.DOM.DOMPackage;
 import de.hub.emffrag.testmodels.frag.DOM.ExtendedModifier;
 import de.hub.emffrag.testmodels.frag.DOM.Type;
 import de.hub.emffrag.testmodels.frag.DOM.VariableDeclarationExpression;
 import de.hub.emffrag.testmodels.frag.DOM.VariableDeclarationFragment;
-
-import org.eclipse.emf.common.util.EList;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

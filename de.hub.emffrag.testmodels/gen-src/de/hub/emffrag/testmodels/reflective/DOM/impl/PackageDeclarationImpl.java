@@ -15,17 +15,15 @@
  */
 package de.hub.emffrag.testmodels.reflective.DOM.impl;
 
-import de.hub.emffrag.testmodels.reflective.Core.IPackageFragment;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EClass;
 
+import de.hub.emffrag.testmodels.reflective.Core.IPackageFragment;
 import de.hub.emffrag.testmodels.reflective.DOM.Annotation;
 import de.hub.emffrag.testmodels.reflective.DOM.DOMPackage;
 import de.hub.emffrag.testmodels.reflective.DOM.Javadoc;
 import de.hub.emffrag.testmodels.reflective.DOM.Name;
 import de.hub.emffrag.testmodels.reflective.DOM.PackageDeclaration;
-
-import org.eclipse.emf.common.util.EList;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

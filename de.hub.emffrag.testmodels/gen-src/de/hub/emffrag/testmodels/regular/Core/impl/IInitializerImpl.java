@@ -15,10 +15,10 @@
  */
 package de.hub.emffrag.testmodels.regular.Core.impl;
 
+import org.eclipse.emf.ecore.EClass;
+
 import de.hub.emffrag.testmodels.regular.Core.CorePackage;
 import de.hub.emffrag.testmodels.regular.Core.IInitializer;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

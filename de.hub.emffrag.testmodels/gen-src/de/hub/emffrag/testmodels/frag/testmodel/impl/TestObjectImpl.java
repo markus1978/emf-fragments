@@ -15,14 +15,12 @@
  */
 package de.hub.emffrag.testmodels.frag.testmodel.impl;
 
-import de.hub.emffrag.reflective.FObjectImpl;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EClass;
 
+import de.hub.emffrag.fragmentation.FObjectImpl;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
-
-import org.eclipse.emf.common.util.EList;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

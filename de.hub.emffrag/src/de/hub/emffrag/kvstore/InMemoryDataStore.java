@@ -87,4 +87,25 @@ public class InMemoryDataStore extends DataStore {
 		return result;
 	}
 
+	@Override
+	public void delete(byte[] key) {
+		store.remove(key);
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(getURIString() + "\n");
+		for (byte[] key: store.keySet()) {
+			buffer.append("key: ");
+			for (byte b: key) {
+				buffer.append(b + " ");
+			}
+			buffer.append("\n");
+			buffer.append(new String(store.get(key)) + "\n");
+		}
+		return buffer.toString();
+	}
+	
+
 }

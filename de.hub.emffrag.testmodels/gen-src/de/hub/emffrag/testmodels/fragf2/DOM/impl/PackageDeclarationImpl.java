@@ -15,17 +15,15 @@
  */
 package de.hub.emffrag.testmodels.fragf2.DOM.impl;
 
-import de.hub.emffrag.testmodels.fragf2.Core.IPackageFragment;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EClass;
 
+import de.hub.emffrag.testmodels.fragf2.Core.IPackageFragment;
 import de.hub.emffrag.testmodels.fragf2.DOM.Annotation;
 import de.hub.emffrag.testmodels.fragf2.DOM.DOMPackage;
 import de.hub.emffrag.testmodels.fragf2.DOM.Javadoc;
 import de.hub.emffrag.testmodels.fragf2.DOM.Name;
 import de.hub.emffrag.testmodels.fragf2.DOM.PackageDeclaration;
-
-import org.eclipse.emf.common.util.EList;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

@@ -15,12 +15,11 @@
  */
 package de.hub.emffrag.testmodels.fragf2.DOM.impl;
 
-import de.hub.emffrag.testmodels.fragf2.Core.IType;
+import org.eclipse.emf.ecore.EClass;
 
+import de.hub.emffrag.testmodels.fragf2.Core.IType;
 import de.hub.emffrag.testmodels.fragf2.DOM.DOMPackage;
 import de.hub.emffrag.testmodels.fragf2.DOM.Expression;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

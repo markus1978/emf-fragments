@@ -15,16 +15,14 @@
  */
 package de.hub.emffrag.testmodels.frag.Core.impl;
 
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EClass;
+
 import de.hub.emffrag.testmodels.frag.Core.CorePackage;
 import de.hub.emffrag.testmodels.frag.Core.ICompilationUnit;
 import de.hub.emffrag.testmodels.frag.Core.IImportDeclaration;
 import de.hub.emffrag.testmodels.frag.Core.IType;
-
 import de.hub.emffrag.testmodels.frag.DOM.CompilationUnit;
-
-import org.eclipse.emf.common.util.EList;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

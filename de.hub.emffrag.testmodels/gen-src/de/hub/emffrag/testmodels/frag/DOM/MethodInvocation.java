@@ -15,9 +15,9 @@
  */
 package de.hub.emffrag.testmodels.frag.DOM;
 
-import de.hub.emffrag.testmodels.frag.Core.IMethod;
-
 import org.eclipse.emf.common.util.EList;
+
+import de.hub.emffrag.testmodels.frag.Core.IMethod;
 
 /**
  * <!-- begin-user-doc -->

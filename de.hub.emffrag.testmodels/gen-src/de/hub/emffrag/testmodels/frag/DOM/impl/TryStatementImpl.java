@@ -15,14 +15,13 @@
  */
 package de.hub.emffrag.testmodels.frag.DOM.impl;
 
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EClass;
+
 import de.hub.emffrag.testmodels.frag.DOM.Block;
 import de.hub.emffrag.testmodels.frag.DOM.CatchClause;
 import de.hub.emffrag.testmodels.frag.DOM.DOMPackage;
 import de.hub.emffrag.testmodels.frag.DOM.TryStatement;
-
-import org.eclipse.emf.common.util.EList;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

@@ -15,17 +15,15 @@
  */
 package de.hub.emffrag.testmodels.frag.DOM.impl;
 
-import de.hub.emffrag.testmodels.frag.Core.IMethod;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EClass;
 
+import de.hub.emffrag.testmodels.frag.Core.IMethod;
 import de.hub.emffrag.testmodels.frag.DOM.DOMPackage;
 import de.hub.emffrag.testmodels.frag.DOM.Expression;
 import de.hub.emffrag.testmodels.frag.DOM.MethodInvocation;
 import de.hub.emffrag.testmodels.frag.DOM.SimpleName;
 import de.hub.emffrag.testmodels.frag.DOM.Type;
-
-import org.eclipse.emf.common.util.EList;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

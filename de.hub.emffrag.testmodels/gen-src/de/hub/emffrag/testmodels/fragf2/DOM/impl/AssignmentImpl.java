@@ -15,12 +15,12 @@
  */
 package de.hub.emffrag.testmodels.fragf2.DOM.impl;
 
+import org.eclipse.emf.ecore.EClass;
+
 import de.hub.emffrag.testmodels.fragf2.DOM.Assignment;
 import de.hub.emffrag.testmodels.fragf2.DOM.AssignmentOperatorKind;
 import de.hub.emffrag.testmodels.fragf2.DOM.DOMPackage;
 import de.hub.emffrag.testmodels.fragf2.DOM.Expression;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

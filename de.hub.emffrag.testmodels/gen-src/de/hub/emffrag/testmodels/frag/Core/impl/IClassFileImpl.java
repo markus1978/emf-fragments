@@ -15,11 +15,11 @@
  */
 package de.hub.emffrag.testmodels.frag.Core.impl;
 
+import org.eclipse.emf.ecore.EClass;
+
 import de.hub.emffrag.testmodels.frag.Core.CorePackage;
 import de.hub.emffrag.testmodels.frag.Core.IClassFile;
 import de.hub.emffrag.testmodels.frag.Core.IType;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

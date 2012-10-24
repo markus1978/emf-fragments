@@ -15,15 +15,14 @@
  */
 package de.hub.emffrag.testmodels.reflective.DOM.impl;
 
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EClass;
+
 import de.hub.emffrag.testmodels.reflective.DOM.AnonymousClassDeclaration;
 import de.hub.emffrag.testmodels.reflective.DOM.DOMPackage;
 import de.hub.emffrag.testmodels.reflective.DOM.EnumConstantDeclaration;
 import de.hub.emffrag.testmodels.reflective.DOM.Expression;
 import de.hub.emffrag.testmodels.reflective.DOM.SimpleName;
-
-import org.eclipse.emf.common.util.EList;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

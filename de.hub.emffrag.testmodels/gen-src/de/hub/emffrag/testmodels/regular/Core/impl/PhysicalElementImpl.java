@@ -15,15 +15,13 @@
  */
 package de.hub.emffrag.testmodels.regular.Core.impl;
 
-import de.hub.emffrag.testmodels.regular.Core.CorePackage;
-import de.hub.emffrag.testmodels.regular.Core.PhysicalElement;
-
 import org.eclipse.emf.common.notify.Notification;
-
 import org.eclipse.emf.ecore.EClass;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
+
+import de.hub.emffrag.testmodels.regular.Core.CorePackage;
+import de.hub.emffrag.testmodels.regular.Core.PhysicalElement;
 
 /**
  * <!-- begin-user-doc -->

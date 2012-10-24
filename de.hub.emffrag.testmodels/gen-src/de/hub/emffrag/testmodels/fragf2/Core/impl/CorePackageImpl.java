@@ -15,6 +15,13 @@
  */
 package de.hub.emffrag.testmodels.fragf2.Core.impl;
 
+import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EEnum;
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.impl.EPackageImpl;
+
 import de.hub.emffrag.testmodels.fragf2.Core.BinaryPackageFragmentRoot;
 import de.hub.emffrag.testmodels.fragf2.Core.CoreFactory;
 import de.hub.emffrag.testmodels.fragf2.Core.CorePackage;
@@ -39,22 +46,10 @@ import de.hub.emffrag.testmodels.fragf2.Core.Modifiers;
 import de.hub.emffrag.testmodels.fragf2.Core.Parameter;
 import de.hub.emffrag.testmodels.fragf2.Core.PhysicalElement;
 import de.hub.emffrag.testmodels.fragf2.Core.SourcePackageFragmentRoot;
-
 import de.hub.emffrag.testmodels.fragf2.DOM.DOMPackage;
-
 import de.hub.emffrag.testmodels.fragf2.DOM.impl.DOMPackageImpl;
-
 import de.hub.emffrag.testmodels.fragf2.PrimitiveTypes.PrimitiveTypesPackage;
-
 import de.hub.emffrag.testmodels.fragf2.PrimitiveTypes.impl.PrimitiveTypesPackageImpl;
-
-import org.eclipse.emf.ecore.EAttribute;
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EEnum;
-import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.EReference;
-
-import org.eclipse.emf.ecore.impl.EPackageImpl;
 
 /**
  * <!-- begin-user-doc -->

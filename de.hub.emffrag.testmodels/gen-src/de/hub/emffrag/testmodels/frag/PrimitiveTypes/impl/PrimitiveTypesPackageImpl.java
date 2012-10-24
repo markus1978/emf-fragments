@@ -15,21 +15,16 @@
  */
 package de.hub.emffrag.testmodels.frag.PrimitiveTypes.impl;
 
-import de.hub.emffrag.testmodels.frag.Core.CorePackage;
-
-import de.hub.emffrag.testmodels.frag.Core.impl.CorePackageImpl;
-
-import de.hub.emffrag.testmodels.frag.DOM.DOMPackage;
-
-import de.hub.emffrag.testmodels.frag.DOM.impl.DOMPackageImpl;
-
-import de.hub.emffrag.testmodels.frag.PrimitiveTypes.PrimitiveTypesFactory;
-import de.hub.emffrag.testmodels.frag.PrimitiveTypes.PrimitiveTypesPackage;
-
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EPackage;
-
 import org.eclipse.emf.ecore.impl.EPackageImpl;
+
+import de.hub.emffrag.testmodels.frag.Core.CorePackage;
+import de.hub.emffrag.testmodels.frag.Core.impl.CorePackageImpl;
+import de.hub.emffrag.testmodels.frag.DOM.DOMPackage;
+import de.hub.emffrag.testmodels.frag.DOM.impl.DOMPackageImpl;
+import de.hub.emffrag.testmodels.frag.PrimitiveTypes.PrimitiveTypesFactory;
+import de.hub.emffrag.testmodels.frag.PrimitiveTypes.PrimitiveTypesPackage;
 
 /**
  * <!-- begin-user-doc -->

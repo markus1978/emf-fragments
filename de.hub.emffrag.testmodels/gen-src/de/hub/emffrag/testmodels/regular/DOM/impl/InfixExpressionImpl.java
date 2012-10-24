@@ -15,25 +15,21 @@
  */
 package de.hub.emffrag.testmodels.regular.DOM.impl;
 
-import de.hub.emffrag.testmodels.regular.DOM.DOMPackage;
-import de.hub.emffrag.testmodels.regular.DOM.Expression;
-import de.hub.emffrag.testmodels.regular.DOM.InfixExpression;
-import de.hub.emffrag.testmodels.regular.DOM.InfixExpressionOperatorKind;
-
 import java.util.Collection;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
-
 import org.eclipse.emf.common.util.EList;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
-
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
+
+import de.hub.emffrag.testmodels.regular.DOM.DOMPackage;
+import de.hub.emffrag.testmodels.regular.DOM.Expression;
+import de.hub.emffrag.testmodels.regular.DOM.InfixExpression;
+import de.hub.emffrag.testmodels.regular.DOM.InfixExpressionOperatorKind;
 
 /**
  * <!-- begin-user-doc -->

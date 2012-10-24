@@ -16,7 +16,6 @@
 package de.hub.emffrag.testmodels.reflective.testmodel;
 
 import org.eclipse.emf.common.util.EList;
-
 import org.eclipse.emf.ecore.EObject;
 
 /**

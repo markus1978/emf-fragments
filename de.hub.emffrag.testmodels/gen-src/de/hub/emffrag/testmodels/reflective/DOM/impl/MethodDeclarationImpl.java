@@ -15,8 +15,10 @@
  */
 package de.hub.emffrag.testmodels.reflective.DOM.impl;
 
-import de.hub.emffrag.testmodels.reflective.Core.IMethod;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EClass;
 
+import de.hub.emffrag.testmodels.reflective.Core.IMethod;
 import de.hub.emffrag.testmodels.reflective.DOM.Block;
 import de.hub.emffrag.testmodels.reflective.DOM.DOMPackage;
 import de.hub.emffrag.testmodels.reflective.DOM.MethodDeclaration;
@@ -25,10 +27,6 @@ import de.hub.emffrag.testmodels.reflective.DOM.SimpleName;
 import de.hub.emffrag.testmodels.reflective.DOM.SingleVariableDeclaration;
 import de.hub.emffrag.testmodels.reflective.DOM.Type;
 import de.hub.emffrag.testmodels.reflective.DOM.TypeParameter;
-
-import org.eclipse.emf.common.util.EList;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

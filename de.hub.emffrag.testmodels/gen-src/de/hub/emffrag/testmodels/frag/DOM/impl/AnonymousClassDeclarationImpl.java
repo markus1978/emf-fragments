@@ -15,13 +15,12 @@
  */
 package de.hub.emffrag.testmodels.frag.DOM.impl;
 
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EClass;
+
 import de.hub.emffrag.testmodels.frag.DOM.AnonymousClassDeclaration;
 import de.hub.emffrag.testmodels.frag.DOM.BodyDeclaration;
 import de.hub.emffrag.testmodels.frag.DOM.DOMPackage;
-
-import org.eclipse.emf.common.util.EList;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

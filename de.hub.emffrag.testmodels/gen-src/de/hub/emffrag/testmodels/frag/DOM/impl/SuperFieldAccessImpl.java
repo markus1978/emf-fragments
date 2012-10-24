@@ -15,12 +15,12 @@
  */
 package de.hub.emffrag.testmodels.frag.DOM.impl;
 
+import org.eclipse.emf.ecore.EClass;
+
 import de.hub.emffrag.testmodels.frag.DOM.DOMPackage;
 import de.hub.emffrag.testmodels.frag.DOM.Name;
 import de.hub.emffrag.testmodels.frag.DOM.SimpleName;
 import de.hub.emffrag.testmodels.frag.DOM.SuperFieldAccess;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

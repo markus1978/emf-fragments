@@ -15,14 +15,15 @@
  */
 package de.hub.emffrag.testmodels.frag.testmodel.util;
 
-import de.hub.emffrag.testmodels.frag.testmodel.*;
-
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notifier;
-
 import org.eclipse.emf.common.notify.impl.AdapterFactoryImpl;
-
 import org.eclipse.emf.ecore.EObject;
+
+import de.hub.emffrag.testmodels.frag.testmodel.Container;
+import de.hub.emffrag.testmodels.frag.testmodel.Contents;
+import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
+import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 
 /**
  * <!-- begin-user-doc -->

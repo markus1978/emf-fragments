@@ -15,17 +15,14 @@
  */
 package de.hub.emffrag.testmodels.regular.DOM.impl;
 
-import de.hub.emffrag.testmodels.regular.Core.IType;
-
-import de.hub.emffrag.testmodels.regular.DOM.DOMPackage;
-import de.hub.emffrag.testmodels.regular.DOM.Expression;
-
 import org.eclipse.emf.common.notify.Notification;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
+
+import de.hub.emffrag.testmodels.regular.Core.IType;
+import de.hub.emffrag.testmodels.regular.DOM.DOMPackage;
+import de.hub.emffrag.testmodels.regular.DOM.Expression;
 
 /**
  * <!-- begin-user-doc -->

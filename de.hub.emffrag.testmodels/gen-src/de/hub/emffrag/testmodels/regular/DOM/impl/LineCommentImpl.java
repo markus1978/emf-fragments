@@ -15,10 +15,10 @@
  */
 package de.hub.emffrag.testmodels.regular.DOM.impl;
 
+import org.eclipse.emf.ecore.EClass;
+
 import de.hub.emffrag.testmodels.regular.DOM.DOMPackage;
 import de.hub.emffrag.testmodels.regular.DOM.LineComment;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

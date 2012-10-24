@@ -15,11 +15,11 @@
  */
 package de.hub.emffrag.testmodels.fragf2.DOM.impl;
 
+import org.eclipse.emf.ecore.EClass;
+
 import de.hub.emffrag.testmodels.fragf2.DOM.ASTNode;
 import de.hub.emffrag.testmodels.fragf2.DOM.Comment;
 import de.hub.emffrag.testmodels.fragf2.DOM.DOMPackage;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

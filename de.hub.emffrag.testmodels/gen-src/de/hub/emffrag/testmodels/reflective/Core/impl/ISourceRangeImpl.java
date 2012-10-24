@@ -15,12 +15,11 @@
  */
 package de.hub.emffrag.testmodels.reflective.Core.impl;
 
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.impl.EObjectImpl;
+
 import de.hub.emffrag.testmodels.reflective.Core.CorePackage;
 import de.hub.emffrag.testmodels.reflective.Core.ISourceRange;
-
-import org.eclipse.emf.ecore.EClass;
-
-import org.eclipse.emf.ecore.impl.EObjectImpl;
 
 /**
  * <!-- begin-user-doc -->

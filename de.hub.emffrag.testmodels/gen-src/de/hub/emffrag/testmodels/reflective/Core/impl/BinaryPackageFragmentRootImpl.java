@@ -15,10 +15,10 @@
  */
 package de.hub.emffrag.testmodels.reflective.Core.impl;
 
+import org.eclipse.emf.ecore.EClass;
+
 import de.hub.emffrag.testmodels.reflective.Core.BinaryPackageFragmentRoot;
 import de.hub.emffrag.testmodels.reflective.Core.CorePackage;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

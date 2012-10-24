@@ -15,12 +15,11 @@
  */
 package de.hub.emffrag.testmodels.reflective.DOM.impl;
 
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.impl.EObjectImpl;
+
 import de.hub.emffrag.testmodels.reflective.DOM.ASTNode;
 import de.hub.emffrag.testmodels.reflective.DOM.DOMPackage;
-
-import org.eclipse.emf.ecore.EClass;
-
-import org.eclipse.emf.ecore.impl.EObjectImpl;
 
 /**
  * <!-- begin-user-doc -->

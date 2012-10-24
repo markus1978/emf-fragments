@@ -15,13 +15,12 @@
  */
 package de.hub.emffrag.testmodels.fragf2.DOM.impl;
 
-import de.hub.emffrag.reflective.FObjectImpl;
+import org.eclipse.emf.ecore.EClass;
 
+import de.hub.emffrag.reflective.FObjectImpl;
 import de.hub.emffrag.testmodels.fragf2.DOM.AST;
 import de.hub.emffrag.testmodels.fragf2.DOM.ASTNode;
 import de.hub.emffrag.testmodels.fragf2.DOM.DOMPackage;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

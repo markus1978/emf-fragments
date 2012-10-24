@@ -15,13 +15,12 @@
  */
 package de.hub.emffrag.testmodels.reflective.Core.impl;
 
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EClass;
+
 import de.hub.emffrag.testmodels.reflective.Core.CorePackage;
 import de.hub.emffrag.testmodels.reflective.Core.IMethod;
 import de.hub.emffrag.testmodels.reflective.Core.Parameter;
-
-import org.eclipse.emf.common.util.EList;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

@@ -15,12 +15,11 @@
  */
 package de.hub.emffrag.testmodels.regular.DOM.impl;
 
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.impl.EObjectImpl;
+
 import de.hub.emffrag.testmodels.regular.DOM.DOMPackage;
 import de.hub.emffrag.testmodels.regular.DOM.ExtendedModifier;
-
-import org.eclipse.emf.ecore.EClass;
-
-import org.eclipse.emf.ecore.impl.EObjectImpl;
 
 /**
  * <!-- begin-user-doc -->

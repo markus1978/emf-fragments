@@ -15,12 +15,32 @@
  */
 package de.hub.emffrag.testmodels.reflective.Core.util;
 
-import de.hub.emffrag.testmodels.reflective.Core.*;
-
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-
 import org.eclipse.emf.ecore.util.Switch;
+
+import de.hub.emffrag.testmodels.reflective.Core.BinaryPackageFragmentRoot;
+import de.hub.emffrag.testmodels.reflective.Core.CorePackage;
+import de.hub.emffrag.testmodels.reflective.Core.IClassFile;
+import de.hub.emffrag.testmodels.reflective.Core.ICompilationUnit;
+import de.hub.emffrag.testmodels.reflective.Core.IField;
+import de.hub.emffrag.testmodels.reflective.Core.IImportDeclaration;
+import de.hub.emffrag.testmodels.reflective.Core.IInitializer;
+import de.hub.emffrag.testmodels.reflective.Core.IJavaElement;
+import de.hub.emffrag.testmodels.reflective.Core.IJavaModel;
+import de.hub.emffrag.testmodels.reflective.Core.IJavaProject;
+import de.hub.emffrag.testmodels.reflective.Core.IMember;
+import de.hub.emffrag.testmodels.reflective.Core.IMethod;
+import de.hub.emffrag.testmodels.reflective.Core.IPackageFragment;
+import de.hub.emffrag.testmodels.reflective.Core.IPackageFragmentRoot;
+import de.hub.emffrag.testmodels.reflective.Core.ISourceRange;
+import de.hub.emffrag.testmodels.reflective.Core.ISourceReference;
+import de.hub.emffrag.testmodels.reflective.Core.IType;
+import de.hub.emffrag.testmodels.reflective.Core.ITypeParameter;
+import de.hub.emffrag.testmodels.reflective.Core.ITypeRoot;
+import de.hub.emffrag.testmodels.reflective.Core.Parameter;
+import de.hub.emffrag.testmodels.reflective.Core.PhysicalElement;
+import de.hub.emffrag.testmodels.reflective.Core.SourcePackageFragmentRoot;
 
 /**
  * <!-- begin-user-doc -->

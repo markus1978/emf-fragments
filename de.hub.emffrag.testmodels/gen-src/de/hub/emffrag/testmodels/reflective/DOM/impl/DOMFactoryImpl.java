@@ -15,16 +15,103 @@
  */
 package de.hub.emffrag.testmodels.reflective.DOM.impl;
 
-import de.hub.emffrag.testmodels.reflective.DOM.*;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-
 import org.eclipse.emf.ecore.impl.EFactoryImpl;
-
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
+
+import de.hub.emffrag.testmodels.reflective.DOM.AST;
+import de.hub.emffrag.testmodels.reflective.DOM.AnnotationTypeDeclaration;
+import de.hub.emffrag.testmodels.reflective.DOM.AnnotationTypeMemberDeclaration;
+import de.hub.emffrag.testmodels.reflective.DOM.AnonymousClassDeclaration;
+import de.hub.emffrag.testmodels.reflective.DOM.ArrayAccess;
+import de.hub.emffrag.testmodels.reflective.DOM.ArrayCreation;
+import de.hub.emffrag.testmodels.reflective.DOM.ArrayInitializer;
+import de.hub.emffrag.testmodels.reflective.DOM.ArrayType;
+import de.hub.emffrag.testmodels.reflective.DOM.AssertStatement;
+import de.hub.emffrag.testmodels.reflective.DOM.Assignment;
+import de.hub.emffrag.testmodels.reflective.DOM.AssignmentOperatorKind;
+import de.hub.emffrag.testmodels.reflective.DOM.Block;
+import de.hub.emffrag.testmodels.reflective.DOM.BlockComment;
+import de.hub.emffrag.testmodels.reflective.DOM.BooleanLiteral;
+import de.hub.emffrag.testmodels.reflective.DOM.BreakStatement;
+import de.hub.emffrag.testmodels.reflective.DOM.CastExpression;
+import de.hub.emffrag.testmodels.reflective.DOM.CatchClause;
+import de.hub.emffrag.testmodels.reflective.DOM.CharacterLiteral;
+import de.hub.emffrag.testmodels.reflective.DOM.ClassInstanceCreation;
+import de.hub.emffrag.testmodels.reflective.DOM.CompilationUnit;
+import de.hub.emffrag.testmodels.reflective.DOM.ConditionalExpression;
+import de.hub.emffrag.testmodels.reflective.DOM.ConstructorInvocation;
+import de.hub.emffrag.testmodels.reflective.DOM.ContinueStatement;
+import de.hub.emffrag.testmodels.reflective.DOM.DOMFactory;
+import de.hub.emffrag.testmodels.reflective.DOM.DOMPackage;
+import de.hub.emffrag.testmodels.reflective.DOM.DoStatement;
+import de.hub.emffrag.testmodels.reflective.DOM.EmptyStatement;
+import de.hub.emffrag.testmodels.reflective.DOM.EnhancedForStatement;
+import de.hub.emffrag.testmodels.reflective.DOM.EnumConstantDeclaration;
+import de.hub.emffrag.testmodels.reflective.DOM.EnumDeclaration;
+import de.hub.emffrag.testmodels.reflective.DOM.ExpressionStatement;
+import de.hub.emffrag.testmodels.reflective.DOM.FieldAccess;
+import de.hub.emffrag.testmodels.reflective.DOM.FieldDeclaration;
+import de.hub.emffrag.testmodels.reflective.DOM.ForStatement;
+import de.hub.emffrag.testmodels.reflective.DOM.IfStatement;
+import de.hub.emffrag.testmodels.reflective.DOM.ImportDeclaration;
+import de.hub.emffrag.testmodels.reflective.DOM.InfixExpression;
+import de.hub.emffrag.testmodels.reflective.DOM.InfixExpressionOperatorKind;
+import de.hub.emffrag.testmodels.reflective.DOM.Initializer;
+import de.hub.emffrag.testmodels.reflective.DOM.InstanceofExpression;
+import de.hub.emffrag.testmodels.reflective.DOM.Javadoc;
+import de.hub.emffrag.testmodels.reflective.DOM.LabeledStatement;
+import de.hub.emffrag.testmodels.reflective.DOM.LineComment;
+import de.hub.emffrag.testmodels.reflective.DOM.MarkerAnnotation;
+import de.hub.emffrag.testmodels.reflective.DOM.MemberRef;
+import de.hub.emffrag.testmodels.reflective.DOM.MemberValuePair;
+import de.hub.emffrag.testmodels.reflective.DOM.MethodDeclaration;
+import de.hub.emffrag.testmodels.reflective.DOM.MethodInvocation;
+import de.hub.emffrag.testmodels.reflective.DOM.MethodRef;
+import de.hub.emffrag.testmodels.reflective.DOM.MethodRefParameter;
+import de.hub.emffrag.testmodels.reflective.DOM.Modifier;
+import de.hub.emffrag.testmodels.reflective.DOM.NormalAnnotation;
+import de.hub.emffrag.testmodels.reflective.DOM.NullLiteral;
+import de.hub.emffrag.testmodels.reflective.DOM.NumberLiteral;
+import de.hub.emffrag.testmodels.reflective.DOM.PackageDeclaration;
+import de.hub.emffrag.testmodels.reflective.DOM.ParameterizedType;
+import de.hub.emffrag.testmodels.reflective.DOM.ParenthesizedExpression;
+import de.hub.emffrag.testmodels.reflective.DOM.PostfixExpression;
+import de.hub.emffrag.testmodels.reflective.DOM.PostfixExpressionOperatorKind;
+import de.hub.emffrag.testmodels.reflective.DOM.PrefixExpression;
+import de.hub.emffrag.testmodels.reflective.DOM.PrefixExpressionOperatorKind;
+import de.hub.emffrag.testmodels.reflective.DOM.PrimitiveType;
+import de.hub.emffrag.testmodels.reflective.DOM.QualifiedName;
+import de.hub.emffrag.testmodels.reflective.DOM.QualifiedType;
+import de.hub.emffrag.testmodels.reflective.DOM.ReturnStatement;
+import de.hub.emffrag.testmodels.reflective.DOM.SimpleName;
+import de.hub.emffrag.testmodels.reflective.DOM.SimpleType;
+import de.hub.emffrag.testmodels.reflective.DOM.SingleMemberAnnotation;
+import de.hub.emffrag.testmodels.reflective.DOM.SingleVariableDeclaration;
+import de.hub.emffrag.testmodels.reflective.DOM.StringLiteral;
+import de.hub.emffrag.testmodels.reflective.DOM.SuperConstructorInvocation;
+import de.hub.emffrag.testmodels.reflective.DOM.SuperFieldAccess;
+import de.hub.emffrag.testmodels.reflective.DOM.SuperMethodInvocation;
+import de.hub.emffrag.testmodels.reflective.DOM.SwitchCase;
+import de.hub.emffrag.testmodels.reflective.DOM.SwitchStatement;
+import de.hub.emffrag.testmodels.reflective.DOM.SynchronizedStatement;
+import de.hub.emffrag.testmodels.reflective.DOM.TagElement;
+import de.hub.emffrag.testmodels.reflective.DOM.TextElement;
+import de.hub.emffrag.testmodels.reflective.DOM.ThisExpression;
+import de.hub.emffrag.testmodels.reflective.DOM.ThrowStatement;
+import de.hub.emffrag.testmodels.reflective.DOM.TryStatement;
+import de.hub.emffrag.testmodels.reflective.DOM.TypeDeclaration;
+import de.hub.emffrag.testmodels.reflective.DOM.TypeDeclarationStatement;
+import de.hub.emffrag.testmodels.reflective.DOM.TypeLiteral;
+import de.hub.emffrag.testmodels.reflective.DOM.TypeParameter;
+import de.hub.emffrag.testmodels.reflective.DOM.VariableDeclarationExpression;
+import de.hub.emffrag.testmodels.reflective.DOM.VariableDeclarationFragment;
+import de.hub.emffrag.testmodels.reflective.DOM.VariableDeclarationStatement;
+import de.hub.emffrag.testmodels.reflective.DOM.WhileStatement;
+import de.hub.emffrag.testmodels.reflective.DOM.WildcardType;
 
 /**
  * <!-- begin-user-doc -->

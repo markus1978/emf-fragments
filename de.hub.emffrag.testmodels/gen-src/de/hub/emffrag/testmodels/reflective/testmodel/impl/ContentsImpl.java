@@ -15,10 +15,10 @@
  */
 package de.hub.emffrag.testmodels.reflective.testmodel.impl;
 
+import org.eclipse.emf.ecore.EClass;
+
 import de.hub.emffrag.testmodels.reflective.testmodel.Contents;
 import de.hub.emffrag.testmodels.reflective.testmodel.TestModelPackage;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

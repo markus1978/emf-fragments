@@ -15,19 +15,17 @@
  */
 package de.hub.emffrag.testmodels.regular.Core.impl;
 
+import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.notify.NotificationChain;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.InternalEObject;
+import org.eclipse.emf.ecore.impl.ENotificationImpl;
+
 import de.hub.emffrag.testmodels.regular.Core.CorePackage;
 import de.hub.emffrag.testmodels.regular.Core.ISourceRange;
 import de.hub.emffrag.testmodels.regular.Core.ISourceReference;
 import de.hub.emffrag.testmodels.regular.Core.ITypeRoot;
 import de.hub.emffrag.testmodels.regular.Core.PhysicalElement;
-
-import org.eclipse.emf.common.notify.Notification;
-import org.eclipse.emf.common.notify.NotificationChain;
-
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.InternalEObject;
-
-import org.eclipse.emf.ecore.impl.ENotificationImpl;
 
 /**
  * <!-- begin-user-doc -->

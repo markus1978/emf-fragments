@@ -9,6 +9,10 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
+import javax.xml.bind.DatatypeConverter;
+
+import org.eclipse.emf.common.util.URI;
+
 public class DataIndex<KT> {
 
 	private final DataStore store;
@@ -24,11 +28,15 @@ public class DataIndex<KT> {
 		this.keyType = keyType;
 	}
 
-	private byte[] storeKey(KT key) {
+	public byte[] getStoreKey(KT key) {
 		byte[] serialize = keyType.serialize(key);
 		return ByteBuffer.allocate(fullPrefix.length + serialize.length)
 				.put(fullPrefix)
 				.put(serialize).array();
+	}
+	
+	public URI getURI(KT key) {
+		return URI.createURI(store.getURIString()).appendSegment(DatatypeConverter.printBase64Binary(getStoreKey(key)));
 	}
 	
 	public KT add() {
@@ -82,7 +90,7 @@ public class DataIndex<KT> {
 	}
 	
 	public boolean add(KT key) {
-		byte[] storeKey = storeKey(key);
+		byte[] storeKey = getStoreKey(key);
 		return store.ckeckAndCreate(storeKey);
 	}
 	
@@ -97,11 +105,11 @@ public class DataIndex<KT> {
 	}
 	
 	public OutputStream openOutputStream(KT key) {
-		return store.openOutputStream(storeKey(key));
+		return store.openOutputStream(getStoreKey(key));
 	}
 	
 	public InputStream openInputStream(KT key) {
-		return store.openInputStream(storeKey(key));
+		return store.openInputStream(getStoreKey(key));
 	}
 	
 	private static String slurp(final InputStream is, final int bufferSize) {

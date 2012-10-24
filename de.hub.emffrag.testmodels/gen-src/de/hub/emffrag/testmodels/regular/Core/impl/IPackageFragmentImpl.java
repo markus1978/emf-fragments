@@ -15,28 +15,24 @@
  */
 package de.hub.emffrag.testmodels.regular.Core.impl;
 
+import java.util.Collection;
+
+import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.notify.NotificationChain;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.InternalEObject;
+import org.eclipse.emf.ecore.impl.ENotificationImpl;
+import org.eclipse.emf.ecore.util.EObjectContainmentEList;
+import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.emf.ecore.util.InternalEList;
+
 import de.hub.emffrag.testmodels.regular.Core.CorePackage;
 import de.hub.emffrag.testmodels.regular.Core.IClassFile;
 import de.hub.emffrag.testmodels.regular.Core.ICompilationUnit;
 import de.hub.emffrag.testmodels.regular.Core.IPackageFragment;
 import de.hub.emffrag.testmodels.regular.Core.IPackageFragmentRoot;
 import de.hub.emffrag.testmodels.regular.Core.PhysicalElement;
-
-import java.util.Collection;
-
-import org.eclipse.emf.common.notify.Notification;
-import org.eclipse.emf.common.notify.NotificationChain;
-
-import org.eclipse.emf.common.util.EList;
-
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.InternalEObject;
-
-import org.eclipse.emf.ecore.impl.ENotificationImpl;
-
-import org.eclipse.emf.ecore.util.EObjectContainmentEList;
-import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.emf.ecore.util.InternalEList;
 
 /**
  * <!-- begin-user-doc -->

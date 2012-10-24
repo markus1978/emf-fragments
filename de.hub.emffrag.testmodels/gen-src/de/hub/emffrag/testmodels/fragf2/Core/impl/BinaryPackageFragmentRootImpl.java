@@ -15,10 +15,10 @@
  */
 package de.hub.emffrag.testmodels.fragf2.Core.impl;
 
+import org.eclipse.emf.ecore.EClass;
+
 import de.hub.emffrag.testmodels.fragf2.Core.BinaryPackageFragmentRoot;
 import de.hub.emffrag.testmodels.fragf2.Core.CorePackage;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

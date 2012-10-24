@@ -15,16 +15,103 @@
  */
 package de.hub.emffrag.testmodels.frag.DOM.impl;
 
-import de.hub.emffrag.testmodels.frag.DOM.*;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-
 import org.eclipse.emf.ecore.impl.EFactoryImpl;
-
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
+
+import de.hub.emffrag.testmodels.frag.DOM.AST;
+import de.hub.emffrag.testmodels.frag.DOM.AnnotationTypeDeclaration;
+import de.hub.emffrag.testmodels.frag.DOM.AnnotationTypeMemberDeclaration;
+import de.hub.emffrag.testmodels.frag.DOM.AnonymousClassDeclaration;
+import de.hub.emffrag.testmodels.frag.DOM.ArrayAccess;
+import de.hub.emffrag.testmodels.frag.DOM.ArrayCreation;
+import de.hub.emffrag.testmodels.frag.DOM.ArrayInitializer;
+import de.hub.emffrag.testmodels.frag.DOM.ArrayType;
+import de.hub.emffrag.testmodels.frag.DOM.AssertStatement;
+import de.hub.emffrag.testmodels.frag.DOM.Assignment;
+import de.hub.emffrag.testmodels.frag.DOM.AssignmentOperatorKind;
+import de.hub.emffrag.testmodels.frag.DOM.Block;
+import de.hub.emffrag.testmodels.frag.DOM.BlockComment;
+import de.hub.emffrag.testmodels.frag.DOM.BooleanLiteral;
+import de.hub.emffrag.testmodels.frag.DOM.BreakStatement;
+import de.hub.emffrag.testmodels.frag.DOM.CastExpression;
+import de.hub.emffrag.testmodels.frag.DOM.CatchClause;
+import de.hub.emffrag.testmodels.frag.DOM.CharacterLiteral;
+import de.hub.emffrag.testmodels.frag.DOM.ClassInstanceCreation;
+import de.hub.emffrag.testmodels.frag.DOM.CompilationUnit;
+import de.hub.emffrag.testmodels.frag.DOM.ConditionalExpression;
+import de.hub.emffrag.testmodels.frag.DOM.ConstructorInvocation;
+import de.hub.emffrag.testmodels.frag.DOM.ContinueStatement;
+import de.hub.emffrag.testmodels.frag.DOM.DOMFactory;
+import de.hub.emffrag.testmodels.frag.DOM.DOMPackage;
+import de.hub.emffrag.testmodels.frag.DOM.DoStatement;
+import de.hub.emffrag.testmodels.frag.DOM.EmptyStatement;
+import de.hub.emffrag.testmodels.frag.DOM.EnhancedForStatement;
+import de.hub.emffrag.testmodels.frag.DOM.EnumConstantDeclaration;
+import de.hub.emffrag.testmodels.frag.DOM.EnumDeclaration;
+import de.hub.emffrag.testmodels.frag.DOM.ExpressionStatement;
+import de.hub.emffrag.testmodels.frag.DOM.FieldAccess;
+import de.hub.emffrag.testmodels.frag.DOM.FieldDeclaration;
+import de.hub.emffrag.testmodels.frag.DOM.ForStatement;
+import de.hub.emffrag.testmodels.frag.DOM.IfStatement;
+import de.hub.emffrag.testmodels.frag.DOM.ImportDeclaration;
+import de.hub.emffrag.testmodels.frag.DOM.InfixExpression;
+import de.hub.emffrag.testmodels.frag.DOM.InfixExpressionOperatorKind;
+import de.hub.emffrag.testmodels.frag.DOM.Initializer;
+import de.hub.emffrag.testmodels.frag.DOM.InstanceofExpression;
+import de.hub.emffrag.testmodels.frag.DOM.Javadoc;
+import de.hub.emffrag.testmodels.frag.DOM.LabeledStatement;
+import de.hub.emffrag.testmodels.frag.DOM.LineComment;
+import de.hub.emffrag.testmodels.frag.DOM.MarkerAnnotation;
+import de.hub.emffrag.testmodels.frag.DOM.MemberRef;
+import de.hub.emffrag.testmodels.frag.DOM.MemberValuePair;
+import de.hub.emffrag.testmodels.frag.DOM.MethodDeclaration;
+import de.hub.emffrag.testmodels.frag.DOM.MethodInvocation;
+import de.hub.emffrag.testmodels.frag.DOM.MethodRef;
+import de.hub.emffrag.testmodels.frag.DOM.MethodRefParameter;
+import de.hub.emffrag.testmodels.frag.DOM.Modifier;
+import de.hub.emffrag.testmodels.frag.DOM.NormalAnnotation;
+import de.hub.emffrag.testmodels.frag.DOM.NullLiteral;
+import de.hub.emffrag.testmodels.frag.DOM.NumberLiteral;
+import de.hub.emffrag.testmodels.frag.DOM.PackageDeclaration;
+import de.hub.emffrag.testmodels.frag.DOM.ParameterizedType;
+import de.hub.emffrag.testmodels.frag.DOM.ParenthesizedExpression;
+import de.hub.emffrag.testmodels.frag.DOM.PostfixExpression;
+import de.hub.emffrag.testmodels.frag.DOM.PostfixExpressionOperatorKind;
+import de.hub.emffrag.testmodels.frag.DOM.PrefixExpression;
+import de.hub.emffrag.testmodels.frag.DOM.PrefixExpressionOperatorKind;
+import de.hub.emffrag.testmodels.frag.DOM.PrimitiveType;
+import de.hub.emffrag.testmodels.frag.DOM.QualifiedName;
+import de.hub.emffrag.testmodels.frag.DOM.QualifiedType;
+import de.hub.emffrag.testmodels.frag.DOM.ReturnStatement;
+import de.hub.emffrag.testmodels.frag.DOM.SimpleName;
+import de.hub.emffrag.testmodels.frag.DOM.SimpleType;
+import de.hub.emffrag.testmodels.frag.DOM.SingleMemberAnnotation;
+import de.hub.emffrag.testmodels.frag.DOM.SingleVariableDeclaration;
+import de.hub.emffrag.testmodels.frag.DOM.StringLiteral;
+import de.hub.emffrag.testmodels.frag.DOM.SuperConstructorInvocation;
+import de.hub.emffrag.testmodels.frag.DOM.SuperFieldAccess;
+import de.hub.emffrag.testmodels.frag.DOM.SuperMethodInvocation;
+import de.hub.emffrag.testmodels.frag.DOM.SwitchCase;
+import de.hub.emffrag.testmodels.frag.DOM.SwitchStatement;
+import de.hub.emffrag.testmodels.frag.DOM.SynchronizedStatement;
+import de.hub.emffrag.testmodels.frag.DOM.TagElement;
+import de.hub.emffrag.testmodels.frag.DOM.TextElement;
+import de.hub.emffrag.testmodels.frag.DOM.ThisExpression;
+import de.hub.emffrag.testmodels.frag.DOM.ThrowStatement;
+import de.hub.emffrag.testmodels.frag.DOM.TryStatement;
+import de.hub.emffrag.testmodels.frag.DOM.TypeDeclaration;
+import de.hub.emffrag.testmodels.frag.DOM.TypeDeclarationStatement;
+import de.hub.emffrag.testmodels.frag.DOM.TypeLiteral;
+import de.hub.emffrag.testmodels.frag.DOM.TypeParameter;
+import de.hub.emffrag.testmodels.frag.DOM.VariableDeclarationExpression;
+import de.hub.emffrag.testmodels.frag.DOM.VariableDeclarationFragment;
+import de.hub.emffrag.testmodels.frag.DOM.VariableDeclarationStatement;
+import de.hub.emffrag.testmodels.frag.DOM.WhileStatement;
+import de.hub.emffrag.testmodels.frag.DOM.WildcardType;
 
 /**
  * <!-- begin-user-doc -->

@@ -4,20 +4,44 @@ import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.EStoreEObjectImpl;
+import org.eclipse.emf.ecore.resource.Resource.Internal;
 
 import de.hub.emffrag.util.EMFFragUtil;
 
 public class FObjectImpl extends EStoreEObjectImpl {
 
-	protected FInternalObjectImpl internalObject;
+	private FInternalObjectImpl internalObject;
 
 	public FObjectImpl() {
 		eSetStore(FStoreImpl.getInstance());
+	}
+	
+	protected void setInternalObject(FInternalObjectImpl internalObject) {
+		this.internalObject = internalObject;
+	}
+	
+	protected FInternalObjectImpl internalObject() {
+		if (internalObject == null) {
+			// This object was not yet added to a model
+			internalObject = UserObjectsCache.newUserObjectsCache.createInternalObject(this);
+		}
+		return internalObject;
+	}
+	
+	@Override
+	public Internal eDirectResource() {
+		return internalObject().eDirectResource();
 	}
 
 	@Override
 	protected void eBasicSetContainer(InternalEObject newContainer, int newContainerFeatureID) {
 		super.eBasicSetContainer(newContainer, newContainerFeatureID);
+		
+		FInternalObjectImpl internalObject = internalObject();		
+		FragmentedModel fragmentation = internalObject.getFragmentation();
+		if (fragmentation == null) {
+			fragmentation = ((FObjectImpl)newContainer).internalObject().getFragmentation();
+		}
 
 		// The object was moved to a new (including null) container. This can
 		// have an effect on the fragmentation. The following code realizes
@@ -29,13 +53,17 @@ public class FObjectImpl extends EStoreEObjectImpl {
 				// if the object is not yet root of a fragment, a new fragment
 				// has to be created
 				if (!internalObject.isFragmentRoot()) {
-					internalObject.getFragmentation().crateFragment(this.internalObject, this, newContainer, feature);
+					if (fragmentation == null) {
+						throw new RuntimeException("You cannot at a value to a fragmenting reference if the new container is not part of a fragmented model");
+					} else {
+						fragmentation.crateFragment(this.internalObject, this, newContainer, feature);
+					}
 				}
 			} else {
 				// if the object was root of a fragment, this fragment has to be
 				// removed now
 				if (internalObject.isFragmentRoot()) {
-					internalObject.getFragmentation().removeFragment(this.internalObject);
+					fragmentation.removeFragment(this.internalObject);
 				}
 			}
 		} else {			
@@ -43,7 +71,7 @@ public class FObjectImpl extends EStoreEObjectImpl {
 			// new objects realm (if necessary) and if it was a fragment root the
 			// fragment has to be deleted.
 			if (internalObject.isFragmentRoot()) {
-				internalObject.getFragmentation().removeFragment(this.internalObject);
+				fragmentation.removeFragment(this.internalObject);
 			}
 			UserObjectsCache.newUserObjectsCache.addUserObjectToCache(internalObject, this);
 		}

@@ -1,4 +1,4 @@
-package de.hub.emffrag.kvstore;
+package de.hub.emffrag.test;
 
 import java.util.Random;
 
@@ -10,24 +10,19 @@ import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.KeyType;
 import de.hub.emffrag.datastore.LongKeyType;
+import de.hub.emffrag.kvstore.InMemoryDataStore;
 
-public class IndexTests {
+public class IndexTests extends CommonTests {
 
-	private DataStore createTestDataStore() {
-		return new InMemoryDataStore("", "", "");
-	}
-
-	private DataIndex<Long> createIndex(String prefix, DataStore store) {
-		return new DataIndex<Long>(store, prefix, LongKeyType.instance);
-	}
-	
 	@Test
 	public void testAddEmpty() {
-		DataIndex<Long> index = createIndex("f", createTestDataStore());
+		DataStore dataStore = createTestDataStore();
+		DataIndex<Long> index = createIndex("f", dataStore);
 		Long add = index.add();
 		Assert.assertNotNull(add);
 		Assert.assertEquals(0l, (long)add);
 		Assert.assertFalse(index.add(0l));
+		System.out.println(dataStore);
 	}
 	
 	@Test

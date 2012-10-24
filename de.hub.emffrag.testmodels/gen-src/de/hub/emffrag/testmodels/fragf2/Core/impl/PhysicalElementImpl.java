@@ -15,12 +15,11 @@
  */
 package de.hub.emffrag.testmodels.fragf2.Core.impl;
 
-import de.hub.emffrag.reflective.FObjectImpl;
+import org.eclipse.emf.ecore.EClass;
 
+import de.hub.emffrag.reflective.FObjectImpl;
 import de.hub.emffrag.testmodels.fragf2.Core.CorePackage;
 import de.hub.emffrag.testmodels.fragf2.Core.PhysicalElement;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->
