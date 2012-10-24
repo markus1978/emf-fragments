@@ -7,9 +7,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
-import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.fragmentation.Fragment;
 import de.hub.emffrag.fragmentation.FragmentedModel;
 import de.hub.emffrag.testmodels.frag.testmodel.Container;
@@ -29,13 +27,44 @@ public class BasicFragmentationTests extends CommonTests {
 		}
 	}
 	
+	/**
+	 * Test the pure creation of an empty fragmented model.
+	 */
 	@Test
 	public void testEmpty() {
 		FragmentedModel model = new FragmentedModel(createTestDataStore(), null, TestModelPackage.eINSTANCE);
+		model.save();
 	}
 	
+	/**
+	 * Test adding a single object to an empty fragmented model as new root object.
+	 */
 	@Test
-	public void testAddEmpty() {		
+	public void testAddRootObject() {		
+		DataStore dataStore = createTestDataStore();
+		
+		FragmentedModel model = new FragmentedModel(dataStore, null, TestModelPackage.eINSTANCE);
+		Contents c = TestModelFactory.eINSTANCE.createContents();
+		c.setValue("testValue");
+		model.addContent(c);
+		
+		Assert.assertNotNull(c.eResource());
+		Assert.assertTrue(c.eResource() instanceof Fragment);
+				
+		URI rootFragmentURI = model.getRootFragmentURI();
+		model.save();
+		
+		model = new FragmentedModel(dataStore, rootFragmentURI, TestModelPackage.eINSTANCE);
+		Assert.assertEquals(1, model.getRootContents().size());
+		Assert.assertTrue(model.getRootContents().get(0) instanceof Contents);
+		Assert.assertEquals("testValue", ((Contents)model.getRootContents().get(0)).getValue());		
+	}
+	
+	/**
+	 * Test adding a object to a fragmenting reference.
+	 */
+	@Test
+	public void testAddFragment() {		
 		DataStore dataStore = createTestDataStore();
 		
 		FragmentedModel model = new FragmentedModel(dataStore, null, TestModelPackage.eINSTANCE);
@@ -57,5 +86,45 @@ public class BasicFragmentationTests extends CommonTests {
 		container = (Container)model.getRootContents().get(0);
 		Assert.assertTrue(container.getFragmentedContents().size() == 1);
 		Assert.assertEquals("testValue", container.getFragmentedContents().get(0).getValue());
+	}
+	
+	@Test
+	public void testRemoveObject() {
+		
+	}
+	
+	@Test
+	public void testRemoveRootObject() {
+		
+	}
+	
+	@Test
+	public void testRemoveFragmentRoot() {
+		
+	}
+	
+	@Test
+	public void testContiniousAddAndRemove() {
+		
+	}
+	
+	@Test
+	public void testMoveFragmentRootToNonFragmentingReference() {
+		
+	}
+	
+	@Test
+	public void testMoveFragmentRootToOtherFragmentingReference() {
+		
+	}
+	
+	@Test
+	public void testMoveObjectToFragmentingReference() {
+		
+	}
+	
+	@Test
+	public void testMoveObjectToAnotherFragment() {
+		
 	}
 }
