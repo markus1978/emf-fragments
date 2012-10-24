@@ -20,7 +20,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 
 	public boolean isFragmentRoot() {
 		Resource eResource = eResource();
-		return eResource != null && eResource instanceof Fragment && eResource != eContainer().eResource();
+		return eResource != null && eResource instanceof Fragment && (eContainer() == null || eResource != eContainer().eResource());
 	}
 
 	public FragmentedModel getFragmentation() {

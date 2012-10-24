@@ -39,7 +39,7 @@ public class FObjectImpl extends EStoreEObjectImpl {
 		
 		FInternalObjectImpl internalObject = internalObject();		
 		FragmentedModel fragmentation = internalObject.getFragmentation();
-		if (fragmentation == null) {
+		if (fragmentation == null && newContainer != null) {
 			fragmentation = ((FObjectImpl)newContainer).internalObject().getFragmentation();
 		}
 
