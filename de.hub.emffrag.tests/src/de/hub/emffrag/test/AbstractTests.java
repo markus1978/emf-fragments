@@ -25,7 +25,7 @@ import de.hub.emffrag.kvstore.InMemoryDataStore;
  * It also contains all tests that can be applied to all tested (persistence)
  * frameworks (XMI, XMI with reflection, EMF-Fragments).
  */
-public class CommonTests {
+public class AbstractTests {
 
 	@BeforeClass
 	public static void setUp() {		

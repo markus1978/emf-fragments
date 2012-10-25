@@ -134,4 +134,9 @@ public class DataIndex<KT> {
 		}
 		return out.toString();
 	}
+
+	public KT getKeyFromURI(URI crossReferenceURI) {
+		byte[] key = DatatypeConverter.parseBase64Binary(crossReferenceURI.segment(1));
+		return keyType.deserialize(key, fullPrefix.length);
+	}
 }

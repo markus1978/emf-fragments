@@ -9,12 +9,10 @@ import java.util.Map;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
-import org.eclipse.emf.ecore.impl.EFactoryImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -28,6 +26,7 @@ import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.DataStoreURIHandler;
 import de.hub.emffrag.datastore.LongKeyType;
+import de.hub.emffrag.datastore.StringKeyType;
 
 public class FragmentedModel {
 
@@ -46,17 +45,16 @@ public class FragmentedModel {
 	private Fragment rootFragment;
 	private final FragmentCache fragmentCache; // TODO handle fragment caching
 												// issues
-
-	private final DataStore persistence;
 	private final DataIndex<Long> fragmentIndex;
+	private final DataIndex<String> crossReferenceIndex;
 	private final URI rootFragmentKeyURI;
 
 	private class FragmentCache {
 
 		private final List<Fragment> markedForDelete = new ArrayList<Fragment>();
-		
+
 		public void manage() {
-			for (Fragment fragment: markedForDelete) {
+			for (Fragment fragment : markedForDelete) {
 				try {
 					fragment.delete(options);
 				} catch (IOException e) {
@@ -76,7 +74,24 @@ public class FragmentedModel {
 	 * {@link ResourceSet} with the listed characteristics.
 	 */
 	private ResourceSet createAndConfigureAResourceSet(DataStore dataStore, EPackage... metaModels) {
-		ResourceSet resourceSet = new ResourceSetImpl();
+		ResourceSet resourceSet = new ResourceSetImpl() {
+			@Override
+			public EObject getEObject(URI uri, boolean loadOnDemand) {
+				Resource resource = getResource(uri.trimFragment(), loadOnDemand);
+				if (resource != null) {
+					if (uri.fragment() == null) {
+						// The URI must reference a cross reference entry
+						String objectURIString = crossReferenceIndex.get(crossReferenceIndex.getKeyFromURI(uri));
+						EObject result = super.getEObject(URI.createURI(objectURIString), true);
+						return result;
+					} else {
+						return resource.getEObject(uri.fragment());
+					}
+				} else {
+					return null;
+				}
+			}
+		};
 		for (EPackage metaModel : metaModels) {
 			EPackage reflectiveMetaModel = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(metaModel);
 			resourceSet.getPackageRegistry().put(metaModel.getNsURI(), reflectiveMetaModel);
@@ -95,11 +110,11 @@ public class FragmentedModel {
 		return resourceSet;
 	}
 
-	public FragmentedModel(DataStore persistence, URI rootFragmentKeyURI, EPackage... metaModel) {
-		this.persistence = persistence;
-		this.fragmentIndex = new DataIndex<Long>(persistence, "f", LongKeyType.instance);
+	public FragmentedModel(DataStore dataStore, URI rootFragmentKeyURI, EPackage... metaModel) {
+		this.fragmentIndex = new DataIndex<Long>(dataStore, "f", LongKeyType.instance);
+		this.crossReferenceIndex = new DataIndex<String>(dataStore, "c", StringKeyType.instance);
 
-		resourceSet = createAndConfigureAResourceSet(persistence, metaModel);
+		resourceSet = createAndConfigureAResourceSet(dataStore, metaModel);
 
 		if (rootFragmentKeyURI == null) {
 			rootFragment = crateFragment(null, null, null, null);
@@ -203,8 +218,8 @@ public class FragmentedModel {
 		} catch (IOException e) {
 			Throwables.propagate(e);
 		}
-//		fragmentCache.markedForDelete.add(oldFragment);
-		
+		// fragmentCache.markedForDelete.add(oldFragment);
+
 		// TODO handle fragment caching issues
 	}
 
@@ -221,5 +236,28 @@ public class FragmentedModel {
 
 	public URI getRootFragmentURI() {
 		return rootFragmentKeyURI;
+	}
+
+	/**
+	 * Changes (or add) the entry for a cross referenced object.
+	 * 
+	 * @param crossReferenceURI
+	 *            An extrinsic that identifies an object within a resource, as
+	 *            long as it is already given (null if the object is cross
+	 *            referenced for the first time).
+	 * @param object
+	 *            The object that is cross references.
+	 * @return The extrinsic ID that the cross referenced object should be
+	 *         identified with from now on.
+	 */
+	public String updateCrossReference(String extrinsicID, FInternalObjectImpl object) {
+		if (extrinsicID == null) {
+			extrinsicID = crossReferenceIndex.add();
+		}
+
+		Resource resource = object.eResource();
+		URI objectURI = resource.getURI().appendFragment(resource.getURIFragment(object));
+		crossReferenceIndex.set(extrinsicID, objectURI.toString());
+		return extrinsicID;
 	}
 }

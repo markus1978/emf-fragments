@@ -24,7 +24,7 @@ import de.hub.emffrag.testmodels.regular.Core.CorePackage;
 import de.hub.emffrag.testmodels.regular.DOM.DOMPackage;
 import de.hub.emffrag.testmodels.regular.PrimitiveTypes.PrimitiveTypesPackage;
 
-public class RegularTest extends CommonTests {
+public class RegularTest extends AbstractTests {
 	@Before
     public void registerPackages() {
          if (!EPackage.Registry.INSTANCE.containsKey(EcorePackage.eINSTANCE.getNsURI())) {

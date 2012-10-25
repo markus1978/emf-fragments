@@ -33,7 +33,7 @@ import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
  * depends on EMF internals, we think these tests are necessary to detect
  * possible slight changes in EMF semantics.
  */
-public class ReflectiveMetaModelTests extends CommonTests {
+public class ReflectiveMetaModelTests extends AbstractTests {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test

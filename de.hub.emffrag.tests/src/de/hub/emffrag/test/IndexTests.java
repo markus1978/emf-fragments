@@ -10,9 +10,10 @@ import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.KeyType;
 import de.hub.emffrag.datastore.LongKeyType;
+import de.hub.emffrag.datastore.StringKeyType;
 import de.hub.emffrag.kvstore.InMemoryDataStore;
 
-public class IndexTests extends CommonTests {
+public class IndexTests extends AbstractTests {
 
 	@Test
 	public void testAddEmpty() {
@@ -99,5 +100,12 @@ public class IndexTests extends CommonTests {
 		for (int i = 0; i < 1000; i++) {
 			testLongKeyTypeOrder(LongKeyType.instance, Math.abs(r.nextLong()), Math.abs(r.nextLong()));
 		}
+	}
+	
+	@Test
+	public void testStringKeyType() {
+		StringKeyType keyType = StringKeyType.instance;
+		Assert.assertEquals("b", keyType.next("a"));
+		Assert.assertEquals("za", keyType.next("z"));
 	}
 }

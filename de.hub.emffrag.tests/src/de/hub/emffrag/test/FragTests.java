@@ -16,7 +16,7 @@
 package de.hub.emffrag.test;
 
 
-public class FragTests extends CommonTests {
+public class FragTests extends AbstractTests {
 
 //	public void clearDB(String testTable) {
 //		HBaseKeyValueStore hBaseKeyValueStore = new HBaseKeyValueStore();

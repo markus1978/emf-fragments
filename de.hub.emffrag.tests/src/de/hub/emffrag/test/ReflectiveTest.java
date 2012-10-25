@@ -24,7 +24,7 @@ import de.hub.emffrag.testmodels.reflective.Core.CorePackage;
 import de.hub.emffrag.testmodels.reflective.DOM.DOMPackage;
 import de.hub.emffrag.testmodels.reflective.PrimitiveTypes.PrimitiveTypesPackage;
 
-public class ReflectiveTest extends CommonTests {
+public class ReflectiveTest extends AbstractTests {
 	@Before
     public void registerPackages() {
          if (!EPackage.Registry.INSTANCE.containsKey(EcorePackage.eINSTANCE.getNsURI())) {
