@@ -63,7 +63,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 
 	/**
 	 * If the object changes resources, its cross referenced status has to move
-	 * too. Further, the id table needs to be updated.
+	 * too. Further, the cross reference entry needs to be updated.
 	 */
 	@Override
 	public NotificationChain eSetResource(Internal resource, NotificationChain notifications) {

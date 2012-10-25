@@ -2,8 +2,6 @@ package de.hub.emffrag.fragmentation;
 
 import java.io.IOException;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
@@ -15,7 +13,6 @@ import org.eclipse.emf.ecore.xmi.XMLSave;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMISaveImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMLHelperImpl;
-import org.eclipse.emf.ecore.xmi.impl.XMLSaveImpl;
 
 import com.google.common.base.Throwables;
 
@@ -58,6 +55,14 @@ public class Fragment extends XMIResourceImpl {
 		}
 	}
 
+	/**
+	 * This custom {@link XMLHelperImpl} allows us to determine the form of used HREF URIs in XMI. This
+	 * is necessary to point cross references towards cross reference entries in the data-base rather then
+	 * the objects themselves. This requires each cross-referenced object to have an extrinsic id. But EMF exports
+	 * HREFs towards objects with extrinsic IDs as a URI that uses these extrinsic IDs. We don't want that.
+	 * This implementation uses regular URI-fragments for containment references and URIs pointing at cross-reference
+	 * entries in the data-store for cross references.
+	 */
 	private class MyXMLHelper extends XMLHelperImpl {
 		private EStructuralFeature currentFeature = null;
 
@@ -70,17 +75,16 @@ public class Fragment extends XMIResourceImpl {
 			if (obj instanceof FInternalObjectImpl && ((FInternalObjectImpl) obj).isCrossReferenced()
 					&& otherResource instanceof Fragment) {
 				if (currentFeature instanceof EReference && !((EReference) currentFeature).isContainment()) {
-					// FragmentedModel fragmentedModel =
-					// ((Fragment)otherResource).getFragmentedModel();
 					String extrinsicID = ((Fragment) otherResource).getID(obj);
-					return URI.createURI(DatatypeConverter.printBase64Binary(("c_" + extrinsicID).getBytes())); // TODO intermediate
+					FragmentedModel fragmentedModel = ((Fragment) otherResource).getFragmentedModel();
+					URI uri = fragmentedModel.getURIForExtrinsicCrossReferencedObjectID(extrinsicID);
+					return uri;
 				} else if (EMFFragUtil.isFragFreature(currentFeature)) {
-					 return otherResource.getURI().appendFragment("/"); 
+					return otherResource.getURI().appendFragment("/");
 				}
 			}
-			return super.getHREF(otherResource, obj);			
+			return super.getHREF(otherResource, obj);
 		}
-
 	}
 
 	@Override
@@ -98,13 +102,4 @@ public class Fragment extends XMIResourceImpl {
 			}
 		};
 	}
-
-	// @Override
-	// protected EObject getEObjectByID(String id) {
-	// EObject eObject = super.getEObjectByID(id);
-	// if (eObject == null) {
-	// eObject = FStoreImpl.INSTANCE.resolve(id);
-	// }
-	// return eObject;
-	// }
 }

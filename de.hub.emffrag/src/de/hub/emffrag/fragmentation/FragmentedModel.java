@@ -260,4 +260,8 @@ public class FragmentedModel {
 		crossReferenceIndex.set(extrinsicID, objectURI.toString());
 		return extrinsicID;
 	}
+
+	public URI getURIForExtrinsicCrossReferencedObjectID(String extrinsicID) {
+		return crossReferenceIndex.getURI(extrinsicID);
+	}
 }
