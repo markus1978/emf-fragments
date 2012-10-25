@@ -219,10 +219,8 @@ public class FStoreImpl implements EStore {
 
 	@Override
 	public EStructuralFeature getContainingFeature(InternalEObject object) {
-		EStructuralFeature fiFeature = getInternalObject(object).eContainingFeature();
-		EClass fiClass = fiFeature.getEContainingClass();
-		EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(fiClass.getEPackage().getNsURI());
-		return ((EClass) ePackage.getEClassifier(fiClass.getName())).getEStructuralFeature(fiFeature.getFeatureID());
+		EStructuralFeature internalFeature = getInternalObject(object).eContainingFeature();
+		return ReflectiveMetaModelRegistry.instance.getOppositeFeature(internalFeature);		
 	}
 
 	@Override

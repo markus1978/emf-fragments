@@ -23,6 +23,13 @@ import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 
 public class BasicFragmentationTests extends CommonTests {
+	
+	private DataStore dataStore = null;
+	private FragmentedModel model = null;
+	private TestModelPackage metaModel = null;
+	private URI rootFragmentURI = null;
+	private Contents object1 = null;
+	private Contents object2 = null;
 
 	@Before
 	public void registerPackages() {
@@ -32,6 +39,61 @@ public class BasicFragmentationTests extends CommonTests {
 		if (!EPackage.Registry.INSTANCE.containsKey(EcorePackage.eINSTANCE.getNsURI())) {
 			EPackage.Registry.INSTANCE.put(EcorePackage.eINSTANCE.getNsURI(), EcorePackage.eINSTANCE);
 		}
+	}
+	
+	@Before
+	public void standardInitialization() {
+		dataStore = createTestDataStore();
+		metaModel = TestModelPackage.eINSTANCE;
+		model = new FragmentedModel(dataStore, null, metaModel);
+		rootFragmentURI = model.getRootFragmentURI();
+		
+		object1 = TestModelFactory.eINSTANCE.createContents();
+		object1.setValue("testValue");
+		object2 = TestModelFactory.eINSTANCE.createContents();
+		object2.setValue("testValue");
+	}
+	
+	private void reinitializeModel() {
+		model = new FragmentedModel(dataStore, rootFragmentURI, TestModelPackage.eINSTANCE);
+	}
+	
+	private void assertRootFragment(EObject object) {
+		Assert.assertNotNull(object.eResource());
+		Assert.assertTrue(object.eResource() instanceof Fragment);
+	}
+	
+	private Contents assertHasModelRootFragment() {
+		Assert.assertEquals(1, model.getRootContents().size());
+		Assert.assertTrue(model.getRootContents().get(0) instanceof Contents);
+		Assert.assertEquals("testValue", ((Contents) model.getRootContents().get(0)).getValue());
+		return (Contents) model.getRootContents().get(0);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private Contents assertHasContents(Contents container, EStructuralFeature feature) {
+		Assert.assertTrue(feature.isMany());
+		Assert.assertEquals(1, ((EList)container.eGet(feature)).size());
+		Object result = ((EList)container.eGet(feature)).get(0);
+		Assert.assertTrue(result instanceof Contents);
+		Assert.assertEquals("testValue", ((Contents)result).getValue());
+		return (Contents)result;
+	}
+	
+	private void assertContainment(EObject container, EObject contents, EStructuralFeature feature, boolean fragmenting) {
+		Assert.assertSame(container, contents.eContainer());
+		if (fragmenting) {		
+			Assert.assertNotSame(container.eResource(), contents.eResource());
+		} else {
+			Assert.assertSame(container.eResource(), contents.eResource());
+		}
+		Assert.assertSame(feature, contents.eContainingFeature());				
+	}
+	
+	private void assertIndexDimenions(DataStore dataStore, String prefix, long minKey, long maxKey) {
+		DataIndex<Long> dataIndex = new DataIndex<Long>(dataStore, prefix, LongKeyType.instance);
+		Assert.assertEquals(minKey, (long) dataIndex.first());
+		Assert.assertEquals(maxKey, (long) dataIndex.last());
 	}
 
 	/**
@@ -48,30 +110,12 @@ public class BasicFragmentationTests extends CommonTests {
 	 * object.
 	 */
 	@Test
-	public void testAddRootObject() {
-		DataStore dataStore = createTestDataStore();
-
-		FragmentedModel model = new FragmentedModel(dataStore, null, TestModelPackage.eINSTANCE);
-		Contents c = TestModelFactory.eINSTANCE.createContents();
-		c.setValue("testValue");
-		model.addContent(c);
-
-		Assert.assertNotNull(c.eResource());
-		Assert.assertTrue(c.eResource() instanceof Fragment);
-
-		URI rootFragmentURI = model.getRootFragmentURI();
+	public void testAddRootObject() {		
+		model.addContent(object1);
+		assertRootFragment(object1);
 		model.save();
-
-		model = new FragmentedModel(dataStore, rootFragmentURI, TestModelPackage.eINSTANCE);
-		Assert.assertEquals(1, model.getRootContents().size());
-		Assert.assertTrue(model.getRootContents().get(0) instanceof Contents);
-		Assert.assertEquals("testValue", ((Contents) model.getRootContents().get(0)).getValue());
-	}
-
-	private void assertIndexDimenions(DataStore dataStore, String prefix, long minKey, long maxKey) {
-		DataIndex<Long> dataIndex = new DataIndex<Long>(dataStore, prefix, LongKeyType.instance);
-		Assert.assertEquals(minKey, (long) dataIndex.first());
-		Assert.assertEquals(maxKey, (long) dataIndex.last());
+		reinitializeModel();
+		assertHasModelRootFragment();
 	}
 
 	/**
@@ -79,61 +123,36 @@ public class BasicFragmentationTests extends CommonTests {
 	 */
 	@Test
 	public void testAddFragment() {
-		DataStore dataStore = createTestDataStore();
-
-		FragmentedModel model = new FragmentedModel(dataStore, null, TestModelPackage.eINSTANCE);
-		Container container = TestModelFactory.eINSTANCE.createContainer();
-		Contents contents = TestModelFactory.eINSTANCE.createContents();
-		contents.setValue("testValue");
-		model.addContent(container);
-
-		Assert.assertNotNull(container.eResource());
-		Assert.assertTrue(container.eResource() instanceof Fragment);
-
-		container.getFragmentedContents().add(contents);
-		URI rootFragmentURI = model.getRootFragmentURI();
+		model.addContent(object1);
+		object1.getFragmentedContents().add(object2);
 		model.save();
 
-		model = new FragmentedModel(dataStore, rootFragmentURI, TestModelPackage.eINSTANCE);
-		Assert.assertEquals(1, model.getRootContents().size());
-		Assert.assertTrue(model.getRootContents().get(0) instanceof Container);
-		container = (Container) model.getRootContents().get(0);
-		Assert.assertTrue(container.getFragmentedContents().size() == 1);
-		Assert.assertEquals("testValue", container.getFragmentedContents().get(0).getValue());
-
+		reinitializeModel();
+		object1 = assertHasModelRootFragment();
+		object2 = assertHasContents(object1, metaModel.getContainer_FragmentedContents());
+		assertContainment(object1, object2, metaModel.getContainer_FragmentedContents(), true);
 		assertIndexDimenions(dataStore, "f", 0l, 1l);
 	}
 
 	@Test
 	public void testRemoveObject() {
-		DataStore dataStore = createTestDataStore();
-
-		FragmentedModel model = new FragmentedModel(dataStore, null, TestModelPackage.eINSTANCE);
-		Container container = TestModelFactory.eINSTANCE.createContainer();
-		Contents contents = TestModelFactory.eINSTANCE.createContents();
-		contents.setValue("testValue");
-		model.addContent(container);
-
-		Assert.assertNotNull(container.eResource());
-		Assert.assertTrue(container.eResource() instanceof Fragment);
-
-		container.getContents().add(contents);
-		URI rootFragmentURI = model.getRootFragmentURI();
-		model.save();
+		model.addContent(object1);
+		assertRootFragment(object1);
+		object1.getContents().add(object2);
+		model.save();		
+				
+		reinitializeModel();
 		assertIndexDimenions(dataStore, "f", 0l, 0l);
-		Assert.assertEquals(1, model.getRootContents().size());
-		Assert.assertTrue(model.getRootContents().get(0) instanceof Container);
-		container = (Container) model.getRootContents().get(0);
-		Assert.assertTrue(container.getContents().size() == 1);
+		object1 = assertHasModelRootFragment();
+		object2 = assertHasContents(object1, metaModel.getContainer_Contents());
+		assertContainment(object1, object2, metaModel.getContainer_Contents(), false);		
 
-		container.getFragmentedContents().remove(contents);
+		Assert.assertTrue(object1.getContents().remove(object2));
 		model.save();
 
-		model = new FragmentedModel(dataStore, rootFragmentURI, TestModelPackage.eINSTANCE);
-		Assert.assertEquals(1, model.getRootContents().size());
-		Assert.assertTrue(model.getRootContents().get(0) instanceof Container);
-		container = (Container) model.getRootContents().get(0);
-		Assert.assertTrue(container.getFragmentedContents().size() == 0);
+		reinitializeModel();
+		object1 = assertHasModelRootFragment();
+		Assert.assertTrue(object1.eContents().isEmpty());	
 		assertIndexDimenions(dataStore, "f", 0l, 0l);
 	}
 
@@ -144,32 +163,23 @@ public class BasicFragmentationTests extends CommonTests {
 
 	@Test
 	public void testRemoveFragmentRoot() {
-		DataStore dataStore = createTestDataStore();
-
-		FragmentedModel model = new FragmentedModel(dataStore, null, TestModelPackage.eINSTANCE);
-		Container container = TestModelFactory.eINSTANCE.createContainer();
-		Contents contents = TestModelFactory.eINSTANCE.createContents();
-		contents.setValue("testValue");
-		model.addContent(container);
-
-		Assert.assertNotNull(container.eResource());
-		Assert.assertTrue(container.eResource() instanceof Fragment);
-
-		container.getFragmentedContents().add(contents);
-		URI rootFragmentURI = model.getRootFragmentURI();
+		model.addContent(object1);
+		assertRootFragment(object1);
+		object1.getFragmentedContents().add(object2);
 		model.save();
-		container.getFragmentedContents().remove(contents);
+		
+		assertIndexDimenions(dataStore, "f", 0l, 1l);
+		
+		object1.getFragmentedContents().remove(object2);
 		model.save();
 
-		model = new FragmentedModel(dataStore, rootFragmentURI, TestModelPackage.eINSTANCE);
-		Assert.assertEquals(1, model.getRootContents().size());
-		Assert.assertTrue(model.getRootContents().get(0) instanceof Container);
-		container = (Container) model.getRootContents().get(0);
-		Assert.assertTrue(container.getFragmentedContents().size() == 0);
-		assertIndexDimenions(dataStore, "f", 0l, 0l);
+		reinitializeModel();
+		object1 = assertHasModelRootFragment();
+		Assert.assertTrue(object1.eContents().isEmpty());	
+		assertIndexDimenions(dataStore, "f", 0l, 0l);		
 	}
 
-	public Contents addObject(Container container, boolean fragmented) {
+	private Contents addObject(Container container, boolean fragmented) {
 		Contents contents = TestModelFactory.eINSTANCE.createContents();
 		contents.setValue("testValue");
 
@@ -185,7 +195,7 @@ public class BasicFragmentationTests extends CommonTests {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public boolean removeObject(Contents contents) {
+	private boolean removeObject(Contents contents) {
 		EStructuralFeature containingFeature = contents.eContainingFeature();
 		((EList<EObject>) contents.eContainer().eGet(containingFeature)).remove(contents);
 		return containingFeature.getName().equals(TestModelPackage.eINSTANCE.getContainer_FragmentedContents().getName());				
@@ -198,12 +208,8 @@ public class BasicFragmentationTests extends CommonTests {
 	 */
 	@Test
 	public void testContiniousAddAndRemove() {
-		DataStore dataStore = createTestDataStore();
-
-		FragmentedModel model = new FragmentedModel(dataStore, null, TestModelPackage.eINSTANCE);
 		Contents container = addObject(null, false);
 		model.addContent(container);
-		URI rootFragmentURI = model.getRootFragmentURI();
 		
 		Random random = new Random(0);
 		int fragmentationDepth = 0;
@@ -239,11 +245,11 @@ public class BasicFragmentationTests extends CommonTests {
 		Assert.assertNotNull(container.eResource());
 		model.save();
 
-		model = new FragmentedModel(dataStore, rootFragmentURI, TestModelPackage.eINSTANCE);
-		Assert.assertEquals(1, model.getRootContents().size());
-		Assert.assertTrue(model.getRootContents().get(0) instanceof Container);
-		Assert.assertTrue(container.getFragmentedContents().size() == 0);
-		assertIndexDimenions(dataStore, "f", 0l, 0l);
+		reinitializeModel();
+		reinitializeModel();
+		object1 = assertHasModelRootFragment();
+		Assert.assertTrue(object1.eContents().isEmpty());	
+		assertIndexDimenions(dataStore, "f", 0l, 0l);	
 	}
 
 	@Test

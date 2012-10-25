@@ -22,7 +22,6 @@ public class IndexTests extends CommonTests {
 		Assert.assertNotNull(add);
 		Assert.assertEquals(0l, (long)add);
 		Assert.assertFalse(index.add(0l));
-		System.out.println(dataStore);
 	}
 	
 	@Test

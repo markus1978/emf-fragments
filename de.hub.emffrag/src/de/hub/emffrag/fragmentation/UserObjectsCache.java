@@ -21,11 +21,11 @@ public class UserObjectsCache {
 		return !userObjectCache.isEmpty();
 	}
 
-	public FObjectImpl createUserObject(FInternalObjectImpl internalObject) {
+	private FObjectImpl createUserObject(FInternalObjectImpl internalObject) {
 		EPackage userMetaModel = ReflectiveMetaModelRegistry.instance.getOppositeMetaModel(internalObject.eClass().getEPackage());
 		FObjectImpl userObject = (FObjectImpl) userMetaModel.getEFactoryInstance().create(ReflectiveMetaModelRegistry.instance.getOppositeClass(internalObject.eClass()));
 		userObject.setInternalObject(internalObject);
-		UserObjectsCache.newUserObjectsCache.addUserObjectToCache(internalObject, (FObjectImpl) userObject);
+		addUserObjectToCache(internalObject, (FObjectImpl) userObject);
 		return userObject;
 	}
 
@@ -40,7 +40,7 @@ public class UserObjectsCache {
 		EPackage internalPackage = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(userClass.getEPackage());
 		FInternalObjectImpl internalObject = new FInternalObjectImpl((EClass)internalPackage.getEClassifier(userClass.getName()));		
 		
-		UserObjectsCache.newUserObjectsCache.addUserObjectToCache(internalObject, (FObjectImpl) userObject);
+		addUserObjectToCache(internalObject, (FObjectImpl) userObject);
 		return internalObject;
 	}
 
