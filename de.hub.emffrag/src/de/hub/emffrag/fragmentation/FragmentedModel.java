@@ -1,7 +1,9 @@
 package de.hub.emffrag.fragmentation;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.BasicEList;
@@ -17,6 +19,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMLResource;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMLParserPoolImpl;
 
 import com.google.common.base.Throwables;
@@ -50,25 +53,44 @@ public class FragmentedModel {
 
 	private class FragmentCache {
 
+		private final List<Fragment> markedForDelete = new ArrayList<Fragment>();
+		
+		public void manage() {
+			for (Fragment fragment: markedForDelete) {
+				try {
+					fragment.delete(options);
+				} catch (IOException e) {
+					Throwables.propagate(e);
+				}
+			}
+		}
 	}
 
 	/**
 	 * The {@link ResourceSet}s used to store a {@link FragmentedModel} need to
 	 * match specific characteristics. These are: It has to create
-	 * {@link FInternalObjectImpl}s on loading resources; it has to use a
-	 * {@link DataStoreURIHandler}; it needs to refer to the reflective version
-	 * of meta models; it needs specific performance configuration loading and
-	 * saving models. This methods creates a {@link ResourceSet} with the listed
-	 * characteristics.
+	 * {@link Fragment}s and {@link FInternalObjectImpl}s on loading resources;
+	 * it has to use a {@link DataStoreURIHandler}; it needs to refer to the
+	 * reflective version of meta models; it needs specific performance
+	 * configuration loading and saving models. This methods creates a
+	 * {@link ResourceSet} with the listed characteristics.
 	 */
 	private ResourceSet createAndConfigureAResourceSet(DataStore dataStore, EPackage... metaModels) {
 		ResourceSet resourceSet = new ResourceSetImpl();
 		for (EPackage metaModel : metaModels) {
 			EPackage reflectiveMetaModel = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(metaModel);
-			resourceSet.getPackageRegistry().put(metaModel.getNsURI(), reflectiveMetaModel);			
+			resourceSet.getPackageRegistry().put(metaModel.getNsURI(), reflectiveMetaModel);
 		}
 		resourceSet.getURIConverter().getURIHandlers().add(0, new DataStoreURIHandler(dataStore));
 		resourceSet.getLoadOptions().putAll(options);
+		resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put("hbase", new XMIResourceFactoryImpl() {
+			@Override
+			public Resource createResource(URI uri) {
+				Fragment fragment = new Fragment(uri);
+				fragment.setFragmentedModel(FragmentedModel.this);
+				return fragment;
+			}
+		});
 
 		return resourceSet;
 	}
@@ -167,23 +189,27 @@ public class FragmentedModel {
 
 	/**
 	 * Removes the fragment of the given root. Removes the resource and the
-	 * corresponding entry in persistence.
+	 * corresponding entry in persistence. This must not remove the fragment
+	 * immediately, since the fragmentRoot is still attached to it.
 	 * 
 	 * @param fObjectImpl
 	 *            The root of the fragment to delete.
 	 */
 	protected void removeFragment(FInternalObjectImpl fragmentRoot) {
 		Fragment oldFragment = fragmentRoot.getFragment();
+		oldFragment.setFragmentedModel(null);
 		try {
-			oldFragment.setFragmentedModel(null);
-			oldFragment.delete(null);
+			oldFragment.delete(options);
 		} catch (IOException e) {
 			Throwables.propagate(e);
 		}
+//		fragmentCache.markedForDelete.add(oldFragment);
+		
 		// TODO handle fragment caching issues
 	}
 
 	public void save() {
+		fragmentCache.manage();
 		for (Resource resource : resourceSet.getResources()) {
 			try {
 				resource.save(options);

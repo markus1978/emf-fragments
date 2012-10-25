@@ -8,6 +8,8 @@ import java.io.OutputStream;
 import java.util.Comparator;
 import java.util.TreeMap;
 
+import javax.xml.bind.DatatypeConverter;
+
 import de.hub.emffrag.datastore.DataStore;
 
 public class InMemoryDataStore extends DataStore {
@@ -101,7 +103,7 @@ public class InMemoryDataStore extends DataStore {
 			for (byte b: key) {
 				buffer.append(b + " ");
 			}
-			buffer.append("\n");
+			buffer.append(", URI: " + getURIString() + "/" + DatatypeConverter.printBase64Binary(key) + "\n");
 			buffer.append(new String(store.get(key)) + "\n");
 		}
 		return buffer.toString();

@@ -47,7 +47,11 @@ public class DataStoreURIHandler extends URIHandlerImpl {
 
     @Override
     public InputStream createInputStream(URI uri, Map<?, ?> options) throws IOException {
-    	return store.openInputStream(DatatypeConverter.parseBase64Binary(uri.segment(1)));
+    	InputStream result = store.openInputStream(DatatypeConverter.parseBase64Binary(uri.segment(1)));
+    	if (result == null) {
+    		throw new IOException("Requested resource for URI " + uri.toString() + " does not exist.");
+    	}
+		return result;
     }
 
 	@Override

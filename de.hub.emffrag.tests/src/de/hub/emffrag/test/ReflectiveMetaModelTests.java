@@ -13,6 +13,7 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.junit.Test;
 
 import de.hub.emffrag.datastore.DataIndex;
@@ -20,6 +21,7 @@ import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.DataStoreURIHandler;
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.fragmentation.FInternalObjectImpl;
+import de.hub.emffrag.fragmentation.Fragment;
 import de.hub.emffrag.fragmentation.ReflectiveMetaModelRegistry;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 
@@ -31,16 +33,16 @@ import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
  * depends on EMF internals, we think these tests are necessary to detect
  * possible slight changes in EMF semantics.
  */
-public class GeneratedReflectiveMetaModelTests extends CommonTests {
+public class ReflectiveMetaModelTests extends CommonTests {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void testContainmentReferences() {
 		TestModelPackage metaModel = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(TestModelPackage.eINSTANCE);
-		FInternalObjectImpl internalContainer = new FInternalObjectImpl(metaModel.getContainer());
-		FInternalObjectImpl internalContents = new FInternalObjectImpl(metaModel.getContents());
-		EReference container_FragmentedContents = metaModel.getContainer_FragmentedContents();
-		EList contents = (EList) internalContainer.eGet(container_FragmentedContents);
+		FInternalObjectImpl internalContainer = new FInternalObjectImpl(metaModel.getTestObject());
+		FInternalObjectImpl internalContents = new FInternalObjectImpl(metaModel.getTestObject());
+		EReference fragmentedContentsReference = metaModel.getTestObject_FragmentedContents();
+		EList contents = (EList) internalContainer.eGet(fragmentedContentsReference);
 		contents.add(internalContents);
 		
 		Assert.assertEquals(1, contents.size());
@@ -50,8 +52,8 @@ public class GeneratedReflectiveMetaModelTests extends CommonTests {
 	@Test
 	public void testIsSet() {
 		TestModelPackage metaModel = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(TestModelPackage.eINSTANCE);
-		FInternalObjectImpl internalContainer = new FInternalObjectImpl(metaModel.getContainer());
-		internalContainer.eIsSet(metaModel.getContainer_Contents());
+		FInternalObjectImpl internalContainer = new FInternalObjectImpl(metaModel.getTestObject());
+		internalContainer.eIsSet(metaModel.getTestObject_RegularContents());
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -80,6 +82,12 @@ public class GeneratedReflectiveMetaModelTests extends CommonTests {
 			});
 		}
 		resourceSet.getURIConverter().getURIHandlers().add(0, new DataStoreURIHandler(dataStore));
+		resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put("hbase", new XMIResourceFactoryImpl() {
+			@Override
+			public Resource createResource(URI uri) {
+				return new Fragment(uri);
+			}
+		});
 		return resourceSet;
 	}
 	
@@ -96,15 +104,18 @@ public class GeneratedReflectiveMetaModelTests extends CommonTests {
 				resources[i] = resourceSet.createResource(uri);
 			}
 		}
+		
 		return resources;
 	}
 	
 	private void saveResources(Resource[] resources) {
 		for (Resource resource: resources) {
 			try {
-				resource.save(null);
+				if (resource.getResourceSet() != null) {
+					resource.save(null);				
+				}
 			} catch (IOException e) {
-				Assert.assertTrue("IO error that could not be happening", false);
+				Assert.assertTrue("IO error that could not be happening: " + e.getMessage(), false);
 			}
 		}
 	}
@@ -115,12 +126,12 @@ public class GeneratedReflectiveMetaModelTests extends CommonTests {
 		DataStore dataStore = createTestDataStore();
 		TestModelPackage metaModel = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(TestModelPackage.eINSTANCE);		
 		
-		FInternalObjectImpl internalContainer = new FInternalObjectImpl(metaModel.getContainer());
-		FInternalObjectImpl internalContents = new FInternalObjectImpl(metaModel.getContents());
-		EReference container_FragmentedContents = metaModel.getContainer_FragmentedContents();
-		EList contents = (EList) internalContainer.eGet(container_FragmentedContents);
+		FInternalObjectImpl internalContainer = new FInternalObjectImpl(metaModel.getTestObject());
+		FInternalObjectImpl internalContents = new FInternalObjectImpl(metaModel.getTestObject());
+		EReference fragmentedContents = metaModel.getTestObject_FragmentedContents();
+		EList contents = (EList) internalContainer.eGet(fragmentedContents);
 		contents.add(internalContents);
-		internalContents.eSet(metaModel.getContents_Value(), "testValue");
+		internalContents.eSet(metaModel.getTestObject_Name(), "testValue");
 		
 		Resource[] resources = createResourceSet(dataStore, metaModel, 2, false);
 		resources[0].getContents().add(internalContainer);
@@ -129,7 +140,7 @@ public class GeneratedReflectiveMetaModelTests extends CommonTests {
 		
 		resources = createResourceSet(dataStore, metaModel, 1, true);
 		internalContainer = (FInternalObjectImpl) resources[0].getContents().get(0);
-		contents = (EList)internalContainer.eGet(container_FragmentedContents);
+		contents = (EList)internalContainer.eGet(fragmentedContents);
 		
 		Assert.assertEquals(1, contents.size());
 		internalContents = (FInternalObjectImpl) contents.get(0);		
@@ -137,7 +148,7 @@ public class GeneratedReflectiveMetaModelTests extends CommonTests {
 		Assert.assertTrue(resources[0] != internalContents.eResource());
 		Assert.assertTrue(resources[0] == internalContainer.eResource());
 		Assert.assertFalse(internalContents.eIsProxy());
-		Assert.assertEquals(internalContents.eGet(metaModel.getContents_Value()), "testValue");
+		Assert.assertEquals(internalContents.eGet(metaModel.getTestObject_Name()), "testValue");
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -177,5 +188,22 @@ public class GeneratedReflectiveMetaModelTests extends CommonTests {
 		TestModelPackage two = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(TestModelPackage.eINSTANCE);
 		
 		Assert.assertEquals(one, two);
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test
+	public void testMoveContents() {
+		DataStore dataStore = createTestDataStore();
+		TestModelPackage metaModel = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(TestModelPackage.eINSTANCE);
+		FInternalObjectImpl t1 = new FInternalObjectImpl(metaModel.getTestObject());
+		FInternalObjectImpl t2 = new FInternalObjectImpl(metaModel.getTestObject());
+		((EList)t1.eGet(metaModel.getTestObject_FragmentedContents())).add(t2);
+		Resource[] resources = createResourceSet(dataStore, metaModel, 2, false);
+		resources[0].getContents().add(t1);
+		resources[1].getContents().add(t2);
+		saveResources(resources);
+		
+		((EList)t1.eGet(metaModel.getTestObject_RegularContents())).add(t2);
+		saveResources(resources);		
 	}
 }

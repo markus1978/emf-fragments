@@ -9,9 +9,12 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EFactory;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.impl.EClassImpl;
 import org.eclipse.emf.ecore.impl.EFactoryImpl;
+
+import de.hub.emffrag.util.EMFFragUtil;
 
 /**
  * Since EMF does not allow to use the same model in a regular fashion
@@ -96,6 +99,10 @@ public class ReflectiveMetaModelRegistry {
 			if (next instanceof EClass) {
 				((EClassImpl) next).setGeneratedInstanceClass(false);
 				((EClass) next).setInstanceClass(null);
+			} else if (next instanceof EReference) {
+				if (((EReference)next).isContainment() && !EMFFragUtil.isFragFreature((EReference)next)) {
+					((EReference)next).setResolveProxies(false);
+				}
 			}
 		}
 

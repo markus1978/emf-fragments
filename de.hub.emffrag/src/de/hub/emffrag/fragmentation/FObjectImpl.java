@@ -20,7 +20,7 @@ public class FObjectImpl extends EStoreEObjectImpl {
 		this.internalObject = internalObject;
 	}
 	
-	protected FInternalObjectImpl internalObject() {
+	public FInternalObjectImpl internalObject() {
 		if (internalObject == null) {
 			// This object was not yet added to a model
 			internalObject = UserObjectsCache.newUserObjectsCache.createInternalObject(this);
@@ -30,7 +30,7 @@ public class FObjectImpl extends EStoreEObjectImpl {
 	
 	@Override
 	public Internal eDirectResource() {
-		return internalObject().eDirectResource();
+		return (Internal)internalObject().eResource();
 	}
 
 	@Override
@@ -59,13 +59,9 @@ public class FObjectImpl extends EStoreEObjectImpl {
 						fragmentation.crateFragment(this.internalObject, this, newContainer, feature);
 					}
 				}
-			} else {
-				// if the object was root of a fragment, this fragment has to be
-				// removed now
-				if (internalObject.isFragmentRoot()) {
-					fragmentation.removeFragment(this.internalObject);
-				}
-			}
+			} 
+			// else:
+			// if the object was a fragment root, the Fragment implementation will automatically delete itself
 		} else {			
 			// this object was removed from the model, it has to be moved to the
 			// new objects realm (if necessary) and if it was a fragment root the

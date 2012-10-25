@@ -2,11 +2,9 @@ package de.hub.emffrag.fragmentation;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
@@ -48,10 +46,12 @@ public class FStoreImpl implements EStore {
 			internalObject = UserObjectsCache.newUserObjectsCache.createInternalObject((FObjectImpl)userObject);
 		}
 		if (internalObject.eIsProxy()) {
-			// TODO does an unresolved proxy object has a resource attached?
 			FragmentedModel model = internalObject.getFragmentation();
 			if (model != null) {
 				internalObject = (FInternalObjectImpl)EcoreUtil.resolve(internalObject, model.getResourceSet());
+				if (internalObject.eIsProxy()) {
+					throw new RuntimeException("Could not resolve " + internalObject.eProxyURI());
+				}
 			} else {
 				throw new RuntimeException("An user object that appreas to be new is a proxy.");
 			}			

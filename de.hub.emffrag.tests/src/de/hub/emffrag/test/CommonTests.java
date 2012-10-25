@@ -16,7 +16,6 @@ import org.junit.BeforeClass;
 import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.LongKeyType;
-import de.hub.emffrag.fragmentation.Fragment;
 import de.hub.emffrag.kvstore.InMemoryDataStore;
 
 /**
@@ -29,13 +28,7 @@ import de.hub.emffrag.kvstore.InMemoryDataStore;
 public class CommonTests {
 
 	@BeforeClass
-	public static void setUp() {
-		Resource.Factory.Registry.INSTANCE.getProtocolToFactoryMap().put("hbase", new XMIResourceFactoryImpl() {
-			@Override
-			public Resource createResource(URI uri) {
-				return new Fragment(uri);
-			}			
-		});
+	public static void setUp() {		
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("ecore", new XMIResourceFactoryImpl());
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
 	}
