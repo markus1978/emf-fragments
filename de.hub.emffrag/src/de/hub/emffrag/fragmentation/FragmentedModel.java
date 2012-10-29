@@ -2,9 +2,11 @@ package de.hub.emffrag.fragmentation;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
@@ -45,23 +47,98 @@ public class FragmentedModel {
 	private Fragment rootFragment;
 	private final FragmentCache fragmentCache; // TODO handle fragment caching
 												// issues
+												// issues
 	private final DataIndex<Long> fragmentIndex;
 	private final DataIndex<String> crossReferenceIndex;
 	private final URI rootFragmentKeyURI;
 
-	private class FragmentCache {
+	static class CacheState {
+		private final URI uri;
+		private final Fragment fragment;
+		private int useKey;
 
-		private final List<Fragment> markedForDelete = new ArrayList<Fragment>();
+		public CacheState(Fragment fragment) {
+			super();
+			this.uri = fragment.getURI();
+			this.fragment = fragment;
+		}
 
-		public void manage() {
-			for (Fragment fragment : markedForDelete) {
-				try {
-					fragment.delete(options);
-				} catch (IOException e) {
-					Throwables.propagate(e);
-				}
+		void registerUse(int useKey) {
+			this.useKey = useKey;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof CacheState) {
+				return uri.equals(((CacheState) obj).uri);
+			} else {
+				return false;
 			}
 		}
+
+		@Override
+		public int hashCode() {
+			return uri.hashCode();
+		}
+	}
+
+	class FragmentCache {
+		private List<CacheState> cacheStatesToRemove = new ArrayList<FragmentedModel.CacheState>();
+		private final int cacheSize;
+		private int currentUseKey = 0;
+		private final TreeMap<CacheState, CacheState> cacheContents = new TreeMap<CacheState, CacheState>(
+				new Comparator<CacheState>() {
+					@Override
+					public int compare(CacheState o1, CacheState o2) {
+						return Integer.valueOf(o1.useKey).compareTo(o2.useKey);
+					}
+				});
+
+		public FragmentCache(int cacheSize) {
+			super();
+			this.cacheSize = cacheSize;
+		}
+
+		void markAsUsed(Fragment fragment) {
+			CacheState cacheState = fragment.getCacheState();
+			cacheState.registerUse(currentUseKey++);
+			cacheContents.put(cacheState, cacheState);
+			purgeUnreferencedFragments();
+		}
+
+		private void purgeUnreferencedFragments() {
+			int unreferencedFragments = 0;
+			for (CacheState state : cacheContents.descendingKeySet()) {
+				if (!state.fragment.getUserObjectsCache().hasReferences()) {
+					if (unreferencedFragments >= cacheSize) {
+						cacheStatesToRemove.add(state);
+					} else {
+						unreferencedFragments++;
+					}
+				}								 
+			}
+
+			for (CacheState state : cacheStatesToRemove) {
+				unloadFragment(state.fragment);
+				cacheContents.remove(state);
+			}
+			cacheStatesToRemove.clear();
+		}
+
+		void remove(Fragment oldFragment) {
+			cacheContents.remove(oldFragment.getCacheState());
+			purgeUnreferencedFragments();
+		}
+	}
+
+	private void unloadFragment(Fragment fragment) {
+		try {
+			fragment.save(options);
+		} catch (IOException e) {
+			Throwables.propagate(e);
+		}
+		fragment.unload();
+		resourceSet.getResources().remove(fragment);
 	}
 
 	/**
@@ -109,8 +186,13 @@ public class FragmentedModel {
 
 		return resourceSet;
 	}
-
+	
 	public FragmentedModel(DataStore dataStore, URI rootFragmentKeyURI, EPackage... metaModel) {
+		this(dataStore, rootFragmentKeyURI, 100, metaModel);
+	}
+	
+	public FragmentedModel(DataStore dataStore, URI rootFragmentKeyURI, int cacheSize, EPackage... metaModel) {
+		fragmentCache = new FragmentCache(cacheSize); 
 		this.fragmentIndex = new DataIndex<Long>(dataStore, "f", LongKeyType.instance);
 		this.crossReferenceIndex = new DataIndex<String>(dataStore, "c", StringKeyType.instance);
 
@@ -122,9 +204,7 @@ public class FragmentedModel {
 		} else {
 			this.rootFragmentKeyURI = rootFragmentKeyURI;
 			rootFragment = (Fragment) resourceSet.getResource(this.rootFragmentKeyURI, true);
-		}
-
-		fragmentCache = new FragmentCache();
+		}		
 	}
 
 	public EList<EObject> getRootContents() {
@@ -189,7 +269,7 @@ public class FragmentedModel {
 				oldFragment.getUserObjectsCache().removeCachedUserObject(fragmentRoot);
 			}
 		}
-		// TODO handle fragment caching issues
+		fragmentCache.markAsUsed(newFragment);
 		return newFragment;
 	}
 
@@ -218,13 +298,10 @@ public class FragmentedModel {
 		} catch (IOException e) {
 			Throwables.propagate(e);
 		}
-		// fragmentCache.markedForDelete.add(oldFragment);
-
-		// TODO handle fragment caching issues
+		fragmentCache.remove(oldFragment);
 	}
 
 	public void save() {
-		fragmentCache.manage();
 		for (Resource resource : resourceSet.getResources()) {
 			try {
 				resource.save(options);
@@ -263,5 +340,20 @@ public class FragmentedModel {
 
 	public URI getURIForExtrinsicCrossReferencedObjectID(String extrinsicID) {
 		return crossReferenceIndex.getURI(extrinsicID);
+	}
+
+	void markAsUsed(Fragment fragment) {
+		fragmentCache.markAsUsed(fragment);
+	}
+
+	/**
+	 * Tries to remove unnecessary fragments from main memory.
+	 */
+	public void purgeCache() {
+		fragmentCache.purgeUnreferencedFragments();
+	}
+	
+	public int numberOfLoadedFragments() {
+		return getResourceSet().getResources().size();
 	}
 }

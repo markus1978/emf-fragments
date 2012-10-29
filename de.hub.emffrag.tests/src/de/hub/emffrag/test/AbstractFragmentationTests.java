@@ -14,6 +14,7 @@ import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.KeyType;
 import de.hub.emffrag.fragmentation.Fragment;
 import de.hub.emffrag.fragmentation.FragmentedModel;
+import de.hub.emffrag.fragmentation.ReflectiveMetaModelRegistry;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
@@ -38,12 +39,20 @@ public class AbstractFragmentationTests  extends AbstractTests {
 		}
 	}
 	
+	protected boolean doInitializeModel() {
+		return true;
+	}
+	
 	@Before
 	public void standardInitialization() {
 		dataStore = createTestDataStore();
 		metaModel = TestModelPackage.eINSTANCE;
-		model = new FragmentedModel(dataStore, null, metaModel);
-		rootFragmentURI = model.getRootFragmentURI();
+		ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(metaModel);
+		
+		if (doInitializeModel()) {
+			model = new FragmentedModel(dataStore, null, metaModel);
+			rootFragmentURI = model.getRootFragmentURI();
+		}
 		
 		object1 = TestModelFactory.eINSTANCE.createTestObject();
 		object1.setName("testValue");

@@ -45,7 +45,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 			isCrossReferenced = true;
 			Fragment resource = (Fragment) eResource();
 			FragmentedModel fragmentedModel = getFragmentation();
-			if (fragmentedModel != null) {				
+			if (fragmentedModel != null) {
 				if (resource != null) {
 					String extrinsicID = fragmentedModel.updateCrossReference(null, this);
 					resource.setID(this, extrinsicID);
@@ -53,12 +53,13 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 					throw new IllegalStateException("Object cannot be cross referenced");
 				}
 			}
-			// else: if the referenced object is not part of the model, TODO should this be an error?
+			// else: if the referenced object is not part of the model, TODO
+			// should this be an error?
 		}
 	}
-	
+
 	public boolean isCrossReferenced() {
-		return isCrossReferenced || (eResource() != null && ((Fragment)eResource()).getID(this) != null);
+		return isCrossReferenced || (eResource() != null && ((Fragment) eResource()).getID(this) != null);
 	}
 
 	/**
@@ -81,8 +82,21 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 				newResource.setID(this, extrinsicID);
 			}
 		}
-		// else: if the referenced object is not part of the model, TODO should this be an error?
-		return result;		
+		// else: if the referenced object is not part of the model, TODO should
+		// this be an error?
+		return result;
 	}
 
+	/**
+	 * The EMF-implementation does somehow create a network of Java references
+	 * that prevent to fully unload the contents of a resource. This method
+	 * breaks the corrsponding references.
+	 */
+	void trulyUnload() {
+		if (eProperties != null) {
+			eProperties.setEContents(null);
+			eProperties.setECrossReferences(null);
+		}
+		eSettings = null;
+	}
 }

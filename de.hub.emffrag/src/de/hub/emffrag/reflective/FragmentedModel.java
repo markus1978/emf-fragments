@@ -217,14 +217,14 @@ public class FragmentedModel extends ResourceSetImpl {
 		statistics.weakLoads++;
 	}
 
-	public void weaklyUnload(Fragment fragment) {
+	private void weaklyUnload(Fragment fragment) {
 		logger.log(ILogger.DEBUG, "weakly unload " + fragment.getURI().toString(), null);
 		fragment.weaklyUnload();
 		weakUnloadedFragmentsCache.add(fragment);
 		statistics.weakUnloads++;
 	}
 
-	public void stronglyUnload(Fragment fragment) {
+	private void stronglyUnload(Fragment fragment) {
 		logger.log(ILogger.DEBUG, "strong unload " + fragment.getURI().toString(), null);
 		if (!FStoreImpl.INSTANCE.isReadOnly()) {
 			try {

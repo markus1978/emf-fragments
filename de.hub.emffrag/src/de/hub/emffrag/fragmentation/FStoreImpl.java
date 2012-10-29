@@ -28,7 +28,8 @@ public class FStoreImpl implements EStore {
 			Fragment fragment = (Fragment) internalObject.eResource();
 			EObject userObject = null;
 			if (fragment != null) {
-				userObject = fragment.getUserObjectsCache().getUserObject(internalObject);				
+				userObject = fragment.getUserObjectsCache().getUserObject(internalObject);	
+				fragment.markAsUsed();
 			} else {
 				userObject = UserObjectsCache.newUserObjectsCache.getUserObject(internalObject);				
 			}
@@ -52,6 +53,7 @@ public class FStoreImpl implements EStore {
 				if (internalObject.eIsProxy()) {
 					throw new RuntimeException("Could not resolve " + internalObject.eProxyURI());
 				}
+				internalObject.getFragment().markAsUsed();
 			} else {
 				throw new RuntimeException("An user object that appreas to be new is a proxy.");
 			}			
