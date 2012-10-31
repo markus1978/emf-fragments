@@ -1,5 +1,7 @@
 package de.hub.emffrag.fragmentation;
 
+import java.lang.ref.WeakReference;
+
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
@@ -11,15 +13,16 @@ import de.hub.emffrag.util.EMFFragUtil;
 public class FObjectImpl extends EStoreEObjectImpl {
 
 	private FInternalObjectImpl internalObject;
+	private WeakReference<InternalEObject> containerReference = null;
 
 	public FObjectImpl() {
 		eSetStore(FStoreImpl.getInstance());
 	}
-	
+
 	protected void setInternalObject(FInternalObjectImpl internalObject) {
 		this.internalObject = internalObject;
 	}
-	
+
 	public FInternalObjectImpl internalObject() {
 		if (internalObject == null) {
 			// This object was not yet added to a model
@@ -27,20 +30,62 @@ public class FObjectImpl extends EStoreEObjectImpl {
 		}
 		return internalObject;
 	}
-	
-	@Override
-	public Internal eDirectResource() {
-		return (Internal)internalObject().eResource();
-	}
 
 	@Override
+	public Internal eDirectResource() {
+		return (Internal) internalObject().eResource();
+	}
+
+	/**
+	 * EStoreObjectImpl holds a strong java reference towards container. This is
+	 * bad, since those cannot be differentiated between actual user references.
+	 * We have to replace EBasicEObjectImpl.eContainer (modified by this method
+	 * and eInitializeContainer()) with a java weak reference.
+	 */
+	@Override
+	public InternalEObject eInternalContainer() {
+		if (containerReference == null || containerReference.get() == null) {
+			eInitializeContainer();
+		}
+		return containerReference.get();
+	}
+
+	/**
+	 * See doc of {@link #eInternalContainer()}
+	 */
+	@Override
+	protected void eInitializeContainer() {
+		super.eInitializeContainer();
+		containerReference = new WeakReference<InternalEObject>(eContainer);
+		eContainer = EUNINITIALIZED_CONTAINER;
+	}
+
+	/**
+	 * See doc of {@link #eInternalContainer()}
+	 */
+	@Override
+	public int eContainerFeatureID() {
+		if (containerReference == null || containerReference.get() == null) {
+			eInitializeContainer();
+		}
+		return eContainerFeatureID;
+	}
+
+	/**
+	 * See doc of {@link #eInternalContainer()}. Additionally this method is
+	 * used to initialize fragmentation operations.
+	 */
+	@Override
 	protected void eBasicSetContainer(InternalEObject newContainer, int newContainerFeatureID) {
+		// update the weak reference that is used instead of EMF's hard reference
 		super.eBasicSetContainer(newContainer, newContainerFeatureID);
-		
-		FInternalObjectImpl internalObject = internalObject();		
+		containerReference = new WeakReference<InternalEObject>(eContainer);
+		eContainer = EUNINITIALIZED_CONTAINER;
+
+		FInternalObjectImpl internalObject = internalObject();
 		FragmentedModel fragmentation = internalObject.getFragmentation();
 		if (fragmentation == null && newContainer != null) {
-			fragmentation = ((FObjectImpl)newContainer).internalObject().getFragmentation();
+			fragmentation = ((FObjectImpl) newContainer).internalObject().getFragmentation();
 		}
 
 		// The object was moved to a new (including null) container. This can
@@ -54,17 +99,20 @@ public class FObjectImpl extends EStoreEObjectImpl {
 				// has to be created
 				if (!internalObject.isFragmentRoot()) {
 					if (fragmentation == null) {
-						throw new RuntimeException("You cannot at a value to a fragmenting reference if the new container is not part of a fragmented model");
+						throw new RuntimeException(
+								"You cannot at a value to a fragmenting reference if the new container is not part of a fragmented model");
 					} else {
 						fragmentation.crateFragment(this.internalObject, this, newContainer, feature);
 					}
 				}
-			} 
+			}
 			// else:
-			// if the object was a fragment root, the Fragment implementation will automatically delete itself
-		} else {			
+			// if the object was a fragment root, the Fragment implementation
+			// will automatically delete itself
+		} else {
 			// this object was removed from the model, it has to be moved to the
-			// new objects realm (if necessary) and if it was a fragment root the
+			// new objects realm (if necessary) and if it was a fragment root
+			// the
 			// fragment has to be deleted.
 			if (internalObject.isFragmentRoot()) {
 				fragmentation.removeFragment(this.internalObject);

@@ -9,7 +9,7 @@ public class UserObjectsCache {
 	public final static UserObjectsCache newUserObjectsCache = new UserObjectsCache();
 	private ReferenceMap userObjectCache = new ReferenceMap(ReferenceMap.HARD, ReferenceMap.WEAK);
 
-	public FObjectImpl getUserObject(FInternalObjectImpl internalObject) {		
+	public FObjectImpl getUserObject(FInternalObjectImpl internalObject) {
 		FObjectImpl result = (FObjectImpl) userObjectCache.get(internalObject);
 		if (result == null) {
 			result = createUserObject(internalObject);

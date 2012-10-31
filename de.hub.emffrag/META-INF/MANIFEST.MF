@@ -57,4 +57,6 @@ Bundle-ClassPath: ./,
  lib/guice-3.0/guice-3.0.jar,
  lib/commons-collections-3.2.1/commons-collections-3.2.1.jar,
  lib/guava-12.0.jar,
- lib/guice-3.0/javax.inject.jar
+ lib/guice-3.0/javax.inject.jar,
+ lib/commons-codec-1.7/commons-codec-1.7.jar,
+ .

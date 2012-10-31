@@ -42,11 +42,15 @@ public class DataStoreURIHandler extends URIHandlerImpl {
 
     @Override
     public OutputStream createOutputStream(final URI uri, Map<?, ?> options) throws IOException {
+		// TODO Base64 encoded strings contain characters not valid in URI
+		// segments
     	return store.openOutputStream(DatatypeConverter.parseBase64Binary(uri.segment(1)));
     }
 
     @Override
     public InputStream createInputStream(URI uri, Map<?, ?> options) throws IOException {
+		// TODO Base64 encoded strings contain characters not valid in URI
+		// segments
     	InputStream result = store.openInputStream(DatatypeConverter.parseBase64Binary(uri.segment(1)));
     	if (result == null) {
     		throw new IOException("Requested resource for URI " + uri.toString() + " does not exist.");
@@ -56,6 +60,8 @@ public class DataStoreURIHandler extends URIHandlerImpl {
 
 	@Override
 	public void delete(URI uri, Map<?, ?> options) throws IOException {
+		// TODO Base64 encoded strings contain characters not valid in URI
+		// segments
 		store.delete(DatatypeConverter.parseBase64Binary(uri.segment(1)));
 	}
     

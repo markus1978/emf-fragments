@@ -108,5 +108,28 @@ public class AbstractFragmentationTests  extends AbstractTests {
 		Assert.assertEquals(minKey, dataIndex.first());
 		Assert.assertEquals(maxKey, dataIndex.last());
 	}
+	
+
+	protected TestObject addObject(TestObject container, boolean fragmented) {
+		TestObject contents = TestModelFactory.eINSTANCE.createTestObject();
+		contents.setName("testValue");
+
+		if (container != null) {
+			if (fragmented) {
+				container.getFragmentedContents().add(contents);
+			} else {
+				container.getRegularContents().add(contents);
+			}
+		}
+
+		return contents;
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected boolean removeObject(TestObject contents) {
+		EStructuralFeature containingFeature = contents.eContainingFeature();
+		((EList<EObject>) contents.eContainer().eGet(containingFeature)).remove(contents);
+		return containingFeature.getName().equals(TestModelPackage.eINSTANCE.getTestObject_FragmentedContents().getName());				
+	}
 
 }

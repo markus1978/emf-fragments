@@ -2,16 +2,12 @@ package de.hub.emffrag.test;
 
 import java.util.Random;
 
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EStructuralFeature;
 import org.junit.Assert;
 import org.junit.Test;
 
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.fragmentation.FObjectImpl;
 import de.hub.emffrag.fragmentation.FragmentedModel;
-import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 
@@ -99,28 +95,6 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		object1 = assertHasModelRootFragment();
 		Assert.assertTrue(object1.eContents().isEmpty());	
 		assertIndexDimenions(dataStore, "f", 0l, 0l, LongKeyType.instance);		
-	}
-
-	private TestObject addObject(TestObject container, boolean fragmented) {
-		TestObject contents = TestModelFactory.eINSTANCE.createTestObject();
-		contents.setName("testValue");
-
-		if (container != null) {
-			if (fragmented) {
-				container.getFragmentedContents().add(contents);
-			} else {
-				container.getRegularContents().add(contents);
-			}
-		}
-
-		return contents;
-	}
-	
-	@SuppressWarnings("unchecked")
-	private boolean removeObject(TestObject contents) {
-		EStructuralFeature containingFeature = contents.eContainingFeature();
-		((EList<EObject>) contents.eContainer().eGet(containingFeature)).remove(contents);
-		return containingFeature.getName().equals(TestModelPackage.eINSTANCE.getTestObject_FragmentedContents().getName());				
 	}
 
 	/**

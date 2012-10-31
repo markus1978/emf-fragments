@@ -19,26 +19,26 @@ public class DataIndex<KT> {
 	private final byte[] fullPrefix;
 	private final byte[] fullPrefixNext;
 	private final KeyType<KT> keyType;
-	
+
 	public DataIndex(DataStore store, String prefix, KeyType<KT> keyType) {
 		super();
 		this.store = store;
 		this.fullPrefix = (prefix + "_").getBytes();
-		this.fullPrefixNext = (prefix + (char)('_' + 1)).getBytes();
+		this.fullPrefixNext = (prefix + (char) ('_' + 1)).getBytes();
 		this.keyType = keyType;
 	}
 
 	public byte[] getStoreKey(KT key) {
 		byte[] serialize = keyType.serialize(key);
-		return ByteBuffer.allocate(fullPrefix.length + serialize.length)
-				.put(fullPrefix)
-				.put(serialize).array();
+		return ByteBuffer.allocate(fullPrefix.length + serialize.length).put(fullPrefix).put(serialize).array();
 	}
-	
+
 	public URI getURI(KT key) {
+		// TODO Base64 encoded strings contain characters not valid in URI
+		// segments
 		return URI.createURI(store.getURIString()).appendSegment(DatatypeConverter.printBase64Binary(getStoreKey(key)));
 	}
-	
+
 	public KT add() {
 		KT last = last();
 		KT key = null;
@@ -54,13 +54,13 @@ public class DataIndex<KT> {
 			return null;
 		}
 	}
-	
+
 	public KT first() {
 		byte[] lastStoreKeyInIndex = store.ceiling(fullPrefix);
 		if (lastStoreKeyInIndex == null) {
 			return null;
 		}
-		
+
 		if (prefixMatches(lastStoreKeyInIndex)) {
 			return keyType.deserialize(lastStoreKeyInIndex, fullPrefix.length);
 		} else {
@@ -69,49 +69,49 @@ public class DataIndex<KT> {
 	}
 
 	private boolean prefixMatches(byte[] lastStoreKeyInIndex) {
-		boolean prefixMatches = true; 
+		boolean prefixMatches = true;
 		for (int i = 0; i < fullPrefix.length; i++) {
 			prefixMatches &= fullPrefix[i] == lastStoreKeyInIndex[i];
 		}
 		return prefixMatches;
 	}
-	
+
 	public KT last() {
 		byte[] lastStoreKeyInIndex = store.floor(fullPrefixNext);
 		if (lastStoreKeyInIndex == null) {
 			return null;
-		} 
-		
+		}
+
 		if (prefixMatches(lastStoreKeyInIndex)) {
 			return keyType.deserialize(lastStoreKeyInIndex, fullPrefix.length);
 		} else {
 			return null;
 		}
 	}
-	
+
 	public boolean add(KT key) {
 		byte[] storeKey = getStoreKey(key);
 		return store.ckeckAndCreate(storeKey);
 	}
-	
+
 	public void set(KT key, String value) {
 		PrintWriter printWriter = new PrintWriter(openOutputStream(key));
 		printWriter.print(value);
 		printWriter.close();
 	}
-	
+
 	public String get(KT key) {
 		return slurp(openInputStream(key), 1024);
 	}
-	
+
 	public OutputStream openOutputStream(KT key) {
 		return store.openOutputStream(getStoreKey(key));
 	}
-	
+
 	public InputStream openInputStream(KT key) {
 		return store.openInputStream(getStoreKey(key));
 	}
-	
+
 	private static String slurp(final InputStream is, final int bufferSize) {
 		final char[] buffer = new char[bufferSize];
 		final StringBuilder out = new StringBuilder();
@@ -136,6 +136,8 @@ public class DataIndex<KT> {
 	}
 
 	public KT getKeyFromURI(URI crossReferenceURI) {
+		// TODO Base64 encoded strings contain characters not valid in URI
+		// segments
 		byte[] key = DatatypeConverter.parseBase64Binary(crossReferenceURI.segment(1));
 		return keyType.deserialize(key, fullPrefix.length);
 	}
