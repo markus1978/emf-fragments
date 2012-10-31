@@ -8,7 +8,6 @@ import org.junit.Test;
 
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.fragmentation.FragmentedModel;
-import de.hub.emffrag.test.AbstractFragmentationTests;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 

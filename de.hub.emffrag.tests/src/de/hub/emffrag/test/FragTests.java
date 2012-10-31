@@ -15,6 +15,8 @@
  ******************************************************************************/
 package de.hub.emffrag.test;
 
+import de.hub.emffrag.fragmentation.AbstractTests;
+
 
 public class FragTests extends AbstractTests {
 

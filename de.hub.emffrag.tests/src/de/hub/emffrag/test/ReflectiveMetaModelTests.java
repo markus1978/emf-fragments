@@ -20,6 +20,7 @@ import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.DataStoreURIHandler;
 import de.hub.emffrag.datastore.LongKeyType;
+import de.hub.emffrag.fragmentation.AbstractTests;
 import de.hub.emffrag.fragmentation.FInternalObjectImpl;
 import de.hub.emffrag.fragmentation.Fragment;
 import de.hub.emffrag.fragmentation.ReflectiveMetaModelRegistry;

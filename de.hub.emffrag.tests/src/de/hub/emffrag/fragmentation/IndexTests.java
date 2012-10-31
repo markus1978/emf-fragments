@@ -1,20 +1,21 @@
-package de.hub.emffrag.test;
+package de.hub.emffrag.fragmentation;
 
 import java.util.Random;
 
 import junit.framework.Assert;
 
+import org.eclipse.emf.common.util.URI;
 import org.junit.Test;
 
 import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
+import de.hub.emffrag.datastore.InMemoryDataStore;
 import de.hub.emffrag.datastore.KeyType;
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.datastore.StringKeyType;
-import de.hub.emffrag.kvstore.InMemoryDataStore;
 
 public class IndexTests extends AbstractTests {
-
+	
 	@Test
 	public void testAddEmpty() {
 		DataStore dataStore = createTestDataStore();
@@ -107,5 +108,16 @@ public class IndexTests extends AbstractTests {
 		StringKeyType keyType = StringKeyType.instance;
 		Assert.assertEquals("b", keyType.next("a"));
 		Assert.assertEquals("za", keyType.next("z"));
+	}
+	
+	@Test
+	public void testLargeKeyURIs() {
+		DataStore dataStore = createTestDataStore();
+		DataIndex<Long> index = createIndex("f", dataStore);
+		for (long i = 0; i < 10000; i++) {
+			URI uri = index.getURI(i);
+			long key = index.getKeyFromURI(uri);
+			Assert.assertEquals(i, key);
+		}
 	}
 }

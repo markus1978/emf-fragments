@@ -20,6 +20,7 @@ import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.xml.type.XMLTypePackage;
 import org.junit.Before;
 
+import de.hub.emffrag.fragmentation.AbstractTests;
 import de.hub.emffrag.testmodels.regular.Core.CorePackage;
 import de.hub.emffrag.testmodels.regular.DOM.DOMPackage;
 import de.hub.emffrag.testmodels.regular.PrimitiveTypes.PrimitiveTypesPackage;

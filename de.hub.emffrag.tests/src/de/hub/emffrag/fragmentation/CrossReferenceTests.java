@@ -1,4 +1,4 @@
-package de.hub.emffrag.test;
+package de.hub.emffrag.fragmentation;
 
 import junit.framework.Assert;
 

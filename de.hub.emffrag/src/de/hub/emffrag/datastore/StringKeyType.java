@@ -1,7 +1,5 @@
 package de.hub.emffrag.datastore;
 
-import java.util.Arrays;
-
 public class StringKeyType implements KeyType<String> {
 
 	public static final StringKeyType instance = new StringKeyType();

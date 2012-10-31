@@ -20,8 +20,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.impl.URIHandlerImpl;
 
@@ -42,16 +40,12 @@ public class DataStoreURIHandler extends URIHandlerImpl {
 
     @Override
     public OutputStream createOutputStream(final URI uri, Map<?, ?> options) throws IOException {
-		// TODO Base64 encoded strings contain characters not valid in URI
-		// segments
-    	return store.openOutputStream(DatatypeConverter.parseBase64Binary(uri.segment(1)));
+    	return store.openOutputStream(URIUtils.decode(uri.segment(1)));
     }
 
     @Override
     public InputStream createInputStream(URI uri, Map<?, ?> options) throws IOException {
-		// TODO Base64 encoded strings contain characters not valid in URI
-		// segments
-    	InputStream result = store.openInputStream(DatatypeConverter.parseBase64Binary(uri.segment(1)));
+    	InputStream result = store.openInputStream(URIUtils.decode(uri.segment(1)));
     	if (result == null) {
     		throw new IOException("Requested resource for URI " + uri.toString() + " does not exist.");
     	}
@@ -60,9 +54,7 @@ public class DataStoreURIHandler extends URIHandlerImpl {
 
 	@Override
 	public void delete(URI uri, Map<?, ?> options) throws IOException {
-		// TODO Base64 encoded strings contain characters not valid in URI
-		// segments
-		store.delete(DatatypeConverter.parseBase64Binary(uri.segment(1)));
+		store.delete(URIUtils.decode(uri.segment(1)));
 	}
     
 }

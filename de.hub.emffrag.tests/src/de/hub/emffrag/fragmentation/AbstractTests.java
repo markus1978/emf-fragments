@@ -1,4 +1,4 @@
-package de.hub.emffrag.test;
+package de.hub.emffrag.fragmentation;
 
 import java.io.IOException;
 
@@ -15,8 +15,8 @@ import org.junit.BeforeClass;
 
 import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
+import de.hub.emffrag.datastore.InMemoryDataStore;
 import de.hub.emffrag.datastore.LongKeyType;
-import de.hub.emffrag.kvstore.InMemoryDataStore;
 
 /**
  * Abstract base class for all tests. It registers the proper resource

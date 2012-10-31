@@ -9,8 +9,6 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.eclipse.emf.common.util.URI;
 
 public class DataIndex<KT> {
@@ -34,9 +32,7 @@ public class DataIndex<KT> {
 	}
 
 	public URI getURI(KT key) {
-		// TODO Base64 encoded strings contain characters not valid in URI
-		// segments
-		return URI.createURI(store.getURIString()).appendSegment(DatatypeConverter.printBase64Binary(getStoreKey(key)));
+		return URI.createURI(store.getURIString()).appendSegment(URIUtils.encode(getStoreKey(key)));
 	}
 
 	public KT add() {
@@ -136,9 +132,7 @@ public class DataIndex<KT> {
 	}
 
 	public KT getKeyFromURI(URI crossReferenceURI) {
-		// TODO Base64 encoded strings contain characters not valid in URI
-		// segments
-		byte[] key = DatatypeConverter.parseBase64Binary(crossReferenceURI.segment(1));
+		byte[] key = URIUtils.decode(crossReferenceURI.segment(1));
 		return keyType.deserialize(key, fullPrefix.length);
 	}
 }
