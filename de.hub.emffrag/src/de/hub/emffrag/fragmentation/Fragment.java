@@ -1,12 +1,12 @@
 package de.hub.emffrag.fragmentation;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.XMLHelper;
 import org.eclipse.emf.ecore.xmi.XMLResource;
@@ -88,7 +88,6 @@ public class Fragment extends XMIResourceImpl {
 				}
 			}
 			URI href2 = super.getHREF(otherResource, obj);
-			System.out.println("# " + href2);
 			return href2;
 		}
 	}
@@ -109,6 +108,13 @@ public class Fragment extends XMIResourceImpl {
 		};
 	}
 
+//	@Override
+//	protected void unloaded(InternalEObject internalEObject) {
+//		super.unloaded(internalEObject);
+//		FInternalObjectImpl internalObject = (FInternalObjectImpl) internalEObject;
+//		internalObject.trulyUnload();
+//	}
+
 	/**
 	 * EMF does not break down the reference graph of a resources contents
 	 * property. Under some circumstances the JVM cannot remove this contents
@@ -116,9 +122,15 @@ public class Fragment extends XMIResourceImpl {
 	 * change in the EMF standard behavior of the resources fixes that.
 	 */
 	@Override
-	protected void unloaded(InternalEObject internalEObject) {
-		super.unloaded(internalEObject);
-		FInternalObjectImpl internalObject = (FInternalObjectImpl) internalEObject;
-		internalObject.trulyUnload();
+	protected void doUnload() {
+	    Iterator<EObject> allContents = getAllProperContents(unloadingContents); 
+	    
+		super.doUnload();
+		while (allContents.hasNext())
+	    {
+			FInternalObjectImpl internalObject = (FInternalObjectImpl) allContents.next();
+			internalObject.trulyUnload();
+	    }
 	}
+	
 }

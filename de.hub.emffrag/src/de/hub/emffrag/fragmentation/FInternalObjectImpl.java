@@ -2,6 +2,7 @@ package de.hub.emffrag.fragmentation;
 
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.impl.DynamicEObjectImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.Resource.Internal;
@@ -21,19 +22,38 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 	}
 
 	public FragmentedModel getFragmentation() {
-		Resource eResource = eResource();
-		if (eResource instanceof Fragment) {
-			return ((Fragment) eResource).getFragmentedModel();
+		Fragment fragment = getFragment();
+		if (fragment != null) {
+			return fragment.getFragmentedModel();
+		} else {
+			return null;
 		}
-		return null;
 	}
 
 	public Fragment getFragment() {
 		Resource eResource = eResource();
-		if (eResource instanceof Fragment) {
-			return ((Fragment) eResource);
+		if (eResource != null) {
+			if (eResource instanceof Fragment) {
+				return ((Fragment) eResource);
+			} else {
+				return null;
+			}
+		} else if (eIsProxy()) {
+			EObject container = eContainer();
+			while (container != null) {
+				eResource = container.eResource();
+				if (eResource != null) {
+					if (eResource instanceof Fragment) {
+						return ((Fragment) eResource);
+					} else {
+						return null;
+					}
+				}
+			}
+			return null;
+		} else {		
+			return null;
 		}
-		return null;
 	}
 
 	/**
@@ -99,4 +119,11 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 		}
 		eSettings = null;
 	}
+	
+//	public void eSetProxyURI(URI uri) {
+//		if (uri.toString().endsWith("-1")) {
+//			System.out.println("& " + uri);	
+//		}		
+//	    eProperties().setEProxyURI(uri);
+//	}
 }

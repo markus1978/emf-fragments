@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -29,7 +27,6 @@ import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.DataStoreURIHandler;
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.datastore.StringKeyType;
-import de.hub.emffrag.datastore.URIUtils;
 import de.hub.emffrag.fragmentation.UserObjectsCache.UserObjectsCacheListener;
 
 public class FragmentedModel {

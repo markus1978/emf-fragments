@@ -5,9 +5,11 @@ import java.util.Random;
 
 import junit.framework.Assert;
 
+import org.eclipse.emf.common.util.TreeIterator;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.junit.Test;
 
-import de.hub.emffrag.datastore.InMemoryDataStore;
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
@@ -197,14 +199,11 @@ public class CacheTests extends AbstractFragmentationTests {
 	/**
 	 * TODO
 	 * 
-	 * There are several issues with this test. First, sometimes (and only
-	 * sometimes) there are objects that cannot be resolved (their URI looks
-	 * strange too). Secondly, there is not datastore that does not need
+	 * There is not data store that does not need
 	 * memory when it grows.
 	 */
-	@Test
+//	@Test
 	public void testConstantRamUsage() throws Exception {
-		dataStore = new InMemoryDataStore("hbase", "localhost", "testmodel", true);
 		initializeModel(100);
 
 		TestObject container = addObject(null, false);
@@ -257,5 +256,51 @@ public class CacheTests extends AbstractFragmentationTests {
 		assertStatistics(0, 5000, 0, objects, (int) ((objects / 2) * 0.8f), (int) ((objects / 2) * 1.2),
 				(int) ((objects / 2) * 0.8f), (int) ((objects / 2) * 1.2));
 	}
+	
+	@SuppressWarnings("unused")
+	private void printResource(Resource resource) {
+		TreeIterator<EObject> allContents = resource.getAllContents();
+		while (allContents.hasNext()) {
+			FInternalObjectImpl next = (FInternalObjectImpl)allContents.next();
+			System.out.print(resource.getURIFragment(next) + ":");
+			System.out.print(next.eGet(ReflectiveMetaModelRegistry.instance.getOppositeFeature(metaModel.getTestObject_Name())) + ":");
+			System.out.print(next.eIsProxy() + ":");
+			System.out.print(System.identityHashCode(next) + ":");
+			System.out.println("");
+		}
+	}
 
+	@Test
+	public void testRegularContainmentAfterReload() throws Exception {
+		initializeModel(1);
+
+		model.addContent(object1);
+		object1.getFragmentedContents().add(object2);
+		object2.getFragmentedContents().add(object3);
+		TestObject contents = TestModelFactory.eINSTANCE.createTestObject();
+		contents.setName("testValue");
+		object3.getRegularContents().add(contents);
+		String uriFragment = object3.eResource().getURIFragment(((FObjectImpl)contents).internalObject());
+		Assert.assertEquals("//@regularContents.0", uriFragment);
+		
+//		printResource(object3.eResource());
+
+		deleteReference(object2);
+		deleteReference(object3);
+		Thread.sleep(10);
+		model.purgeCache();
+		Assert.assertEquals(2, model.numberOfLoadedFragments());
+		
+//		printResource(model.getResourceSet().getResource(URI.createURI("hbase://localhost/testmodel/Zl8AAAAAAAAAAQ"), true));
+//		printResource(model.getResourceSet().getResource(URI.createURI("hbase://localhost/testmodel/Zl8AAAAAAAAAAg"), true));
+
+		object1 = assertHasModelRootFragment();
+		object2 = assertHasContents(object1, metaModel.getTestObject_FragmentedContents());
+		object3 = assertHasContents(object2, metaModel.getTestObject_FragmentedContents());
+		contents = assertHasContents(object3, metaModel.getTestObject_RegularContents());
+		assertStatistics(3, 3, 1, 1, 1, 1, 3, 3);
+		
+		uriFragment = object3.eResource().getURIFragment(((FObjectImpl)contents).internalObject());
+		Assert.assertEquals("//@regularContents.0", uriFragment);		
+	}
 }

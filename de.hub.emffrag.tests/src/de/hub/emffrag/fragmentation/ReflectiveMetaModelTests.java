@@ -5,6 +5,7 @@ import java.io.IOException;
 import junit.framework.Assert;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
@@ -44,36 +45,36 @@ public class ReflectiveMetaModelTests extends AbstractTests {
 		EReference fragmentedContentsReference = metaModel.getTestObject_FragmentedContents();
 		EList contents = (EList) internalContainer.eGet(fragmentedContentsReference);
 		contents.add(internalContents);
-		
+
 		Assert.assertEquals(1, contents.size());
 		Assert.assertEquals(internalContents, contents.get(0));
 	}
-	
+
 	@Test
 	public void testIsSet() {
 		TestModelPackage metaModel = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(TestModelPackage.eINSTANCE);
 		FInternalObjectImpl internalContainer = new FInternalObjectImpl(metaModel.getTestObject());
 		internalContainer.eIsSet(metaModel.getTestObject_RegularContents());
 	}
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void testNonContainmentReferences() {
 		TestModelPackage metaModel = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(TestModelPackage.eINSTANCE);
 		FInternalObjectImpl t1 = new FInternalObjectImpl(metaModel.getTestObject());
 		FInternalObjectImpl t2 = new FInternalObjectImpl(metaModel.getTestObject());
-		EReference testObject_crossReferences = metaModel.getTestObject_CrossReferences();		
+		EReference testObject_crossReferences = metaModel.getTestObject_CrossReferences();
 		EList crossReferences = (EList) t1.eGet(testObject_crossReferences);
 		crossReferences.add(t2);
-		
+
 		Assert.assertEquals(1, crossReferences.size());
 		Assert.assertEquals(t2, crossReferences.get(0));
 	}
-	
+
 	private ResourceSet createAndConfigureAResourceSet(DataStore dataStore, EPackage... metaModels) {
 		ResourceSet resourceSet = new ResourceSetImpl();
-		for (EPackage metaModel: metaModels) {
-		resourceSet.getPackageRegistry().put(metaModel.getNsURI(), metaModel);
+		for (EPackage metaModel : metaModels) {
+			resourceSet.getPackageRegistry().put(metaModel.getNsURI(), metaModel);
 			metaModel.setEFactoryInstance(new org.eclipse.emf.ecore.impl.EFactoryImpl() {
 				@Override
 				public EObject create(EClass eClass) {
@@ -90,106 +91,106 @@ public class ReflectiveMetaModelTests extends AbstractTests {
 		});
 		return resourceSet;
 	}
-	
+
 	private Resource[] createResourceSet(DataStore dataStore, EPackage metaModel, int numberOfResources, boolean loadResources) {
 		DataIndex<Long> index = new DataIndex<Long>(dataStore, "f_", LongKeyType.instance);
 		ResourceSet resourceSet = createAndConfigureAResourceSet(dataStore, metaModel);
-				
+
 		Resource[] resources = new Resource[numberOfResources];
 		for (int i = 0; i < numberOfResources; i++) {
-			URI uri = index.getURI((long)i);
+			URI uri = index.getURI((long) i);
 			if (loadResources) {
 				resources[i] = resourceSet.getResource(uri, true);
 			} else {
 				resources[i] = resourceSet.createResource(uri);
 			}
 		}
-		
+
 		return resources;
 	}
-	
+
 	private void saveResources(Resource[] resources) {
-		for (Resource resource: resources) {
+		for (Resource resource : resources) {
 			try {
 				if (resource.getResourceSet() != null) {
-					resource.save(null);				
+					resource.save(null);
 				}
 			} catch (IOException e) {
 				Assert.assertTrue("IO error that could not be happening: " + e.getMessage(), false);
 			}
 		}
 	}
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void testContainmentProxyResolution() {
 		DataStore dataStore = createTestDataStore();
-		TestModelPackage metaModel = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(TestModelPackage.eINSTANCE);		
-		
+		TestModelPackage metaModel = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(TestModelPackage.eINSTANCE);
+
 		FInternalObjectImpl internalContainer = new FInternalObjectImpl(metaModel.getTestObject());
 		FInternalObjectImpl internalContents = new FInternalObjectImpl(metaModel.getTestObject());
 		EReference fragmentedContents = metaModel.getTestObject_FragmentedContents();
 		EList contents = (EList) internalContainer.eGet(fragmentedContents);
 		contents.add(internalContents);
 		internalContents.eSet(metaModel.getTestObject_Name(), "testValue");
-		
+
 		Resource[] resources = createResourceSet(dataStore, metaModel, 2, false);
 		resources[0].getContents().add(internalContainer);
 		resources[1].getContents().add(internalContents);
 		saveResources(resources);
-		
+
 		resources = createResourceSet(dataStore, metaModel, 1, true);
 		internalContainer = (FInternalObjectImpl) resources[0].getContents().get(0);
-		contents = (EList)internalContainer.eGet(fragmentedContents);
-		
+		contents = (EList) internalContainer.eGet(fragmentedContents);
+
 		Assert.assertEquals(1, contents.size());
-		internalContents = (FInternalObjectImpl) contents.get(0);		
-		Assert.assertEquals(internalContents, contents.get(0));		
+		internalContents = (FInternalObjectImpl) contents.get(0);
+		Assert.assertEquals(internalContents, contents.get(0));
 		Assert.assertTrue(resources[0] != internalContents.eResource());
 		Assert.assertTrue(resources[0] == internalContainer.eResource());
 		Assert.assertFalse(internalContents.eIsProxy());
 		Assert.assertEquals(internalContents.eGet(metaModel.getTestObject_Name()), "testValue");
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testProxyResolution() {
 		DataStore dataStore = createTestDataStore();
 		TestModelPackage metaModel = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(TestModelPackage.eINSTANCE);
-		
+
 		FInternalObjectImpl t1 = new FInternalObjectImpl(metaModel.getTestObject());
 		FInternalObjectImpl t2 = new FInternalObjectImpl(metaModel.getTestObject());
-		EReference testObject_crossReferences = metaModel.getTestObject_CrossReferences();		
+		EReference testObject_crossReferences = metaModel.getTestObject_CrossReferences();
 		EList crossReferences = (EList) t1.eGet(testObject_crossReferences);
 		crossReferences.add(t2);
 		t2.eSet(metaModel.getTestObject_Name(), "testValue");
-		
+
 		Resource[] resources = createResourceSet(dataStore, metaModel, 2, false);
 		resources[0].getContents().add(t1);
 		resources[1].getContents().add(t2);
 		saveResources(resources);
-		
+
 		resources = createResourceSet(dataStore, metaModel, 1, true);
 		t1 = (FInternalObjectImpl) resources[0].getContents().get(0);
-		crossReferences = (EList)t1.eGet(testObject_crossReferences);
+		crossReferences = (EList) t1.eGet(testObject_crossReferences);
 		t2 = (FInternalObjectImpl) crossReferences.get(0);
-				
+
 		Assert.assertEquals(1, crossReferences.size());
-		Assert.assertEquals(t2, crossReferences.get(0));		
+		Assert.assertEquals(t2, crossReferences.get(0));
 		Assert.assertTrue(resources[0] != t2.eResource());
 		Assert.assertTrue(resources[0] == t1.eResource());
 		Assert.assertFalse(t2.eIsProxy());
 		Assert.assertEquals("testValue", t2.eGet(metaModel.getTestObject_Name()));
 	}
-	
+
 	@Test
 	public void testReflectiveMetaModelRegistryTest() {
 		TestModelPackage one = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(TestModelPackage.eINSTANCE);
 		TestModelPackage two = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(TestModelPackage.eINSTANCE);
-		
+
 		Assert.assertEquals(one, two);
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testMoveContents() {
@@ -197,13 +198,42 @@ public class ReflectiveMetaModelTests extends AbstractTests {
 		TestModelPackage metaModel = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(TestModelPackage.eINSTANCE);
 		FInternalObjectImpl t1 = new FInternalObjectImpl(metaModel.getTestObject());
 		FInternalObjectImpl t2 = new FInternalObjectImpl(metaModel.getTestObject());
-		((EList)t1.eGet(metaModel.getTestObject_FragmentedContents())).add(t2);
+		((EList) t1.eGet(metaModel.getTestObject_FragmentedContents())).add(t2);
 		Resource[] resources = createResourceSet(dataStore, metaModel, 2, false);
 		resources[0].getContents().add(t1);
 		resources[1].getContents().add(t2);
 		saveResources(resources);
-		
-		((EList)t1.eGet(metaModel.getTestObject_RegularContents())).add(t2);
-		saveResources(resources);		
+
+		((EList) t1.eGet(metaModel.getTestObject_RegularContents())).add(t2);
+		saveResources(resources);
+	}
+
+	/**
+	 * This test case checks if URIs for regulary contained objects are formed
+	 * correctly when the reflective meta-model is used. It some point this did
+	 * not work correctly within fragmented models.
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
+	public void testRegularContainmentURIs() {
+		DataStore dataStore = createTestDataStore();
+		TestModelPackage metaModel = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(TestModelPackage.eINSTANCE);
+
+		Resource[] resources = createResourceSet(dataStore, metaModel, 1, false);
+		FInternalObjectImpl t1 = new FInternalObjectImpl(metaModel.getTestObject());
+		FInternalObjectImpl t2 = new FInternalObjectImpl(metaModel.getTestObject());
+
+		resources[0].getContents().add(t1);
+		EList eList = (EList) t1.eGet(metaModel.getTestObject_RegularContents());
+		eList.add(t2);
+		Assert.assertTrue(resources[0].getContents().contains(t1));
+		Assert.assertTrue(eList.contains(t2));
+		boolean isContainedInResource = false;
+		TreeIterator<EObject> allContents = resources[0].getAllContents();
+		while (allContents.hasNext()) {
+			isContainedInResource |= allContents.next().equals(t2);
+		}
+		Assert.assertTrue(isContainedInResource);
+		Assert.assertEquals("//@regularContents.0", resources[0].getURIFragment(t2));
 	}
 }
