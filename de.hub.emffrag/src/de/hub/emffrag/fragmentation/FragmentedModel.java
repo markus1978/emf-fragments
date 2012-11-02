@@ -31,16 +31,6 @@ import de.hub.emffrag.fragmentation.UserObjectsCache.UserObjectsCacheListener;
 
 public class FragmentedModel {
 
-	// TODO remove after testing (or introduce a resonable logging
-	private void log(Fragment fragment, String message) {
-//		 try {
-//		 System.out.println(LongKeyType.instance.deserialize(URIUtils.decode(fragment.getURI().lastSegment()),
-//		 2) + " " + message);
-//		 } catch (Exception e) {
-//		 System.out.println("e " + e.getMessage() + "/" + message);
-//		 }
-	}
-
 	private final static XMLParserPoolImpl xmlParserPool = new XMLParserPoolImpl(true);
 	private final static Map<Object, Object> options = new HashMap<Object, Object>();
 	static {
@@ -164,7 +154,6 @@ public class FragmentedModel {
 			return;
 		}
 		
-		log(fragment, "unload");
 		statistics.unloads++;
 		try {
 			fragment.save(options);
@@ -221,7 +210,6 @@ public class FragmentedModel {
 			public Resource createResource(URI uri) {
 				Fragment fragment = new Fragment(uri, FragmentedModel.this);
 				fragmentCache.registerFragment(fragment);
-				log(fragment, "create");
 				return fragment;
 			}
 		});
@@ -269,7 +257,7 @@ public class FragmentedModel {
 			rootFragment.getContents().add(internalObject);
 			rootFragment.getUserObjectsCache().addUserObjectToCache(internalObject, (FObjectImpl) eObject);
 		} else {
-			// TODO allow to move objects from one fragmented model to another
+			// TODO (multi fragmentation models)
 			throw new UnsupportedOperationException();
 		}
 	}

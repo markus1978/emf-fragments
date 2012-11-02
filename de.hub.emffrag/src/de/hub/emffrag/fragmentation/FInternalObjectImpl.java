@@ -73,7 +73,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 					throw new IllegalStateException("Object cannot be cross referenced");
 				}
 			}
-			// else: if the referenced object is not part of the model, TODO
+			// else: if the referenced object is not part of the model, TODO (multi fragmentation models)
 			// should this be an error?
 		}
 	}
@@ -102,8 +102,8 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 				newResource.setID(this, extrinsicID);
 			}
 		}
-		// else: if the referenced object is not part of the model, TODO should
-		// this be an error?
+		// else: if the referenced object is not part of the model, TODO (multi fragmentation models) 
+		// should this be an error?
 		return result;
 	}
 
