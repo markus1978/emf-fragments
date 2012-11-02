@@ -1,4 +1,4 @@
-package de.hub.emffrag.test;
+package de.hub.emffrag.fragmentation;
 
 import java.io.IOException;
 
@@ -20,7 +20,6 @@ import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.DataStoreURIHandler;
 import de.hub.emffrag.datastore.LongKeyType;
-import de.hub.emffrag.fragmentation.AbstractTests;
 import de.hub.emffrag.fragmentation.FInternalObjectImpl;
 import de.hub.emffrag.fragmentation.Fragment;
 import de.hub.emffrag.fragmentation.ReflectiveMetaModelRegistry;
@@ -86,7 +85,7 @@ public class ReflectiveMetaModelTests extends AbstractTests {
 		resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put("hbase", new XMIResourceFactoryImpl() {
 			@Override
 			public Resource createResource(URI uri) {
-				return new Fragment(uri);
+				return new Fragment(uri, null);
 			}
 		});
 		return resourceSet;

@@ -17,6 +17,7 @@ public class FObjectImpl extends EStoreEObjectImpl {
 
 	public FObjectImpl() {
 		eSetStore(FStoreImpl.getInstance());
+		eContainerFeatureID = Integer.MAX_VALUE;
 	}
 
 	protected void setInternalObject(FInternalObjectImpl internalObject) {
@@ -44,10 +45,18 @@ public class FObjectImpl extends EStoreEObjectImpl {
 	 */
 	@Override
 	public InternalEObject eInternalContainer() {
-		if (containerReference == null || containerReference.get() == null) {
+		if (containerReference == null || eContainerFeatureID == Integer.MAX_VALUE) {
 			eInitializeContainer();
-		}
-		return containerReference.get();
+			return containerReference.get();
+		} else {
+			 InternalEObject container = containerReference.get();
+			 if (container == null) {
+				 eInitializeContainer();
+				 return containerReference.get();
+			 } else {
+				 return container;
+			 }
+		}		
 	}
 
 	/**
@@ -65,10 +74,16 @@ public class FObjectImpl extends EStoreEObjectImpl {
 	 */
 	@Override
 	public int eContainerFeatureID() {
-		if (containerReference == null || containerReference.get() == null) {
+		if (containerReference == null || eContainerFeatureID == Integer.MAX_VALUE) {
 			eInitializeContainer();
+			return eContainerFeatureID;
+		} else {
+			InternalEObject container = containerReference.get();
+			if (container == null) {
+				eInitializeContainer();
+			}
+			return eContainerFeatureID;
 		}
-		return eContainerFeatureID;
 	}
 
 	/**

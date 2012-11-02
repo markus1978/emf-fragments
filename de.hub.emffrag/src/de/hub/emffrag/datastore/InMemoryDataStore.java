@@ -12,13 +12,14 @@ public class InMemoryDataStore extends DataStore {
 	
 	private static final byte[] EMTPY = new byte[] { 0 };
 	
-	TreeMap<byte[], byte[]> store = new TreeMap<byte[], byte[]>(new Comparator<byte[]>() {
+	private TreeMap<byte[], byte[]> store = new TreeMap<byte[], byte[]>(new Comparator<byte[]>() {
 		@Override
 		public int compare(byte[] o1, byte[] o2) {
 			return compareBytes(o1, o2);
 		}		
 	});
-	
+
+	private final boolean fleeting;
 
 	/**
 	 * Comparator for byte arrays as used in HBase, supposed to be
@@ -35,8 +36,9 @@ public class InMemoryDataStore extends DataStore {
 		return left.length - right.length;
 	}
 
-	public InMemoryDataStore(String protocol, String domain, String dataStoreId) {
+	public InMemoryDataStore(String protocol, String domain, String dataStoreId, boolean fleeting) {
 		super(protocol, domain, dataStoreId);
+		this.fleeting = fleeting;
 	}
 
 	@Override
@@ -66,7 +68,7 @@ public class InMemoryDataStore extends DataStore {
 			public void close() throws IOException {
 				super.close();
 				byte[] value = toByteArray();
-				store.put(key, value);
+				store.put(key, fleeting ? EMTPY : value);
 			}
 		};
 	}

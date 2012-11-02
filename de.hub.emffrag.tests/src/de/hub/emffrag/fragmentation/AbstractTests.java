@@ -63,7 +63,7 @@ public class AbstractTests {
 	}
 
 	protected DataStore createTestDataStore() {
-		return new InMemoryDataStore("hbase", "localhost", "testmodel");
+		return new InMemoryDataStore("hbase", "localhost", "testmodel", false);
 	}
 
 	protected DataIndex<Long> createIndex(String prefix, DataStore store) {

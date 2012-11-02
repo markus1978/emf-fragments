@@ -17,30 +17,27 @@ import org.eclipse.emf.ecore.xmi.impl.XMLHelperImpl;
 
 import com.google.common.base.Throwables;
 
-import de.hub.emffrag.fragmentation.FragmentedModel.CacheState;
 import de.hub.emffrag.util.EMFFragUtil;
 
 public class Fragment extends XMIResourceImpl {
 
-	private final UserObjectsCache userObjectsCache = new UserObjectsCache();
-	private FragmentedModel model = null;
-	private final CacheState cacheState;
+	private final UserObjectsCache userObjectsCache;
+//	private final CacheState cacheState;
+	private final FragmentedModel model;	
 
-	public Fragment(URI uri) {
+	public Fragment(URI uri, FragmentedModel model) {
 		super(uri);
-		cacheState = new CacheState(this);
+		this.model = model;
+		userObjectsCache = new UserObjectsCache();
+//		cacheState = new CacheState(this);
 	}
 
-	CacheState getCacheState() {
-		return cacheState;
-	}
+//	CacheState getCacheState() {
+//		return cacheState;
+//	}
 
 	UserObjectsCache getUserObjectsCache() {
 		return userObjectsCache;
-	}
-
-	void setFragmentedModel(FragmentedModel model) {
-		this.model = model;
 	}
 
 	public FragmentedModel getFragmentedModel() {
@@ -90,7 +87,9 @@ public class Fragment extends XMIResourceImpl {
 					return otherResource.getURI().appendFragment("/");
 				}
 			}
-			return super.getHREF(otherResource, obj);
+			URI href2 = super.getHREF(otherResource, obj);
+			System.out.println("# " + href2);
+			return href2;
 		}
 	}
 
@@ -121,9 +120,5 @@ public class Fragment extends XMIResourceImpl {
 		super.unloaded(internalEObject);
 		FInternalObjectImpl internalObject = (FInternalObjectImpl) internalEObject;
 		internalObject.trulyUnload();
-	}
-
-	void markAsUsed() {
-		getFragmentedModel().markAsUsed(this);
 	}
 }
