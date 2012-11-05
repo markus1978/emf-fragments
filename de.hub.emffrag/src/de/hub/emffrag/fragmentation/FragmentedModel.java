@@ -208,7 +208,7 @@ public class FragmentedModel {
 		resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put(dataStore.getProtocol(), new XMIResourceFactoryImpl() {
 			@Override
 			public Resource createResource(URI uri) {
-				Fragment fragment = new Fragment(uri, FragmentedModel.this);
+				Fragment fragment = createFragment(uri, FragmentedModel.this);
 				fragmentCache.registerFragment(fragment);
 				return fragment;
 			}
@@ -216,12 +216,19 @@ public class FragmentedModel {
 
 		return resourceSet;
 	}
+	
+	protected Fragment createFragment(URI uri, FragmentedModel model) {
+		return new XMIFragmentImpl(uri, model);
+	}
 
 	public FragmentedModel(DataStore dataStore, URI rootFragmentKeyURI, EPackage... metaModel) {
-		this(dataStore, rootFragmentKeyURI, 100, metaModel);
+		this(dataStore, rootFragmentKeyURI, -1, metaModel);
 	}
 
 	public FragmentedModel(DataStore dataStore, URI rootFragmentKeyURI, int cacheSize, EPackage... metaModel) {
+		if (cacheSize == -1) {
+			cacheSize = 100;
+		}
 		if (cacheSize < 1) {
 			throw new IllegalArgumentException("A zero fragment cache is not allowed. Try a larger cache size.");
 		}
@@ -233,7 +240,7 @@ public class FragmentedModel {
 		resourceSet = createAndConfigureAResourceSet(dataStore, metaModel);
 
 		if (rootFragmentKeyURI == null) {
-			rootFragment = crateFragment(null, null, null, null);
+			rootFragment = addFragment(null, null, null, null);
 			this.rootFragmentKeyURI = rootFragment.getURI();
 		} else {
 			this.rootFragmentKeyURI = rootFragmentKeyURI;
@@ -267,9 +274,9 @@ public class FragmentedModel {
 	}
 
 	/**
-	 * Creates a new fragment. That means it creates a resource (fragment), adds
-	 * it to the resource set, and creates an appropriate entry in the
-	 * persistence.
+	 * Creates a new fragment and adds it to the model. That means it creates a
+	 * resource (fragment), adds it to the resource set, and creates an
+	 * appropriate entry in the persistence.
 	 * 
 	 * @param fragmentRoot
 	 *            The object that is going to be the root of the new fragment.
@@ -283,7 +290,7 @@ public class FragmentedModel {
 	 * @param containmentFeature
 	 *            Can be null (see containingObject)
 	 */
-	public Fragment crateFragment(FInternalObjectImpl fragmentRoot, FObjectImpl fragmentRootUserObject,
+	public Fragment addFragment(FInternalObjectImpl fragmentRoot, FObjectImpl fragmentRootUserObject,
 			InternalEObject containingObject, EStructuralFeature containmentFeature) {
 		Fragment newFragment = (Fragment) resourceSet.createResource(createNewFragmentURI());
 

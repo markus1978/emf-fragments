@@ -13,7 +13,6 @@ import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 
 public class BasicFragmentationTests extends AbstractFragmentationTests {
 	
-	
 	/**
 	 * Test the pure creation of an empty fragmented model.
 	 */

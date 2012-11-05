@@ -117,7 +117,7 @@ public class FObjectImpl extends EStoreEObjectImpl {
 						throw new RuntimeException(
 								"You cannot at a value to a fragmenting reference if the new container is not part of a fragmented model");
 					} else {
-						fragmentation.crateFragment(this.internalObject, this, newContainer, feature);
+						fragmentation.addFragment(this.internalObject, this, newContainer, feature);
 					}
 				}
 			}

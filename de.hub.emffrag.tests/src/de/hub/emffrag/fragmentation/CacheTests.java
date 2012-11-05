@@ -19,7 +19,7 @@ public class CacheTests extends AbstractFragmentationTests {
 	}
 
 	private void initializeModel(int cacheSize) {
-		model = new FragmentedModel(dataStore, null, cacheSize, metaModel);
+		model = createFragmentedModel(dataStore, null, cacheSize, metaModel);
 		rootFragmentURI = model.getRootFragmentURI();
 	}
 

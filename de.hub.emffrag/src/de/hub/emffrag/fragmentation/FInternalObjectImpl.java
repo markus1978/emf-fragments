@@ -20,6 +20,15 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 		return eResource != null && eResource instanceof Fragment
 				&& (eContainer() == null || eResource != eContainer().eResource());
 	}
+	
+	public UserObjectsCache getUserObjectCache() {
+		Fragment fragment = getFragment();
+		if (fragment != null) {
+			return fragment.getUserObjectsCache();
+		} else {
+			return UserObjectsCache.newUserObjectsCache;
+		}
+	}
 
 	public FragmentedModel getFragmentation() {
 		Fragment fragment = getFragment();

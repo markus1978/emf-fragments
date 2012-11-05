@@ -1,13 +1,10 @@
 package de.hub.emffrag.fragmentation;
 
-import java.io.File;
 import java.text.NumberFormat;
 import java.util.Random;
 
 import org.junit.Test;
 
-import de.hub.emffrag.datastore.DataStore;
-import de.hub.emffrag.datastore.FileSystemDataStore;
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 

@@ -5,9 +5,14 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
+
+import com.google.common.base.Throwables;
 
 public class UserObjectsCache {
 	
@@ -17,7 +22,10 @@ public class UserObjectsCache {
 		public void handleUnReferenced();
 	}
 	
+	private final static ExecutorService es = Executors.newSingleThreadExecutor();
+	
 	final static UserObjectsCache newUserObjectsCache = new UserObjectsCache();
+	private static UOCController uocController = new UOCController();
 	
 	private final Map<FInternalObjectImpl, UserObjectReference> cache = new ConcurrentHashMap<FInternalObjectImpl, UserObjectReference>();
 	private UserObjectsCacheListener listener = null;
@@ -28,6 +36,38 @@ public class UserObjectsCache {
 			super(referent, q);
 			internalObject = referent.internalObject();
 		}		
+	}
+	
+	static class UOCController implements Runnable {	
+		private final ReferenceQueue<FObjectImpl> userObjectsReferenceQueue = new ReferenceQueue<FObjectImpl>();
+		private Future<?> future = null; 
+		
+		@Override
+		public void run() {
+			try {
+				Reference<? extends FObjectImpl> reference;
+				while ((reference = userObjectsReferenceQueue.remove()) != null) {
+					FInternalObjectImpl internalObject = ((UserObjectReference)reference).internalObject;
+					UserObjectsCache uoc = internalObject.getUserObjectCache();
+					uoc.handleRemovedReference(internalObject);
+				}
+			} catch (InterruptedException e) {
+				Throwables.propagate(e);
+			}
+		}
+		
+		UOCController() {
+			future = es.submit(this);
+		}
+		
+		void shutdown() {
+			future.cancel(true);
+		}
+	}
+	
+	static void resetUOCController() {
+		uocController.shutdown();
+		uocController = new UOCController();
 	}
 	
 	void setListener(UserObjectsCacheListener listener) {
@@ -88,7 +128,7 @@ public class UserObjectsCache {
 	}
 
 	public void addUserObjectToCache(FInternalObjectImpl internalObject, FObjectImpl userObject) {
-		cache.put(internalObject, new UserObjectReference(userObject, CacheController.instance().getAllUserObjectsReferenceQueue()));
+		cache.put(internalObject, new UserObjectReference(userObject, uocController.userObjectsReferenceQueue));
 		if (listener != null) {
 			listener.handleUsed();
 		}
@@ -102,15 +142,6 @@ public class UserObjectsCache {
 		removeCachedUserObject(internalObject);
 		if (listener != null && !hasReferences()) {
 			listener.handleUnReferenced();
-		}
-	}
-
-	public static void delegateRemovedReference(Reference<? extends FObjectImpl> reference) {
-		UserObjectReference userObjectReference = (UserObjectReference)reference;
-		FInternalObjectImpl internalObject = userObjectReference.internalObject;
-		Fragment fragment = internalObject.getFragment();
-		if (fragment != null) {
-			fragment.getUserObjectsCache().handleRemovedReference(internalObject);
 		}
 	}
 

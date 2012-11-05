@@ -10,6 +10,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceFactoryImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.junit.Before;
@@ -37,6 +38,15 @@ public class AbstractReflectiveModelTests extends AbstractTests {
 		object3 = new FInternalObjectImpl(metaModel.getTestObject());
 	}
 	
+	protected ResourceFactoryImpl createResourceFactoryImpl() {
+		return new XMIResourceFactoryImpl() {
+			@Override
+			public Resource createResource(URI uri) {
+				return new XMIFragmentImpl(uri, null);
+			}
+		};
+	}
+	
 	protected ResourceSet createAndConfigureAResourceSet(DataStore dataStore, EPackage... metaModels) {
 		ResourceSet resourceSet = new ResourceSetImpl();
 		for (EPackage metaModel : metaModels) {
@@ -49,12 +59,7 @@ public class AbstractReflectiveModelTests extends AbstractTests {
 			});
 		}
 		resourceSet.getURIConverter().getURIHandlers().add(0, new DataStoreURIHandler(dataStore));
-		resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put(dataStore.getProtocol(), new XMIResourceFactoryImpl() {
-			@Override
-			public Resource createResource(URI uri) {
-				return new Fragment(uri, null);
-			}
-		});
+		resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put(dataStore.getProtocol(), createResourceFactoryImpl()); 
 		return resourceSet;
 	}
 

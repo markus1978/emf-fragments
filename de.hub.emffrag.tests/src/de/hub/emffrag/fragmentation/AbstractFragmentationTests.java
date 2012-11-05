@@ -28,6 +28,11 @@ public class AbstractFragmentationTests  extends AbstractTests {
 	protected TestObject object1 = null;
 	protected TestObject object2 = null;
 	protected TestObject object3 = null;
+	
+	@Before
+	public void resetUOCController() {
+		UserObjectsCache.resetUOCController();
+	}
 
 	@Before
 	public void registerPackages() {
@@ -50,7 +55,7 @@ public class AbstractFragmentationTests  extends AbstractTests {
 		ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(metaModel);
 		
 		if (doInitializeModel()) {
-			model = new FragmentedModel(dataStore, null, metaModel);
+			model = createFragmentedModel(dataStore, null, metaModel);
 			rootFragmentURI = model.getRootFragmentURI();
 		}
 		
@@ -62,8 +67,16 @@ public class AbstractFragmentationTests  extends AbstractTests {
 		object3.setName("testValue");
 	}
 	
+	protected final FragmentedModel createFragmentedModel(DataStore dataStore, URI rootFragmentURI, EPackage metaModel) {
+		return createFragmentedModel(dataStore, rootFragmentURI, -1, metaModel);
+	}
+	
+	protected FragmentedModel createFragmentedModel(DataStore dataStore, URI rootFragmentURI, int cacheSize, EPackage metaModel) {
+		return new FragmentedModel(dataStore, rootFragmentURI, cacheSize, metaModel);
+	}
+	
 	protected void reinitializeModel() {
-		model = new FragmentedModel(dataStore, rootFragmentURI, TestModelPackage.eINSTANCE);
+		model = createFragmentedModel(dataStore, rootFragmentURI, TestModelPackage.eINSTANCE);
 	}
 	
 	protected void assertRootFragment(EObject object) {
