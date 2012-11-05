@@ -35,7 +35,7 @@ public class DataStoreURIHandler extends URIHandlerImpl {
 	@Override
     public boolean canHandle(URI uri) {
         String scheme = uri.scheme();
-        return scheme != null && scheme.equals("hbase");
+        return scheme != null && scheme.equals(store.getProtocol());
     }
 
     @Override

@@ -5,36 +5,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Comparator;
 import java.util.TreeMap;
 
 public class InMemoryDataStore extends DataStore {
 	
 	private static final byte[] EMTPY = new byte[] { 0 };
 	
-	private TreeMap<byte[], byte[]> store = new TreeMap<byte[], byte[]>(new Comparator<byte[]>() {
-		@Override
-		public int compare(byte[] o1, byte[] o2) {
-			return compareBytes(o1, o2);
-		}		
-	});
+	private TreeMap<byte[], byte[]> store = new TreeMap<byte[], byte[]>(byteComparator);
 
 	private final boolean fleeting;
-
-	/**
-	 * Comparator for byte arrays as used in HBase, supposed to be
-	 * lexicographically.
-	 */
-	public static int compareBytes(byte[] left, byte[] right) {
-		for (int i = 0, j = 0; i < left.length && j < right.length; i++, j++) {
-			int a = (left[i] & 0xff);
-			int b = (right[j] & 0xff);
-			if (a != b) {
-				return a - b;
-			}
-		}
-		return left.length - right.length;
-	}
 
 	public InMemoryDataStore(String protocol, String domain, String dataStoreId, boolean fleeting) {
 		super(protocol, domain, dataStoreId);

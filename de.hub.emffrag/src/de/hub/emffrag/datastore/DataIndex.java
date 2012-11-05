@@ -47,7 +47,7 @@ public class DataIndex<KT> {
 			return key;
 		} else {
 			// TODO error handling
-			return null;
+			throw new RuntimeException("Could not add key " + new String(keyType.serialize(key)));
 		}
 	}
 

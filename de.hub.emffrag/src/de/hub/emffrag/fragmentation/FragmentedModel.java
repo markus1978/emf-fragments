@@ -205,7 +205,7 @@ public class FragmentedModel {
 		}
 		resourceSet.getURIConverter().getURIHandlers().add(0, new DataStoreURIHandler(dataStore));
 		resourceSet.getLoadOptions().putAll(options);
-		resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put("hbase", new XMIResourceFactoryImpl() {
+		resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put(dataStore.getProtocol(), new XMIResourceFactoryImpl() {
 			@Override
 			public Resource createResource(URI uri) {
 				Fragment fragment = new Fragment(uri, FragmentedModel.this);

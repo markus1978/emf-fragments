@@ -1,8 +1,5 @@
 package de.hub.emffrag.fragmentation;
 
-import java.text.NumberFormat;
-import java.util.Random;
-
 import junit.framework.Assert;
 
 import org.eclipse.emf.common.util.TreeIterator;
@@ -127,19 +124,6 @@ public class CacheTests extends AbstractFragmentationTests {
 		assertStatistics(3, 3, 1, 1, 1, 1, 3, 3);
 	}
 
-	private void assertStatistic(String name, int value, int min, int max) {
-		Assert.assertTrue("Too many " + name + " " + value, value <= max);
-		Assert.assertTrue("Too few " + name + " " + value, value >= min);
-	}
-
-	private void assertStatistics(int minLoaded, int maxLoaded, int minLoads, int maxLoads, int minUnloads, int maxUnloads,
-			int minCreates, int maxCreates) {
-		assertStatistic("loaded fragments", model.numberOfLoadedFragments(), minLoaded, maxLoaded);
-		assertStatistic("loads", model.getStatistics().getLoads(), minLoads, maxLoads);
-		assertStatistic("unloads", model.getStatistics().getUnloads(), minUnloads, maxUnloads);
-		assertStatistic("creates", model.getStatistics().getCreates(), minCreates, maxCreates);
-	}
-
 	@Test
 	public void testLastUsedCacheTest() throws Exception {
 		initializeModel(5);
@@ -196,67 +180,6 @@ public class CacheTests extends AbstractFragmentationTests {
 		deleteReference(contents);
 	}
 
-	/**
-	 * TODO
-	 * 
-	 * There is not data store that does not need
-	 * memory when it grows.
-	 */
-//	@Test
-	public void testConstantRamUsage() throws Exception {
-		initializeModel(100);
-
-		TestObject container = addObject(null, false);
-		model.addContent(container);
-		long totalMemory = -1;
-		long freeMemory = -1;
-		int meassure = 0;
-
-		Random random = new Random(0);
-		int numberOfFragments = 0;
-		int objects = 100000;
-		for (int i = 0; i <= objects; i++) {
-			boolean fragmenting = random.nextBoolean();
-			TestObject object = addObject(container, fragmenting);
-			if (random.nextFloat() < 0.3f) {
-				container = object;
-			}
-			if (fragmenting) {
-				numberOfFragments++;
-			}
-
-			if (i % 1000 == 0) {
-				System.gc();
-				System.out.println("tm: " + NumberFormat.getIntegerInstance().format(Runtime.getRuntime().totalMemory())
-						+ " fm: " + NumberFormat.getIntegerInstance().format(Runtime.getRuntime().freeMemory()));
-				meassure++;
-				if (meassure > (objects / 1000) / 2) {
-					if (totalMemory == -1) {
-						totalMemory = Runtime.getRuntime().totalMemory();
-					} else {
-						// Assert.assertTrue("too much total memory: " +
-						// NumberFormat.getIntegerInstance().format(Runtime.getRuntime().totalMemory())
-						// +
-						// " vs " + totalMemory,
-						// Runtime.getRuntime().totalMemory() <
-						// totalMemory*1.3f);
-					}
-					if (freeMemory == -1) {
-						totalMemory = Runtime.getRuntime().freeMemory();
-					} else {
-						// Assert.assertTrue("too much memory used: " +
-						// NumberFormat.getIntegerInstance().format(Runtime.getRuntime().freeMemory()),
-						// Runtime.getRuntime().freeMemory() > freeMemory*0.8f);
-					}
-				}
-			}
-		}
-
-		assertIndexDimenions(dataStore, "f", 0l, (long) numberOfFragments, LongKeyType.instance);
-		assertStatistics(0, 5000, 0, objects, (int) ((objects / 2) * 0.8f), (int) ((objects / 2) * 1.2),
-				(int) ((objects / 2) * 0.8f), (int) ((objects / 2) * 1.2));
-	}
-	
 	@SuppressWarnings("unused")
 	private void printResource(Resource resource) {
 		TreeIterator<EObject> allContents = resource.getAllContents();

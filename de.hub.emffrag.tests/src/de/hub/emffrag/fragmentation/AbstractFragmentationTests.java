@@ -110,6 +110,20 @@ public class AbstractFragmentationTests  extends AbstractTests {
 	}
 	
 
+	protected void assertStatistic(String name, int value, int min, int max) {
+		Assert.assertTrue("Too many " + name + " " + value, value <= max);
+		Assert.assertTrue("Too few " + name + " " + value, value >= min);
+	}
+
+	protected void assertStatistics(int minLoaded, int maxLoaded, int minLoads, int maxLoads, int minUnloads, int maxUnloads,
+			int minCreates, int maxCreates) {
+		assertStatistic("loaded fragments", model.numberOfLoadedFragments(), minLoaded, maxLoaded);
+		assertStatistic("loads", model.getStatistics().getLoads(), minLoads, maxLoads);
+		assertStatistic("unloads", model.getStatistics().getUnloads(), minUnloads, maxUnloads);
+		assertStatistic("creates", model.getStatistics().getCreates(), minCreates, maxCreates);
+	}
+	
+
 	protected TestObject addObject(TestObject container, boolean fragmented) {
 		TestObject contents = TestModelFactory.eINSTANCE.createTestObject();
 		contents.setName("testValue");
