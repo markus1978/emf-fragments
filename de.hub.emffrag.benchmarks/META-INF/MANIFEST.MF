@@ -17,5 +17,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.ecore;visibility:=reexport,
  de.hub.emffrag;bundle-version="1.0.0",
  de.hub.emffrag.hbase;bundle-version="1.0.0",
- de.hub.emffrag.testmodels;bundle-version="1.0.0"
+ de.hub.emffrag.testmodels;bundle-version="1.0.0",
+ org.apache.hadoop.hbase;bundle-version="0.94.2"
 Bundle-ActivationPolicy: lazy

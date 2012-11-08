@@ -25,7 +25,7 @@ public class RamUsageTests extends AbstractFragmentationTests {
 
 		Random random = new Random(0);
 		int numberOfFragments = 0;
-		int objects = 1000;
+		int objects = 1000000;
 		for (int i = 0; i <= objects; i++) {
 			boolean fragmenting = random.nextBoolean();
 			TestObject object = addObject(container, fragmenting);
@@ -39,7 +39,11 @@ public class RamUsageTests extends AbstractFragmentationTests {
 			if (i % 1000 == 0) {
 				System.gc();
 				System.out.println("tm: " + NumberFormat.getIntegerInstance().format(Runtime.getRuntime().totalMemory())
-						+ " fm: " + NumberFormat.getIntegerInstance().format(Runtime.getRuntime().freeMemory()));
+						+ " fm: " + NumberFormat.getIntegerInstance().format(Runtime.getRuntime().freeMemory()) 
+						+ " unloads: " + model.getStatistics().getUnloads() 
+						+ " loads: " + model.getStatistics().getLoads() 
+						+ " creates: " + model.getStatistics().getCreates() 
+						+ " managed: " + model.numberOfLoadedFragments());
 				meassure++;
 				if (meassure > (objects / 1000) / 2) {
 					if (totalMemory == -1) {
