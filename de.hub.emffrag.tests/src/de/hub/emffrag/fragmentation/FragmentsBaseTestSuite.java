@@ -12,7 +12,9 @@ import org.junit.runners.Suite;
 		BasicFragmentationTests.class, CrossReferenceTests.class, CacheTests.class, FileSystemDataStoreTests.class,
 		// fragmentation tests based on binary fragments
 		BinaryFragmentBasicFragmentationTests.class, BinaryFragmentCrossReferenceTests.class, 
-		BinaryFragmentCacheTests.class, BinaryFragmentFileSystemDataStoreTests.class })
+		BinaryFragmentCacheTests.class, BinaryFragmentFileSystemDataStoreTests.class,
+		// tests for indexes
+		IndexedMapTests.class })
 public class FragmentsBaseTestSuite {
 	// nothing
 }
