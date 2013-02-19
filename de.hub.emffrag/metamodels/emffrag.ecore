@@ -42,6 +42,12 @@
         <eGenericType eTypeParameter="#//IndexedMap/V"/>
       </eParameters>
     </eOperations>
+    <eOperations name="remove">
+      <eGenericType eTypeParameter="#//IndexedMap/V"/>
+      <eParameters name="key">
+        <eGenericType eTypeParameter="#//IndexedMap/K"/>
+      </eParameters>
+    </eOperations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstKey" changeable="false"
         transient="true" unsettable="true" derived="true">
       <eGenericType eTypeParameter="#//IndexedMap/K"/>

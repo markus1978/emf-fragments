@@ -355,6 +355,12 @@ public class EmfFragPackageImpl extends EPackageImpl implements EmfFragPackage {
 		g1 = createEGenericType(indexedMapEClass_V);
 		addEParameter(op, g1, "value", 0, 1, IS_UNIQUE, IS_ORDERED);
 
+		op = addEOperation(indexedMapEClass, null, "remove", 0, 1, IS_UNIQUE, IS_ORDERED);
+		g1 = createEGenericType(indexedMapEClass_K);
+		addEParameter(op, g1, "key", 0, 1, IS_UNIQUE, IS_ORDERED);
+		g1 = createEGenericType(indexedMapEClass_V);
+		initEOperation(op, g1);
+
 		initEClass(indexedListEClass, IndexedList.class, "IndexedList", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 
 		op = addEOperation(indexedListEClass, null, "add", 0, 1, IS_UNIQUE, IS_ORDERED);

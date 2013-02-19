@@ -185,4 +185,12 @@ public interface IndexedMap<K, V> extends EObject {
 	 */
 	void put(K key, V value);
 
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @model
+	 * @generated
+	 */
+	V remove(K key);
+
 } // IndexedMap

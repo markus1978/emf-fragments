@@ -21,6 +21,10 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 				&& (eContainer() == null || eResource != eContainer().eResource());
 	}
 	
+	public EObject getUserObject() {
+		return getUserObjectCache().getUserObject(this);
+	}
+	
 	public UserObjectsCache getUserObjectCache() {
 		Fragment fragment = getFragment();
 		if (fragment != null) {

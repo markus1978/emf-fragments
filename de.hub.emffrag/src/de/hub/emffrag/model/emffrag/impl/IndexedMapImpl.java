@@ -185,12 +185,16 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 	public Iterator<V> iterator() {
 		init();
 		return new Iterator<V>() {
-			K current = getFirstKey();
-			K next = null;
+			K current = null;
+			K next = getFirstKey();
 			@Override
 			public boolean hasNext() {
 				if (next == null) {
-					next = index.next(current);
+					if (current != null) {
+						next = index.next(current);
+					} else {
+						next = null;
+					}
 				}
 				return next != null;
 			}
@@ -201,14 +205,10 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 				if (next == null) {
 					next = index.next(current);
 				}
-				if (next != null) {
-					EObject result = fragment.getResourceSet().getEObject(URI.createURI(index.get(next)), true);
-					current = next;
-					next = null;
-					return (V)result;
-				} else {
-					return null;
-				}
+				EObject result = getValueForExactKey(next);
+				current = next;
+				next = null;
+				return (V)result;			
 			}
 
 			@Override
@@ -228,7 +228,20 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 		// Ensure that you remove @generated or mark it @generated NOT
 		throw new UnsupportedOperationException();
 	}
+	
+	private EObject getValueForIndexValue(String value) {
+		if (value == null) {
+			return null;
+		}
+		FInternalObjectImpl internalObject = (FInternalObjectImpl)model.resolveCrossReferenceURI(URI.createURI(value));
+		return internalObject.getUserObject();
+	}
 
+	private EObject getValueForExactKey(K key) {
+		String value = index.get(key);
+		return getValueForIndexValue(value);
+	}
+	
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -237,12 +250,7 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 	@SuppressWarnings("unchecked")
 	public V exact(K key) {
 		init();
-		if (index.existis(key)) {
-			String value = index.get(key);
-			return (V)model.resolveCrossReferenceURI(URI.createURI(value));			
-		} else {
-			return null;
-		}
+		return (V)getValueForExactKey(key);			
 	}
 
 	/**
@@ -254,11 +262,7 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 	public V next(K key) {
 		init();
 		key = index.exactOrNext(key);
-		if (key != null) {
-			return (V)fragment.getResourceSet().getEObject(URI.createURI(index.get(key)), true);
-		} else {
-			return null;
-		}
+		return (V)getValueForExactKey(key);
 	}
 
 	/**
@@ -277,6 +281,17 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 		} else {
 			throw new IllegalArgumentException("Non fragmented model objects are not supported as map values.");
 		}
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	@SuppressWarnings("unchecked")
+	public V remove(K key) {
+		init();
+		return (V)getValueForIndexValue(index.remove(key));
 	}
 
 	/**

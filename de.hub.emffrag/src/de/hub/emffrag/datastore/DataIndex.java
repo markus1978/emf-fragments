@@ -94,7 +94,8 @@ public class DataIndex<KT> {
 	}
 	
 	public KT next(KT key) {
-		return keyType.deserialize(store.ceiling(getStoreKey(keyType.next(key))), fullPrefix.length);
+		byte[] ceiling = store.ceiling(getStoreKey(keyType.next(key)));
+		return ceiling == null ? null : keyType.deserialize(ceiling, fullPrefix.length);
 	}
 
 	public boolean add(KT key) {
@@ -109,7 +110,20 @@ public class DataIndex<KT> {
 	}
 
 	public String get(KT key) {
-		return slurp(openInputStream(key), 1024);
+		InputStream openInputStream = openInputStream(key);
+		return openInputStream == null ? null : slurp(openInputStream, 1024);
+	}
+	
+	public String remove(KT key) {
+		byte[] storeKey = getStoreKey(key);
+		InputStream openInputStream = store.openInputStream(storeKey);
+		if (openInputStream == null) {
+			return null;
+		} else {
+			String result = slurp(openInputStream, 1024);
+			store.delete(storeKey);
+			return result;
+		}
 	}
 
 	public OutputStream openOutputStream(KT key) {
