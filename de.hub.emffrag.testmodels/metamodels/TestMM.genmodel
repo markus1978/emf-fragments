@@ -5,7 +5,8 @@
     modelDirectory="/de.hub.emffrag.testmodels/gen-src" modelPluginID="de.hub.emffrag.testmodels"
     modelName="TestMM" rootExtendsClass="de.hub.emffrag.fragmentation.FObjectImpl"
     reflectiveDelegation="true" importerID="org.eclipse.emf.importer.ecore" featureDelegation="Reflective"
-    containmentProxies="true" complianceLevel="6.0" copyrightFields="false">
+    containmentProxies="true" complianceLevel="6.0" copyrightFields="false"
+    usedGenPackages="../../de.hub.emffrag/metamodels/emffrag.genmodel#//emffrag">
   <foreignModel>TestMM.ecore</foreignModel>
   <genPackages prefix="TestModel" basePackage="de.hub.emffrag.testmodels.frag" disposableProviderFactory="true"
       ecorePackage="TestMM.ecore#/">

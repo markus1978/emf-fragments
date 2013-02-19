@@ -29,4 +29,9 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="crossReferences" upperBound="-1"
         eType="#//TestObject"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="TestObjectIndex">
+    <eGenericSuperTypes eClassifier="ecore:EClass ../../de.hub.emffrag/metamodels/emffrag.ecore#//StringMap">
+      <eTypeArguments eClassifier="#//TestObject"/>
+    </eGenericSuperTypes>
+  </eClassifiers>
 </ecore:EPackage>

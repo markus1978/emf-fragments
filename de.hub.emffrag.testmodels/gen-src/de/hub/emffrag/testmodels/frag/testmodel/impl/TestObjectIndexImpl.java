@@ -13,30 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.hub.emffrag.model.emffrag.impl;
+package de.hub.emffrag.testmodels.frag.testmodel.impl;
 
-import de.hub.emffrag.model.emffrag.EmfFragPackage;
-import de.hub.emffrag.model.emffrag.IndexedList;
+import de.hub.emffrag.model.emffrag.impl.StringMapImpl;
+
+import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
+import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
+import de.hub.emffrag.testmodels.frag.testmodel.TestObjectIndex;
 
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EObject;
 
 /**
  * <!-- begin-user-doc -->
- * An implementation of the model object '<em><b>Indexed List</b></em>'.
+ * An implementation of the model object '<em><b>Test Object Index</b></em>'.
  * <!-- end-user-doc -->
  * <p>
  * </p>
  *
  * @generated
  */
-public class IndexedListImpl<V extends EObject> extends IndexedMapImpl<Integer, V> implements IndexedList<V> {
+public class TestObjectIndexImpl extends StringMapImpl<TestObject> implements TestObjectIndex {
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected IndexedListImpl() {
+	protected TestObjectIndexImpl() {
 		super();
 	}
 
@@ -47,18 +49,7 @@ public class IndexedListImpl<V extends EObject> extends IndexedMapImpl<Integer, 
 	 */
 	@Override
 	protected EClass eStaticClass() {
-		return EmfFragPackage.Literals.INDEXED_LIST;
+		return TestModelPackage.Literals.TEST_OBJECT_INDEX;
 	}
 
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void add(V value) {
-		// TODO: implement this method
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-} //IndexedListImpl
+} //TestObjectIndexImpl

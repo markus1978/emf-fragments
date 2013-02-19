@@ -15,28 +15,30 @@
  */
 package de.hub.emffrag.model.emffrag.impl;
 
+import de.hub.emffrag.datastore.KeyType;
+import de.hub.emffrag.datastore.StringKeyType;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
-import de.hub.emffrag.model.emffrag.IndexedList;
+import de.hub.emffrag.model.emffrag.StringMap;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 
 /**
  * <!-- begin-user-doc -->
- * An implementation of the model object '<em><b>Indexed List</b></em>'.
+ * An implementation of the model object '<em><b>String Map</b></em>'.
  * <!-- end-user-doc -->
  * <p>
  * </p>
  *
  * @generated
  */
-public class IndexedListImpl<V extends EObject> extends IndexedMapImpl<Integer, V> implements IndexedList<V> {
+public class StringMapImpl<V> extends IndexedMapImpl<String, V> implements StringMap<V> {
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected IndexedListImpl() {
+	protected StringMapImpl() {
 		super();
 	}
 
@@ -47,18 +49,12 @@ public class IndexedListImpl<V extends EObject> extends IndexedMapImpl<Integer, 
 	 */
 	@Override
 	protected EClass eStaticClass() {
-		return EmfFragPackage.Literals.INDEXED_LIST;
+		return EmfFragPackage.Literals.STRING_MAP;
 	}
 
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void add(V value) {
-		// TODO: implement this method
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+	@Override
+	public KeyType<String> getKeytype() {
+		return StringKeyType.instance;
 	}
 
-} //IndexedListImpl
+} //StringMapImpl

@@ -1,9 +1,12 @@
 package de.hub.emffrag.fragmentation;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EFactory;
@@ -99,6 +102,20 @@ public class ReflectiveMetaModelRegistry {
 			if (next instanceof EClass) {
 				((EClassImpl) next).setGeneratedInstanceClass(false);
 				((EClass) next).setInstanceClass(null);
+				EList<EClass> superTypes = ((EClass)next).getESuperTypes();
+				List<Integer> superTypesToChange = new ArrayList<Integer>(superTypes.size());
+				int index = 0;
+				for (EClass superType: superTypes) {
+					if (superType.getEPackage() != target) {
+						superTypesToChange.add(index);
+					}
+					index++;
+				}
+				for (Integer superTypeIndex: superTypesToChange) {
+					EClass superType = superTypes.get(superTypeIndex);
+					registerRegularMetaModel(superType.getEPackage());
+					superTypes.set(superTypeIndex, getOppositeClass(superType));
+				}
 			} else if (next instanceof EReference) {
 				if (((EReference)next).isContainment() && !EMFFragUtil.isFragFreature((EReference)next)) {
 					((EReference)next).setResolveProxies(false);

@@ -15,6 +15,7 @@
  */
 package de.hub.emffrag.testmodels.frag.testmodel.impl;
 
+import de.hub.emffrag.testmodels.frag.testmodel.*;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
@@ -73,6 +74,7 @@ public class TestModelFactoryImpl extends EFactoryImpl implements TestModelFacto
 			case TestModelPackage.CONTAINER: return createContainer();
 			case TestModelPackage.CONTENTS: return createContents();
 			case TestModelPackage.TEST_OBJECT: return createTestObject();
+			case TestModelPackage.TEST_OBJECT_INDEX: return createTestObjectIndex();
 			default:
 				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
 		}
@@ -106,6 +108,16 @@ public class TestModelFactoryImpl extends EFactoryImpl implements TestModelFacto
 	public TestObject createTestObject() {
 		TestObjectImpl testObject = new TestObjectImpl();
 		return testObject;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public TestObjectIndex createTestObjectIndex() {
+		TestObjectIndexImpl testObjectIndex = new TestObjectIndexImpl();
+		return testObjectIndex;
 	}
 
 	/**

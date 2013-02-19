@@ -15,6 +15,9 @@
  */
 package de.hub.emffrag.testmodels.frag.testmodel.util;
 
+import de.hub.emffrag.model.emffrag.IndexedMap;
+import de.hub.emffrag.model.emffrag.StringMap;
+import de.hub.emffrag.testmodels.frag.testmodel.*;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.notify.impl.AdapterFactoryImpl;
@@ -94,6 +97,18 @@ public class TestModelAdapterFactory extends AdapterFactoryImpl {
 				return createTestObjectAdapter();
 			}
 			@Override
+			public Adapter caseTestObjectIndex(TestObjectIndex object) {
+				return createTestObjectIndexAdapter();
+			}
+			@Override
+			public <K, V> Adapter caseIndexedMap(IndexedMap<K, V> object) {
+				return createIndexedMapAdapter();
+			}
+			@Override
+			public <V> Adapter caseStringMap(StringMap<V> object) {
+				return createStringMapAdapter();
+			}
+			@Override
 			public Adapter defaultCase(EObject object) {
 				return createEObjectAdapter();
 			}
@@ -152,6 +167,48 @@ public class TestModelAdapterFactory extends AdapterFactoryImpl {
 	 * @generated
 	 */
 	public Adapter createTestObjectAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link de.hub.emffrag.testmodels.frag.testmodel.TestObjectIndex <em>Test Object Index</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.TestObjectIndex
+	 * @generated
+	 */
+	public Adapter createTestObjectIndexAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link de.hub.emffrag.model.emffrag.IndexedMap <em>Indexed Map</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see de.hub.emffrag.model.emffrag.IndexedMap
+	 * @generated
+	 */
+	public Adapter createIndexedMapAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link de.hub.emffrag.model.emffrag.StringMap <em>String Map</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see de.hub.emffrag.model.emffrag.StringMap
+	 * @generated
+	 */
+	public Adapter createStringMapAdapter() {
 		return null;
 	}
 

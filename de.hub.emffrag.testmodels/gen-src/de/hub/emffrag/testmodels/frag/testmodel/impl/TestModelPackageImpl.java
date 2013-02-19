@@ -15,10 +15,12 @@
  */
 package de.hub.emffrag.testmodels.frag.testmodel.impl;
 
+import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import static de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage.CONTAINER;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EGenericType;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.impl.EPackageImpl;
@@ -27,6 +29,7 @@ import de.hub.emffrag.testmodels.frag.testmodel.Contents;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
+import de.hub.emffrag.testmodels.frag.testmodel.TestObjectIndex;
 
 /**
  * <!-- begin-user-doc -->
@@ -55,6 +58,13 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 	 * @generated
 	 */
 	private EClass testObjectEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass testObjectIndexEClass = null;
 
 	/**
 	 * Creates an instance of the model <b>Package</b>, registered with
@@ -101,6 +111,9 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 		TestModelPackageImpl theTestModelPackage = (TestModelPackageImpl)(EPackage.Registry.INSTANCE.get(eNS_URI) instanceof TestModelPackageImpl ? EPackage.Registry.INSTANCE.get(eNS_URI) : new TestModelPackageImpl());
 
 		isInited = true;
+
+		// Initialize simple dependencies
+		EmfFragPackage.eINSTANCE.eClass();
 
 		// Create package meta-data objects
 		theTestModelPackage.createPackageContents();
@@ -212,6 +225,15 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EClass getTestObjectIndex() {
+		return testObjectIndexEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public TestModelFactory getTestModelFactory() {
 		return (TestModelFactory)getEFactoryInstance();
 	}
@@ -247,6 +269,8 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 		createEReference(testObjectEClass, TEST_OBJECT__REGULAR_CONTENTS);
 		createEReference(testObjectEClass, TEST_OBJECT__FRAGMENTED_CONTENTS);
 		createEReference(testObjectEClass, TEST_OBJECT__CROSS_REFERENCES);
+
+		testObjectIndexEClass = createEClass(TEST_OBJECT_INDEX);
 	}
 
 	/**
@@ -272,12 +296,19 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 		setNsPrefix(eNS_PREFIX);
 		setNsURI(eNS_URI);
 
+		// Obtain other dependent packages
+		EmfFragPackage theEmfFragPackage = (EmfFragPackage)EPackage.Registry.INSTANCE.getEPackage(EmfFragPackage.eNS_URI);
+
 		// Create type parameters
 
 		// Set bounds for type parameters
 
 		// Add supertypes to classes
 		contentsEClass.getESuperTypes().add(this.getContainer());
+		EGenericType g1 = createEGenericType(theEmfFragPackage.getStringMap());
+		EGenericType g2 = createEGenericType(this.getTestObject());
+		g1.getETypeArguments().add(g2);
+		testObjectIndexEClass.getEGenericSuperTypes().add(g1);
 
 		// Initialize classes and features; add operations and parameters
 		initEClass(containerEClass, de.hub.emffrag.testmodels.frag.testmodel.Container.class, "Container", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
@@ -292,6 +323,8 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 		initEReference(getTestObject_RegularContents(), this.getTestObject(), null, "regularContents", null, 0, -1, TestObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getTestObject_FragmentedContents(), this.getTestObject(), null, "fragmentedContents", null, 0, -1, TestObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getTestObject_CrossReferences(), this.getTestObject(), null, "crossReferences", null, 0, -1, TestObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
+		initEClass(testObjectIndexEClass, TestObjectIndex.class, "TestObjectIndex", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 
 		// Create resource
 		createResource(eNS_URI);

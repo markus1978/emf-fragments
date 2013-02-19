@@ -15,25 +15,45 @@
  */
 package de.hub.emffrag.model.emffrag.impl;
 
-import de.hub.emffrag.model.emffrag.EmfFragPackage;
-import de.hub.emffrag.model.emffrag.IndexedMap;
-
-import de.hub.emffrag.reflective.FObjectImpl;
-
 import java.util.Iterator;
 
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
+
+import de.hub.emffrag.datastore.DataIndex;
+import de.hub.emffrag.datastore.DataStore;
+import de.hub.emffrag.datastore.KeyType;
+import de.hub.emffrag.fragmentation.FInternalObjectImpl;
+import de.hub.emffrag.fragmentation.FObjectImpl;
+import de.hub.emffrag.fragmentation.Fragment;
+import de.hub.emffrag.fragmentation.FragmentedModel;
+import de.hub.emffrag.model.emffrag.EmfFragPackage;
+import de.hub.emffrag.model.emffrag.IndexedMap;
 
 /**
  * <!-- begin-user-doc -->
  * An implementation of the model object '<em><b>Indexed Map</b></em>'.
  * <!-- end-user-doc -->
  * <p>
+ * The following features are implemented:
+ * <ul>
+ *   <li>{@link de.hub.emffrag.model.emffrag.impl.IndexedMapImpl#getFirstKey <em>First Key</em>}</li>
+ *   <li>{@link de.hub.emffrag.model.emffrag.impl.IndexedMapImpl#getLastKey <em>Last Key</em>}</li>
+ *   <li>{@link de.hub.emffrag.model.emffrag.impl.IndexedMapImpl#getPrefix <em>Prefix</em>}</li>
+ *   <li>{@link de.hub.emffrag.model.emffrag.impl.IndexedMapImpl#getKeytype <em>Keytype</em>}</li>
+ * </ul>
  * </p>
  *
  * @generated
  */
 public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V> {
+	
+	private DataIndex<K> index = null;
+	private FragmentedModel model = null;
+	private Fragment fragment = null;
+	
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -41,6 +61,26 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 	 */
 	protected IndexedMapImpl() {
 		super();
+	}
+	
+	private void init() {
+		if (index == null) {
+			Resource eResource = eResource();
+			if (eResource instanceof Fragment) {
+				fragment = (Fragment)eResource;
+				model = fragment.getFragmentedModel();
+				DataStore dataStore = model.getDataStore();
+				
+				String prefix = getPrefix();
+				if (prefix == null) {
+					prefix = model.createNextIndexPrefix();					
+					setPrefix(prefix);
+				}
+				index = new DataIndex<K>(dataStore, prefix, getKeytype());
+			} else {
+				throw new IllegalStateException("Map operations can only be used, if the map is part of a fragmented model.");
+			}
+		}
 	}
 
 	/**
@@ -66,12 +106,116 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public K getFirstKey() {
+		init();
+		return index.first();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean isSetFirstKey() {
+		return true;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public K getLastKey() {
+		init();
+		return index.last();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public boolean isSetLastKey() {
+		return eIsSet(EmfFragPackage.Literals.INDEXED_MAP__LAST_KEY);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String getPrefix() {
+		return (String)eGet(EmfFragPackage.Literals.INDEXED_MAP__PREFIX, true);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setPrefix(String newPrefix) {
+		eSet(EmfFragPackage.Literals.INDEXED_MAP__PREFIX, newPrefix);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public KeyType<K> getKeytype() {
+		throw new UnsupportedOperationException("This needs to be overwritten");
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetKeytype() {
+		return eIsSet(EmfFragPackage.Literals.INDEXED_MAP__KEYTYPE);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
 	public Iterator<V> iterator() {
-		// TODO: implement this method
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		init();
+		return new Iterator<V>() {
+			K current = getFirstKey();
+			K next = null;
+			@Override
+			public boolean hasNext() {
+				if (next == null) {
+					next = index.next(current);
+				}
+				return next != null;
+			}
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public V next() {
+				if (next == null) {
+					next = index.next(current);
+				}
+				if (next != null) {
+					EObject result = fragment.getResourceSet().getEObject(URI.createURI(index.get(next)), true);
+					current = next;
+					next = null;
+					return (V)result;
+				} else {
+					return null;
+				}
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException("Remove on indexed iterators is not supported.");
+			}			
+		};
 	}
 
 	/**
@@ -88,33 +232,68 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
+	@SuppressWarnings("unchecked")
 	public V exact(K key) {
-		// TODO: implement this method
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		init();
+		if (index.existis(key)) {
+			String value = index.get(key);
+			return (V)model.resolveCrossReferenceURI(URI.createURI(value));			
+		} else {
+			return null;
+		}
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
+	@SuppressWarnings("unchecked")
 	public V next(K key) {
-		// TODO: implement this method
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		init();
+		key = index.exactOrNext(key);
+		if (key != null) {
+			return (V)fragment.getResourceSet().getEObject(URI.createURI(index.get(key)), true);
+		} else {
+			return null;
+		}
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public void put(K key, V value) {
-		// TODO: implement this method
-		// Ensure that you remove @generated or mark it @generated NOT
+		init();
+		if (value instanceof FObjectImpl) {
+			FInternalObjectImpl internalObject = ((FObjectImpl)value).internalObject();
+			internalObject.setIsCrossReferenced();
+			Fragment fragment = internalObject.getFragment();
+			URI uri = model.getURIForExtrinsicCrossReferencedObjectID(fragment.getID(internalObject));
+			index.set(key, uri.toString());
+		} else {
+			throw new IllegalArgumentException("Non fragmented model objects are not supported as map values.");
+		}
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public byte[] keyToBytes(K key) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public K bytesToKey(byte[] bytes) {
 		throw new UnsupportedOperationException();
 	}
 

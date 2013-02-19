@@ -16,6 +16,7 @@
 package de.hub.emffrag.model.emffrag;
 
 import org.eclipse.emf.ecore.EFactory;
+import org.eclipse.emf.ecore.EObject;
 
 /**
  * <!-- begin-user-doc -->
@@ -50,7 +51,16 @@ public interface EmfFragFactory extends EFactory {
 	 * @return a new object of class '<em>Indexed List</em>'.
 	 * @generated
 	 */
-	<V> IndexedList<V> createIndexedList();
+	<V extends EObject> IndexedList<V> createIndexedList();
+
+	/**
+	 * Returns a new object of class '<em>String Map</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>String Map</em>'.
+	 * @generated
+	 */
+	<V> StringMap<V> createStringMap();
 
 	/**
 	 * Returns the package supported by this factory.

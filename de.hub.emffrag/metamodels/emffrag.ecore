@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="emffrag" nsURI="http://de.hub.emffrag/emffrag" nsPrefix="ef">
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="emffrag"
+    nsURI="http://de.hub.emffrag/emffrag" nsPrefix="ef">
   <eClassifiers xsi:type="ecore:EClass" name="IndexedMap">
     <eTypeParameters name="K"/>
     <eTypeParameters name="V"/>
@@ -40,20 +42,20 @@
         <eGenericType eTypeParameter="#//IndexedMap/V"/>
       </eParameters>
     </eOperations>
-    <eOperations name="keyToBytes" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EByteArray">
-      <eParameters name="key" lowerBound="1">
-        <eGenericType eTypeParameter="#//IndexedMap/K"/>
-      </eParameters>
-    </eOperations>
-    <eOperations name="bytesToKey">
-      <eGenericType eTypeParameter="#//IndexedMap/K"/>
-      <eParameters name="bytes" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EByteArray"/>
-    </eOperations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstKey">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstKey" changeable="false"
+        transient="true" unsettable="true" derived="true">
       <eGenericType eTypeParameter="#//IndexedMap/K"/>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lastKey">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lastKey" changeable="false"
+        transient="true" unsettable="true" derived="true">
       <eGenericType eTypeParameter="#//IndexedMap/K"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="prefix" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="keytype" changeable="false"
+        transient="true" unsettable="true" derived="true">
+      <eGenericType eClassifier="#//KeyType">
+        <eTypeArguments eTypeParameter="#//IndexedMap/K"/>
+      </eGenericType>
     </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EDataType" name="Iterator" instanceClassName="java.util.Iterator"
@@ -61,7 +63,9 @@
     <eTypeParameters name="E"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="IndexedList">
-    <eTypeParameters name="V"/>
+    <eTypeParameters name="V">
+      <eBounds eClassifier="ecore:EClass http://www.eclipse.org/emf/2002/Ecore#//EObject"/>
+    </eTypeParameters>
     <eOperations name="add">
       <eParameters name="value">
         <eGenericType eTypeParameter="#//IndexedList/V"/>
@@ -72,21 +76,15 @@
       <eTypeArguments eTypeParameter="#//IndexedList/V"/>
     </eGenericSuperTypes>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="IsContainment" abstract="true"/>
-  <eClassifiers xsi:type="ecore:EClass" name="ContainmentIndexedMap">
-    <eTypeParameters name="K"/>
-    <eTypeParameters name="V"/>
-    <eGenericSuperTypes eClassifier="#//IsContainment"/>
-    <eGenericSuperTypes eClassifier="#//IndexedMap">
-      <eTypeArguments eTypeParameter="#//ContainmentIndexedMap/K"/>
-      <eTypeArguments eTypeParameter="#//ContainmentIndexedMap/V"/>
-    </eGenericSuperTypes>
+  <eClassifiers xsi:type="ecore:EDataType" name="KeyType" instanceClassName="de.hub.emffrag.datastore.KeyType"
+      serializable="false">
+    <eTypeParameters name="KT"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="ContainmentIndexedList">
+  <eClassifiers xsi:type="ecore:EClass" name="StringMap">
     <eTypeParameters name="V"/>
-    <eGenericSuperTypes eClassifier="#//IsContainment"/>
-    <eGenericSuperTypes eClassifier="#//IndexedList">
-      <eTypeArguments eTypeParameter="#//ContainmentIndexedList/V"/>
+    <eGenericSuperTypes eClassifier="#//IndexedMap">
+      <eTypeArguments eClassifier="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eTypeArguments eTypeParameter="#//StringMap/V"/>
     </eGenericSuperTypes>
   </eClassifiers>
 </ecore:EPackage>

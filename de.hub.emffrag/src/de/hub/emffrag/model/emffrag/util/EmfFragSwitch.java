@@ -92,6 +92,13 @@ public class EmfFragSwitch<T> extends Switch<T> {
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
+			case EmfFragPackage.STRING_MAP: {
+				StringMap<?> stringMap = (StringMap<?>)theEObject;
+				T result = caseStringMap(stringMap);
+				if (result == null) result = caseIndexedMap(stringMap);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
 			default: return defaultCase(theEObject);
 		}
 	}
@@ -122,7 +129,22 @@ public class EmfFragSwitch<T> extends Switch<T> {
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	public <V> T caseIndexedList(IndexedList<V> object) {
+	public <V extends EObject> T caseIndexedList(IndexedList<V> object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>String Map</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>String Map</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public <V> T caseStringMap(StringMap<V> object) {
 		return null;
 	}
 

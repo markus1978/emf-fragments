@@ -17,24 +17,15 @@ package de.hub.emffrag.model.emffrag;
 
 import org.eclipse.emf.ecore.EObject;
 
-
 /**
  * <!-- begin-user-doc -->
- * A representation of the model object '<em><b>Indexed List</b></em>'.
+ * A representation of the model object '<em><b>String Map</b></em>'.
  * <!-- end-user-doc -->
  *
  *
- * @see de.hub.emffrag.model.emffrag.EmfFragPackage#getIndexedList()
- * @model superTypes="de.hub.emffrag.model.emffrag.IndexedMap<org.eclipse.emf.ecore.EIntegerObject, V>"
+ * @see de.hub.emffrag.model.emffrag.EmfFragPackage#getStringMap()
+ * @model superTypes="de.hub.emffrag.model.emffrag.IndexedMap<org.eclipse.emf.ecore.EString, V>"
  * @generated
  */
-public interface IndexedList<V extends EObject> extends IndexedMap<Integer, V> {
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @model
-	 * @generated
-	 */
-	void add(V value);
-
-} // IndexedList
+public interface StringMap<V> extends IndexedMap<String, V> {
+} // StringMap

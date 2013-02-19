@@ -84,6 +84,18 @@ public class DataIndex<KT> {
 			return null;
 		}
 	}
+	
+	public KT exactOrNext(KT key) {
+		return keyType.deserialize(store.ceiling(getStoreKey(key)), fullPrefix.length);
+	}
+	
+	public boolean existis(KT key) {
+		return !store.check(getStoreKey(key));
+	}
+	
+	public KT next(KT key) {
+		return keyType.deserialize(store.ceiling(getStoreKey(keyType.next(key))), fullPrefix.length);
+	}
 
 	public boolean add(KT key) {
 		byte[] storeKey = getStoreKey(key);

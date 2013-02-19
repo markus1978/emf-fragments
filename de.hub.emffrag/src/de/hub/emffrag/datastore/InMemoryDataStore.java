@@ -81,6 +81,7 @@ public class InMemoryDataStore extends DataStore {
 				buffer.append(b + " ");
 			}
 			buffer.append(", URI: " + getURIString() + "/" + URIUtils.encode(key) + "\n");
+			buffer.append("value: ");
 			buffer.append(new String(store.get(key)) + "\n");
 		}
 		return buffer.toString();

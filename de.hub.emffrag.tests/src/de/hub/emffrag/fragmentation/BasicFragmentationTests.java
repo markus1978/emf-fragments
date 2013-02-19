@@ -30,7 +30,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		assertRootFragment(object1);
 		model.save();
 		reinitializeModel();
-		assertHasModelRootFragment();
+		assertHasModelRootFragment();		
 	}
 
 	/**

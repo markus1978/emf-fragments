@@ -72,6 +72,7 @@ public class EmfFragFactoryImpl extends EFactoryImpl implements EmfFragFactory {
 		switch (eClass.getClassifierID()) {
 			case EmfFragPackage.INDEXED_MAP: return createIndexedMap();
 			case EmfFragPackage.INDEXED_LIST: return createIndexedList();
+			case EmfFragPackage.STRING_MAP: return createStringMap();
 			default:
 				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
 		}
@@ -118,9 +119,19 @@ public class EmfFragFactoryImpl extends EFactoryImpl implements EmfFragFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public <V> IndexedList<V> createIndexedList() {
+	public <V extends EObject> IndexedList<V> createIndexedList() {
 		IndexedListImpl<V> indexedList = new IndexedListImpl<V>();
 		return indexedList;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public <V> StringMap<V> createStringMap() {
+		StringMapImpl<V> stringMap = new StringMapImpl<V>();
+		return stringMap;
 	}
 
 	/**

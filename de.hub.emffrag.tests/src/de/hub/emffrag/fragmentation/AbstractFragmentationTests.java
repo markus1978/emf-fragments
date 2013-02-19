@@ -12,6 +12,7 @@ import org.junit.Before;
 import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.KeyType;
+import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
@@ -33,12 +34,15 @@ public class AbstractFragmentationTests  extends AbstractTests {
 
 	@Before
 	public void registerPackages() {
+		if (!EPackage.Registry.INSTANCE.containsKey(EmfFragPackage.eINSTANCE.getNsURI())) {
+			EPackage.Registry.INSTANCE.put(TestModelPackage.eINSTANCE.getNsURI(), EmfFragPackage.eINSTANCE);
+		}
 		if (!EPackage.Registry.INSTANCE.containsKey(TestModelPackage.eINSTANCE.getNsURI())) {
 			EPackage.Registry.INSTANCE.put(TestModelPackage.eINSTANCE.getNsURI(), TestModelPackage.eINSTANCE);
 		}
 		if (!EPackage.Registry.INSTANCE.containsKey(EcorePackage.eINSTANCE.getNsURI())) {
 			EPackage.Registry.INSTANCE.put(EcorePackage.eINSTANCE.getNsURI(), EcorePackage.eINSTANCE);
-		}
+		}		
 	}
 	
 	protected boolean doInitializeModel() {

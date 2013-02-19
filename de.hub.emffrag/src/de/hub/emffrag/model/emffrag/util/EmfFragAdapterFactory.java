@@ -85,8 +85,12 @@ public class EmfFragAdapterFactory extends AdapterFactoryImpl {
 				return createIndexedMapAdapter();
 			}
 			@Override
-			public <V> Adapter caseIndexedList(IndexedList<V> object) {
+			public <V extends EObject> Adapter caseIndexedList(IndexedList<V> object) {
 				return createIndexedListAdapter();
+			}
+			@Override
+			public <V> Adapter caseStringMap(StringMap<V> object) {
+				return createStringMapAdapter();
 			}
 			@Override
 			public Adapter defaultCase(EObject object) {
@@ -133,6 +137,20 @@ public class EmfFragAdapterFactory extends AdapterFactoryImpl {
 	 * @generated
 	 */
 	public Adapter createIndexedListAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link de.hub.emffrag.model.emffrag.StringMap <em>String Map</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see de.hub.emffrag.model.emffrag.StringMap
+	 * @generated
+	 */
+	public Adapter createStringMapAdapter() {
 		return null;
 	}
 

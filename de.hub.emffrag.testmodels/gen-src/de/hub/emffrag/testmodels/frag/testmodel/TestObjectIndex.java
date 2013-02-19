@@ -13,28 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.hub.emffrag.model.emffrag;
+package de.hub.emffrag.testmodels.frag.testmodel;
 
-import org.eclipse.emf.ecore.EObject;
-
+import de.hub.emffrag.model.emffrag.StringMap;
 
 /**
  * <!-- begin-user-doc -->
- * A representation of the model object '<em><b>Indexed List</b></em>'.
+ * A representation of the model object '<em><b>Test Object Index</b></em>'.
  * <!-- end-user-doc -->
  *
  *
- * @see de.hub.emffrag.model.emffrag.EmfFragPackage#getIndexedList()
- * @model superTypes="de.hub.emffrag.model.emffrag.IndexedMap<org.eclipse.emf.ecore.EIntegerObject, V>"
+ * @see de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage#getTestObjectIndex()
+ * @model
  * @generated
  */
-public interface IndexedList<V extends EObject> extends IndexedMap<Integer, V> {
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @model
-	 * @generated
-	 */
-	void add(V value);
-
-} // IndexedList
+public interface TestObjectIndex extends StringMap<TestObject> {
+} // TestObjectIndex

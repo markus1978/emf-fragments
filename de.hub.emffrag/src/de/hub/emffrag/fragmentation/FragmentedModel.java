@@ -28,6 +28,7 @@ import de.hub.emffrag.datastore.DataStoreURIHandler;
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.datastore.StringKeyType;
 import de.hub.emffrag.fragmentation.UserObjectsCache.UserObjectsCacheListener;
+import de.hub.emffrag.model.emffrag.EmfFragPackage;
 
 public class FragmentedModel {
 
@@ -45,31 +46,33 @@ public class FragmentedModel {
 	private final ResourceSet resourceSet;
 	private Fragment rootFragment;
 	private final FragmentCache fragmentCache;
+	private final DataStore dataStore;
 	private final DataIndex<Long> fragmentIndex;
+	private final DataIndex<Long> indexesIndex;
 	private final DataIndex<String> crossReferenceIndex;
 	private final URI rootFragmentKeyURI;
 	private final Statistics statistics = new Statistics();
-	
+
 	public class Statistics {
 		private int creates = 0;
 		private int loads = 0;
 		private int unloads = 0;
-		
+
 		public int getCreates() {
 			return creates;
 		}
-		
+
 		public int getLoads() {
 			return loads;
 		}
-		
+
 		public int getUnloads() {
 			return unloads;
-		}				
+		}
 	}
-	
+
 	class FragmentCache {
-		
+
 		class CacheState implements UserObjectsCacheListener {
 			private final Fragment fragment;
 			private boolean cached = false;
@@ -118,11 +121,11 @@ public class FragmentedModel {
 			super();
 			this.cacheSize = cacheSize;
 		}
-		
+
 		synchronized void remove(CacheState state) {
 			cacheContents.remove(state);
 		}
-		
+
 		synchronized void add(CacheState state) {
 			cacheContents.put(state, state);
 		}
@@ -130,7 +133,7 @@ public class FragmentedModel {
 		synchronized void registerFragment(Fragment fragment) {
 			fragment.getUserObjectsCache().setListener(new CacheState(fragment));
 		}
-		
+
 		void markDirty() {
 			isDirty = true;
 		}
@@ -138,7 +141,7 @@ public class FragmentedModel {
 		synchronized void purgeUnreferencedFragments() {
 			if (isDirty) {
 				int size = cacheContents.size();
-				if (size > 1.5f*cacheSize) {
+				if (size > 1.5f * cacheSize) {
 					int numberOfFragmentsToRemove = Math.max(0, size - cacheSize);
 					for (int i = 0; i < numberOfFragmentsToRemove; i++) {
 						CacheState cacheStateToRemove = cacheContents.pollFirstEntry().getValue();
@@ -153,7 +156,7 @@ public class FragmentedModel {
 		if (!fragment.isLoaded()) {
 			return;
 		}
-		
+
 		statistics.unloads++;
 		try {
 			fragment.save(options);
@@ -162,7 +165,7 @@ public class FragmentedModel {
 		}
 		fragment.unload();
 		resourceSet.getResources().remove(fragment);
-	}	
+	}
 
 	/**
 	 * The {@link ResourceSet}s used to store a {@link FragmentedModel} need to
@@ -193,30 +196,33 @@ public class FragmentedModel {
 			}
 
 			@Override
-			protected void demandLoad(Resource resource) throws IOException {			
+			protected void demandLoad(Resource resource) throws IOException {
 				super.demandLoad(resource);
 				statistics.loads++;
-			}			
-			
+			}
+
 		};
+		resourceSet.getPackageRegistry().put(EmfFragPackage.eINSTANCE.getNsURI(),
+				ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(EmfFragPackage.eINSTANCE));
 		for (EPackage metaModel : metaModels) {
 			EPackage reflectiveMetaModel = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(metaModel);
 			resourceSet.getPackageRegistry().put(metaModel.getNsURI(), reflectiveMetaModel);
 		}
 		resourceSet.getURIConverter().getURIHandlers().add(0, new DataStoreURIHandler(dataStore));
 		resourceSet.getLoadOptions().putAll(options);
-		resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put(dataStore.getProtocol(), new XMIResourceFactoryImpl() {
-			@Override
-			public Resource createResource(URI uri) {
-				Fragment fragment = createFragment(uri, FragmentedModel.this);
-				fragmentCache.registerFragment(fragment);
-				return fragment;
-			}
-		});
+		resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap()
+				.put(dataStore.getProtocol(), new XMIResourceFactoryImpl() {
+					@Override
+					public Resource createResource(URI uri) {
+						Fragment fragment = createFragment(uri, FragmentedModel.this);
+						fragmentCache.registerFragment(fragment);
+						return fragment;
+					}
+				});
 
 		return resourceSet;
 	}
-	
+
 	protected Fragment createFragment(URI uri, FragmentedModel model) {
 		return new XMIFragmentImpl(uri, model);
 	}
@@ -226,6 +232,7 @@ public class FragmentedModel {
 	}
 
 	public FragmentedModel(DataStore dataStore, URI rootFragmentKeyURI, int cacheSize, EPackage... metaModel) {
+		this.dataStore = dataStore;
 		if (cacheSize == -1) {
 			cacheSize = 100;
 		}
@@ -235,6 +242,7 @@ public class FragmentedModel {
 		fragmentCache = new FragmentCache(cacheSize);
 
 		this.fragmentIndex = new DataIndex<Long>(dataStore, "f", LongKeyType.instance);
+		this.indexesIndex = new DataIndex<Long>(dataStore, "i", LongKeyType.instance);
 		this.crossReferenceIndex = new DataIndex<String>(dataStore, "c", StringKeyType.instance);
 
 		resourceSet = createAndConfigureAResourceSet(dataStore, metaModel);
@@ -246,6 +254,10 @@ public class FragmentedModel {
 			this.rootFragmentKeyURI = rootFragmentKeyURI;
 			rootFragment = (Fragment) resourceSet.getResource(this.rootFragmentKeyURI, true);
 		}
+	}
+
+	public String createNextIndexPrefix() {
+		return "i_" + indexesIndex.add();
 	}
 
 	public EList<EObject> getRootContents() {
@@ -309,7 +321,7 @@ public class FragmentedModel {
 				oldFragment.getUserObjectsCache().removeCachedUserObject(fragmentRoot);
 			}
 		}
-		
+
 		statistics.creates++;
 		return newFragment;
 	}
@@ -377,8 +389,34 @@ public class FragmentedModel {
 		return extrinsicID;
 	}
 
+	/**
+	 * Creates and returns a URI that identified the database entry that
+	 * contains an URI that identified the object with the given extrinsicID.
+	 * 
+	 * @param extrinsicID
+	 *            The extrinsicID that identified the object.
+	 * @return The created URI that points to the DB entry that contains the URI
+	 *         that points to the object.
+	 */
 	public URI getURIForExtrinsicCrossReferencedObjectID(String extrinsicID) {
 		return crossReferenceIndex.getURI(extrinsicID);
+	}
+
+	/**
+	 * Resolves the given URI and returns the object identified by the given
+	 * URI. The URI has to be a cross reference URI. This means it points
+	 * towards a DB entry that contains the actual object identifying URI. These
+	 * URIs are usually created via
+	 * {@link #getURIForExtrinsicCrossReferencedObjectID(String)}.
+	 * 
+	 * @param uri
+	 *            The cross reference URI.
+	 * @return The resolved object.
+	 */
+	public EObject resolveCrossReferenceURI(URI uri) {
+		String objectURIString = crossReferenceIndex.get(crossReferenceIndex.getKeyFromURI(uri));
+		EObject result = resourceSet.getEObject(URI.createURI(objectURIString), true);
+		return result;
 	}
 
 	/**
@@ -395,9 +433,13 @@ public class FragmentedModel {
 	Fragment getFragment(URI fragmentURI) {
 		return (Fragment) getResourceSet().getResource(fragmentURI, false);
 	}
-	
+
 	public Statistics getStatistics() {
 		return statistics;
 	}
-	
+
+	public DataStore getDataStore() {
+		return dataStore;
+	}
+
 }

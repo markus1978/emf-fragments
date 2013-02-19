@@ -18,6 +18,7 @@ package de.hub.emffrag.testmodels.frag.testmodel.impl;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 
+import org.eclipse.emf.ecore.impl.EObjectImpl;
 import de.hub.emffrag.fragmentation.FObjectImpl;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;

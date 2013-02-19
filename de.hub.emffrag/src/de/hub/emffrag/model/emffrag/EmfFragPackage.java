@@ -15,6 +15,7 @@
  */
 package de.hub.emffrag.model.emffrag;
 
+import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EPackage;
@@ -78,13 +79,49 @@ public interface EmfFragPackage extends EPackage {
 	int INDEXED_MAP = 0;
 
 	/**
+	 * The feature id for the '<em><b>First Key</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int INDEXED_MAP__FIRST_KEY = 0;
+
+	/**
+	 * The feature id for the '<em><b>Last Key</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int INDEXED_MAP__LAST_KEY = 1;
+
+	/**
+	 * The feature id for the '<em><b>Prefix</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int INDEXED_MAP__PREFIX = 2;
+
+	/**
+	 * The feature id for the '<em><b>Keytype</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int INDEXED_MAP__KEYTYPE = 3;
+
+	/**
 	 * The number of structural features of the '<em>Indexed Map</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int INDEXED_MAP_FEATURE_COUNT = 0;
+	int INDEXED_MAP_FEATURE_COUNT = 4;
 
 	/**
 	 * The meta object id for the '{@link de.hub.emffrag.model.emffrag.impl.IndexedListImpl <em>Indexed List</em>}' class.
@@ -97,6 +134,42 @@ public interface EmfFragPackage extends EPackage {
 	int INDEXED_LIST = 1;
 
 	/**
+	 * The feature id for the '<em><b>First Key</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int INDEXED_LIST__FIRST_KEY = INDEXED_MAP__FIRST_KEY;
+
+	/**
+	 * The feature id for the '<em><b>Last Key</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int INDEXED_LIST__LAST_KEY = INDEXED_MAP__LAST_KEY;
+
+	/**
+	 * The feature id for the '<em><b>Prefix</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int INDEXED_LIST__PREFIX = INDEXED_MAP__PREFIX;
+
+	/**
+	 * The feature id for the '<em><b>Keytype</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int INDEXED_LIST__KEYTYPE = INDEXED_MAP__KEYTYPE;
+
+	/**
 	 * The number of structural features of the '<em>Indexed List</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -106,6 +179,61 @@ public interface EmfFragPackage extends EPackage {
 	int INDEXED_LIST_FEATURE_COUNT = INDEXED_MAP_FEATURE_COUNT + 0;
 
 	/**
+	 * The meta object id for the '{@link de.hub.emffrag.model.emffrag.impl.StringMapImpl <em>String Map</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see de.hub.emffrag.model.emffrag.impl.StringMapImpl
+	 * @see de.hub.emffrag.model.emffrag.impl.EmfFragPackageImpl#getStringMap()
+	 * @generated
+	 */
+	int STRING_MAP = 2;
+
+	/**
+	 * The feature id for the '<em><b>First Key</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STRING_MAP__FIRST_KEY = INDEXED_MAP__FIRST_KEY;
+
+	/**
+	 * The feature id for the '<em><b>Last Key</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STRING_MAP__LAST_KEY = INDEXED_MAP__LAST_KEY;
+
+	/**
+	 * The feature id for the '<em><b>Prefix</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STRING_MAP__PREFIX = INDEXED_MAP__PREFIX;
+
+	/**
+	 * The feature id for the '<em><b>Keytype</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STRING_MAP__KEYTYPE = INDEXED_MAP__KEYTYPE;
+
+	/**
+	 * The number of structural features of the '<em>String Map</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STRING_MAP_FEATURE_COUNT = INDEXED_MAP_FEATURE_COUNT + 0;
+
+	/**
 	 * The meta object id for the '<em>Iterator</em>' data type.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -113,7 +241,18 @@ public interface EmfFragPackage extends EPackage {
 	 * @see de.hub.emffrag.model.emffrag.impl.EmfFragPackageImpl#getIterator()
 	 * @generated
 	 */
-	int ITERATOR = 2;
+	int ITERATOR = 3;
+
+
+	/**
+	 * The meta object id for the '<em>Key Type</em>' data type.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see de.hub.emffrag.datastore.KeyType
+	 * @see de.hub.emffrag.model.emffrag.impl.EmfFragPackageImpl#getKeyType()
+	 * @generated
+	 */
+	int KEY_TYPE = 4;
 
 
 	/**
@@ -127,6 +266,50 @@ public interface EmfFragPackage extends EPackage {
 	EClass getIndexedMap();
 
 	/**
+	 * Returns the meta object for the attribute '{@link de.hub.emffrag.model.emffrag.IndexedMap#getFirstKey <em>First Key</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>First Key</em>'.
+	 * @see de.hub.emffrag.model.emffrag.IndexedMap#getFirstKey()
+	 * @see #getIndexedMap()
+	 * @generated
+	 */
+	EAttribute getIndexedMap_FirstKey();
+
+	/**
+	 * Returns the meta object for the attribute '{@link de.hub.emffrag.model.emffrag.IndexedMap#getLastKey <em>Last Key</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Last Key</em>'.
+	 * @see de.hub.emffrag.model.emffrag.IndexedMap#getLastKey()
+	 * @see #getIndexedMap()
+	 * @generated
+	 */
+	EAttribute getIndexedMap_LastKey();
+
+	/**
+	 * Returns the meta object for the attribute '{@link de.hub.emffrag.model.emffrag.IndexedMap#getPrefix <em>Prefix</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Prefix</em>'.
+	 * @see de.hub.emffrag.model.emffrag.IndexedMap#getPrefix()
+	 * @see #getIndexedMap()
+	 * @generated
+	 */
+	EAttribute getIndexedMap_Prefix();
+
+	/**
+	 * Returns the meta object for the attribute '{@link de.hub.emffrag.model.emffrag.IndexedMap#getKeytype <em>Keytype</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Keytype</em>'.
+	 * @see de.hub.emffrag.model.emffrag.IndexedMap#getKeytype()
+	 * @see #getIndexedMap()
+	 * @generated
+	 */
+	EAttribute getIndexedMap_Keytype();
+
+	/**
 	 * Returns the meta object for class '{@link de.hub.emffrag.model.emffrag.IndexedList <em>Indexed List</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -135,6 +318,16 @@ public interface EmfFragPackage extends EPackage {
 	 * @generated
 	 */
 	EClass getIndexedList();
+
+	/**
+	 * Returns the meta object for class '{@link de.hub.emffrag.model.emffrag.StringMap <em>String Map</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>String Map</em>'.
+	 * @see de.hub.emffrag.model.emffrag.StringMap
+	 * @generated
+	 */
+	EClass getStringMap();
 
 	/**
 	 * Returns the meta object for data type '{@link java.util.Iterator <em>Iterator</em>}'.
@@ -146,6 +339,17 @@ public interface EmfFragPackage extends EPackage {
 	 * @generated
 	 */
 	EDataType getIterator();
+
+	/**
+	 * Returns the meta object for data type '{@link de.hub.emffrag.datastore.KeyType <em>Key Type</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for data type '<em>Key Type</em>'.
+	 * @see de.hub.emffrag.datastore.KeyType
+	 * @model instanceClass="de.hub.emffrag.datastore.KeyType" serializeable="false" typeParameters="KT"
+	 * @generated
+	 */
+	EDataType getKeyType();
 
 	/**
 	 * Returns the factory that creates the instances of the model.
@@ -180,6 +384,38 @@ public interface EmfFragPackage extends EPackage {
 		EClass INDEXED_MAP = eINSTANCE.getIndexedMap();
 
 		/**
+		 * The meta object literal for the '<em><b>First Key</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute INDEXED_MAP__FIRST_KEY = eINSTANCE.getIndexedMap_FirstKey();
+
+		/**
+		 * The meta object literal for the '<em><b>Last Key</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute INDEXED_MAP__LAST_KEY = eINSTANCE.getIndexedMap_LastKey();
+
+		/**
+		 * The meta object literal for the '<em><b>Prefix</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute INDEXED_MAP__PREFIX = eINSTANCE.getIndexedMap_Prefix();
+
+		/**
+		 * The meta object literal for the '<em><b>Keytype</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute INDEXED_MAP__KEYTYPE = eINSTANCE.getIndexedMap_Keytype();
+
+		/**
 		 * The meta object literal for the '{@link de.hub.emffrag.model.emffrag.impl.IndexedListImpl <em>Indexed List</em>}' class.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -190,6 +426,16 @@ public interface EmfFragPackage extends EPackage {
 		EClass INDEXED_LIST = eINSTANCE.getIndexedList();
 
 		/**
+		 * The meta object literal for the '{@link de.hub.emffrag.model.emffrag.impl.StringMapImpl <em>String Map</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see de.hub.emffrag.model.emffrag.impl.StringMapImpl
+		 * @see de.hub.emffrag.model.emffrag.impl.EmfFragPackageImpl#getStringMap()
+		 * @generated
+		 */
+		EClass STRING_MAP = eINSTANCE.getStringMap();
+
+		/**
 		 * The meta object literal for the '<em>Iterator</em>' data type.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -198,6 +444,16 @@ public interface EmfFragPackage extends EPackage {
 		 * @generated
 		 */
 		EDataType ITERATOR = eINSTANCE.getIterator();
+
+		/**
+		 * The meta object literal for the '<em>Key Type</em>' data type.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see de.hub.emffrag.datastore.KeyType
+		 * @see de.hub.emffrag.model.emffrag.impl.EmfFragPackageImpl#getKeyType()
+		 * @generated
+		 */
+		EDataType KEY_TYPE = eINSTANCE.getKeyType();
 
 	}
 
