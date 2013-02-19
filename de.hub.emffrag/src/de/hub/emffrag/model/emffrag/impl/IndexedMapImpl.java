@@ -262,7 +262,7 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 	public V next(K key) {
 		init();
 		key = index.exactOrNext(key);
-		return (V)getValueForExactKey(key);
+		return key == null ? null : (V)getValueForExactKey(key);
 	}
 
 	/**
