@@ -59,6 +59,37 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 		assertIterator(testIndex.iterator(), 2);			
 	}
 	
+	@Test
+	public void nextValueTests1() {
+		addObjectsToMapTest();
+		object1 = testIndex.next("1");
+		assertObject(object1);
+		Assert.assertEquals("Next gives wrong object.", testIndex.exact("1"), object1);
+	}
+	
+	@Test
+	public void nextValueTests2() {
+		addObjectsToMapTest();
+		object1 = testIndex.next("0");
+		assertObject(object1);
+		Assert.assertEquals("Next gives wrong object.", testIndex.exact("1"), object1);
+	}
+	
+	@Test
+	public void nextValueTests3() {
+		removeObjectsFromMapTest();
+		object1 = testIndex.next("2");
+		assertObject(object1);
+		Assert.assertEquals("Next gives wrong object.", testIndex.exact("3"), object1);
+	}
+	
+	@Test
+	public void nextValueTests4() {
+		addObjectsToMapTest();
+		object1 = testIndex.next("4");
+		Assert.assertNull("Value that should not exist is there.", object1);
+	}
+	
 	protected void assertIterator(Iterator<TestObject> iterator, int size) {
 		Assert.assertTrue("Iterator is emtpy.", iterator.hasNext() || size == 0);
 		int i = 0;
