@@ -50,6 +50,57 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 	}
 	
 	@Test
+	public void boundedIteratorTest1() {
+		performBoundedIteratorTest("0", "4", 3);
+	}
+	
+	@Test
+	public void boundedIteratorTest2() {
+		performBoundedIteratorTest("1", "4", 3);
+	}
+	
+	@Test
+	public void boundedIteratorTest3() {
+		performBoundedIteratorTest("0", "3", 3);
+	}
+	
+	@Test
+	public void boundedIteratorTest4() {
+		performBoundedIteratorTest("1", "3", 3);
+	}
+	
+	@Test
+	public void boundedIteratorTest5() {
+		performBoundedIteratorTest("0", "2", 2);
+	}
+	
+	@Test
+	public void boundedIteratorTest6() {
+		performBoundedIteratorTest("2", "3", 2);
+	}
+	
+	@Test
+	public void boundedIteratorTest7() {
+		performBoundedIteratorTest("1", "2", 2);
+	}
+	
+	@Test
+	public void boundedIteratorTest8() {
+		performBoundedIteratorTest("2", "2", 1);
+	}
+
+	@Test
+	public void boundedIteratorTest9() {
+		performBoundedIteratorTest("3", "3", 1);
+	}
+	
+	private void performBoundedIteratorTest(String first, String last, int size) {
+		addObjectsToMapTest();
+		Iterator<TestObject> iterator = testIndex.iterator(first, last);
+		assertIterator(iterator, size);
+	}
+	
+	@Test
 	public void removeObjectsFromMapTest() {
 		addObjectsToMapTest();		
 		testIndex.remove("2");

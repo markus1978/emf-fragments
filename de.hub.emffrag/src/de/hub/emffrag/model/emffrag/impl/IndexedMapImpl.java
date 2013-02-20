@@ -221,12 +221,45 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public Iterator<V> iterator(K from, K to) {
-		// TODO: implement this method
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		init();
+		final K firstIncl = index.exactOrNext(from);
+		final K lastExcl = index.next(to);
+		return new Iterator<V>() {
+			
+			K current = null;
+			K next = firstIncl;
+			@Override
+			public boolean hasNext() {
+				if (next == null) {
+					if (current != null) {
+						next = index.next(current);
+					} else {
+						next = null;
+					}
+				}
+				return next != null && !next.equals(lastExcl);
+			}
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public V next() {
+				if (next == null) {
+					next = index.next(current);
+				}
+				EObject result = getValueForExactKey(next);
+				current = next;
+				next = null;
+				return (V)result;			
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException("Remove on indexed iterators is not supported.");
+			}			
+		};
 	}
 	
 	private EObject getValueForIndexValue(String value) {
