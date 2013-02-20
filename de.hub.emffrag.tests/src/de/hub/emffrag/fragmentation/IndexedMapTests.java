@@ -90,6 +90,43 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 		Assert.assertNull("Value that should not exist is there.", object1);
 	}
 	
+	@Test
+	public void putValueTest1() {
+		performPutValueTest("4", "1", "4", 4);
+	}
+	
+	@Test
+	public void putValueTest2() {
+		performPutValueTest("0", "0", "3", 4);
+	}
+	
+	@Test
+	public void putValueTest3() {
+		performPutValueTest("1", "1", "3", 3);
+	}
+	
+	@Test
+	public void putValueTest4() {
+		performPutValueTest("1a", "1", "3", 4);
+	}
+	
+	private void performPutValueTest(String key, String firstKey, String lastKey, int size) {
+		addObjectsToMapTest();
+		
+		TestObject testObject = createTestObject();
+		object1 = testIndex.exact("1");
+		object1.getRegularContents().add(testObject);
+		testIndex.put(key, testObject);
+		
+		model.save();
+		reinitializeModel();
+		
+		testIndex = assertHasModelRootFragment(0);
+		assertIndex(testIndex, firstKey, lastKey);
+		assertObject(testIndex.exact(key));
+		assertIterator(testIndex.iterator(), size);
+	}
+	
 	protected void assertIterator(Iterator<TestObject> iterator, int size) {
 		Assert.assertTrue("Iterator is emtpy.", iterator.hasNext() || size == 0);
 		int i = 0;
@@ -121,7 +158,7 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 	
 	protected void assertIndex(TestObjectIndex index, String firstKey, String lastKey) {
 		Assert.assertNotNull("Index is null.", index);
-		Assert.assertEquals("Wrong first key.", index.getFirstKey(), firstKey);
-		Assert.assertEquals("Wrong last key.", index.getLastKey(), lastKey);
+		Assert.assertEquals("Wrong first key.", firstKey, index.getFirstKey());
+		Assert.assertEquals("Wrong last key.", lastKey, index.getLastKey());
 	}
 }

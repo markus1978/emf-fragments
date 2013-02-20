@@ -60,12 +60,15 @@ public class AbstractFragmentationTests  extends AbstractTests {
 			rootFragmentURI = model.getRootFragmentURI();
 		}
 		
-		object1 = TestModelFactory.eINSTANCE.createTestObject();
-		object1.setName("testValue");
-		object2 = TestModelFactory.eINSTANCE.createTestObject();
-		object2.setName("testValue");
-		object3 = TestModelFactory.eINSTANCE.createTestObject();
-		object3.setName("testValue");
+		object1 = createTestObject();
+		object2 = createTestObject();
+		object3 = createTestObject();
+	}
+	
+	protected TestObject createTestObject() {
+		TestObject testObject = TestModelFactory.eINSTANCE.createTestObject();
+		testObject.setName("testValue");
+		return testObject;
 	}
 	
 	protected final FragmentedModel createFragmentedModel(DataStore dataStore, URI rootFragmentURI, EPackage metaModel) {

@@ -106,8 +106,7 @@ public class IndexTests extends AbstractTests {
 	@Test
 	public void testStringKeyType() {
 		StringKeyType keyType = StringKeyType.instance;
-		Assert.assertEquals("b", keyType.next("a"));
-		Assert.assertEquals("za", keyType.next("z"));
+		Assert.assertEquals("a"+(char)0, keyType.next("a"));
 	}
 	
 	@Test

@@ -26,7 +26,6 @@ import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.DataStoreURIHandler;
 import de.hub.emffrag.datastore.LongKeyType;
-import de.hub.emffrag.datastore.StringKeyType;
 import de.hub.emffrag.fragmentation.UserObjectsCache.UserObjectsCacheListener;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
 
@@ -49,7 +48,7 @@ public class FragmentedModel {
 	private final DataStore dataStore;
 	private final DataIndex<Long> fragmentIndex;
 	private final DataIndex<Long> indexesIndex;
-	private final DataIndex<String> crossReferenceIndex;
+	private final DataIndex<Long> crossReferenceIndex;
 	private final URI rootFragmentKeyURI;
 	private final Statistics statistics = new Statistics();
 
@@ -243,7 +242,7 @@ public class FragmentedModel {
 
 		this.fragmentIndex = new DataIndex<Long>(dataStore, "f", LongKeyType.instance);
 		this.indexesIndex = new DataIndex<Long>(dataStore, "i", LongKeyType.instance);
-		this.crossReferenceIndex = new DataIndex<String>(dataStore, "c", StringKeyType.instance);
+		this.crossReferenceIndex = new DataIndex<Long>(dataStore, "c", LongKeyType.instance);
 
 		resourceSet = createAndConfigureAResourceSet(dataStore, metaModel);
 
@@ -380,12 +379,12 @@ public class FragmentedModel {
 	 */
 	public String updateCrossReference(String extrinsicID, FInternalObjectImpl object) {
 		if (extrinsicID == null) {
-			extrinsicID = crossReferenceIndex.add();
+			extrinsicID = Long.toString(crossReferenceIndex.add());
 		}
 
 		Resource resource = object.eResource();
 		URI objectURI = resource.getURI().appendFragment(resource.getURIFragment(object));
-		crossReferenceIndex.set(extrinsicID, objectURI.toString());
+		crossReferenceIndex.set(Long.parseLong(extrinsicID), objectURI.toString());
 		return extrinsicID;
 	}
 
@@ -399,7 +398,7 @@ public class FragmentedModel {
 	 *         that points to the object.
 	 */
 	public URI getURIForExtrinsicCrossReferencedObjectID(String extrinsicID) {
-		return crossReferenceIndex.getURI(extrinsicID);
+		return crossReferenceIndex.getURI(Long.parseLong(extrinsicID));
 	}
 
 	/**
@@ -417,6 +416,18 @@ public class FragmentedModel {
 		String objectURIString = crossReferenceIndex.get(crossReferenceIndex.getKeyFromURI(uri));
 		EObject result = resourceSet.getEObject(URI.createURI(objectURIString), true);
 		return result;
+	}
+
+	/**
+	 * Extracts the extrinsic ID from the given URI. The given URI should be a
+	 * cross reference URI. This means a URI that depicts a entry in a DB that
+	 * contains actual URIs.
+	 * 
+	 * @param extrinsicURI The URI that contains the extrinsic ID as last segment.
+	 * @return The extrinsic ID.
+	 */
+	public String getExtrinsicID(URI extrinsicURI) {
+		return Long.toString(crossReferenceIndex.getKeyFromURI(extrinsicURI));
 	}
 
 	/**

@@ -133,9 +133,9 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 		}
 	}
 
-	public static class MyEObjectInputStream extends EObjectInputStream {
+	private class MyEObjectInputStream extends EObjectInputStream {
 
-		private URI lastExtrinsicURI = null;
+		private String lastExtrinsicID = null;
 		
 		public MyEObjectInputStream(InputStream arg0, Map<?, ?> arg1) throws IOException {
 			super(arg0, arg1);
@@ -144,8 +144,8 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 		@Override
 		public InternalEObject loadEObject() throws IOException {
 			InternalEObject object = super.loadEObject();
-			if (lastExtrinsicURI != null) {
-				((BinaryFragmentImpl)resource).extrinsicIDs.put((FInternalObjectImpl)object, lastExtrinsicURI.lastSegment());
+			if (lastExtrinsicID != null) {
+				((BinaryFragmentImpl)resource).extrinsicIDs.put((FInternalObjectImpl)object, lastExtrinsicID);
 			}
 			return object;
 		}
@@ -154,8 +154,7 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 		public URI readURI() throws IOException {
 			URI uri = super.readURI();
 			if (uri.fragment() == null || uri.fragment().equals("")) {
-				String extrinsicID = uri.lastSegment();
-				lastExtrinsicURI = ((Fragment)resource).getFragmentedModel().getURIForExtrinsicCrossReferencedObjectID(extrinsicID);
+				lastExtrinsicID = model.getExtrinsicID(uri);
 				return uri;
 			} else {
 				return uri;
