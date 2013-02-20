@@ -72,7 +72,7 @@ public class EmfFragFactoryImpl extends EFactoryImpl implements EmfFragFactory {
 		switch (eClass.getClassifierID()) {
 			case EmfFragPackage.INDEXED_MAP: return createIndexedMap();
 			case EmfFragPackage.INDEXED_LIST: return createIndexedList();
-			case EmfFragPackage.STRING_MAP: return createStringMap();
+			case EmfFragPackage.CONTAINMENT_INDEXED_MAP: return createContainmentIndexedMap();
 			default:
 				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
 		}
@@ -129,9 +129,9 @@ public class EmfFragFactoryImpl extends EFactoryImpl implements EmfFragFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public <V> StringMap<V> createStringMap() {
-		StringMapImpl<V> stringMap = new StringMapImpl<V>();
-		return stringMap;
+	public <K, V> ContainmentIndexedMap<K, V> createContainmentIndexedMap() {
+		ContainmentIndexedMapImpl<K, V> containmentIndexedMap = new ContainmentIndexedMapImpl<K, V>();
+		return containmentIndexedMap;
 	}
 
 	/**

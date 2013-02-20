@@ -27,6 +27,7 @@ import org.eclipse.emf.ecore.ETypeParameter;
 import org.eclipse.emf.ecore.impl.EPackageImpl;
 
 import de.hub.emffrag.datastore.KeyType;
+import de.hub.emffrag.model.emffrag.ContainmentIndexedMap;
 import de.hub.emffrag.model.emffrag.EmfFragFactory;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import de.hub.emffrag.model.emffrag.IndexedList;
@@ -59,7 +60,7 @@ public class EmfFragPackageImpl extends EPackageImpl implements EmfFragPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	private EClass stringMapEClass = null;
+	private EClass containmentIndexedMapEClass = null;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -195,8 +196,8 @@ public class EmfFragPackageImpl extends EPackageImpl implements EmfFragPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EClass getStringMap() {
-		return stringMapEClass;
+	public EClass getContainmentIndexedMap() {
+		return containmentIndexedMapEClass;
 	}
 
 	/**
@@ -253,7 +254,7 @@ public class EmfFragPackageImpl extends EPackageImpl implements EmfFragPackage {
 
 		indexedListEClass = createEClass(INDEXED_LIST);
 
-		stringMapEClass = createEClass(STRING_MAP);
+		containmentIndexedMapEClass = createEClass(CONTAINMENT_INDEXED_MAP);
 
 		// Create data types
 		iteratorEDataType = createEDataType(ITERATOR);
@@ -287,7 +288,8 @@ public class EmfFragPackageImpl extends EPackageImpl implements EmfFragPackage {
 		ETypeParameter indexedMapEClass_K = addETypeParameter(indexedMapEClass, "K");
 		ETypeParameter indexedMapEClass_V = addETypeParameter(indexedMapEClass, "V");
 		ETypeParameter indexedListEClass_V = addETypeParameter(indexedListEClass, "V");
-		ETypeParameter stringMapEClass_V = addETypeParameter(stringMapEClass, "V");
+		ETypeParameter containmentIndexedMapEClass_K = addETypeParameter(containmentIndexedMapEClass, "K");
+		ETypeParameter containmentIndexedMapEClass_V = addETypeParameter(containmentIndexedMapEClass, "V");
 		addETypeParameter(iteratorEDataType, "E");
 		addETypeParameter(keyTypeEDataType, "KT");
 
@@ -303,11 +305,11 @@ public class EmfFragPackageImpl extends EPackageImpl implements EmfFragPackage {
 		g1.getETypeArguments().add(g2);
 		indexedListEClass.getEGenericSuperTypes().add(g1);
 		g1 = createEGenericType(this.getIndexedMap());
-		g2 = createEGenericType(ecorePackage.getEString());
+		g2 = createEGenericType(containmentIndexedMapEClass_K);
 		g1.getETypeArguments().add(g2);
-		g2 = createEGenericType(stringMapEClass_V);
+		g2 = createEGenericType(containmentIndexedMapEClass_V);
 		g1.getETypeArguments().add(g2);
-		stringMapEClass.getEGenericSuperTypes().add(g1);
+		containmentIndexedMapEClass.getEGenericSuperTypes().add(g1);
 
 		// Initialize classes and features; add operations and parameters
 		initEClass(indexedMapEClass, IndexedMap.class, "IndexedMap", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
@@ -367,7 +369,7 @@ public class EmfFragPackageImpl extends EPackageImpl implements EmfFragPackage {
 		g1 = createEGenericType(indexedListEClass_V);
 		addEParameter(op, g1, "value", 0, 1, IS_UNIQUE, IS_ORDERED);
 
-		initEClass(stringMapEClass, StringMap.class, "StringMap", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEClass(containmentIndexedMapEClass, ContainmentIndexedMap.class, "ContainmentIndexedMap", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 
 		// Initialize data types
 		initEDataType(iteratorEDataType, Iterator.class, "Iterator", !IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);

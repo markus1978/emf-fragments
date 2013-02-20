@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.hub.emffrag.testmodels.frag.testmodel;
+package de.hub.emffrag.model.emffrag;
 
-import de.hub.emffrag.model.emffrag.IndexedMap;
 
 /**
  * <!-- begin-user-doc -->
- * A representation of the model object '<em><b>Test Object Index</b></em>'.
+ * A representation of the model object '<em><b>Containment Indexed Map</b></em>'.
  * <!-- end-user-doc -->
  *
  *
- * @see de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage#getTestObjectIndex()
- * @model superTypes="de.hub.emffrag.model.emffrag.IndexedMap<org.eclipse.emf.ecore.EString, de.hub.emffrag.testmodels.frag.testmodel.TestObject>"
+ * @see de.hub.emffrag.model.emffrag.EmfFragPackage#getContainmentIndexedMap()
+ * @model
  * @generated
  */
-public interface TestObjectIndex extends IndexedMap<String, TestObject> {
-} // TestObjectIndex
+public interface ContainmentIndexedMap<K, V> extends IndexedMap<K, V> {
+} // ContainmentIndexedMap

@@ -15,18 +15,19 @@
  */
 package de.hub.emffrag.testmodels.frag.testmodel.util;
 
-import de.hub.emffrag.model.emffrag.IndexedMap;
-import de.hub.emffrag.model.emffrag.StringMap;
-import de.hub.emffrag.testmodels.frag.testmodel.*;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.notify.impl.AdapterFactoryImpl;
 import org.eclipse.emf.ecore.EObject;
 
+import de.hub.emffrag.model.emffrag.ContainmentIndexedMap;
+import de.hub.emffrag.model.emffrag.IndexedMap;
 import de.hub.emffrag.testmodels.frag.testmodel.Container;
 import de.hub.emffrag.testmodels.frag.testmodel.Contents;
+import de.hub.emffrag.testmodels.frag.testmodel.TestContainmentIndex;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
+import de.hub.emffrag.testmodels.frag.testmodel.TestObjectIndex;
 
 /**
  * <!-- begin-user-doc -->
@@ -101,12 +102,16 @@ public class TestModelAdapterFactory extends AdapterFactoryImpl {
 				return createTestObjectIndexAdapter();
 			}
 			@Override
+			public Adapter caseTestContainmentIndex(TestContainmentIndex object) {
+				return createTestContainmentIndexAdapter();
+			}
+			@Override
 			public <K, V> Adapter caseIndexedMap(IndexedMap<K, V> object) {
 				return createIndexedMapAdapter();
 			}
 			@Override
-			public <V> Adapter caseStringMap(StringMap<V> object) {
-				return createStringMapAdapter();
+			public <K, V> Adapter caseContainmentIndexedMap(ContainmentIndexedMap<K, V> object) {
+				return createContainmentIndexedMapAdapter();
 			}
 			@Override
 			public Adapter defaultCase(EObject object) {
@@ -185,6 +190,20 @@ public class TestModelAdapterFactory extends AdapterFactoryImpl {
 	}
 
 	/**
+	 * Creates a new adapter for an object of class '{@link de.hub.emffrag.testmodels.frag.testmodel.TestContainmentIndex <em>Test Containment Index</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.TestContainmentIndex
+	 * @generated
+	 */
+	public Adapter createTestContainmentIndexAdapter() {
+		return null;
+	}
+
+	/**
 	 * Creates a new adapter for an object of class '{@link de.hub.emffrag.model.emffrag.IndexedMap <em>Indexed Map</em>}'.
 	 * <!-- begin-user-doc -->
 	 * This default implementation returns null so that we can easily ignore cases;
@@ -199,16 +218,16 @@ public class TestModelAdapterFactory extends AdapterFactoryImpl {
 	}
 
 	/**
-	 * Creates a new adapter for an object of class '{@link de.hub.emffrag.model.emffrag.StringMap <em>String Map</em>}'.
+	 * Creates a new adapter for an object of class '{@link de.hub.emffrag.model.emffrag.ContainmentIndexedMap <em>Containment Indexed Map</em>}'.
 	 * <!-- begin-user-doc -->
 	 * This default implementation returns null so that we can easily ignore cases;
 	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
 	 * <!-- end-user-doc -->
 	 * @return the new adapter.
-	 * @see de.hub.emffrag.model.emffrag.StringMap
+	 * @see de.hub.emffrag.model.emffrag.ContainmentIndexedMap
 	 * @generated
 	 */
-	public Adapter createStringMapAdapter() {
+	public Adapter createContainmentIndexedMapAdapter() {
 		return null;
 	}
 

@@ -13,32 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.hub.emffrag.model.emffrag.impl;
+package de.hub.emffrag.testmodels.frag.testmodel.impl;
+
+import org.eclipse.emf.ecore.EClass;
 
 import de.hub.emffrag.datastore.KeyType;
 import de.hub.emffrag.datastore.StringKeyType;
-import de.hub.emffrag.model.emffrag.EmfFragPackage;
-import de.hub.emffrag.model.emffrag.StringMap;
-
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EObject;
+import de.hub.emffrag.model.emffrag.impl.ContainmentIndexedMapImpl;
+import de.hub.emffrag.testmodels.frag.testmodel.TestContainmentIndex;
+import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
+import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 
 /**
  * <!-- begin-user-doc -->
- * An implementation of the model object '<em><b>String Map</b></em>'.
+ * An implementation of the model object '<em><b>Test Containment Index</b></em>'.
  * <!-- end-user-doc -->
  * <p>
  * </p>
  *
  * @generated
  */
-public class StringMapImpl<V> extends IndexedMapImpl<String, V> implements StringMap<V> {
+public class TestContainmentIndexImpl extends ContainmentIndexedMapImpl<String, TestObject> implements TestContainmentIndex {
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected StringMapImpl() {
+	protected TestContainmentIndexImpl() {
 		super();
 	}
 
@@ -49,12 +50,12 @@ public class StringMapImpl<V> extends IndexedMapImpl<String, V> implements Strin
 	 */
 	@Override
 	protected EClass eStaticClass() {
-		return EmfFragPackage.Literals.STRING_MAP;
+		return TestModelPackage.Literals.TEST_CONTAINMENT_INDEX;
 	}
-
+	
 	@Override
 	public KeyType<String> getKeytype() {
 		return StringKeyType.instance;
 	}
 
-} //StringMapImpl
+} //TestContainmentIndexImpl

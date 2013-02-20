@@ -15,17 +15,17 @@
  */
 package de.hub.emffrag.testmodels.frag.testmodel;
 
-import de.hub.emffrag.model.emffrag.IndexedMap;
+import de.hub.emffrag.model.emffrag.ContainmentIndexedMap;
 
 /**
  * <!-- begin-user-doc -->
- * A representation of the model object '<em><b>Test Object Index</b></em>'.
+ * A representation of the model object '<em><b>Test Containment Index</b></em>'.
  * <!-- end-user-doc -->
  *
  *
- * @see de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage#getTestObjectIndex()
- * @model superTypes="de.hub.emffrag.model.emffrag.IndexedMap<org.eclipse.emf.ecore.EString, de.hub.emffrag.testmodels.frag.testmodel.TestObject>"
+ * @see de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage#getTestContainmentIndex()
+ * @model superTypes="de.hub.emffrag.model.emffrag.ContainmentIndexedMap<org.eclipse.emf.ecore.EString, de.hub.emffrag.testmodels.frag.testmodel.TestObject>"
  * @generated
  */
-public interface TestObjectIndex extends IndexedMap<String, TestObject> {
-} // TestObjectIndex
+public interface TestContainmentIndex extends ContainmentIndexedMap<String, TestObject> {
+} // TestContainmentIndex

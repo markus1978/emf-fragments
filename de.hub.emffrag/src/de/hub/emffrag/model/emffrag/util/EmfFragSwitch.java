@@ -92,10 +92,10 @@ public class EmfFragSwitch<T> extends Switch<T> {
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
-			case EmfFragPackage.STRING_MAP: {
-				StringMap<?> stringMap = (StringMap<?>)theEObject;
-				T result = caseStringMap(stringMap);
-				if (result == null) result = caseIndexedMap(stringMap);
+			case EmfFragPackage.CONTAINMENT_INDEXED_MAP: {
+				ContainmentIndexedMap<?, ?> containmentIndexedMap = (ContainmentIndexedMap<?, ?>)theEObject;
+				T result = caseContainmentIndexedMap(containmentIndexedMap);
+				if (result == null) result = caseIndexedMap(containmentIndexedMap);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
@@ -134,17 +134,17 @@ public class EmfFragSwitch<T> extends Switch<T> {
 	}
 
 	/**
-	 * Returns the result of interpreting the object as an instance of '<em>String Map</em>'.
+	 * Returns the result of interpreting the object as an instance of '<em>Containment Indexed Map</em>'.
 	 * <!-- begin-user-doc -->
 	 * This implementation returns null;
 	 * returning a non-null result will terminate the switch.
 	 * <!-- end-user-doc -->
 	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>String Map</em>'.
+	 * @return the result of interpreting the object as an instance of '<em>Containment Indexed Map</em>'.
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	public <V> T caseStringMap(StringMap<V> object) {
+	public <K, V> T caseContainmentIndexedMap(ContainmentIndexedMap<K, V> object) {
 		return null;
 	}
 

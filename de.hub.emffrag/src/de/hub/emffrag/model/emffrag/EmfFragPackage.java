@@ -179,14 +179,14 @@ public interface EmfFragPackage extends EPackage {
 	int INDEXED_LIST_FEATURE_COUNT = INDEXED_MAP_FEATURE_COUNT + 0;
 
 	/**
-	 * The meta object id for the '{@link de.hub.emffrag.model.emffrag.impl.StringMapImpl <em>String Map</em>}' class.
+	 * The meta object id for the '{@link de.hub.emffrag.model.emffrag.impl.ContainmentIndexedMapImpl <em>Containment Indexed Map</em>}' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see de.hub.emffrag.model.emffrag.impl.StringMapImpl
-	 * @see de.hub.emffrag.model.emffrag.impl.EmfFragPackageImpl#getStringMap()
+	 * @see de.hub.emffrag.model.emffrag.impl.ContainmentIndexedMapImpl
+	 * @see de.hub.emffrag.model.emffrag.impl.EmfFragPackageImpl#getContainmentIndexedMap()
 	 * @generated
 	 */
-	int STRING_MAP = 2;
+	int CONTAINMENT_INDEXED_MAP = 2;
 
 	/**
 	 * The feature id for the '<em><b>First Key</b></em>' attribute.
@@ -195,7 +195,7 @@ public interface EmfFragPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int STRING_MAP__FIRST_KEY = INDEXED_MAP__FIRST_KEY;
+	int CONTAINMENT_INDEXED_MAP__FIRST_KEY = INDEXED_MAP__FIRST_KEY;
 
 	/**
 	 * The feature id for the '<em><b>Last Key</b></em>' attribute.
@@ -204,7 +204,7 @@ public interface EmfFragPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int STRING_MAP__LAST_KEY = INDEXED_MAP__LAST_KEY;
+	int CONTAINMENT_INDEXED_MAP__LAST_KEY = INDEXED_MAP__LAST_KEY;
 
 	/**
 	 * The feature id for the '<em><b>Prefix</b></em>' attribute.
@@ -213,7 +213,7 @@ public interface EmfFragPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int STRING_MAP__PREFIX = INDEXED_MAP__PREFIX;
+	int CONTAINMENT_INDEXED_MAP__PREFIX = INDEXED_MAP__PREFIX;
 
 	/**
 	 * The feature id for the '<em><b>Keytype</b></em>' attribute.
@@ -222,16 +222,16 @@ public interface EmfFragPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int STRING_MAP__KEYTYPE = INDEXED_MAP__KEYTYPE;
+	int CONTAINMENT_INDEXED_MAP__KEYTYPE = INDEXED_MAP__KEYTYPE;
 
 	/**
-	 * The number of structural features of the '<em>String Map</em>' class.
+	 * The number of structural features of the '<em>Containment Indexed Map</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int STRING_MAP_FEATURE_COUNT = INDEXED_MAP_FEATURE_COUNT + 0;
+	int CONTAINMENT_INDEXED_MAP_FEATURE_COUNT = INDEXED_MAP_FEATURE_COUNT + 0;
 
 	/**
 	 * The meta object id for the '<em>Iterator</em>' data type.
@@ -320,14 +320,14 @@ public interface EmfFragPackage extends EPackage {
 	EClass getIndexedList();
 
 	/**
-	 * Returns the meta object for class '{@link de.hub.emffrag.model.emffrag.StringMap <em>String Map</em>}'.
+	 * Returns the meta object for class '{@link de.hub.emffrag.model.emffrag.ContainmentIndexedMap <em>Containment Indexed Map</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for class '<em>String Map</em>'.
-	 * @see de.hub.emffrag.model.emffrag.StringMap
+	 * @return the meta object for class '<em>Containment Indexed Map</em>'.
+	 * @see de.hub.emffrag.model.emffrag.ContainmentIndexedMap
 	 * @generated
 	 */
-	EClass getStringMap();
+	EClass getContainmentIndexedMap();
 
 	/**
 	 * Returns the meta object for data type '{@link java.util.Iterator <em>Iterator</em>}'.
@@ -426,14 +426,14 @@ public interface EmfFragPackage extends EPackage {
 		EClass INDEXED_LIST = eINSTANCE.getIndexedList();
 
 		/**
-		 * The meta object literal for the '{@link de.hub.emffrag.model.emffrag.impl.StringMapImpl <em>String Map</em>}' class.
+		 * The meta object literal for the '{@link de.hub.emffrag.model.emffrag.impl.ContainmentIndexedMapImpl <em>Containment Indexed Map</em>}' class.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
-		 * @see de.hub.emffrag.model.emffrag.impl.StringMapImpl
-		 * @see de.hub.emffrag.model.emffrag.impl.EmfFragPackageImpl#getStringMap()
+		 * @see de.hub.emffrag.model.emffrag.impl.ContainmentIndexedMapImpl
+		 * @see de.hub.emffrag.model.emffrag.impl.EmfFragPackageImpl#getContainmentIndexedMap()
 		 * @generated
 		 */
-		EClass STRING_MAP = eINSTANCE.getStringMap();
+		EClass CONTAINMENT_INDEXED_MAP = eINSTANCE.getContainmentIndexedMap();
 
 		/**
 		 * The meta object literal for the '<em>Iterator</em>' data type.

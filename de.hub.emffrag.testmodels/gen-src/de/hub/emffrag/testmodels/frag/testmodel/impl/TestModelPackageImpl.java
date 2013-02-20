@@ -15,9 +15,6 @@
  */
 package de.hub.emffrag.testmodels.frag.testmodel.impl;
 
-import de.hub.emffrag.model.emffrag.EmfFragPackage;
-import static de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage.CONTAINER;
-
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EGenericType;
@@ -25,7 +22,9 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.impl.EPackageImpl;
 
+import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.Contents;
+import de.hub.emffrag.testmodels.frag.testmodel.TestContainmentIndex;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
@@ -65,6 +64,13 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 	 * @generated
 	 */
 	private EClass testObjectIndexEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass testContainmentIndexEClass = null;
 
 	/**
 	 * Creates an instance of the model <b>Package</b>, registered with
@@ -234,6 +240,15 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EClass getTestContainmentIndex() {
+		return testContainmentIndexEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public TestModelFactory getTestModelFactory() {
 		return (TestModelFactory)getEFactoryInstance();
 	}
@@ -271,6 +286,8 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 		createEReference(testObjectEClass, TEST_OBJECT__CROSS_REFERENCES);
 
 		testObjectIndexEClass = createEClass(TEST_OBJECT_INDEX);
+
+		testContainmentIndexEClass = createEClass(TEST_CONTAINMENT_INDEX);
 	}
 
 	/**
@@ -305,10 +322,18 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 
 		// Add supertypes to classes
 		contentsEClass.getESuperTypes().add(this.getContainer());
-		EGenericType g1 = createEGenericType(theEmfFragPackage.getStringMap());
-		EGenericType g2 = createEGenericType(this.getTestObject());
+		EGenericType g1 = createEGenericType(theEmfFragPackage.getIndexedMap());
+		EGenericType g2 = createEGenericType(ecorePackage.getEString());
+		g1.getETypeArguments().add(g2);
+		g2 = createEGenericType(this.getTestObject());
 		g1.getETypeArguments().add(g2);
 		testObjectIndexEClass.getEGenericSuperTypes().add(g1);
+		g1 = createEGenericType(theEmfFragPackage.getContainmentIndexedMap());
+		g2 = createEGenericType(ecorePackage.getEString());
+		g1.getETypeArguments().add(g2);
+		g2 = createEGenericType(this.getTestObject());
+		g1.getETypeArguments().add(g2);
+		testContainmentIndexEClass.getEGenericSuperTypes().add(g1);
 
 		// Initialize classes and features; add operations and parameters
 		initEClass(containerEClass, de.hub.emffrag.testmodels.frag.testmodel.Container.class, "Container", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
@@ -325,6 +350,8 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 		initEReference(getTestObject_CrossReferences(), this.getTestObject(), null, "crossReferences", null, 0, -1, TestObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(testObjectIndexEClass, TestObjectIndex.class, "TestObjectIndex", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+
+		initEClass(testContainmentIndexEClass, TestContainmentIndex.class, "TestContainmentIndex", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 
 		// Create resource
 		createResource(eNS_URI);

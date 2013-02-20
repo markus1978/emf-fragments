@@ -15,8 +15,6 @@
  */
 package de.hub.emffrag.testmodels.reflective.testmodel.impl;
 
-import static de.hub.emffrag.testmodels.reflective.testmodel.TestModelPackage.CONTAINER;
-
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;

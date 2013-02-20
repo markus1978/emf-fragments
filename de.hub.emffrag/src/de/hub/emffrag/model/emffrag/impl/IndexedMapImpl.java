@@ -50,9 +50,9 @@ import de.hub.emffrag.model.emffrag.IndexedMap;
  */
 public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V> {
 	
-	private DataIndex<K> index = null;
-	private FragmentedModel model = null;
-	private Fragment fragment = null;
+	protected DataIndex<K> index = null;
+	protected FragmentedModel model = null;
+	protected Fragment fragment = null;
 	
 	/**
 	 * <!-- begin-user-doc -->
@@ -261,18 +261,26 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 			}			
 		};
 	}
-	
-	private EObject getValueForIndexValue(String value) {
+
+	protected EObject getValueForExactKey(K key) {
+		String value = index.get(key);
 		if (value == null) {
 			return null;
 		}
 		FInternalObjectImpl internalObject = (FInternalObjectImpl)model.resolveCrossReferenceURI(URI.createURI(value));
 		return internalObject.getUserObject();
 	}
-
-	private EObject getValueForExactKey(K key) {
-		String value = index.get(key);
-		return getValueForIndexValue(value);
+	
+	protected void setValueForKey(K key, V value) {
+		FInternalObjectImpl internalObject = ((FObjectImpl)value).internalObject();
+		internalObject.setIsCrossReferenced();
+		Fragment fragment = internalObject.getFragment();
+		URI uri = model.getURIForExtrinsicCrossReferencedObjectID(fragment.getID(internalObject));
+		index.set(key, uri.toString());
+	}
+	
+	protected void removeValueForKey(K key, V value) {
+		index.remove(key);
 	}
 	
 	/**
@@ -306,11 +314,7 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 	public void put(K key, V value) {
 		init();
 		if (value instanceof FObjectImpl) {
-			FInternalObjectImpl internalObject = ((FObjectImpl)value).internalObject();
-			internalObject.setIsCrossReferenced();
-			Fragment fragment = internalObject.getFragment();
-			URI uri = model.getURIForExtrinsicCrossReferencedObjectID(fragment.getID(internalObject));
-			index.set(key, uri.toString());
+			setValueForKey(key, value);
 		} else {
 			throw new IllegalArgumentException("Non fragmented model objects are not supported as map values.");
 		}
@@ -324,7 +328,11 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 	@SuppressWarnings("unchecked")
 	public V remove(K key) {
 		init();
-		return (V)getValueForIndexValue(index.remove(key));
+		V result = (V)getValueForExactKey(key);
+		if (result != null) {
+			removeValueForKey(key, result);
+		}
+		return result;
 	}
 
 	/**

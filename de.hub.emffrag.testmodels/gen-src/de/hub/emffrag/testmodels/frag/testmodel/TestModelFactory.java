@@ -71,6 +71,15 @@ public interface TestModelFactory extends EFactory {
 	TestObjectIndex createTestObjectIndex();
 
 	/**
+	 * Returns a new object of class '<em>Test Containment Index</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Test Containment Index</em>'.
+	 * @generated
+	 */
+	TestContainmentIndex createTestContainmentIndex();
+
+	/**
 	 * Returns the package supported by this factory.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->

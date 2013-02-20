@@ -86,11 +86,12 @@
       serializable="false">
     <eTypeParameters name="KT"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="StringMap">
+  <eClassifiers xsi:type="ecore:EClass" name="ContainmentIndexedMap">
+    <eTypeParameters name="K"/>
     <eTypeParameters name="V"/>
     <eGenericSuperTypes eClassifier="#//IndexedMap">
-      <eTypeArguments eClassifier="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-      <eTypeArguments eTypeParameter="#//StringMap/V"/>
+      <eTypeArguments eTypeParameter="#//ContainmentIndexedMap/K"/>
+      <eTypeArguments eTypeParameter="#//ContainmentIndexedMap/V"/>
     </eGenericSuperTypes>
   </eClassifiers>
 </ecore:EPackage>

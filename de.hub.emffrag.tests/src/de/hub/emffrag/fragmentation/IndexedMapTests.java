@@ -6,18 +6,16 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.hub.emffrag.model.emffrag.IndexedMap;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
-import de.hub.emffrag.testmodels.frag.testmodel.TestObjectIndex;
 
 public class IndexedMapTests extends AbstractFragmentationTests {
 	
-	private TestObjectIndex testIndex;
+	protected IndexedMap<String, TestObject> testIndex;
 	
 	@Before
-	@Override
-	public void standardInitialization() {
-		super.standardInitialization();
+	public void indexInitialization() {
 		testIndex = TestModelFactory.eINSTANCE.createTestObjectIndex();
 	}
 
@@ -188,10 +186,11 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 		Assert.assertEquals("Iterator has the wrong size.", size, i);
 	}
 	
-	protected TestObjectIndex assertHasModelRootFragment(int index) {
+	@SuppressWarnings("unchecked")
+	protected IndexedMap<String,TestObject> assertHasModelRootFragment(int index) {
 		Assert.assertTrue(model.getRootContents().size() > index);
-		Assert.assertTrue(model.getRootContents().get(index) instanceof TestObjectIndex);
-		TestObjectIndex contents = (TestObjectIndex) model.getRootContents().get(index);
+		Assert.assertTrue(model.getRootContents().get(index) instanceof IndexedMap);
+		IndexedMap<String,TestObject> contents = (IndexedMap<String,TestObject>) model.getRootContents().get(index);
 		Assert.assertTrue(contents.eResource() instanceof Fragment);
 		return contents;
 	}
@@ -202,12 +201,12 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 		Assert.assertTrue("Value is broken", ((TestObject)value).getName().equals("testValue"));
 	}
 	
-	protected void assertIndexedObject(TestObjectIndex index, String key) {
+	protected void assertIndexedObject(IndexedMap<String, TestObject> index, String key) {
 		TestObject value = index.exact(key);
 		assertObject(value);
 	}
 	
-	protected void assertIndex(TestObjectIndex index, String firstKey, String lastKey) {
+	protected void assertIndex(IndexedMap<String, TestObject> index, String firstKey, String lastKey) {
 		Assert.assertNotNull("Index is null.", index);
 		Assert.assertEquals("Wrong first key.", firstKey, index.getFirstKey());
 		Assert.assertEquals("Wrong last key.", lastKey, index.getLastKey());

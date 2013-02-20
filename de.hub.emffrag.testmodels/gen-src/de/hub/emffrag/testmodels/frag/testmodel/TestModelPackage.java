@@ -15,12 +15,12 @@
  */
 package de.hub.emffrag.testmodels.frag.testmodel;
 
-import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
-import org.eclipse.emf.ecore.EcorePackage;
+
+import de.hub.emffrag.model.emffrag.EmfFragPackage;
 
 /**
  * <!-- begin-user-doc -->
@@ -226,7 +226,7 @@ public interface TestModelPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int TEST_OBJECT_INDEX__FIRST_KEY = EmfFragPackage.STRING_MAP__FIRST_KEY;
+	int TEST_OBJECT_INDEX__FIRST_KEY = EmfFragPackage.INDEXED_MAP__FIRST_KEY;
 
 	/**
 	 * The feature id for the '<em><b>Last Key</b></em>' attribute.
@@ -235,7 +235,7 @@ public interface TestModelPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int TEST_OBJECT_INDEX__LAST_KEY = EmfFragPackage.STRING_MAP__LAST_KEY;
+	int TEST_OBJECT_INDEX__LAST_KEY = EmfFragPackage.INDEXED_MAP__LAST_KEY;
 
 	/**
 	 * The feature id for the '<em><b>Prefix</b></em>' attribute.
@@ -244,7 +244,7 @@ public interface TestModelPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int TEST_OBJECT_INDEX__PREFIX = EmfFragPackage.STRING_MAP__PREFIX;
+	int TEST_OBJECT_INDEX__PREFIX = EmfFragPackage.INDEXED_MAP__PREFIX;
 
 	/**
 	 * The feature id for the '<em><b>Keytype</b></em>' attribute.
@@ -253,7 +253,7 @@ public interface TestModelPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int TEST_OBJECT_INDEX__KEYTYPE = EmfFragPackage.STRING_MAP__KEYTYPE;
+	int TEST_OBJECT_INDEX__KEYTYPE = EmfFragPackage.INDEXED_MAP__KEYTYPE;
 
 	/**
 	 * The number of structural features of the '<em>Test Object Index</em>' class.
@@ -262,7 +262,63 @@ public interface TestModelPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int TEST_OBJECT_INDEX_FEATURE_COUNT = EmfFragPackage.STRING_MAP_FEATURE_COUNT + 0;
+	int TEST_OBJECT_INDEX_FEATURE_COUNT = EmfFragPackage.INDEXED_MAP_FEATURE_COUNT + 0;
+
+
+	/**
+	 * The meta object id for the '{@link de.hub.emffrag.testmodels.frag.testmodel.impl.TestContainmentIndexImpl <em>Test Containment Index</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.TestContainmentIndexImpl
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.TestModelPackageImpl#getTestContainmentIndex()
+	 * @generated
+	 */
+	int TEST_CONTAINMENT_INDEX = 4;
+
+	/**
+	 * The feature id for the '<em><b>First Key</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TEST_CONTAINMENT_INDEX__FIRST_KEY = EmfFragPackage.CONTAINMENT_INDEXED_MAP__FIRST_KEY;
+
+	/**
+	 * The feature id for the '<em><b>Last Key</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TEST_CONTAINMENT_INDEX__LAST_KEY = EmfFragPackage.CONTAINMENT_INDEXED_MAP__LAST_KEY;
+
+	/**
+	 * The feature id for the '<em><b>Prefix</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TEST_CONTAINMENT_INDEX__PREFIX = EmfFragPackage.CONTAINMENT_INDEXED_MAP__PREFIX;
+
+	/**
+	 * The feature id for the '<em><b>Keytype</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TEST_CONTAINMENT_INDEX__KEYTYPE = EmfFragPackage.CONTAINMENT_INDEXED_MAP__KEYTYPE;
+
+	/**
+	 * The number of structural features of the '<em>Test Containment Index</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TEST_CONTAINMENT_INDEX_FEATURE_COUNT = EmfFragPackage.CONTAINMENT_INDEXED_MAP_FEATURE_COUNT + 0;
 
 
 	/**
@@ -383,6 +439,16 @@ public interface TestModelPackage extends EPackage {
 	EClass getTestObjectIndex();
 
 	/**
+	 * Returns the meta object for class '{@link de.hub.emffrag.testmodels.frag.testmodel.TestContainmentIndex <em>Test Containment Index</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Test Containment Index</em>'.
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.TestContainmentIndex
+	 * @generated
+	 */
+	EClass getTestContainmentIndex();
+
+	/**
 	 * Returns the factory that creates the instances of the model.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -499,6 +565,16 @@ public interface TestModelPackage extends EPackage {
 		 * @generated
 		 */
 		EClass TEST_OBJECT_INDEX = eINSTANCE.getTestObjectIndex();
+
+		/**
+		 * The meta object literal for the '{@link de.hub.emffrag.testmodels.frag.testmodel.impl.TestContainmentIndexImpl <em>Test Containment Index</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.TestContainmentIndexImpl
+		 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.TestModelPackageImpl#getTestContainmentIndex()
+		 * @generated
+		 */
+		EClass TEST_CONTAINMENT_INDEX = eINSTANCE.getTestContainmentIndex();
 
 	}
 

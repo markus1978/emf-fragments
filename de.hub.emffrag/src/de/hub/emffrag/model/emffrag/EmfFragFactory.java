@@ -54,13 +54,13 @@ public interface EmfFragFactory extends EFactory {
 	<V extends EObject> IndexedList<V> createIndexedList();
 
 	/**
-	 * Returns a new object of class '<em>String Map</em>'.
+	 * Returns a new object of class '<em>Containment Indexed Map</em>'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return a new object of class '<em>String Map</em>'.
+	 * @return a new object of class '<em>Containment Indexed Map</em>'.
 	 * @generated
 	 */
-	<V> StringMap<V> createStringMap();
+	<K, V> ContainmentIndexedMap<K, V> createContainmentIndexedMap();
 
 	/**
 	 * Returns the package supported by this factory.

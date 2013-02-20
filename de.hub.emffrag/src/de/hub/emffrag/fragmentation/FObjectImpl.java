@@ -3,6 +3,7 @@ package de.hub.emffrag.fragmentation;
 import java.lang.ref.WeakReference;
 
 import org.eclipse.emf.common.notify.NotificationChain;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.EStoreEObjectImpl;
@@ -49,14 +50,14 @@ public class FObjectImpl extends EStoreEObjectImpl {
 			eInitializeContainer();
 			return containerReference.get();
 		} else {
-			 InternalEObject container = containerReference.get();
-			 if (container == null) {
-				 eInitializeContainer();
-				 return containerReference.get();
-			 } else {
-				 return container;
-			 }
-		}		
+			InternalEObject container = containerReference.get();
+			if (container == null) {
+				eInitializeContainer();
+				return containerReference.get();
+			} else {
+				return container;
+			}
+		}
 	}
 
 	/**
@@ -92,8 +93,28 @@ public class FObjectImpl extends EStoreEObjectImpl {
 	 */
 	@Override
 	protected void eBasicSetContainer(InternalEObject newContainer, int newContainerFeatureID) {
-		// update the weak reference that is used instead of EMF's hard reference
+		// update the weak reference that is used instead of EMF's hard
+		// reference
 		super.eBasicSetContainer(newContainer, newContainerFeatureID);
+		updateContainment(newContainer, newContainerFeatureID, null);
+	}
+
+	/**
+	 * Creates/deletes fragments if appropriately.
+	 * 
+	 * @param newContainer
+	 *            The container that this object is now a part of, or null if
+	 *            the object is removed from a container or placed into its own
+	 *            independent fragment (e.g. as part of a indexed map).
+	 * @param newContainerFeatureID
+	 *            The feature ID under which this object is to be contained, or
+	 *            -1.
+	 * @param newFragmentURI
+	 *            Optional URI if a new fragment is to be created, this works
+	 *            only if there is no container for the object, and the object
+	 *            is stored in its own independent fragment.
+	 */
+	public void updateContainment(InternalEObject newContainer, int newContainerFeatureID, URI newFragmentURI) {
 		containerReference = new WeakReference<InternalEObject>(eContainer);
 		eContainer = EUNINITIALIZED_CONTAINER;
 
@@ -106,7 +127,7 @@ public class FObjectImpl extends EStoreEObjectImpl {
 		// The object was moved to a new (including null) container. This can
 		// have an effect on the fragmentation. The following code realizes
 		// these effects.
-		if (newContainer != null) {
+		if (newContainer != null && newFragmentURI == null) {
 			int featureID = EOPPOSITE_FEATURE_BASE - newContainerFeatureID;
 			EStructuralFeature feature = newContainer.eClass().getEStructuralFeature(featureID);
 			if (feature != null && EMFFragUtil.isFragFreature(feature)) {
@@ -117,18 +138,29 @@ public class FObjectImpl extends EStoreEObjectImpl {
 						throw new RuntimeException(
 								"You cannot at a value to a fragmenting reference if the new container is not part of a fragmented model");
 					} else {
-						fragmentation.addFragment(this.internalObject, this, newContainer, feature);
+						fragmentation.addFragment(this.internalObject, this);
 					}
 				}
 			}
 			// else:
 			// if the object was a fragment root, the Fragment implementation
 			// will automatically delete itself
+		} else if (newFragmentURI != null) {
+			// this object is added or moved to be an independent root (e.g. as
+			// a value in a indexed map)
+			if (fragmentation == null) {
+				throw new RuntimeException(
+						"You cannot at a value to a fragmenting reference if the new container is not part of a fragmented model");
+			} else {
+				if (internalObject.isFragmentRoot()) {
+					fragmentation.removeFragment(this.internalObject);
+				}
+				fragmentation.addFragment(newFragmentURI, this.internalObject, this);
+			}
 		} else {
 			// this object was removed from the model, it has to be moved to the
 			// new objects realm (if necessary) and if it was a fragment root
-			// the
-			// fragment has to be deleted.
+			// the fragment has to be deleted.
 			if (internalObject.isFragmentRoot()) {
 				fragmentation.removeFragment(this.internalObject);
 			}

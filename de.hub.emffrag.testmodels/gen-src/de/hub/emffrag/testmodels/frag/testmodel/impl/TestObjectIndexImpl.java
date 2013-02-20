@@ -15,13 +15,14 @@
  */
 package de.hub.emffrag.testmodels.frag.testmodel.impl;
 
-import de.hub.emffrag.model.emffrag.impl.StringMapImpl;
+import org.eclipse.emf.ecore.EClass;
 
+import de.hub.emffrag.datastore.KeyType;
+import de.hub.emffrag.datastore.StringKeyType;
+import de.hub.emffrag.model.emffrag.impl.IndexedMapImpl;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObjectIndex;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->
@@ -32,7 +33,7 @@ import org.eclipse.emf.ecore.EClass;
  *
  * @generated
  */
-public class TestObjectIndexImpl extends StringMapImpl<TestObject> implements TestObjectIndex {
+public class TestObjectIndexImpl extends IndexedMapImpl<String, TestObject> implements TestObjectIndex {
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -52,4 +53,9 @@ public class TestObjectIndexImpl extends StringMapImpl<TestObject> implements Te
 		return TestModelPackage.Literals.TEST_OBJECT_INDEX;
 	}
 
+	@Override
+	public KeyType<String> getKeytype() {
+		return StringKeyType.instance;
+	}
+	
 } //TestObjectIndexImpl

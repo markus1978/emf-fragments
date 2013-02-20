@@ -15,7 +15,6 @@
  */
 package de.hub.emffrag.testmodels.frag.testmodel.impl;
 
-import de.hub.emffrag.testmodels.frag.testmodel.*;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
@@ -23,9 +22,11 @@ import org.eclipse.emf.ecore.impl.EFactoryImpl;
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
 
 import de.hub.emffrag.testmodels.frag.testmodel.Contents;
+import de.hub.emffrag.testmodels.frag.testmodel.TestContainmentIndex;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
+import de.hub.emffrag.testmodels.frag.testmodel.TestObjectIndex;
 
 /**
  * <!-- begin-user-doc -->
@@ -75,6 +76,7 @@ public class TestModelFactoryImpl extends EFactoryImpl implements TestModelFacto
 			case TestModelPackage.CONTENTS: return createContents();
 			case TestModelPackage.TEST_OBJECT: return createTestObject();
 			case TestModelPackage.TEST_OBJECT_INDEX: return createTestObjectIndex();
+			case TestModelPackage.TEST_CONTAINMENT_INDEX: return createTestContainmentIndex();
 			default:
 				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
 		}
@@ -118,6 +120,16 @@ public class TestModelFactoryImpl extends EFactoryImpl implements TestModelFacto
 	public TestObjectIndex createTestObjectIndex() {
 		TestObjectIndexImpl testObjectIndex = new TestObjectIndexImpl();
 		return testObjectIndex;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public TestContainmentIndex createTestContainmentIndex() {
+		TestContainmentIndexImpl testContainmentIndex = new TestContainmentIndexImpl();
+		return testContainmentIndex;
 	}
 
 	/**

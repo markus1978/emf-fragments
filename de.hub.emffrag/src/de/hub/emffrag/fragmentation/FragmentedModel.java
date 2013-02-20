@@ -11,8 +11,6 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -247,7 +245,7 @@ public class FragmentedModel {
 		resourceSet = createAndConfigureAResourceSet(dataStore, metaModel);
 
 		if (rootFragmentKeyURI == null) {
-			rootFragment = addFragment(null, null, null, null);
+			rootFragment = addFragment(null, null);
 			this.rootFragmentKeyURI = rootFragment.getURI();
 		} else {
 			this.rootFragmentKeyURI = rootFragmentKeyURI;
@@ -295,15 +293,13 @@ public class FragmentedModel {
 	 *            realm of new objects.
 	 * @param fragmentRootUserObject
 	 *            The user object of the fragment root. Can be null.
-	 * @param containingObject
-	 *            The object that contains the root. It can be null, if this
-	 *            method is called for the root fragment.
-	 * @param containmentFeature
-	 *            Can be null (see containingObject)
 	 */
-	public Fragment addFragment(FInternalObjectImpl fragmentRoot, FObjectImpl fragmentRootUserObject,
-			InternalEObject containingObject, EStructuralFeature containmentFeature) {
-		Fragment newFragment = (Fragment) resourceSet.createResource(createNewFragmentURI());
+	public Fragment addFragment(FInternalObjectImpl fragmentRoot, FObjectImpl fragmentRootUserObject) {
+		return addFragment(createNewFragmentURI(), fragmentRoot, fragmentRootUserObject);
+	}
+	
+	public Fragment addFragment(URI fragmentURI, FInternalObjectImpl fragmentRoot, FObjectImpl fragmentRootUserObject) {
+		Fragment newFragment = (Fragment) resourceSet.createResource(fragmentURI);
 
 		if (fragmentRoot != null) {
 			Resource oldResource = fragmentRoot.eResource();
@@ -416,6 +412,15 @@ public class FragmentedModel {
 		String objectURIString = crossReferenceIndex.get(crossReferenceIndex.getKeyFromURI(uri));
 		EObject result = resourceSet.getEObject(URI.createURI(objectURIString), true);
 		return result;
+	}
+	
+	/**
+	 * Resolved the given URI that denotes a DB entry that contains a serialized fragment.
+	 * @param uri The containment URI to resolve.
+	 * @return The resolved object.
+	 */
+	public EObject resolveContainmentURI(URI uri) {
+		return resourceSet.getEObject(uri, true);
 	}
 
 	/**

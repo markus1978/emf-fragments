@@ -15,17 +15,18 @@
  */
 package de.hub.emffrag.testmodels.frag.testmodel.util;
 
-import de.hub.emffrag.model.emffrag.IndexedMap;
-import de.hub.emffrag.model.emffrag.StringMap;
-import de.hub.emffrag.testmodels.frag.testmodel.*;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.util.Switch;
 
+import de.hub.emffrag.model.emffrag.ContainmentIndexedMap;
+import de.hub.emffrag.model.emffrag.IndexedMap;
 import de.hub.emffrag.testmodels.frag.testmodel.Container;
 import de.hub.emffrag.testmodels.frag.testmodel.Contents;
+import de.hub.emffrag.testmodels.frag.testmodel.TestContainmentIndex;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
+import de.hub.emffrag.testmodels.frag.testmodel.TestObjectIndex;
 
 /**
  * <!-- begin-user-doc -->
@@ -106,8 +107,15 @@ public class TestModelSwitch<T> extends Switch<T> {
 			case TestModelPackage.TEST_OBJECT_INDEX: {
 				TestObjectIndex testObjectIndex = (TestObjectIndex)theEObject;
 				T result = caseTestObjectIndex(testObjectIndex);
-				if (result == null) result = caseStringMap(testObjectIndex);
 				if (result == null) result = caseIndexedMap(testObjectIndex);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case TestModelPackage.TEST_CONTAINMENT_INDEX: {
+				TestContainmentIndex testContainmentIndex = (TestContainmentIndex)theEObject;
+				T result = caseTestContainmentIndex(testContainmentIndex);
+				if (result == null) result = caseContainmentIndexedMap(testContainmentIndex);
+				if (result == null) result = caseIndexedMap(testContainmentIndex);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
@@ -176,6 +184,21 @@ public class TestModelSwitch<T> extends Switch<T> {
 	}
 
 	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Test Containment Index</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Test Containment Index</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseTestContainmentIndex(TestContainmentIndex object) {
+		return null;
+	}
+
+	/**
 	 * Returns the result of interpreting the object as an instance of '<em>Indexed Map</em>'.
 	 * <!-- begin-user-doc -->
 	 * This implementation returns null;
@@ -191,17 +214,17 @@ public class TestModelSwitch<T> extends Switch<T> {
 	}
 
 	/**
-	 * Returns the result of interpreting the object as an instance of '<em>String Map</em>'.
+	 * Returns the result of interpreting the object as an instance of '<em>Containment Indexed Map</em>'.
 	 * <!-- begin-user-doc -->
 	 * This implementation returns null;
 	 * returning a non-null result will terminate the switch.
 	 * <!-- end-user-doc -->
 	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>String Map</em>'.
+	 * @return the result of interpreting the object as an instance of '<em>Containment Indexed Map</em>'.
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	public <V> T caseStringMap(StringMap<V> object) {
+	public <K, V> T caseContainmentIndexedMap(ContainmentIndexedMap<K, V> object) {
 		return null;
 	}
 
