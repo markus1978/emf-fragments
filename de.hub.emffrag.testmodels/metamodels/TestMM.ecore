@@ -3,31 +3,30 @@
     xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="testmodel"
     nsURI="http://hu-berlin.de/sam/emfhbase/testmodel" nsPrefix="tm">
-  <eClassifiers xsi:type="ecore:EClass" name="Container">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="contents" upperBound="-1"
-        eType="#//Contents" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="fragmentedContents" upperBound="-1"
-        eType="#//Contents" containment="true">
-      <eAnnotations source="de.hub.emfhbase">
-        <details key="Fragmentation" value="true"/>
-      </eAnnotations>
-    </eStructuralFeatures>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Contents" eSuperTypes="#//Container">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="TestObject">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="regularContents" upperBound="-1"
         eType="#//TestObject" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="fragmentedContents" upperBound="-1"
         eType="#//TestObject" containment="true">
-      <eAnnotations source="de.hub.emfhbase">
-        <details key="Fragmentation" value="true"/>
+      <eAnnotations source="de.hub.emffrag">
+        <details key="fragments" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EReference" name="crossReferences" upperBound="-1"
         eType="#//TestObject"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="indexedReferences" upperBound="-1"
+        eType="#//TestObject">
+      <eAnnotations source="de.hub.emffrag">
+        <details key="indexes" value="true"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="indexedContents" upperBound="-1"
+        eType="#//TestObject" containment="true">
+      <eAnnotations source="de.hub.emffrag">
+        <details key="indexes" value="true"/>
+      </eAnnotations>
+    </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="TestObjectIndex">
     <eGenericSuperTypes eClassifier="ecore:EClass ../../de.hub.emffrag/metamodels/emffrag.ecore#//IndexedMap">

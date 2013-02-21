@@ -15,6 +15,7 @@
  ******************************************************************************/
 package de.hub.emffrag.util;
 
+import org.eclipse.emf.ecore.EAnnotation;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
@@ -25,7 +26,8 @@ public class EMFFragUtil {
 	 * @return true, iff the given reference is designated as a cross fragment reference.
 	 */
 	public static boolean isFragReference(EReference reference) {
-		return reference.getEAnnotation("de.hub.emfhbase") != null;
+		EAnnotation annotation = reference.getEAnnotation("de.hub.emffrag");
+		return annotation != null && annotation.getDetails().get("fragments") != null;
 	}
 
 	/**
@@ -33,6 +35,6 @@ public class EMFFragUtil {
 	 * @return true, iff the given feature is a reference and is designated as a cross fragment reference.
 	 */
 	public static boolean isFragFreature(EStructuralFeature feature) {
-		return feature instanceof EReference && feature.getEAnnotation("de.hub.emfhbase") != null;
+		return feature instanceof EReference && isFragReference((EReference)feature);
 	}
 }

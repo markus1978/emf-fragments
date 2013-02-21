@@ -30,6 +30,8 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link de.hub.emffrag.testmodels.frag.testmodel.TestObject#getRegularContents <em>Regular Contents</em>}</li>
  *   <li>{@link de.hub.emffrag.testmodels.frag.testmodel.TestObject#getFragmentedContents <em>Fragmented Contents</em>}</li>
  *   <li>{@link de.hub.emffrag.testmodels.frag.testmodel.TestObject#getCrossReferences <em>Cross References</em>}</li>
+ *   <li>{@link de.hub.emffrag.testmodels.frag.testmodel.TestObject#getIndexedReferences <em>Indexed References</em>}</li>
+ *   <li>{@link de.hub.emffrag.testmodels.frag.testmodel.TestObject#getIndexedContents <em>Indexed Contents</em>}</li>
  * </ul>
  * </p>
  *
@@ -92,7 +94,7 @@ public interface TestObject extends EObject {
 	 * @return the value of the '<em>Fragmented Contents</em>' containment reference list.
 	 * @see de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage#getTestObject_FragmentedContents()
 	 * @model containment="true" resolveProxies="true"
-	 *        annotation="de.hub.emfhbase Fragmentation='true'"
+	 *        annotation="de.hub.emffrag fragments='true'"
 	 * @generated
 	 */
 	EList<TestObject> getFragmentedContents();
@@ -112,5 +114,38 @@ public interface TestObject extends EObject {
 	 * @generated
 	 */
 	EList<TestObject> getCrossReferences();
+
+	/**
+	 * Returns the value of the '<em><b>Indexed References</b></em>' reference list.
+	 * The list contents are of type {@link de.hub.emffrag.testmodels.frag.testmodel.TestObject}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Indexed References</em>' reference list isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Indexed References</em>' reference list.
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage#getTestObject_IndexedReferences()
+	 * @model annotation="de.hub.emffrag indexes='true'"
+	 * @generated
+	 */
+	EList<TestObject> getIndexedReferences();
+
+	/**
+	 * Returns the value of the '<em><b>Indexed Contents</b></em>' containment reference list.
+	 * The list contents are of type {@link de.hub.emffrag.testmodels.frag.testmodel.TestObject}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Indexed Contents</em>' containment reference list isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Indexed Contents</em>' containment reference list.
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage#getTestObject_IndexedContents()
+	 * @model containment="true" resolveProxies="true"
+	 *        annotation="de.hub.emffrag indexes='true'"
+	 * @generated
+	 */
+	EList<TestObject> getIndexedContents();
 
 } // TestObject

@@ -21,8 +21,6 @@ import org.eclipse.emf.ecore.util.Switch;
 
 import de.hub.emffrag.model.emffrag.ContainmentIndexedMap;
 import de.hub.emffrag.model.emffrag.IndexedMap;
-import de.hub.emffrag.testmodels.frag.testmodel.Container;
-import de.hub.emffrag.testmodels.frag.testmodel.Contents;
 import de.hub.emffrag.testmodels.frag.testmodel.TestContainmentIndex;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
@@ -85,19 +83,6 @@ public class TestModelSwitch<T> extends Switch<T> {
 	@Override
 	protected T doSwitch(int classifierID, EObject theEObject) {
 		switch (classifierID) {
-			case TestModelPackage.CONTAINER: {
-				Container container = (Container)theEObject;
-				T result = caseContainer(container);
-				if (result == null) result = defaultCase(theEObject);
-				return result;
-			}
-			case TestModelPackage.CONTENTS: {
-				Contents contents = (Contents)theEObject;
-				T result = caseContents(contents);
-				if (result == null) result = caseContainer(contents);
-				if (result == null) result = defaultCase(theEObject);
-				return result;
-			}
 			case TestModelPackage.TEST_OBJECT: {
 				TestObject testObject = (TestObject)theEObject;
 				T result = caseTestObject(testObject);
@@ -121,36 +106,6 @@ public class TestModelSwitch<T> extends Switch<T> {
 			}
 			default: return defaultCase(theEObject);
 		}
-	}
-
-	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Container</em>'.
-	 * <!-- begin-user-doc -->
-	 * This implementation returns null;
-	 * returning a non-null result will terminate the switch.
-	 * <!-- end-user-doc -->
-	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Container</em>'.
-	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
-	 * @generated
-	 */
-	public T caseContainer(Container object) {
-		return null;
-	}
-
-	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Contents</em>'.
-	 * <!-- begin-user-doc -->
-	 * This implementation returns null;
-	 * returning a non-null result will terminate the switch.
-	 * <!-- end-user-doc -->
-	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Contents</em>'.
-	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
-	 * @generated
-	 */
-	public T caseContents(Contents object) {
-		return null;
 	}
 
 	/**

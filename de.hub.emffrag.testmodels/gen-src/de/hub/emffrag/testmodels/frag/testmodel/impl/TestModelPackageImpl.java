@@ -23,7 +23,6 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.impl.EPackageImpl;
 
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
-import de.hub.emffrag.testmodels.frag.testmodel.Contents;
 import de.hub.emffrag.testmodels.frag.testmodel.TestContainmentIndex;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
@@ -37,20 +36,6 @@ import de.hub.emffrag.testmodels.frag.testmodel.TestObjectIndex;
  * @generated
  */
 public class TestModelPackageImpl extends EPackageImpl implements TestModelPackage {
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	private EClass containerEClass = null;
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	private EClass contentsEClass = null;
-
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -141,51 +126,6 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EClass getContainer() {
-		return containerEClass;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EReference getContainer_Contents() {
-		return (EReference)containerEClass.getEStructuralFeatures().get(0);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EReference getContainer_FragmentedContents() {
-		return (EReference)containerEClass.getEStructuralFeatures().get(1);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EClass getContents() {
-		return contentsEClass;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getContents_Value() {
-		return (EAttribute)contentsEClass.getEStructuralFeatures().get(0);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	public EClass getTestObject() {
 		return testObjectEClass;
 	}
@@ -224,6 +164,24 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 	 */
 	public EReference getTestObject_CrossReferences() {
 		return (EReference)testObjectEClass.getEStructuralFeatures().get(3);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getTestObject_IndexedReferences() {
+		return (EReference)testObjectEClass.getEStructuralFeatures().get(4);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getTestObject_IndexedContents() {
+		return (EReference)testObjectEClass.getEStructuralFeatures().get(5);
 	}
 
 	/**
@@ -272,18 +230,13 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 		isCreated = true;
 
 		// Create classes and their features
-		containerEClass = createEClass(CONTAINER);
-		createEReference(containerEClass, CONTAINER__CONTENTS);
-		createEReference(containerEClass, CONTAINER__FRAGMENTED_CONTENTS);
-
-		contentsEClass = createEClass(CONTENTS);
-		createEAttribute(contentsEClass, CONTENTS__VALUE);
-
 		testObjectEClass = createEClass(TEST_OBJECT);
 		createEAttribute(testObjectEClass, TEST_OBJECT__NAME);
 		createEReference(testObjectEClass, TEST_OBJECT__REGULAR_CONTENTS);
 		createEReference(testObjectEClass, TEST_OBJECT__FRAGMENTED_CONTENTS);
 		createEReference(testObjectEClass, TEST_OBJECT__CROSS_REFERENCES);
+		createEReference(testObjectEClass, TEST_OBJECT__INDEXED_REFERENCES);
+		createEReference(testObjectEClass, TEST_OBJECT__INDEXED_CONTENTS);
 
 		testObjectIndexEClass = createEClass(TEST_OBJECT_INDEX);
 
@@ -321,7 +274,6 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 		// Set bounds for type parameters
 
 		// Add supertypes to classes
-		contentsEClass.getESuperTypes().add(this.getContainer());
 		EGenericType g1 = createEGenericType(theEmfFragPackage.getIndexedMap());
 		EGenericType g2 = createEGenericType(ecorePackage.getEString());
 		g1.getETypeArguments().add(g2);
@@ -336,18 +288,13 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 		testContainmentIndexEClass.getEGenericSuperTypes().add(g1);
 
 		// Initialize classes and features; add operations and parameters
-		initEClass(containerEClass, de.hub.emffrag.testmodels.frag.testmodel.Container.class, "Container", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEReference(getContainer_Contents(), this.getContents(), null, "contents", null, 0, -1, de.hub.emffrag.testmodels.frag.testmodel.Container.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getContainer_FragmentedContents(), this.getContents(), null, "fragmentedContents", null, 0, -1, de.hub.emffrag.testmodels.frag.testmodel.Container.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-
-		initEClass(contentsEClass, Contents.class, "Contents", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getContents_Value(), ecorePackage.getEString(), "value", null, 0, 1, Contents.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-
 		initEClass(testObjectEClass, TestObject.class, "TestObject", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getTestObject_Name(), ecorePackage.getEString(), "name", null, 0, 1, TestObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getTestObject_RegularContents(), this.getTestObject(), null, "regularContents", null, 0, -1, TestObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getTestObject_FragmentedContents(), this.getTestObject(), null, "fragmentedContents", null, 0, -1, TestObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getTestObject_CrossReferences(), this.getTestObject(), null, "crossReferences", null, 0, -1, TestObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getTestObject_IndexedReferences(), this.getTestObject(), null, "indexedReferences", null, 0, -1, TestObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getTestObject_IndexedContents(), this.getTestObject(), null, "indexedContents", null, 0, -1, TestObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(testObjectIndexEClass, TestObjectIndex.class, "TestObjectIndex", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 
@@ -357,29 +304,35 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 		createResource(eNS_URI);
 
 		// Create annotations
-		// de.hub.emfhbase
+		// de.hub.emffrag
 		createDeAnnotations();
 	}
 
 	/**
-	 * Initializes the annotations for <b>de.hub.emfhbase</b>.
+	 * Initializes the annotations for <b>de.hub.emffrag</b>.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	protected void createDeAnnotations() {
-		String source = "de.hub.emfhbase";		
-		addAnnotation
-		  (getContainer_FragmentedContents(), 
-		   source, 
-		   new String[] {
-			 "Fragmentation", "true"
-		   });		
+		String source = "de.hub.emffrag";		
 		addAnnotation
 		  (getTestObject_FragmentedContents(), 
 		   source, 
 		   new String[] {
-			 "Fragmentation", "true"
+			 "fragments", "true"
+		   });		
+		addAnnotation
+		  (getTestObject_IndexedReferences(), 
+		   source, 
+		   new String[] {
+			 "indexes", "true"
+		   });		
+		addAnnotation
+		  (getTestObject_IndexedContents(), 
+		   source, 
+		   new String[] {
+			 "indexes", "true"
 		   });
 	}
 

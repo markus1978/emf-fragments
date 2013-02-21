@@ -35,24 +35,6 @@ public interface TestModelFactory extends EFactory {
 	TestModelFactory eINSTANCE = de.hub.emffrag.testmodels.frag.testmodel.impl.TestModelFactoryImpl.init();
 
 	/**
-	 * Returns a new object of class '<em>Container</em>'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return a new object of class '<em>Container</em>'.
-	 * @generated
-	 */
-	Container createContainer();
-
-	/**
-	 * Returns a new object of class '<em>Contents</em>'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return a new object of class '<em>Contents</em>'.
-	 * @generated
-	 */
-	Contents createContents();
-
-	/**
 	 * Returns a new object of class '<em>Test Object</em>'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->

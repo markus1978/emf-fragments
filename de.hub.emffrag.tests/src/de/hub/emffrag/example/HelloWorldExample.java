@@ -12,10 +12,9 @@ import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.InMemoryDataStore;
 import de.hub.emffrag.fragmentation.FragmentedModel;
 import de.hub.emffrag.fragmentation.ReflectiveMetaModelRegistry;
-import de.hub.emffrag.testmodels.frag.testmodel.Container;
-import de.hub.emffrag.testmodels.frag.testmodel.Contents;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
+import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 
 public class HelloWorldExample {
 
@@ -38,17 +37,17 @@ public class HelloWorldExample {
 		URI rootFragmentURI = model.getRootFragmentURI();
 
 		// create a root object and add it to the model
-		Container testContainer = TestModelFactory.eINSTANCE.createContainer();
+		TestObject testContainer = TestModelFactory.eINSTANCE.createTestObject();
 		model.addContent(testContainer);
 
 		// create the rest of your model as usual
-		Contents testContents = TestModelFactory.eINSTANCE.createContents();
-		Contents testFragmentedContents = TestModelFactory.eINSTANCE.createContents();
+		TestObject testContents = TestModelFactory.eINSTANCE.createTestObject();
+		TestObject testFragmentedContents = TestModelFactory.eINSTANCE.createTestObject();
 
-		testContents.setValue("Hello Old World!");
-		testFragmentedContents.setValue("Hello New World!");
+		testContents.setName("Hello Old World!");
+		testFragmentedContents.setName("Hello New World!");
 
-		testContainer.getContents().add(testContents);
+		testContainer.getRegularContents().add(testContents);
 		testContainer.getFragmentedContents().add(testFragmentedContents);
 
 		// call save to force save of cached and unsaved parts of your model
@@ -67,8 +66,8 @@ public class HelloWorldExample {
 		TreeIterator<EObject> allContents = readModel.getRootContents().get(0).eAllContents();
 		while (allContents.hasNext()) {
 			EObject next = allContents.next();
-			if (next instanceof Contents) {
-				System.out.println(((Contents) next).getValue());
+			if (next instanceof TestObject) {
+				System.out.println(((TestObject) next).getName());
 			}
 		}
 	}

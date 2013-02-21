@@ -21,7 +21,6 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.impl.EFactoryImpl;
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
 
-import de.hub.emffrag.testmodels.frag.testmodel.Contents;
 import de.hub.emffrag.testmodels.frag.testmodel.TestContainmentIndex;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
@@ -72,34 +71,12 @@ public class TestModelFactoryImpl extends EFactoryImpl implements TestModelFacto
 	@Override
 	public EObject create(EClass eClass) {
 		switch (eClass.getClassifierID()) {
-			case TestModelPackage.CONTAINER: return createContainer();
-			case TestModelPackage.CONTENTS: return createContents();
 			case TestModelPackage.TEST_OBJECT: return createTestObject();
 			case TestModelPackage.TEST_OBJECT_INDEX: return createTestObjectIndex();
 			case TestModelPackage.TEST_CONTAINMENT_INDEX: return createTestContainmentIndex();
 			default:
 				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
 		}
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public de.hub.emffrag.testmodels.frag.testmodel.Container createContainer() {
-		ContainerImpl container = new ContainerImpl();
-		return container;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public Contents createContents() {
-		ContentsImpl contents = new ContentsImpl();
-		return contents;
 	}
 
 	/**

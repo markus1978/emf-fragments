@@ -22,8 +22,6 @@ import org.eclipse.emf.ecore.EObject;
 
 import de.hub.emffrag.model.emffrag.ContainmentIndexedMap;
 import de.hub.emffrag.model.emffrag.IndexedMap;
-import de.hub.emffrag.testmodels.frag.testmodel.Container;
-import de.hub.emffrag.testmodels.frag.testmodel.Contents;
 import de.hub.emffrag.testmodels.frag.testmodel.TestContainmentIndex;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
@@ -86,14 +84,6 @@ public class TestModelAdapterFactory extends AdapterFactoryImpl {
 	protected TestModelSwitch<Adapter> modelSwitch =
 		new TestModelSwitch<Adapter>() {
 			@Override
-			public Adapter caseContainer(Container object) {
-				return createContainerAdapter();
-			}
-			@Override
-			public Adapter caseContents(Contents object) {
-				return createContentsAdapter();
-			}
-			@Override
 			public Adapter caseTestObject(TestObject object) {
 				return createTestObjectAdapter();
 			}
@@ -132,34 +122,6 @@ public class TestModelAdapterFactory extends AdapterFactoryImpl {
 		return modelSwitch.doSwitch((EObject)target);
 	}
 
-
-	/**
-	 * Creates a new adapter for an object of class '{@link de.hub.emffrag.testmodels.frag.testmodel.Container <em>Container</em>}'.
-	 * <!-- begin-user-doc -->
-	 * This default implementation returns null so that we can easily ignore cases;
-	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
-	 * <!-- end-user-doc -->
-	 * @return the new adapter.
-	 * @see de.hub.emffrag.testmodels.frag.testmodel.Container
-	 * @generated
-	 */
-	public Adapter createContainerAdapter() {
-		return null;
-	}
-
-	/**
-	 * Creates a new adapter for an object of class '{@link de.hub.emffrag.testmodels.frag.testmodel.Contents <em>Contents</em>}'.
-	 * <!-- begin-user-doc -->
-	 * This default implementation returns null so that we can easily ignore cases;
-	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
-	 * <!-- end-user-doc -->
-	 * @return the new adapter.
-	 * @see de.hub.emffrag.testmodels.frag.testmodel.Contents
-	 * @generated
-	 */
-	public Adapter createContentsAdapter() {
-		return null;
-	}
 
 	/**
 	 * Creates a new adapter for an object of class '{@link de.hub.emffrag.testmodels.frag.testmodel.TestObject <em>Test Object</em>}'.

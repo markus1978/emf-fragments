@@ -71,89 +71,6 @@ public interface TestModelPackage extends EPackage {
 	TestModelPackage eINSTANCE = de.hub.emffrag.testmodels.frag.testmodel.impl.TestModelPackageImpl.init();
 
 	/**
-	 * The meta object id for the '{@link de.hub.emffrag.testmodels.frag.testmodel.impl.ContainerImpl <em>Container</em>}' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.ContainerImpl
-	 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.TestModelPackageImpl#getContainer()
-	 * @generated
-	 */
-	int CONTAINER = 0;
-
-	/**
-	 * The feature id for the '<em><b>Contents</b></em>' containment reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int CONTAINER__CONTENTS = 0;
-
-	/**
-	 * The feature id for the '<em><b>Fragmented Contents</b></em>' containment reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int CONTAINER__FRAGMENTED_CONTENTS = 1;
-
-	/**
-	 * The number of structural features of the '<em>Container</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int CONTAINER_FEATURE_COUNT = 2;
-
-	/**
-	 * The meta object id for the '{@link de.hub.emffrag.testmodels.frag.testmodel.impl.ContentsImpl <em>Contents</em>}' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.ContentsImpl
-	 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.TestModelPackageImpl#getContents()
-	 * @generated
-	 */
-	int CONTENTS = 1;
-
-	/**
-	 * The feature id for the '<em><b>Contents</b></em>' containment reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int CONTENTS__CONTENTS = CONTAINER__CONTENTS;
-
-	/**
-	 * The feature id for the '<em><b>Fragmented Contents</b></em>' containment reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int CONTENTS__FRAGMENTED_CONTENTS = CONTAINER__FRAGMENTED_CONTENTS;
-
-	/**
-	 * The feature id for the '<em><b>Value</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int CONTENTS__VALUE = CONTAINER_FEATURE_COUNT + 0;
-
-	/**
-	 * The number of structural features of the '<em>Contents</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int CONTENTS_FEATURE_COUNT = CONTAINER_FEATURE_COUNT + 1;
-
-	/**
 	 * The meta object id for the '{@link de.hub.emffrag.testmodels.frag.testmodel.impl.TestObjectImpl <em>Test Object</em>}' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -161,7 +78,7 @@ public interface TestModelPackage extends EPackage {
 	 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.TestModelPackageImpl#getTestObject()
 	 * @generated
 	 */
-	int TEST_OBJECT = 2;
+	int TEST_OBJECT = 0;
 
 	/**
 	 * The feature id for the '<em><b>Name</b></em>' attribute.
@@ -200,13 +117,31 @@ public interface TestModelPackage extends EPackage {
 	int TEST_OBJECT__CROSS_REFERENCES = 3;
 
 	/**
+	 * The feature id for the '<em><b>Indexed References</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TEST_OBJECT__INDEXED_REFERENCES = 4;
+
+	/**
+	 * The feature id for the '<em><b>Indexed Contents</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TEST_OBJECT__INDEXED_CONTENTS = 5;
+
+	/**
 	 * The number of structural features of the '<em>Test Object</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int TEST_OBJECT_FEATURE_COUNT = 4;
+	int TEST_OBJECT_FEATURE_COUNT = 6;
 
 
 	/**
@@ -217,7 +152,7 @@ public interface TestModelPackage extends EPackage {
 	 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.TestModelPackageImpl#getTestObjectIndex()
 	 * @generated
 	 */
-	int TEST_OBJECT_INDEX = 3;
+	int TEST_OBJECT_INDEX = 1;
 
 	/**
 	 * The feature id for the '<em><b>First Key</b></em>' attribute.
@@ -273,7 +208,7 @@ public interface TestModelPackage extends EPackage {
 	 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.TestModelPackageImpl#getTestContainmentIndex()
 	 * @generated
 	 */
-	int TEST_CONTAINMENT_INDEX = 4;
+	int TEST_CONTAINMENT_INDEX = 2;
 
 	/**
 	 * The feature id for the '<em><b>First Key</b></em>' attribute.
@@ -320,59 +255,6 @@ public interface TestModelPackage extends EPackage {
 	 */
 	int TEST_CONTAINMENT_INDEX_FEATURE_COUNT = EmfFragPackage.CONTAINMENT_INDEXED_MAP_FEATURE_COUNT + 0;
 
-
-	/**
-	 * Returns the meta object for class '{@link de.hub.emffrag.testmodels.frag.testmodel.Container <em>Container</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for class '<em>Container</em>'.
-	 * @see de.hub.emffrag.testmodels.frag.testmodel.Container
-	 * @generated
-	 */
-	EClass getContainer();
-
-	/**
-	 * Returns the meta object for the containment reference list '{@link de.hub.emffrag.testmodels.frag.testmodel.Container#getContents <em>Contents</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the containment reference list '<em>Contents</em>'.
-	 * @see de.hub.emffrag.testmodels.frag.testmodel.Container#getContents()
-	 * @see #getContainer()
-	 * @generated
-	 */
-	EReference getContainer_Contents();
-
-	/**
-	 * Returns the meta object for the containment reference list '{@link de.hub.emffrag.testmodels.frag.testmodel.Container#getFragmentedContents <em>Fragmented Contents</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the containment reference list '<em>Fragmented Contents</em>'.
-	 * @see de.hub.emffrag.testmodels.frag.testmodel.Container#getFragmentedContents()
-	 * @see #getContainer()
-	 * @generated
-	 */
-	EReference getContainer_FragmentedContents();
-
-	/**
-	 * Returns the meta object for class '{@link de.hub.emffrag.testmodels.frag.testmodel.Contents <em>Contents</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for class '<em>Contents</em>'.
-	 * @see de.hub.emffrag.testmodels.frag.testmodel.Contents
-	 * @generated
-	 */
-	EClass getContents();
-
-	/**
-	 * Returns the meta object for the attribute '{@link de.hub.emffrag.testmodels.frag.testmodel.Contents#getValue <em>Value</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Value</em>'.
-	 * @see de.hub.emffrag.testmodels.frag.testmodel.Contents#getValue()
-	 * @see #getContents()
-	 * @generated
-	 */
-	EAttribute getContents_Value();
 
 	/**
 	 * Returns the meta object for class '{@link de.hub.emffrag.testmodels.frag.testmodel.TestObject <em>Test Object</em>}'.
@@ -429,6 +311,28 @@ public interface TestModelPackage extends EPackage {
 	EReference getTestObject_CrossReferences();
 
 	/**
+	 * Returns the meta object for the reference list '{@link de.hub.emffrag.testmodels.frag.testmodel.TestObject#getIndexedReferences <em>Indexed References</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference list '<em>Indexed References</em>'.
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.TestObject#getIndexedReferences()
+	 * @see #getTestObject()
+	 * @generated
+	 */
+	EReference getTestObject_IndexedReferences();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link de.hub.emffrag.testmodels.frag.testmodel.TestObject#getIndexedContents <em>Indexed Contents</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Indexed Contents</em>'.
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.TestObject#getIndexedContents()
+	 * @see #getTestObject()
+	 * @generated
+	 */
+	EReference getTestObject_IndexedContents();
+
+	/**
 	 * Returns the meta object for class '{@link de.hub.emffrag.testmodels.frag.testmodel.TestObjectIndex <em>Test Object Index</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -471,50 +375,6 @@ public interface TestModelPackage extends EPackage {
 	 */
 	interface Literals {
 		/**
-		 * The meta object literal for the '{@link de.hub.emffrag.testmodels.frag.testmodel.impl.ContainerImpl <em>Container</em>}' class.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.ContainerImpl
-		 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.TestModelPackageImpl#getContainer()
-		 * @generated
-		 */
-		EClass CONTAINER = eINSTANCE.getContainer();
-
-		/**
-		 * The meta object literal for the '<em><b>Contents</b></em>' containment reference list feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EReference CONTAINER__CONTENTS = eINSTANCE.getContainer_Contents();
-
-		/**
-		 * The meta object literal for the '<em><b>Fragmented Contents</b></em>' containment reference list feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EReference CONTAINER__FRAGMENTED_CONTENTS = eINSTANCE.getContainer_FragmentedContents();
-
-		/**
-		 * The meta object literal for the '{@link de.hub.emffrag.testmodels.frag.testmodel.impl.ContentsImpl <em>Contents</em>}' class.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.ContentsImpl
-		 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.TestModelPackageImpl#getContents()
-		 * @generated
-		 */
-		EClass CONTENTS = eINSTANCE.getContents();
-
-		/**
-		 * The meta object literal for the '<em><b>Value</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute CONTENTS__VALUE = eINSTANCE.getContents_Value();
-
-		/**
 		 * The meta object literal for the '{@link de.hub.emffrag.testmodels.frag.testmodel.impl.TestObjectImpl <em>Test Object</em>}' class.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -555,6 +415,22 @@ public interface TestModelPackage extends EPackage {
 		 * @generated
 		 */
 		EReference TEST_OBJECT__CROSS_REFERENCES = eINSTANCE.getTestObject_CrossReferences();
+
+		/**
+		 * The meta object literal for the '<em><b>Indexed References</b></em>' reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference TEST_OBJECT__INDEXED_REFERENCES = eINSTANCE.getTestObject_IndexedReferences();
+
+		/**
+		 * The meta object literal for the '<em><b>Indexed Contents</b></em>' containment reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference TEST_OBJECT__INDEXED_CONTENTS = eINSTANCE.getTestObject_IndexedContents();
 
 		/**
 		 * The meta object literal for the '{@link de.hub.emffrag.testmodels.frag.testmodel.impl.TestObjectIndexImpl <em>Test Object Index</em>}' class.
