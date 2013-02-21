@@ -80,7 +80,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 			FragmentedModel fragmentedModel = getFragmentation();
 			if (fragmentedModel != null) {
 				if (resource != null) {
-					String extrinsicID = fragmentedModel.updateCrossReference(null, this);
+					String extrinsicID = fragmentedModel.getExtrinsicIdIndex().updateObjectURI(null, this);
 					resource.setID(this, extrinsicID);
 				} else {
 					throw new IllegalStateException("Object cannot be cross referenced");
@@ -111,7 +111,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 		FragmentedModel fragmentedModel = getFragmentation();
 		if (fragmentedModel != null) {
 			if (isCrossReferenced || extrinsicID != null) {
-				extrinsicID = fragmentedModel.updateCrossReference(extrinsicID, this);
+				extrinsicID = fragmentedModel.getExtrinsicIdIndex().updateObjectURI(extrinsicID, this);
 				newResource.setID(this, extrinsicID);
 			}
 		}

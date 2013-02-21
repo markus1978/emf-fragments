@@ -267,7 +267,8 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 		if (value == null) {
 			return null;
 		}
-		FInternalObjectImpl internalObject = (FInternalObjectImpl)model.resolveCrossReferenceURI(URI.createURI(value));
+		URI objectUri = model.getExtrinsicIdIndex().getObjectUriForExtrinsicIdUri(URI.createURI(value));
+		FInternalObjectImpl internalObject = (FInternalObjectImpl)model.resolveObjectURI(objectUri);
 		return internalObject.getUserObject();
 	}
 	
@@ -275,7 +276,7 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 		FInternalObjectImpl internalObject = ((FObjectImpl)value).internalObject();
 		internalObject.setIsCrossReferenced();
 		Fragment fragment = internalObject.getFragment();
-		URI uri = model.getURIForExtrinsicCrossReferencedObjectID(fragment.getID(internalObject));
+		URI uri = model.getExtrinsicIdIndex().createExtrinsicIdUri(fragment.getID(internalObject));
 		index.set(key, uri.toString());
 	}
 	

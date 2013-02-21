@@ -55,7 +55,7 @@ public class ContainmentIndexedMapImpl<K, V> extends IndexedMapImpl<K, V> implem
 	@Override
 	protected EObject getValueForExactKey(K key) {
 		if (index.existis(key)) {
-			return ((FInternalObjectImpl)model.resolveContainmentURI(index.getURI(key).appendFragment("/"))).getUserObject();
+			return ((FInternalObjectImpl)model.resolveObjectURI(index.getURI(key).appendFragment("/"))).getUserObject();
 		} else {
 			return null;
 		}

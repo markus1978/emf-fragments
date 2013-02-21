@@ -46,7 +46,7 @@ public class FragmentedModel {
 	private final DataStore dataStore;
 	private final DataIndex<Long> fragmentIndex;
 	private final DataIndex<Long> indexesIndex;
-	private final DataIndex<Long> crossReferenceIndex;
+	private final ExtrinsicIdIndex extrinsicIdIndex;
 	private final URI rootFragmentKeyURI;
 	private final Statistics statistics = new Statistics();
 
@@ -180,9 +180,8 @@ public class FragmentedModel {
 				Resource resource = getResource(uri.trimFragment(), loadOnDemand);
 				if (resource != null) {
 					if (uri.fragment() == null) {
-						// The URI must reference a cross reference entry
-						String objectURIString = crossReferenceIndex.get(crossReferenceIndex.getKeyFromURI(uri));
-						EObject result = super.getEObject(URI.createURI(objectURIString), true);
+						// The URI must be a extrinsic ID URI
+						EObject result = super.getEObject(extrinsicIdIndex.getObjectUriForExtrinsicIdUri(uri), true);
 						return result;
 					} else {
 						return resource.getEObject(uri.fragment());
@@ -240,7 +239,7 @@ public class FragmentedModel {
 
 		this.fragmentIndex = new DataIndex<Long>(dataStore, "f", LongKeyType.instance);
 		this.indexesIndex = new DataIndex<Long>(dataStore, "i", LongKeyType.instance);
-		this.crossReferenceIndex = new DataIndex<Long>(dataStore, "c", LongKeyType.instance);
+		this.extrinsicIdIndex = new ExtrinsicIdIndex(dataStore);
 
 		resourceSet = createAndConfigureAResourceSet(dataStore, metaModel);
 
@@ -362,77 +361,12 @@ public class FragmentedModel {
 	}
 
 	/**
-	 * Changes (or add) the entry for a cross referenced object.
-	 * 
-	 * @param crossReferenceURI
-	 *            An extrinsic that identifies an object within a resource, as
-	 *            long as it is already given (null if the object is cross
-	 *            referenced for the first time).
-	 * @param object
-	 *            The object that is cross references.
-	 * @return The extrinsic ID that the cross referenced object should be
-	 *         identified with from now on.
-	 */
-	public String updateCrossReference(String extrinsicID, FInternalObjectImpl object) {
-		if (extrinsicID == null) {
-			extrinsicID = Long.toString(crossReferenceIndex.add());
-		}
-
-		Resource resource = object.eResource();
-		URI objectURI = resource.getURI().appendFragment(resource.getURIFragment(object));
-		crossReferenceIndex.set(Long.parseLong(extrinsicID), objectURI.toString());
-		return extrinsicID;
-	}
-
-	/**
-	 * Creates and returns a URI that identified the database entry that
-	 * contains an URI that identified the object with the given extrinsicID.
-	 * 
-	 * @param extrinsicID
-	 *            The extrinsicID that identified the object.
-	 * @return The created URI that points to the DB entry that contains the URI
-	 *         that points to the object.
-	 */
-	public URI getURIForExtrinsicCrossReferencedObjectID(String extrinsicID) {
-		return crossReferenceIndex.getURI(Long.parseLong(extrinsicID));
-	}
-
-	/**
-	 * Resolves the given URI and returns the object identified by the given
-	 * URI. The URI has to be a cross reference URI. This means it points
-	 * towards a DB entry that contains the actual object identifying URI. These
-	 * URIs are usually created via
-	 * {@link #getURIForExtrinsicCrossReferencedObjectID(String)}.
-	 * 
-	 * @param uri
-	 *            The cross reference URI.
-	 * @return The resolved object.
-	 */
-	public EObject resolveCrossReferenceURI(URI uri) {
-		String objectURIString = crossReferenceIndex.get(crossReferenceIndex.getKeyFromURI(uri));
-		EObject result = resourceSet.getEObject(URI.createURI(objectURIString), true);
-		return result;
-	}
-	
-	/**
 	 * Resolved the given URI that denotes a DB entry that contains a serialized fragment.
 	 * @param uri The containment URI to resolve.
 	 * @return The resolved object.
 	 */
-	public EObject resolveContainmentURI(URI uri) {
+	public EObject resolveObjectURI(URI uri) {
 		return resourceSet.getEObject(uri, true);
-	}
-
-	/**
-	 * Extracts the extrinsic ID from the given URI. The given URI should be a
-	 * cross reference URI. This means a URI that depicts a entry in a DB that
-	 * contains actual URIs.
-	 * 
-	 * @param extrinsicURI The URI that contains the extrinsic ID as last segment.
-	 * @return The extrinsic ID.
-	 */
-	public String getExtrinsicID(URI extrinsicURI) {
-		return Long.toString(crossReferenceIndex.getKeyFromURI(extrinsicURI));
 	}
 
 	/**
@@ -456,6 +390,10 @@ public class FragmentedModel {
 
 	public DataStore getDataStore() {
 		return dataStore;
+	}
+	
+	public ExtrinsicIdIndex getExtrinsicIdIndex() {
+		return extrinsicIdIndex;
 	}
 
 }

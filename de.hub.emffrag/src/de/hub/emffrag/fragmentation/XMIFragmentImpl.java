@@ -77,7 +77,7 @@ public class XMIFragmentImpl extends XMIResourceImpl implements Fragment {
 				if (currentFeature instanceof EReference && !((EReference) currentFeature).isContainment()) {
 					String extrinsicID = ((Fragment) otherResource).getID((FInternalObjectImpl)obj);
 					FragmentedModel fragmentedModel = ((Fragment) otherResource).getFragmentedModel();
-					URI uri = fragmentedModel.getURIForExtrinsicCrossReferencedObjectID(extrinsicID);
+					URI uri = fragmentedModel.getExtrinsicIdIndex().createExtrinsicIdUri(extrinsicID);
 					return uri;
 				} else if (EMFFragUtil.isFragFreature(currentFeature)) {
 					return otherResource.getURI().appendFragment("/");

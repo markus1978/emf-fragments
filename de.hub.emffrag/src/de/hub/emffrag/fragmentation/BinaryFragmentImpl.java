@@ -154,7 +154,7 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 		public URI readURI() throws IOException {
 			URI uri = super.readURI();
 			if (uri.fragment() == null || uri.fragment().equals("")) {
-				lastExtrinsicID = model.getExtrinsicID(uri);
+				lastExtrinsicID = model.getExtrinsicIdIndex().getExtrinsicId(uri);
 				return uri;
 			} else {
 				return uri;
@@ -190,7 +190,7 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 				if (currentObject.isCrossReferenced()) {
 					Fragment fragment = (Fragment)currentObject.eResource();
 					String extrinsicID = fragment.getID(currentObject);
-					uri = fragment.getFragmentedModel().getURIForExtrinsicCrossReferencedObjectID(extrinsicID);
+					uri = fragment.getFragmentedModel().getExtrinsicIdIndex().createExtrinsicIdUri(extrinsicID);
 					super.writeURI(uri, null);					
 				} else {
 					super.writeURI(uri, uriFragment);
