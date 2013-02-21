@@ -1,2 +1,0 @@
-modelSize fragmentDepth#modelName remarks candidate noo time mem maxActiveFragments maxWeakFragments loads unloads weakLoads weakUnloads
-1000000 10 testmodel deep 3 1000000 70893 535137152 100000 0 100000 0 0 0
