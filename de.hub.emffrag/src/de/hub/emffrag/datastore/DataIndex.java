@@ -99,6 +99,9 @@ public class DataIndex<KT> {
 		return ceiling == null ? null : keyType.deserialize(ceiling, fullPrefix.length);
 	}
 
+	/**
+	 * @return True if the key could be added, thus was a new key.
+	 */
 	public boolean add(KT key) {
 		byte[] storeKey = getStoreKey(key);
 		return store.ckeckAndCreate(storeKey);

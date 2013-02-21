@@ -23,14 +23,14 @@ public abstract class DataStore {
 		this.domain = domain;
 		this.dataStoreId = dataStoreId;
 	}
-	
+
 	public static final Comparator<byte[]> byteComparator = new Comparator<byte[]>() {
 		@Override
 		public int compare(byte[] o1, byte[] o2) {
 			return compareBytes(o1, o2);
-		}		
+		}
 	};
-	
+
 	/**
 	 * Comparator for byte arrays as used in HBase, supposed to be
 	 * lexicographically.
@@ -62,8 +62,15 @@ public abstract class DataStore {
 
 	public abstract OutputStream openOutputStream(byte[] key);
 
+	/**
+	 * @return True if no entry with this key exists and the key is still
+	 *         available.
+	 */
 	public abstract boolean check(byte[] key);
 
+	/**
+	 * @return True if the key has not existed before.
+	 */
 	public abstract boolean ckeckAndCreate(byte[] key);
 
 	public abstract void delete(byte[] bytes);
