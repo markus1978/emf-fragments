@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: EMF-Fragments mongodb adapter tests
+Bundle-SymbolicName: de.hub.emffrag.mongodb.tests
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: de.hub.emffrag;bundle-version="1.0.0",
+ de.hub.emffrag.tests;bundle-version="1.0.0",
+ de.hub.emffrag.mongodb;bundle-version="1.0.0"
