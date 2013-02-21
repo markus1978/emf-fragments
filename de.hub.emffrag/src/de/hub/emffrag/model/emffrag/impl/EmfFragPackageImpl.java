@@ -32,7 +32,6 @@ import de.hub.emffrag.model.emffrag.EmfFragFactory;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import de.hub.emffrag.model.emffrag.IndexedList;
 import de.hub.emffrag.model.emffrag.IndexedMap;
-import de.hub.emffrag.model.emffrag.StringMap;
 
 /**
  * <!-- begin-user-doc -->

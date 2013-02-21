@@ -15,11 +15,11 @@
  */
 package de.hub.emffrag.model.emffrag.impl;
 
-import de.hub.emffrag.model.emffrag.EmfFragPackage;
-import de.hub.emffrag.model.emffrag.IndexedList;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
+
+import de.hub.emffrag.model.emffrag.EmfFragPackage;
+import de.hub.emffrag.model.emffrag.IndexedList;
 
 /**
  * <!-- begin-user-doc -->

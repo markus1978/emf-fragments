@@ -17,7 +17,6 @@ import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.RowLock;
 import org.apache.hadoop.hbase.client.Scan;
 
 import com.google.common.base.Preconditions;
@@ -206,7 +205,8 @@ public class HBaseDataStore extends DataStore {
 	@Override
 	public boolean ckeckAndCreate(byte[] key) {
 		initialize();
-		RowLock lockRow = null;
+		// this feature is not yet working
+//		RowLock lockRow = null;
 //		try {
 //			lockRow = hTable.lockRow(key);
 //		} catch (IOException e) {

@@ -8,9 +8,10 @@ import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 
-import de.hub.emffrag.kvstore.IKeyValueStore;
-import de.hub.emffrag.kvstore.TestKeyValueStore;
-import de.hub.emffrag.reflective.FragmentedModel;
+import de.hub.emffrag.datastore.DataStore;
+import de.hub.emffrag.datastore.InMemoryDataStore;
+import de.hub.emffrag.fragmentation.FragmentedModel;
+import de.hub.emffrag.fragmentation.ReflectiveMetaModelRegistry;
 import de.hub.emffrag.testmodels.frag.testmodel.Container;
 import de.hub.emffrag.testmodels.frag.testmodel.Contents;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
@@ -30,10 +31,12 @@ public class HelloWorldExample {
 		// IKeyValueStore keyValueStore = new HBaseKeyValueStore();
 
 		// use the next lines to use an in-memory-test IKeyValueStore
-		IKeyValueStore keyValueStore = new TestKeyValueStore();
+		DataStore dataStore = new InMemoryDataStore("memory", "localhost", "test", false);
 
 		// initialize your model
-		FragmentedModel model = new FragmentedModel(keyValueStore, "Hello World", TestModelPackage.eINSTANCE);
+		ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(TestModelPackage.eINSTANCE);
+		FragmentedModel model = new FragmentedModel(dataStore, null, TestModelPackage.eINSTANCE);
+		URI rootFragmentURI = model.getRootFragmentURI();
 
 		// create a root object and add it to the model
 		Container testContainer = TestModelFactory.eINSTANCE.createContainer();
@@ -54,17 +57,15 @@ public class HelloWorldExample {
 		model.save();
 
 		System.out.println("Key value store contents: ");
-		URI baseURI = URI.createURI("hbase://localhost/Hello World");
-		System.out.println("Entry 0:\n" + keyValueStore.getTable(baseURI, false).read(baseURI.appendSegment("0")));
-		System.out.println("Entry 1:\n" + keyValueStore.getTable(baseURI, false).read(baseURI.appendSegment("1")));
+		System.out.println(dataStore);
 
 		// to read a model initialize the environment as before
 		// initialize your model
-		FragmentedModel readModel = new FragmentedModel(keyValueStore, "Hello World", TestModelPackage.eINSTANCE);
+		FragmentedModel readModel = new FragmentedModel(dataStore, rootFragmentURI, TestModelPackage.eINSTANCE);
 
 		// navigate the model as usual
 		System.out.println("Iterate results: ");
-		TreeIterator<EObject> allContents = readModel.getContents().get(0).eAllContents();
+		TreeIterator<EObject> allContents = readModel.getRootContents().get(0).eAllContents();
 		while (allContents.hasNext()) {
 			EObject next = allContents.next();
 			if (next instanceof Contents) {

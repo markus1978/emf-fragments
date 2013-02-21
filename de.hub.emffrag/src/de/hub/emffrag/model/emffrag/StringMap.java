@@ -15,7 +15,6 @@
  */
 package de.hub.emffrag.model.emffrag;
 
-import org.eclipse.emf.ecore.EObject;
 
 /**
  * <!-- begin-user-doc -->
