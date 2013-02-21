@@ -15,7 +15,7 @@ Contents
 
 Getting Started
 ---------------
-Look at this [HelloWorldExample](https://github.com/markus1978/emf-fragments/blob/master/de.hub.emffrag.tests/src/de/hub/emffrag/example/HelloWorldExample.java).
+Look at this [HelloWorldExample](https://github.com/markus1978/emf-fragments/blob/master/de.hub.emffrag.tests/src/de/hub/emffrag/example/HelloWorldExample.java), or have a look at the [wiki](https://github.com/markus1978/emf-fragments/wiki).
 
 License
 -------
