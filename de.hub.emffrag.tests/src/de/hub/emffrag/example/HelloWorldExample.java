@@ -26,9 +26,8 @@ public class HelloWorldExample {
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("ecore", new XMIResourceFactoryImpl());
 
 		// use the next lines to use HBase as IKeyValueStore
-		// Resource.Factory.Registry.INSTANCE.getProtocolToFactoryMap().put("hbase",
-		// new XMIResourceFactoryImpl());
-		// IKeyValueStore keyValueStore = new HBaseKeyValueStore();
+		// Resource.Factory.Registry.INSTANCE.getProtocolToFactoryMap().put("hbase", new XMIResourceFactoryImpl());
+		// DataStore dataStore = new HBaseDataStore("test");
 
 		// use the next lines to use an in-memory-test IKeyValueStore
 		DataStore dataStore = new InMemoryDataStore("memory", "localhost", "test", false);
