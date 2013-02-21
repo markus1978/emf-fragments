@@ -1,5 +1,6 @@
 package de.hub.emffrag.fragmentation;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 import org.eclipse.emf.common.notify.NotificationChain;
@@ -8,6 +9,8 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.EStoreEObjectImpl;
 import org.eclipse.emf.ecore.resource.Resource.Internal;
+
+import com.google.common.base.Throwables;
 
 import de.hub.emffrag.util.EMFFragUtil;
 
@@ -138,7 +141,7 @@ public class FObjectImpl extends EStoreEObjectImpl {
 						throw new RuntimeException(
 								"You cannot at a value to a fragmenting reference if the new container is not part of a fragmented model");
 					} else {
-						fragmentation.addFragment(this.internalObject, this);
+						fragmentation.createFragment(this.internalObject, this);
 					}
 				}
 			}
@@ -153,18 +156,35 @@ public class FObjectImpl extends EStoreEObjectImpl {
 						"You cannot at a value to a fragmenting reference if the new container is not part of a fragmented model");
 			} else {
 				if (internalObject.isFragmentRoot()) {
-					fragmentation.removeFragment(this.internalObject);
+					removeFragment(this.internalObject);
 				}
-				fragmentation.addFragment(newFragmentURI, this.internalObject, this);
+				fragmentation.createFragment(newFragmentURI, this.internalObject, this);
 			}
 		} else {
 			// this object was removed from the model, it has to be moved to the
 			// new objects realm (if necessary) and if it was a fragment root
 			// the fragment has to be deleted.
 			if (internalObject.isFragmentRoot()) {
-				fragmentation.removeFragment(this.internalObject);
+				removeFragment(this.internalObject);
 			}
 			UserObjectsCache.newUserObjectsCache.addUserObjectToCache(internalObject, this);
+		}
+	}
+	
+	/**
+	 * Removes the fragment of the given root. Removes the resource and the
+	 * corresponding entry in persistence. This must not remove the fragment
+	 * immediately, since the fragmentRoot is still attached to it.
+	 * 
+	 * @param fObjectImpl
+	 *            The root of the fragment to delete.
+	 */
+	protected void removeFragment(FInternalObjectImpl fragmentRoot) {
+		Fragment oldFragment = fragmentRoot.getFragment();
+		try {
+			oldFragment.delete(null);
+		} catch (IOException e) {
+			Throwables.propagate(e);
 		}
 	}
 

@@ -210,7 +210,7 @@ public class FragmentedModel {
 				.put(dataStore.getProtocol(), new XMIResourceFactoryImpl() {
 					@Override
 					public Resource createResource(URI uri) {
-						Fragment fragment = createFragment(uri, FragmentedModel.this);
+						Fragment fragment = newFragment(uri, FragmentedModel.this);
 						fragmentCache.registerFragment(fragment);
 						return fragment;
 					}
@@ -219,7 +219,11 @@ public class FragmentedModel {
 		return resourceSet;
 	}
 
-	protected Fragment createFragment(URI uri, FragmentedModel model) {
+	/**
+	 * Factory method for Fragments. Creates {@link XMIFragmentImpl} by default.
+	 * Can be changed by subclasses.
+	 */
+	protected Fragment newFragment(URI uri, FragmentedModel model) {
 		return new XMIFragmentImpl(uri, model);
 	}
 
@@ -244,7 +248,7 @@ public class FragmentedModel {
 		resourceSet = createAndConfigureAResourceSet(dataStore, metaModel);
 
 		if (rootFragmentKeyURI == null) {
-			rootFragment = addFragment(null, null);
+			rootFragment = createFragment(null, null);
 			this.rootFragmentKeyURI = rootFragment.getURI();
 		} else {
 			this.rootFragmentKeyURI = rootFragmentKeyURI;
@@ -277,7 +281,7 @@ public class FragmentedModel {
 		}
 	}
 
-	protected ResourceSet getResourceSet() {
+	ResourceSet getResourceSet() {
 		return resourceSet;
 	}
 
@@ -293,11 +297,12 @@ public class FragmentedModel {
 	 * @param fragmentRootUserObject
 	 *            The user object of the fragment root. Can be null.
 	 */
-	public Fragment addFragment(FInternalObjectImpl fragmentRoot, FObjectImpl fragmentRootUserObject) {
-		return addFragment(createNewFragmentURI(), fragmentRoot, fragmentRootUserObject);
+	public Fragment createFragment(FInternalObjectImpl fragmentRoot, FObjectImpl fragmentRootUserObject) {
+		URI uri = fragmentIndex.getURI(fragmentIndex.add());
+		return createFragment(uri, fragmentRoot, fragmentRootUserObject);
 	}
-	
-	public Fragment addFragment(URI fragmentURI, FInternalObjectImpl fragmentRoot, FObjectImpl fragmentRootUserObject) {
+
+	public Fragment createFragment(URI fragmentURI, FInternalObjectImpl fragmentRoot, FObjectImpl fragmentRootUserObject) {
 		Fragment newFragment = (Fragment) resourceSet.createResource(fragmentURI);
 
 		if (fragmentRoot != null) {
@@ -320,32 +325,6 @@ public class FragmentedModel {
 		return newFragment;
 	}
 
-	/**
-	 * Creates a new fragment in persistence.
-	 * 
-	 * @return The URI for a new fragment.
-	 */
-	private URI createNewFragmentURI() {
-		return fragmentIndex.getURI(fragmentIndex.add());
-	}
-
-	/**
-	 * Removes the fragment of the given root. Removes the resource and the
-	 * corresponding entry in persistence. This must not remove the fragment
-	 * immediately, since the fragmentRoot is still attached to it.
-	 * 
-	 * @param fObjectImpl
-	 *            The root of the fragment to delete.
-	 */
-	protected void removeFragment(FInternalObjectImpl fragmentRoot) {
-		Fragment oldFragment = fragmentRoot.getFragment();
-		try {
-			oldFragment.delete(options);
-		} catch (IOException e) {
-			Throwables.propagate(e);
-		}
-	}
-
 	public void save() {
 		for (Resource resource : resourceSet.getResources()) {
 			try {
@@ -361,27 +340,15 @@ public class FragmentedModel {
 	}
 
 	/**
-	 * Resolved the given URI that denotes a DB entry that contains a serialized fragment.
-	 * @param uri The containment URI to resolve.
+	 * Resolved the given URI that denotes a DB entry that contains a serialized
+	 * fragment.
+	 * 
+	 * @param uri
+	 *            The containment URI to resolve.
 	 * @return The resolved object.
 	 */
 	public EObject resolveObjectURI(URI uri) {
 		return resourceSet.getEObject(uri, true);
-	}
-
-	/**
-	 * Tries to remove unnecessary fragments from main memory.
-	 */
-	void purgeCache() {
-		fragmentCache.purgeUnreferencedFragments();
-	}
-
-	int numberOfLoadedFragments() {
-		return getResourceSet().getResources().size();
-	}
-
-	Fragment getFragment(URI fragmentURI) {
-		return (Fragment) getResourceSet().getResource(fragmentURI, false);
 	}
 
 	public Statistics getStatistics() {
@@ -391,9 +358,31 @@ public class FragmentedModel {
 	public DataStore getDataStore() {
 		return dataStore;
 	}
-	
+
 	public ExtrinsicIdIndex getExtrinsicIdIndex() {
 		return extrinsicIdIndex;
+	}
+
+	/**
+	 * Only for testing purposes, hence package visibility. Tries to remove
+	 * unnecessary fragments from main memory.
+	 */
+	void purgeCache() {
+		fragmentCache.purgeUnreferencedFragments();
+	}
+
+	/**
+	 * Only for testing purposes, hence package visibility.
+	 */
+	Fragment getFragment(URI fragmentURI) {
+		return (Fragment) getResourceSet().getResource(fragmentURI, false);
+	}
+
+	/**
+	 * Only for testing purposes, hence package visibility.
+	 */
+	int numberOfLoadedFragments() {
+		return getResourceSet().getResources().size();
 	}
 
 }
