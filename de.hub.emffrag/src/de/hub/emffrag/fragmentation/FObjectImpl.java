@@ -13,6 +13,7 @@ import org.eclipse.emf.ecore.resource.Resource.Internal;
 import com.google.common.base.Throwables;
 
 import de.hub.emffrag.util.EMFFragUtil;
+import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
 
 public class FObjectImpl extends EStoreEObjectImpl {
 
@@ -133,7 +134,7 @@ public class FObjectImpl extends EStoreEObjectImpl {
 		if (newContainer != null && newFragmentURI == null) {
 			int featureID = EOPPOSITE_FEATURE_BASE - newContainerFeatureID;
 			EStructuralFeature feature = newContainer.eClass().getEStructuralFeature(featureID);
-			if (feature != null && EMFFragUtil.isFragFreature(feature)) {
+			if (feature != null && EMFFragUtil.getFragmentationType(feature) != FragmentationType.None) {
 				// if the object is not yet root of a fragment, a new fragment
 				// has to be created
 				if (!internalObject.isFragmentRoot()) {

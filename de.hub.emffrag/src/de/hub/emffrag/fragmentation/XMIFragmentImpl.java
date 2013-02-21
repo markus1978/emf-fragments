@@ -18,6 +18,7 @@ import org.eclipse.emf.ecore.xmi.impl.XMLHelperImpl;
 import com.google.common.base.Throwables;
 
 import de.hub.emffrag.util.EMFFragUtil;
+import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
 
 public class XMIFragmentImpl extends XMIResourceImpl implements Fragment {
 
@@ -79,7 +80,7 @@ public class XMIFragmentImpl extends XMIResourceImpl implements Fragment {
 					FragmentedModel fragmentedModel = ((Fragment) otherResource).getFragmentedModel();
 					URI uri = fragmentedModel.getExtrinsicIdIndex().createExtrinsicIdUri(extrinsicID);
 					return uri;
-				} else if (EMFFragUtil.isFragFreature(currentFeature)) {
+				} else if (EMFFragUtil.getFragmentationType(currentFeature) != FragmentationType.None) {
 					return otherResource.getURI().appendFragment("/");
 				}
 			}

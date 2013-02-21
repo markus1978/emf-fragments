@@ -18,6 +18,7 @@ import org.eclipse.emf.ecore.impl.EClassImpl;
 import org.eclipse.emf.ecore.impl.EFactoryImpl;
 
 import de.hub.emffrag.util.EMFFragUtil;
+import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
 
 /**
  * Since EMF does not allow to use the same model in a regular fashion
@@ -117,7 +118,7 @@ public class ReflectiveMetaModelRegistry {
 					superTypes.set(superTypeIndex, getOppositeClass(superType));
 				}
 			} else if (next instanceof EReference) {
-				if (((EReference)next).isContainment() && !EMFFragUtil.isFragFreature((EReference)next)) {
+				if (((EReference)next).isContainment() && EMFFragUtil.getFragmentationType((EReference)next) == FragmentationType.None) {
 					((EReference)next).setResolveProxies(false);
 				}
 			}

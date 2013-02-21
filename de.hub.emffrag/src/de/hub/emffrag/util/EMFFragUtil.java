@@ -15,26 +15,36 @@
  ******************************************************************************/
 package de.hub.emffrag.util;
 
+import org.eclipse.emf.common.util.EMap;
 import org.eclipse.emf.ecore.EAnnotation;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 public class EMFFragUtil {
-
-	/**
-	 * @param An {@link EReference}, must not be null.
-	 * @return true, iff the given reference is designated as a cross fragment reference.
-	 */
-	public static boolean isFragReference(EReference reference) {
-		EAnnotation annotation = reference.getEAnnotation("de.hub.emffrag");
-		return annotation != null && annotation.getDetails().get("fragments") != null;
-	}
-
-	/**
-	 * @param An {@link EStructuralFeature}, must not be null.
-	 * @return true, iff the given feature is a reference and is designated as a cross fragment reference.
-	 */
-	public static boolean isFragFreature(EStructuralFeature feature) {
-		return feature instanceof EReference && isFragReference((EReference)feature);
+	
+	public enum FragmentationType { None, FragmentsContainment, FragmentsIndexedContainment, IndexedReferences };
+	
+	public static FragmentationType getFragmentationType(EStructuralFeature feature) {
+		EAnnotation annotation = feature.getEAnnotation("de.hub.emffrag");
+		if (!(feature instanceof EReference) || annotation == null) {
+			return FragmentationType.None;
+		} else { 
+			EMap<String, String> details = annotation.getDetails();
+			if (((EReference)feature).isContainment()) {			
+				if (details.get("indexes") != null) {
+					return FragmentationType.FragmentsIndexedContainment;
+				} else if (details.get("fragments") != null) {
+					return FragmentationType.FragmentsContainment;
+				} else {
+					return FragmentationType.None;
+				}
+			} else {
+				if (details.get("indexes") != null) {
+					return FragmentationType.IndexedReferences;
+				} else {
+					return FragmentationType.None;
+				}
+			}
+		}
 	}
 }
