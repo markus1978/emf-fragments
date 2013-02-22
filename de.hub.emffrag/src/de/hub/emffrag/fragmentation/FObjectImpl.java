@@ -202,4 +202,5 @@ public class FObjectImpl extends EStoreEObjectImpl {
 		// double realization of containment
 		return msgs;
 	}
+
 }

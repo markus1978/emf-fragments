@@ -17,18 +17,17 @@ package de.hub.emffrag.model.emffrag.impl;
 
 import java.util.Iterator;
 
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 
 import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.KeyType;
-import de.hub.emffrag.fragmentation.FInternalObjectImpl;
+import de.hub.emffrag.fragmentation.AbstractValueSet;
 import de.hub.emffrag.fragmentation.FObjectImpl;
 import de.hub.emffrag.fragmentation.Fragment;
 import de.hub.emffrag.fragmentation.FragmentedModel;
+import de.hub.emffrag.fragmentation.IndexedValueSet;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import de.hub.emffrag.model.emffrag.IndexedMap;
 
@@ -51,8 +50,11 @@ import de.hub.emffrag.model.emffrag.IndexedMap;
 public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V> {
 	
 	protected DataIndex<K> index = null;
-	protected FragmentedModel model = null;
-	protected Fragment fragment = null;
+	
+//	protected FragmentedModel model = null;
+//	protected Fragment fragment = null;
+	
+	private AbstractValueSet<K, V> valueSet;
 	
 	/**
 	 * <!-- begin-user-doc -->
@@ -64,23 +66,29 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 	}
 	
 	private void init() {
-		if (index == null) {
+		if (valueSet == null) {
 			Resource eResource = eResource();
 			if (eResource instanceof Fragment) {
-				fragment = (Fragment)eResource;
-				model = fragment.getFragmentedModel();
+				Fragment fragment = (Fragment)eResource;
+				FragmentedModel model = fragment.getFragmentedModel();
 				DataStore dataStore = model.getDataStore();
-				
+								
 				String prefix = getPrefix();
 				if (prefix == null) {
-					prefix = model.createNextIndexPrefix();					
+					String extrinsicId = internalObject().getExtrinsicID(true);
+					prefix = FragmentedModel.INDEX_CLASSES_PREFIX + "_" + extrinsicId;
 					setPrefix(prefix);
 				}
 				index = new DataIndex<K>(dataStore, prefix, getKeytype());
+				valueSet = createValueSet(model, index);
 			} else {
 				throw new IllegalStateException("Map operations can only be used, if the map is part of a fragmented model.");
 			}
 		}
+	}
+	
+	protected AbstractValueSet<K, V> createValueSet(FragmentedModel model, DataIndex<K> index) {
+		return new IndexedValueSet<K, V>(model, index){};
 	}
 
 	/**
@@ -184,38 +192,7 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 	 */
 	public Iterator<V> iterator() {
 		init();
-		return new Iterator<V>() {
-			K current = null;
-			K next = getFirstKey();
-			@Override
-			public boolean hasNext() {
-				if (next == null) {
-					if (current != null) {
-						next = index.next(current);
-					} else {
-						next = null;
-					}
-				}
-				return next != null;
-			}
-
-			@SuppressWarnings("unchecked")
-			@Override
-			public V next() {
-				if (next == null) {
-					next = index.next(current);
-				}
-				EObject result = getValueForExactKey(next);
-				current = next;
-				next = null;
-				return (V)result;			
-			}
-
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException("Remove on indexed iterators is not supported.");
-			}			
-		};
+		return valueSet.iterator(index.first(), index.last());
 	}
 
 	/**
@@ -225,63 +202,7 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 	 */
 	public Iterator<V> iterator(K from, K to) {
 		init();
-		final K firstIncl = index.exactOrNext(from);
-		final K lastExcl = index.next(to);
-		return new Iterator<V>() {
-			
-			K current = null;
-			K next = firstIncl;
-			@Override
-			public boolean hasNext() {
-				if (next == null) {
-					if (current != null) {
-						next = index.next(current);
-					} else {
-						next = null;
-					}
-				}
-				return next != null && !next.equals(lastExcl);
-			}
-
-			@SuppressWarnings("unchecked")
-			@Override
-			public V next() {
-				if (next == null) {
-					next = index.next(current);
-				}
-				EObject result = getValueForExactKey(next);
-				current = next;
-				next = null;
-				return (V)result;			
-			}
-
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException("Remove on indexed iterators is not supported.");
-			}			
-		};
-	}
-
-	protected EObject getValueForExactKey(K key) {
-		String value = index.get(key);
-		if (value == null) {
-			return null;
-		}
-		URI objectUri = model.getExtrinsicIdIndex().getObjectUriForExtrinsicIdUri(URI.createURI(value));
-		FInternalObjectImpl internalObject = (FInternalObjectImpl)model.resolveObjectURI(objectUri);
-		return internalObject.getUserObject();
-	}
-	
-	protected void setValueForKey(K key, V value) {
-		FInternalObjectImpl internalObject = ((FObjectImpl)value).internalObject();
-		internalObject.setIsCrossReferenced();
-		Fragment fragment = internalObject.getFragment();
-		URI uri = model.getExtrinsicIdIndex().createExtrinsicIdUri(fragment.getID(internalObject));
-		index.set(key, uri.toString());
-	}
-	
-	protected void removeValueForKey(K key, V value) {
-		index.remove(key);
+		return valueSet.iterator(from, to);
 	}
 	
 	/**
@@ -289,10 +210,9 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 	 * <!-- end-user-doc -->
 	 * @generated NOT
 	 */
-	@SuppressWarnings("unchecked")
 	public V exact(K key) {
 		init();
-		return (V)getValueForExactKey(key);			
+		return valueSet.getValueForExactKey(key);			
 	}
 
 	/**
@@ -300,11 +220,10 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 	 * <!-- end-user-doc -->
 	 * @generated NOT
 	 */
-	@SuppressWarnings("unchecked")
 	public V next(K key) {
 		init();
 		key = index.exactOrNext(key);
-		return key == null ? null : (V)getValueForExactKey(key);
+		return key == null ? null : valueSet.getValueForExactKey(key);
 	}
 
 	/**
@@ -315,7 +234,7 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 	public void put(K key, V value) {
 		init();
 		if (value instanceof FObjectImpl) {
-			setValueForKey(key, value);
+			valueSet.setValueForKey(key, value);
 		} else {
 			throw new IllegalArgumentException("Non fragmented model objects are not supported as map values.");
 		}
@@ -326,12 +245,11 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 	 * <!-- end-user-doc -->
 	 * @generated NOT
 	 */
-	@SuppressWarnings("unchecked")
 	public V remove(K key) {
 		init();
-		V result = (V)getValueForExactKey(key);
+		V result = valueSet.getValueForExactKey(key);
 		if (result != null) {
-			removeValueForKey(key, result);
+			valueSet.removeValueForKey(key, result);
 		}
 		return result;
 	}

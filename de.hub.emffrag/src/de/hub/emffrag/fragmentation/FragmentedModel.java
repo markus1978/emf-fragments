@@ -28,6 +28,11 @@ import de.hub.emffrag.fragmentation.UserObjectsCache.UserObjectsCacheListener;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
 
 public class FragmentedModel {
+	
+	public static final String FRAGMENTS_INDEX_PREFIX = "f";
+	public static final String EXTRINSIC_ID_INDEX_PREFIX = "c";
+	public static final String INDEX_CLASSES_PREFIX = "i";
+	public static final String INDEX_FEATURES_PREFIX = "j";
 
 	private final static XMLParserPoolImpl xmlParserPool = new XMLParserPoolImpl(true);
 	private final static Map<Object, Object> options = new HashMap<Object, Object>();
@@ -45,7 +50,6 @@ public class FragmentedModel {
 	private final FragmentCache fragmentCache;
 	private final DataStore dataStore;
 	private final DataIndex<Long> fragmentIndex;
-	private final DataIndex<Long> indexesIndex;
 	private final ExtrinsicIdIndex extrinsicIdIndex;
 	private final URI rootFragmentKeyURI;
 	private final Statistics statistics = new Statistics();
@@ -241,8 +245,7 @@ public class FragmentedModel {
 		}
 		fragmentCache = new FragmentCache(cacheSize);
 
-		this.fragmentIndex = new DataIndex<Long>(dataStore, "f", LongKeyType.instance);
-		this.indexesIndex = new DataIndex<Long>(dataStore, "i", LongKeyType.instance);
+		this.fragmentIndex = new DataIndex<Long>(dataStore, FRAGMENTS_INDEX_PREFIX, LongKeyType.instance);
 		this.extrinsicIdIndex = new ExtrinsicIdIndex(dataStore);
 
 		resourceSet = createAndConfigureAResourceSet(dataStore, metaModel);
@@ -254,10 +257,6 @@ public class FragmentedModel {
 			this.rootFragmentKeyURI = rootFragmentKeyURI;
 			rootFragment = (Fragment) resourceSet.getResource(this.rootFragmentKeyURI, true);
 		}
-	}
-
-	public String createNextIndexPrefix() {
-		return "i_" + indexesIndex.add();
 	}
 
 	public EList<EObject> getRootContents() {

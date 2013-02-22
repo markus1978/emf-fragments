@@ -30,7 +30,7 @@ import de.hub.emffrag.datastore.LongKeyType;
 public class ExtrinsicIdIndex extends DataIndex<Long> {
 
 	public ExtrinsicIdIndex(DataStore store) {
-		super(store, "c", LongKeyType.instance);
+		super(store, FragmentedModel.EXTRINSIC_ID_INDEX_PREFIX, LongKeyType.instance);
 	}
 
 	/**
@@ -58,17 +58,27 @@ public class ExtrinsicIdIndex extends DataIndex<Long> {
 	 *            object needs one issued.
 	 * @param object
 	 *            The IDed object.
-	 * @return The extrinsic ID that object (now) has.
 	 */
-	public String updateObjectURI(String extrinsicID, FInternalObjectImpl object) {
-		if (extrinsicID == null) {
-			extrinsicID = Long.toString(add());
+	public void updateObjectURI(String extrinsicId, FInternalObjectImpl object) {
+		if (extrinsicId == null) {
+			issueExtrinsicID(object);
+		} else {
+			Resource resource = object.eResource();
+			URI objectURI = resource.getURI().appendFragment(resource.getURIFragment(object));
+			set(Long.parseLong(extrinsicId), objectURI.toString());			
 		}
-
+	}
+	
+	public String issueExtrinsicID(FInternalObjectImpl object) {		
+		String extrinsicId = Long.toString(add());
 		Resource resource = object.eResource();
+		if (resource == null || !(resource instanceof Fragment)) {
+			throw new RuntimeException("Only objects in a fragmented model can have an extrinsic id.");
+		}
+		((Fragment)resource).setID(object, extrinsicId);
 		URI objectURI = resource.getURI().appendFragment(resource.getURIFragment(object));
-		set(Long.parseLong(extrinsicID), objectURI.toString());
-		return extrinsicID;
+		set(Long.parseLong(extrinsicId), objectURI.toString());
+		return extrinsicId;		
 	}
 
 	/**

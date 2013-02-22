@@ -16,10 +16,11 @@
 package de.hub.emffrag.model.emffrag.impl;
 
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EObject;
 
-import de.hub.emffrag.fragmentation.FInternalObjectImpl;
-import de.hub.emffrag.fragmentation.FObjectImpl;
+import de.hub.emffrag.datastore.DataIndex;
+import de.hub.emffrag.fragmentation.AbstractValueSet;
+import de.hub.emffrag.fragmentation.FragmentedModel;
+import de.hub.emffrag.fragmentation.IndexedContainmentValueSet;
 import de.hub.emffrag.model.emffrag.ContainmentIndexedMap;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
 
@@ -53,25 +54,8 @@ public class ContainmentIndexedMapImpl<K, V> extends IndexedMapImpl<K, V> implem
 	}
 
 	@Override
-	protected EObject getValueForExactKey(K key) {
-		if (index.existis(key)) {
-			return ((FInternalObjectImpl)model.resolveObjectURI(index.getURI(key).appendFragment("/"))).getUserObject();
-		} else {
-			return null;
-		}
+	protected AbstractValueSet<K, V> createValueSet(FragmentedModel model, DataIndex<K> index) {
+		return new IndexedContainmentValueSet<K, V>(model, index, this);
 	}
-	
-	@Override
-	protected void setValueForKey(K key, V value) {
-		// this creates an DB entry indirectly
-		((FObjectImpl)value).updateContainment(this, -1, index.getURI(key));
-	}
-
-	@Override
-	protected void removeValueForKey(K key, V value) {
-		super.removeValueForKey(key, value);
-		((FObjectImpl)value).updateContainment(null, -1, null);
-	}
-
 		
 } //ContainmentIndexedMapImpl

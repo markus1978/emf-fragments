@@ -3,9 +3,13 @@ package de.hub.emffrag.fragmentation;
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.impl.DynamicEObjectImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.Resource.Internal;
+
+import de.hub.emffrag.util.EMFFragUtil;
+import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
 
 public class FInternalObjectImpl extends DynamicEObjectImpl {
 
@@ -19,6 +23,19 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 		Resource eResource = eResource();
 		return eResource != null && eResource instanceof Fragment
 				&& (eContainer() == null || eResource != eContainer().eResource());
+	}
+	
+	public String getExtrinsicID(boolean issueIfNecessary) {
+		Fragment fragment = getFragment();
+		if (fragment != null) {
+			String extrinsicID = fragment.getID(this);
+			if (extrinsicID == null || issueIfNecessary) {
+				extrinsicID = fragment.getFragmentedModel().getExtrinsicIdIndex().issueExtrinsicID(this);				
+			}
+			return extrinsicID;
+		} else {
+			throw new RuntimeException("Objects has to be part of a fragmented model.");
+		}
 	}
 	
 	public EObject getUserObject() {
@@ -80,8 +97,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 			FragmentedModel fragmentedModel = getFragmentation();
 			if (fragmentedModel != null) {
 				if (resource != null) {
-					String extrinsicID = fragmentedModel.getExtrinsicIdIndex().updateObjectURI(null, this);
-					resource.setID(this, extrinsicID);
+					fragmentedModel.getExtrinsicIdIndex().updateObjectURI(null, this);					
 				} else {
 					throw new IllegalStateException("Object cannot be cross referenced");
 				}
@@ -111,8 +127,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 		FragmentedModel fragmentedModel = getFragmentation();
 		if (fragmentedModel != null) {
 			if (isCrossReferenced || extrinsicID != null) {
-				extrinsicID = fragmentedModel.getExtrinsicIdIndex().updateObjectURI(extrinsicID, this);
-				newResource.setID(this, extrinsicID);
+				fragmentedModel.getExtrinsicIdIndex().updateObjectURI(extrinsicID, this);
 			}
 		}
 		// else: if the referenced object is not part of the model, TODO (multi fragmentation models) 
@@ -123,7 +138,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 	/**
 	 * The EMF-implementation does somehow create a network of Java references
 	 * that prevent to fully unload the contents of a resource. This method
-	 * breaks the corrsponding references.
+	 * breaks the corresponding references.
 	 */
 	void trulyUnload() {
 		if (eProperties != null) {
@@ -133,10 +148,18 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 		eSettings = null;
 	}
 	
-//	public void eSetProxyURI(URI uri) {
-//		if (uri.toString().endsWith("-1")) {
-//			System.out.println("& " + uri);	
-//		}		
-//	    eProperties().setEProxyURI(uri);
-//	}
+	@Override
+	public Object eGet(int featureID, boolean resolve, boolean coreType) {
+		EStructuralFeature eFeature = eClass().getEStructuralFeature(featureID);
+		FragmentationType type = EMFFragUtil.getFragmentationType(eFeature);
+		if (type == FragmentationType.None || type == FragmentationType.FragmentsContainment) {
+			return super.eGet(featureID, resolve, coreType);			
+		} else {
+			if (type == FragmentationType.FragmentsIndexedContainment || type == FragmentationType.IndexedReferences) {
+				return new FList<Object>(this, eFeature);
+			} else {
+				throw new RuntimeException("Supposed unreachable.");
+			}
+		}
+	}
 }
