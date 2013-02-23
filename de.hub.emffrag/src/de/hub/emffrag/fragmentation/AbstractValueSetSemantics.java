@@ -1,30 +1,31 @@
 package de.hub.emffrag.fragmentation;
 
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
 
 import de.hub.emffrag.datastore.DataIndex;
 
-public abstract class AbstractValueSet<K,V> {
+public abstract class AbstractValueSetSemantics<K> {
 
 	protected final FragmentedModel model;
 	protected final DataIndex<K> index;
 	
-	public AbstractValueSet(FragmentedModel model, DataIndex<K> index) {
+	public AbstractValueSetSemantics(FragmentedModel model, DataIndex<K> index) {
 		super();
 		this.model = model;
 		this.index = index;
 	}
 	
-	public abstract V getValueForExactKey(K key);
+	public abstract FInternalObjectImpl getValueForExactKey(K key);
 	
-	public abstract void setValueForKey(K key, V value);
+	public abstract void setValueForKey(K key, FInternalObjectImpl value);
 	
-	public abstract void removeValueForKey(K key, V value);
+	public abstract void removeValueForKey(K key, FInternalObjectImpl value);
 	
-	public ListIterator<V> iterator(K first, K last) {
+	public ListIterator<FInternalObjectImpl> iterator(K first, K last) {
 		final K firstIncl = index.exactOrNext(first);
-		final K lastExcl = index.next(last);
-		return new ListIterator<V>() {			
+		final K lastExcl = last == null ? null : index.next(last);
+		return new ListIterator<FInternalObjectImpl>() {			
 			K current = null;
 			K next = firstIncl;
 			@Override
@@ -40,18 +41,22 @@ public abstract class AbstractValueSet<K,V> {
 			}
 
 			@Override
-			public V next() {
+			public FInternalObjectImpl next() {
 				if (next == null) {
-					next = index.next(current);
+					if (current != null) {
+						next = index.next(current);
+					} else {
+						throw new NoSuchElementException();
+					}
 				}
-				V result = getValueForExactKey(next);
+				FInternalObjectImpl result = getValueForExactKey(next);
 				current = next;
 				next = null;
 				return result;			
 			}
 
 			@Override
-			public void add(V e) {
+			public void add(FInternalObjectImpl e) {
 				throw new UnsupportedOperationException();
 			}
 
@@ -66,7 +71,7 @@ public abstract class AbstractValueSet<K,V> {
 			}
 
 			@Override
-			public V previous() {
+			public FInternalObjectImpl previous() {
 				throw new UnsupportedOperationException();
 			}
 
@@ -77,12 +82,12 @@ public abstract class AbstractValueSet<K,V> {
 
 			@Override
 			public void remove() {
-				removeValueForKey(current, getValueForExactKey(current));
+				throw new UnsupportedOperationException();
 			}
 
 			@Override
-			public void set(V e) {
-				setValueForKey(current, e);	
+			public void set(FInternalObjectImpl e) {
+				throw new UnsupportedOperationException();
 			}							
 		};
 	}

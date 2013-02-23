@@ -30,7 +30,7 @@ import de.hub.emffrag.model.emffrag.IndexedList;
  *
  * @generated
  */
-public class IndexedListImpl<V extends EObject> extends IndexedMapImpl<Integer, V> implements IndexedList<V> {
+public class IndexedListImpl<V extends EObject> extends IndexedMapImpl<Long, V> implements IndexedList<V> {
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -53,12 +53,19 @@ public class IndexedListImpl<V extends EObject> extends IndexedMapImpl<Integer, 
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public void add(V value) {
-		// TODO: implement this method
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		Long next = index.last();
+		if (next == null) {
+			next = 0l;
+		} else {
+			next = index.next(next);
+		}
+		put(next, value);
 	}
+	
+	
+	
 
 } //IndexedListImpl

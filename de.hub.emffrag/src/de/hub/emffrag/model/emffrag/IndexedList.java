@@ -25,10 +25,10 @@ import org.eclipse.emf.ecore.EObject;
  *
  *
  * @see de.hub.emffrag.model.emffrag.EmfFragPackage#getIndexedList()
- * @model superTypes="de.hub.emffrag.model.emffrag.IndexedMap<org.eclipse.emf.ecore.EIntegerObject, V>"
+ * @model superTypes="de.hub.emffrag.model.emffrag.IndexedMap<org.eclipse.emf.ecore.ELongObject, V>"
  * @generated
  */
-public interface IndexedList<V extends EObject> extends IndexedMap<Integer, V> {
+public interface IndexedList<V extends EObject> extends IndexedMap<Long, V> {
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->

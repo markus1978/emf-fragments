@@ -4,27 +4,25 @@ import org.eclipse.emf.common.util.URI;
 
 import de.hub.emffrag.datastore.DataIndex;
 
-public class IndexedValueSet<K,V> extends AbstractValueSet<K, V> {
+public class IndexedValueSetSemantics<K> extends AbstractValueSetSemantics<K> {
 
-	public IndexedValueSet(FragmentedModel model, DataIndex<K> index) {
+	public IndexedValueSetSemantics(FragmentedModel model, DataIndex<K> index) {
 		super(model, index);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public V getValueForExactKey(K key) {
+	public FInternalObjectImpl getValueForExactKey(K key) {
 		String value = index.get(key);
 		if (value == null) {
 			return null;
 		}
 		URI objectUri = model.getExtrinsicIdIndex().getObjectUriForExtrinsicIdUri(URI.createURI(value));
 		FInternalObjectImpl internalObject = (FInternalObjectImpl)model.resolveObjectURI(objectUri);
-		return (V)internalObject.getUserObject();
+		return internalObject;
 	}
 	
 	@Override
-	public void setValueForKey(K key, V value) {
-		FInternalObjectImpl internalObject = ((FObjectImpl)value).internalObject();
+	public void setValueForKey(K key, FInternalObjectImpl internalObject) {
 		internalObject.setIsCrossReferenced();
 		Fragment fragment = internalObject.getFragment();
 		URI uri = model.getExtrinsicIdIndex().createExtrinsicIdUri(fragment.getID(internalObject));
@@ -32,7 +30,7 @@ public class IndexedValueSet<K,V> extends AbstractValueSet<K, V> {
 	}
 	
 	@Override
-	public void removeValueForKey(K key, V value) {
+	public void removeValueForKey(K key, FInternalObjectImpl value) {
 		index.remove(key);
 	}
 }

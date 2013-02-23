@@ -298,7 +298,7 @@ public class EmfFragPackageImpl extends EPackageImpl implements EmfFragPackage {
 
 		// Add supertypes to classes
 		g1 = createEGenericType(this.getIndexedMap());
-		EGenericType g2 = createEGenericType(ecorePackage.getEIntegerObject());
+		EGenericType g2 = createEGenericType(ecorePackage.getELongObject());
 		g1.getETypeArguments().add(g2);
 		g2 = createEGenericType(indexedListEClass_V);
 		g1.getETypeArguments().add(g2);

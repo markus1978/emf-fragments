@@ -18,9 +18,9 @@ package de.hub.emffrag.model.emffrag.impl;
 import org.eclipse.emf.ecore.EClass;
 
 import de.hub.emffrag.datastore.DataIndex;
-import de.hub.emffrag.fragmentation.AbstractValueSet;
+import de.hub.emffrag.fragmentation.AbstractValueSetSemantics;
 import de.hub.emffrag.fragmentation.FragmentedModel;
-import de.hub.emffrag.fragmentation.IndexedContainmentValueSet;
+import de.hub.emffrag.fragmentation.IndexedContainmentValueSetSemantics;
 import de.hub.emffrag.model.emffrag.ContainmentIndexedMap;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
 
@@ -54,8 +54,8 @@ public class ContainmentIndexedMapImpl<K, V> extends IndexedMapImpl<K, V> implem
 	}
 
 	@Override
-	protected AbstractValueSet<K, V> createValueSet(FragmentedModel model, DataIndex<K> index) {
-		return new IndexedContainmentValueSet<K, V>(model, index, this);
+	protected AbstractValueSetSemantics<K> createValueSet(FragmentedModel model, DataIndex<K> index) {
+		return new IndexedContainmentValueSetSemantics<K>(model, index, this.internalObject(), null);
 	}
 		
 } //ContainmentIndexedMapImpl

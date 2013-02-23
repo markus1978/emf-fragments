@@ -78,7 +78,7 @@
       </eParameters>
     </eOperations>
     <eGenericSuperTypes eClassifier="#//IndexedMap">
-      <eTypeArguments eClassifier="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"/>
+      <eTypeArguments eClassifier="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELongObject"/>
       <eTypeArguments eTypeParameter="#//IndexedList/V"/>
     </eGenericSuperTypes>
   </eClassifiers>

@@ -97,29 +97,51 @@ public class ReflectiveMetaModelRegistry {
 		// new package instance is created. Weird.
 		source.setEFactoryInstance(regularFactory);
 
-		TreeIterator<EObject> iterator = target.eAllContents();
-		while (iterator.hasNext()) {
-			EObject next = iterator.next();
-			if (next instanceof EClass) {
-				((EClassImpl) next).setGeneratedInstanceClass(false);
-				((EClass) next).setInstanceClass(null);
-				EList<EClass> superTypes = ((EClass)next).getESuperTypes();
-				List<Integer> superTypesToChange = new ArrayList<Integer>(superTypes.size());
-				int index = 0;
-				for (EClass superType: superTypes) {
-					if (superType.getEPackage() != target) {
-						superTypesToChange.add(index);
+		// check and modify target properties
+		{
+			TreeIterator<EObject> iterator = target.eAllContents();
+			while (iterator.hasNext()) {
+				EObject next = iterator.next();
+				if (next instanceof EClass) {
+					((EClassImpl) next).setGeneratedInstanceClass(false);
+					((EClass) next).setInstanceClass(null);
+					EList<EClass> superTypes = ((EClass)next).getESuperTypes();
+					List<Integer> superTypesToChange = new ArrayList<Integer>(superTypes.size());
+					int index = 0;
+					for (EClass superType: superTypes) {
+						if (superType.getEPackage() != target) {
+							superTypesToChange.add(index);
+						}
+						index++;
 					}
-					index++;
+					for (Integer superTypeIndex: superTypesToChange) {
+						EClass superType = superTypes.get(superTypeIndex);
+						registerRegularMetaModel(superType.getEPackage());
+						superTypes.set(superTypeIndex, getOppositeClass(superType));
+					}
+				} else if (next instanceof EReference) {
+					FragmentationType fragmentationType = EMFFragUtil.getFragmentationType((EReference)next);
+					EReference reference = (EReference)next;
+					if (reference.isContainment() && fragmentationType == FragmentationType.None) {
+						reference.setResolveProxies(false);
+					} else if (fragmentationType == FragmentationType.FragmentsIndexedContainment || fragmentationType == FragmentationType.IndexedReferences) {
+						reference.setUnique(false);
+					}
 				}
-				for (Integer superTypeIndex: superTypesToChange) {
-					EClass superType = superTypes.get(superTypeIndex);
-					registerRegularMetaModel(superType.getEPackage());
-					superTypes.set(superTypeIndex, getOppositeClass(superType));
-				}
-			} else if (next instanceof EReference) {
-				if (((EReference)next).isContainment() && EMFFragUtil.getFragmentationType((EReference)next) == FragmentationType.None) {
-					((EReference)next).setResolveProxies(false);
+			}
+		}
+		
+		// check and modify source properties
+		{
+			TreeIterator<EObject> iterator = source.eAllContents();
+			while (iterator.hasNext()) {
+				EObject next = iterator.next();
+				if (next instanceof EReference) {
+					FragmentationType fragmentationType = EMFFragUtil.getFragmentationType((EReference)next);
+					EReference reference = (EReference)next;
+					if (fragmentationType == FragmentationType.FragmentsIndexedContainment || fragmentationType == FragmentationType.IndexedReferences) {
+						reference.setUnique(false);
+					}
 				}
 			}
 		}

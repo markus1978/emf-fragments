@@ -30,8 +30,10 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		object2.getFragmentedContents().add(object3);
 		object1.getCrossReferences().add(object3);
 		model.save();
-		
-		reinitializeModel();		
+
+		reinitializeModel();	
+		model.save();
+
 		assertIndexDimenions(dataStore, "f", 0l, 2l, LongKeyType.instance);
 		assertIndexDimenions(dataStore, "c", 0l, 0l, LongKeyType.instance);
 		object1 = assertHasModelRootFragment();
