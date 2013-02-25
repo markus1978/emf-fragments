@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.hub.emffrag.datastore.StringKeyType;
 import de.hub.emffrag.model.emffrag.IndexedMap;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
@@ -17,6 +18,14 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 	@Before
 	public void indexInitialization() {
 		testIndex = TestModelFactory.eINSTANCE.createTestObjectIndex();
+	}
+	
+	protected void assertFragmentsIndex() {
+		model.assertFragmentsIndex(0l, 1l);
+	}
+	
+	protected void assertExtrinsicIdIndex(boolean plusOne) {
+		model.assertExtrinsicIdIndex(0l, plusOne ? 4l : 3l);
 	}
 
 	@Test
@@ -36,7 +45,11 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 		assertIndex(testIndex, "1", "3");
 		assertIndexedObject(testIndex, "1");
 		assertIndexedObject(testIndex, "2");
-		assertIndexedObject(testIndex, "3");		
+		assertIndexedObject(testIndex, "3");
+		
+		assertFragmentsIndex();
+		assertExtrinsicIdIndex(false);
+		model.assertIndexClassIndex(testIndex, "1", "3", StringKeyType.instance);
 	}
 	
 	@Test
@@ -105,7 +118,11 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 		assertIndexedObject(testIndex, "1");
 		Assert.assertNull("Object is not null.", testIndex.exact("2"));
 		assertIndexedObject(testIndex, "3");
-		assertIterator(testIndex.iterator(), 2);			
+		assertIterator(testIndex.iterator(), 2);
+		
+		assertFragmentsIndex();
+		assertExtrinsicIdIndex(false);
+		model.assertIndexClassIndex(testIndex, "1", "3", StringKeyType.instance);
 	}
 	
 	@Test
@@ -146,7 +163,7 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 	
 	@Test
 	public void putValueTest2() {
-		performPutValueTest("0", "0", "3", 4);
+		performPutValueTest("0", "0", "3", 4);;
 	}
 	
 	@Test
@@ -174,6 +191,10 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 		assertIndex(testIndex, firstKey, lastKey);
 		assertObject(testIndex.exact(key));
 		assertIterator(testIndex.iterator(), size);
+		
+		assertFragmentsIndex();
+		assertExtrinsicIdIndex(true);
+		model.assertIndexClassIndex(testIndex, firstKey, lastKey, StringKeyType.instance);
 	}
 	
 	protected void assertIterator(Iterator<TestObject> iterator, int size) {
