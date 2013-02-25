@@ -33,7 +33,7 @@ public class ContainmentIndexedMapTests extends IndexedMapTests {
 		
 		reinitializeModel();
 		
-		testIndex = assertHasModelRootFragment(0);
+		testIndex = assertTestIndex(0);
 		assertIndex(testIndex, "1", "3");
 		assertIndexedObject(testIndex, "1");
 		assertIndexedObject(testIndex, "2");

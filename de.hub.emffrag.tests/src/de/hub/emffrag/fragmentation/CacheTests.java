@@ -112,11 +112,13 @@ public class CacheTests extends AbstractFragmentationTests {
 		Thread.sleep(10);
 		model.assertNumberOfLoadedFragments(2);
 
-		object1 = assertHasModelRootFragment();
-		object2 = assertHasContents(object1, metaModel.getTestObject_FragmentedContents());
-		object3 = assertHasContents(object2, metaModel.getTestObject_FragmentedContents());
-		Assert.assertEquals("testValue", object2.getName());
-		Assert.assertEquals("testValue", object3.getName());
+		Assertions
+				.root(model).assertId(1)
+				.getFragmentedContents().assertSize(1)
+				.get(0).assertId(2).assertDifferentFragmentAsContainer()
+				.getFragmentedContents().assertSize(1)
+				.get(0).assertId(3).assertDifferentFragmentAsContainer();
+		
 		model.assertStatistics(3, 3, 1, 1, 1, 1, 3, 3);
 	}
 
@@ -195,8 +197,7 @@ public class CacheTests extends AbstractFragmentationTests {
 		model.addContent(object1);
 		object1.getFragmentedContents().add(object2);
 		object2.getFragmentedContents().add(object3);
-		TestObject contents = TestModelFactory.eINSTANCE.createTestObject();
-		contents.setName("testValue");
+		TestObject contents = Assertions.createTestObject(4);
 		object3.getRegularContents().add(contents);
 		String uriFragment = object3.eResource().getURIFragment(((FObjectImpl) contents).internalObject());
 		Assert.assertEquals("//@regularContents.0", uriFragment);
@@ -206,10 +207,17 @@ public class CacheTests extends AbstractFragmentationTests {
 		Thread.sleep(10);
 		model.assertNumberOfLoadedFragments(2);
 
-		object1 = assertHasModelRootFragment();
-		object2 = assertHasContents(object1, metaModel.getTestObject_FragmentedContents());
-		object3 = assertHasContents(object2, metaModel.getTestObject_FragmentedContents());
-		contents = assertHasContents(object3, metaModel.getTestObject_RegularContents());
+		object3 = Assertions
+				.root(model).assertId(1)
+				.getFragmentedContents().assertSize(1)
+				.get(0).assertId(2).assertDifferentFragmentAsContainer()
+				.getFragmentedContents().assertSize(1)				
+				.get(0).assertId(3).assertDifferentFragmentAsContainer().value();
+		
+		contents = Assertions.context(object3)
+				.getRegularContents().assertSize(1)
+				.get(0).assertId(4).assertSameFragmentAsContainer().value();
+		
 		model.assertStatistics(3, 3, 1, 1, 1, 1, 3, 3);
 
 		uriFragment = object3.eResource().getURIFragment(((FObjectImpl) contents).internalObject());

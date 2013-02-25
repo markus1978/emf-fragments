@@ -1,7 +1,5 @@
 package de.hub.emffrag.fragmentation;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 
 public class CrossReferenceTests extends AbstractFragmentationTests {
@@ -16,9 +14,11 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		reinitializeModel();		
 		model.assertFragmentsIndex(0l, 0l);
 		model.assertExtrinsicIdIndex(0l, 0l);
-		object1 = assertHasModelRootFragment();
-		object2 = assertHasContents(object1, metaModel.getTestObject_RegularContents());
-		Assert.assertTrue(object1.getCrossReferences().contains(object2));
+		Assertions
+				.root(model).assertId(1)
+				.getRegularContents().assertSize(1).get(0).assertId(2).save()
+				.eContainer().assertId(1).getCrossReferences().assertSize(1).assertContains()
+				.get(0).assertId(2);
 	}
 	
 	@Test
@@ -33,11 +33,10 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 
 		model.assertFragmentsIndex(0l, 2l);
 		model.assertExtrinsicIdIndex(0l, 0l);
-		object1 = assertHasModelRootFragment();
-		Assert.assertEquals("testValue", object1.getCrossReferences().get(0).getName());
-		object2 = assertHasContents(object1, metaModel.getTestObject_FragmentedContents());
-		object3 = assertHasContents(object2, metaModel.getTestObject_FragmentedContents());
-		Assert.assertTrue(object1.getCrossReferences().contains(object3));
+		
+		Assertions
+				.root(model).assertId(1).save().getCrossReferences().assertSize(1).get(0).assertId(3)
+				.load().getFragmentedContents().assertSize(1).get(0).getFragmentedContents().assertSize(1).get(0).assertId(3);
 	}
 	
 	@Test
@@ -51,9 +50,11 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		reinitializeModel();		
 		model.assertFragmentsIndex(0l, 0l);
 		model.assertExtrinsicIdIndex(0l, 0l);
-		object1 = assertHasModelRootFragment();
-		object2 = assertHasContents(object1, metaModel.getTestObject_RegularContents());
-		Assert.assertTrue(object1.getCrossReferences().isEmpty());
+		
+		Assertions
+				.root(model).assertId(1)
+				.getCrossReferences().assertSize(0)
+				.getRegularContents().assertSize(1).get(0).assertId(2);
 	}
 	
 	@Test
@@ -69,10 +70,9 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		reinitializeModel();		
 		model.assertFragmentsIndex(0l, 0l);
 		model.assertExtrinsicIdIndex(0l, 0l);
-		object1 = assertHasModelRootFragment();
-		Assert.assertEquals("testValue", object1.getCrossReferences().get(0).getName());
-		object2 = assertHasContents(object1, metaModel.getTestObject_RegularContents());
-		Assert.assertTrue(object1.getCrossReferences().contains(object2));
+		Assertions
+				.root(model).assertId(1).save().getRegularContents().assertSize(1).get(0).assertId(3)
+				.load().getCrossReferences().assertSize(1).get(0).assertId(3);
 	}
 	
 	@Test
@@ -88,9 +88,9 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		reinitializeModel();		
 		model.assertFragmentsIndex(0l, 2l);
 		model.assertExtrinsicIdIndex(0l, 0l);
-		object1 = assertHasModelRootFragment();
-		Assert.assertEquals("testValue", object1.getCrossReferences().get(0).getName());
-		object2 = assertHasContents(object1, metaModel.getTestObject_FragmentedContents());
-		Assert.assertTrue(object1.getCrossReferences().contains(object2));
+		Assertions
+				.root(model).assertId(1).save().getFragmentedContents().assertSize(1).get(0).assertId(3)
+				.load().getCrossReferences().assertSize(1).get(0).assertId(3);
+		
 	}
 }

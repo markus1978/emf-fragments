@@ -28,10 +28,12 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 	@Test
 	public void testAddRootObject() {		
 		model.addContent(object1);
-		assertRootFragment(object1);
+		Assertions.root(model).assertId(1);
+		
 		model.save();
 		reinitializeModel();
-		assertHasModelRootFragment();
+		
+		Assertions.root(model).assertId(1).getFragmentedContents().assertSize(0);		
 		model.assertFragmentsIndex(0l, 0l);
 		model.assertExtrinsicIdIndex(-1l, -1l);
 	}
@@ -46,9 +48,12 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		model.save();
 
 		reinitializeModel();
-		object1 = assertHasModelRootFragment();
-		object2 = assertHasContents(object1, metaModel.getTestObject_FragmentedContents());
-		assertContainment(object1, object2, metaModel.getTestObject_FragmentedContents(), true);
+
+		Assertions
+			.root(model).assertId(1)
+			.getFragmentedContents().assertSize(1)
+			.get(0).assertId(2).assertDifferentFragmentAsContainer()
+			.eContainer().assertId(1);
 		model.assertFragmentsIndex(0l, 1l);
 		model.assertExtrinsicIdIndex(-1l, -1l);
 	}
@@ -56,22 +61,28 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 	@Test
 	public void testRemoveObject() {
 		model.addContent(object1);
-		assertRootFragment(object1);
+		Assertions.root(model).assertId(1);
 		object1.getRegularContents().add(object2);
 		model.save();		
 				
 		reinitializeModel();
 		model.assertFragmentsIndex(0l, 0l);
-		object1 = assertHasModelRootFragment();
-		object2 = assertHasContents(object1, metaModel.getTestObject_RegularContents());
-		assertContainment(object1, object2, metaModel.getTestObject_RegularContents(), false);		
+		object1 = Assertions
+				.root(model).assertId(1)
+				.getRegularContents().assertSize(1)
+				.get(0).assertId(2).assertSameFragmentAsContainer()
+				.eContainer().assertId(1).value();	
 
-		Assert.assertTrue(object1.getRegularContents().remove(object2));
+		Assert.assertTrue(object1.getRegularContents().remove(object1.getRegularContents().get(0)));
 		model.save();
 
 		reinitializeModel();
-		object1 = assertHasModelRootFragment();
-		Assert.assertTrue(object1.eContents().isEmpty());	
+		Assertions
+				.root(model).assertId(1)
+				.getRegularContents().assertSize(0)
+				.getFragmentedContents().assertSize(0)
+				.eContents().assertSize(0);
+			
 		model.assertFragmentsIndex(0l, 0l);
 		model.assertExtrinsicIdIndex(-1l, -1l);
 	}
@@ -84,7 +95,8 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 	@Test
 	public void testRemoveFragmentRoot() {
 		model.addContent(object1);
-		assertRootFragment(object1);
+		Assertions.root(model).assertId(1);
+		
 		object1.getFragmentedContents().add(object2);
 		model.save();
 		
@@ -94,8 +106,11 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		model.save();
 
 		reinitializeModel();
-		object1 = assertHasModelRootFragment();
-		Assert.assertTrue(object1.eContents().isEmpty());	
+		Assertions
+				.root(model).assertId(1)
+				.eContents().assertSize(0)
+				.getFragmentedContents().assertSize(0);
+			
 		model.assertFragmentsIndex(0l, 0l);	
 		model.assertExtrinsicIdIndex(-1l, -1l);
 	}
@@ -146,8 +161,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 
 		reinitializeModel();
 		reinitializeModel();
-		object1 = assertHasModelRootFragment();
-		Assert.assertTrue(object1.eContents().isEmpty());	
+		Assertions.root(model).eContents().assertSize(0);
 		model.assertFragmentsIndex(0l, 0l);
 		model.assertExtrinsicIdIndex(-1l, -1l);
 	}
@@ -172,9 +186,12 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		
 		model.save();
 		reinitializeModel();
-		object1 = assertHasModelRootFragment();
-		object2 = assertHasContents(object1, metaModel.getTestObject_RegularContents());
-		assertContainment(object1, object2, metaModel.getTestObject_RegularContents(), false);
+		Assertions
+				.root(model).assertId(1)
+				.getFragmentedContents().assertSize(0)
+				.getRegularContents().assertSize(1)
+				.get(0).assertId(2).assertSameFragmentAsContainer();
+		
 		model.assertFragmentsIndex(0l, 0l);
 		model.assertExtrinsicIdIndex(-1l, -1l);
 	}
@@ -188,10 +205,14 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		model.save();
 		
 		reinitializeModel();
-		object1 = assertHasModelRootFragment();
-		Assert.assertEquals(2, object1.getFragmentedContents().size());
-		Assert.assertTrue(object1.getFragmentedContents().get(0).getFragmentedContents().isEmpty());
-		Assert.assertTrue(object1.getFragmentedContents().get(1).getFragmentedContents().isEmpty());
+		Assertions
+				.root(model).assertId(1).getFragmentedContents().assertSize(2)
+				.get(0).assertId(2).assertDifferentFragmentAsContainer().getFragmentedContents().assertSize(0);
+		Assertions
+				.root(model).getFragmentedContents()
+				.get(1).assertId(3).assertDifferentFragmentAsContainer()
+				.eContainer().assertId(1);
+		
 		model.assertFragmentsIndex(0l, 2l);
 		model.assertExtrinsicIdIndex(-1l, -1l);
 	}
@@ -204,9 +225,11 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		model.save();
 		
 		reinitializeModel();
-		object1 = assertHasModelRootFragment();
-		object2 = assertHasContents(object1, metaModel.getTestObject_FragmentedContents());
-		assertContainment(object1, object2, metaModel.getTestObject_FragmentedContents(), true);
+		Assertions
+				.root(model).assertId(1).getRegularContents().assertSize(0)
+				.getFragmentedContents().assertSize(1).get(0).assertId(2).assertDifferentFragmentAsContainer()
+				.eContainer().assertId(1);
+		
 		model.assertFragmentsIndex(0l, 1l);
 		model.assertExtrinsicIdIndex(-1l, -1l);
 	}
@@ -220,11 +243,14 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		model.save();
 		
 		reinitializeModel();
-		object1 = assertHasModelRootFragment();
-		object2 = assertHasContents(object1, metaModel.getTestObject_FragmentedContents());
-		object3 = assertHasContents(object2, metaModel.getTestObject_RegularContents());
-		assertContainment(object1, object2, metaModel.getTestObject_FragmentedContents(), true);
-		assertContainment(object2, object3, metaModel.getTestObject_RegularContents(), false);
+		Assertions
+				.root(model).assertId(1)
+				.getRegularContents().assertSize(0)
+				.getFragmentedContents().assertSize(1)
+				.get(0).assertId(2).assertDifferentFragmentAsContainer()
+				.getRegularContents().assertSize(1).get(0).assertId(3).assertSameFragmentAsContainer()
+				.eContainer().assertId(2);
+		
 		model.assertFragmentsIndex(0l, 1l);
 		model.assertExtrinsicIdIndex(-1l, -1l);
 	}

@@ -17,7 +17,7 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 	
 	@Before
 	public void indexInitialization() {
-		testObject = createTestObject();
+		testObject = Assertions.createTestObject(0);
 	}
 	
 	@Test
@@ -27,7 +27,7 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 		
 		model.save();
 		reinitializeModel();
-		testObject = assertHasModelRootFragment();
+		testObject = Assertions.root(model).assertId(0).value();
 		
 		assertValueSet(valueSet(), 0);
 		model.assertFragmentsIndex(0l, 0l);
@@ -48,7 +48,7 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 		
 		model.save();	
 		reinitializeModel();
-		testObject = assertHasModelRootFragment(0);
+		testObject = assertTestObject();
 		
 		assertValueSet(valueSet(), 3);
 		assertObjectInValueSet(valueSet(), 0);
@@ -110,7 +110,7 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 		
 		model.save();
 		reinitializeModel();
-		testObject = assertHasModelRootFragment(0);
+		testObject = assertTestObject();
 		
 		assertObjectInValueSet(valueSet(), 1);
 		TestObject object = null;
@@ -137,7 +137,7 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 		
 		model.save();
 		reinitializeModel();
-		testObject = assertHasModelRootFragment(0);
+		testObject = assertTestObject();
 		
 		assertObjectInValueSet(valueSet(), 1);
 		assertIterator(valueSet().iterator(), 3);
@@ -160,18 +160,10 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 		Assert.assertEquals("Iterator has the wrong size.", size, i);
 	}
 	
-	protected TestObject assertHasModelRootFragment(int index) {
-		Assert.assertTrue(model.getRootContents().size() > index);
-		Assert.assertTrue(model.getRootContents().get(index) instanceof TestObject);
-		TestObject contents = (TestObject)model.getRootContents().get(index);
-		Assert.assertTrue(contents.eResource() instanceof Fragment);
-		return contents;
-	}
-	
 	protected void assertObject(Object value) {
 		Assert.assertNotNull("Value is null.", value);
 		Assert.assertTrue("Value has wrong type.", value instanceof TestObject);
-		Assert.assertTrue("Value is broken", ((TestObject)value).getName().equals("testValue"));
+		Assert.assertTrue("Value is broken", ((TestObject)value).getName().startsWith("testValue"));
 	}
 	
 	protected void assertObjectInValueSet(EList<TestObject> valueSet, int index) {
@@ -182,5 +174,9 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 	protected void assertValueSet(EList<TestObject> valueSet, int size) {
 		Assert.assertNotNull("Index is null.", valueSet);
 		Assert.assertEquals("Wrong size", size, valueSet.size());
+	}
+	
+	protected TestObject assertTestObject() {
+		return Assertions.root(model, 2, 0).assertId(0).value();
 	}
 }

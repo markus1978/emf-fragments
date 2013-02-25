@@ -41,7 +41,7 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 		
 		reinitializeModel();
 		
-		testIndex = assertHasModelRootFragment(0);
+		testIndex = assertTestIndex(0);
 		assertIndex(testIndex, "1", "3");
 		assertIndexedObject(testIndex, "1");
 		assertIndexedObject(testIndex, "2");
@@ -179,7 +179,7 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 	private void performPutValueTest(String key, String firstKey, String lastKey, int size) {
 		addObjectsToMapTest();
 		
-		TestObject testObject = createTestObject();
+		TestObject testObject = Assertions.createTestObject(4);
 		object1 = testIndex.exact("1");
 		object1.getRegularContents().add(testObject);
 		testIndex.put(key, testObject);
@@ -187,7 +187,7 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 		model.save();
 		reinitializeModel();
 		
-		testIndex = assertHasModelRootFragment(0);
+		testIndex = assertTestIndex(0);
 		assertIndex(testIndex, firstKey, lastKey);
 		assertObject(testIndex.exact(key));
 		assertIterator(testIndex.iterator(), size);
@@ -208,7 +208,7 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected IndexedMap<String,TestObject> assertHasModelRootFragment(int index) {
+	protected IndexedMap<String,TestObject> assertTestIndex(int index) {
 		Assert.assertTrue(model.getRootContents().size() > index);
 		Assert.assertTrue(model.getRootContents().get(index) instanceof IndexedMap);
 		IndexedMap<String,TestObject> contents = (IndexedMap<String,TestObject>) model.getRootContents().get(index);
@@ -219,7 +219,7 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 	protected void assertObject(Object value) {
 		Assert.assertNotNull("Value is null.", value);
 		Assert.assertTrue("Value has wrong type.", value instanceof TestObject);
-		Assert.assertTrue("Value is broken", ((TestObject)value).getName().equals("testValue"));
+		Assert.assertTrue("Value is broken", ((TestObject)value).getName().startsWith("testValue"));
 	}
 	
 	protected void assertIndexedObject(IndexedMap<String, TestObject> index, String key) {

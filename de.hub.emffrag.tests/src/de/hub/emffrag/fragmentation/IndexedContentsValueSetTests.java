@@ -29,6 +29,11 @@ public class IndexedContentsValueSetTests extends IndexedReferenceValueSetTests 
 		model.assertFragmentsIndex(0l, 0l);
 	}
 	
+	@Override
+	protected TestObject assertTestObject() {
+		return Assertions.root(model).assertId(0).value();
+	}
+	
 	@Test
 	public void addTest() {
 		model.addContent(testObject);
@@ -41,7 +46,7 @@ public class IndexedContentsValueSetTests extends IndexedReferenceValueSetTests 
 	
 		model.save();		
 		reinitializeModel();		
-		testObject = assertHasModelRootFragment(0);
+		testObject = Assertions.root(model).assertId(0).value();
 		
 		assertValueSet(valueSet(), 3);
 		assertObjectInValueSet(valueSet(), 0);
