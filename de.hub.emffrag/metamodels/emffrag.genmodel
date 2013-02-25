@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel"
-    copyrightText="Copyright 2012 Markus Scheidgen&#xA;&#xA;Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);&#xA;you may not use this file except in compliance with the License.&#xA;You may obtain a copy of the License at&#xA;&#xA;    http://www.apache.org/licenses/LICENSE-2.0&#xA;&#xA;Unless required by applicable law or agreed to in writing, software&#xA;distributed under the License is distributed on an &quot;AS IS&quot; BASIS,&#xA;WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.&#xA;See the License for the specific language governing permissions and&#xA;limitations under the License."
+<genmodel:GenModel xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" copyrightText="Copyright 2012 Markus Scheidgen&#xA;&#xA;Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);&#xA;you may not use this file except in compliance with the License.&#xA;You may obtain a copy of the License at&#xA;&#xA;    http://www.apache.org/licenses/LICENSE-2.0&#xA;&#xA;Unless required by applicable law or agreed to in writing, software&#xA;distributed under the License is distributed on an &quot;AS IS&quot; BASIS,&#xA;WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.&#xA;See the License for the specific language governing permissions and&#xA;limitations under the License."
     modelDirectory="/de.hub.emffrag/src" modelPluginID="de.hub.emffrag" modelName="emffrag"
-    rootExtendsClass="de.hub.emffrag.reflective.FObjectImpl" reflectiveDelegation="true"
+    rootExtendsClass="de.hub.emffrag.fragmentation.FObjectImpl" reflectiveDelegation="true"
     importerID="org.eclipse.emf.importer.ecore" bundleManifest="false" featureDelegation="Reflective"
     containmentProxies="true" complianceLevel="6.0" copyrightFields="false">
   <foreignModel>emffrag.ecore</foreignModel>
@@ -11,9 +12,16 @@
     <genDataTypes ecoreDataType="emffrag.ecore#//Iterator">
       <genTypeParameters ecoreTypeParameter="emffrag.ecore#//Iterator/E"/>
     </genDataTypes>
+    <genDataTypes ecoreDataType="emffrag.ecore#//KeyType">
+      <genTypeParameters ecoreTypeParameter="emffrag.ecore#//KeyType/KT"/>
+    </genDataTypes>
     <genClasses ecoreClass="emffrag.ecore#//IndexedMap">
       <genTypeParameters ecoreTypeParameter="emffrag.ecore#//IndexedMap/K"/>
       <genTypeParameters ecoreTypeParameter="emffrag.ecore#//IndexedMap/V"/>
+      <genFeatures property="Readonly" createChild="false" ecoreFeature="ecore:EAttribute emffrag.ecore#//IndexedMap/firstKey"/>
+      <genFeatures property="Readonly" createChild="false" ecoreFeature="ecore:EAttribute emffrag.ecore#//IndexedMap/lastKey"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute emffrag.ecore#//IndexedMap/prefix"/>
+      <genFeatures property="Readonly" createChild="false" ecoreFeature="ecore:EAttribute emffrag.ecore#//IndexedMap/keytype"/>
       <genOperations ecoreOperation="emffrag.ecore#//IndexedMap/iterator"/>
       <genOperations ecoreOperation="emffrag.ecore#//IndexedMap/iterator.1">
         <genParameters ecoreParameter="emffrag.ecore#//IndexedMap/iterator.1/from"/>
@@ -29,12 +37,22 @@
         <genParameters ecoreParameter="emffrag.ecore#//IndexedMap/put/key"/>
         <genParameters ecoreParameter="emffrag.ecore#//IndexedMap/put/value"/>
       </genOperations>
+      <genOperations ecoreOperation="emffrag.ecore#//IndexedMap/remove">
+        <genParameters ecoreParameter="emffrag.ecore#//IndexedMap/remove/key"/>
+      </genOperations>
     </genClasses>
     <genClasses ecoreClass="emffrag.ecore#//IndexedList">
       <genTypeParameters ecoreTypeParameter="emffrag.ecore#//IndexedList/V"/>
       <genOperations ecoreOperation="emffrag.ecore#//IndexedList/add">
         <genParameters ecoreParameter="emffrag.ecore#//IndexedList/add/value"/>
       </genOperations>
+    </genClasses>
+    <genClasses ecoreClass="emffrag.ecore#//ContainmentIndexedMap">
+      <genTypeParameters ecoreTypeParameter="emffrag.ecore#//ContainmentIndexedMap/K"/>
+      <genTypeParameters ecoreTypeParameter="emffrag.ecore#//ContainmentIndexedMap/V"/>
+    </genClasses>
+    <genClasses ecoreClass="emffrag.ecore#//Root">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference emffrag.ecore#//Root/contents"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>

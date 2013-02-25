@@ -22,7 +22,7 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 	
 	@Test
 	public void emptySetTest() {
-		model.addContent(testObject);
+		root.getContents().add(testObject);
 		assertValueSet(valueSet(), 0);
 		
 		model.save();
@@ -30,7 +30,7 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 		testObject = Assertions.root(model).assertId(0).value();
 		
 		assertValueSet(valueSet(), 0);
-		model.assertFragmentsIndex(0l, 0l);
+		model.assertFragmentsIndex(0l, 1l);
 		model.assertExtrinsicIdIndex(0l, 0l);
 		model.assertValueSetIndex(testObject, testFeature(), -1, -1);
 	}
@@ -38,8 +38,8 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 
 	@Test
 	public void addTest() {
-		model.addContent(testObject);
-		model.addContent(object1);
+		root.getContents().add(testObject);
+		root.getContents().add(object1);
 		object1.getFragmentedContents().add(object2);
 		object1.getRegularContents().add(object3);
 		valueSet().add(object1);
@@ -127,7 +127,7 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 	}
 
 	protected void assertFragmentsIndex() {
-		model.assertFragmentsIndex(0l, 1l);
+		model.assertFragmentsIndex(0l, 3l);
 	}
 	
 	@Test

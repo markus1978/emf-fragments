@@ -15,6 +15,7 @@
  */
 package de.hub.emffrag.model.emffrag.impl;
 
+import de.hub.emffrag.model.emffrag.*;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
@@ -75,6 +76,7 @@ public class EmfFragFactoryImpl extends EFactoryImpl implements EmfFragFactory {
 			case EmfFragPackage.INDEXED_MAP: return createIndexedMap();
 			case EmfFragPackage.INDEXED_LIST: return createIndexedList();
 			case EmfFragPackage.CONTAINMENT_INDEXED_MAP: return createContainmentIndexedMap();
+			case EmfFragPackage.ROOT: return createRoot();
 			default:
 				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
 		}
@@ -134,6 +136,16 @@ public class EmfFragFactoryImpl extends EFactoryImpl implements EmfFragFactory {
 	public <K, V> ContainmentIndexedMap<K, V> createContainmentIndexedMap() {
 		ContainmentIndexedMapImpl<K, V> containmentIndexedMap = new ContainmentIndexedMapImpl<K, V>();
 		return containmentIndexedMap;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Root createRoot() {
+		RootImpl root = new RootImpl();
+		return root;
 	}
 
 	/**

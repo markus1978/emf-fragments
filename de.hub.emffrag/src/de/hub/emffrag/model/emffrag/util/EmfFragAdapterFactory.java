@@ -93,6 +93,10 @@ public class EmfFragAdapterFactory extends AdapterFactoryImpl {
 				return createContainmentIndexedMapAdapter();
 			}
 			@Override
+			public Adapter caseRoot(Root object) {
+				return createRootAdapter();
+			}
+			@Override
 			public Adapter defaultCase(EObject object) {
 				return createEObjectAdapter();
 			}
@@ -151,6 +155,20 @@ public class EmfFragAdapterFactory extends AdapterFactoryImpl {
 	 * @generated
 	 */
 	public Adapter createContainmentIndexedMapAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link de.hub.emffrag.model.emffrag.Root <em>Root</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see de.hub.emffrag.model.emffrag.Root
+	 * @generated
+	 */
+	public Adapter createRootAdapter() {
 		return null;
 	}
 

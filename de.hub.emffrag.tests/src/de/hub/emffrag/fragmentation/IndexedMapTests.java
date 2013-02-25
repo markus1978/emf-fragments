@@ -21,7 +21,7 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 	}
 	
 	protected void assertFragmentsIndex() {
-		model.assertFragmentsIndex(0l, 1l);
+		model.assertFragmentsIndex(0l, 3l);
 	}
 	
 	protected void assertExtrinsicIdIndex(boolean plusOne) {
@@ -30,8 +30,8 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 
 	@Test
 	public void addObjectsToMapTest() {
-		model.addContent(testIndex);
-		model.addContent(object1);
+		root.getContents().add(testIndex);
+		root.getContents().add(object1);
 		object1.getFragmentedContents().add(object2);
 		object1.getRegularContents().add(object3);
 		testIndex.put("1", object1);
@@ -209,9 +209,9 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 	
 	@SuppressWarnings("unchecked")
 	protected IndexedMap<String,TestObject> assertTestIndex(int index) {
-		Assert.assertTrue(model.getRootContents().size() > index);
-		Assert.assertTrue(model.getRootContents().get(index) instanceof IndexedMap);
-		IndexedMap<String,TestObject> contents = (IndexedMap<String,TestObject>) model.getRootContents().get(index);
+		Assert.assertTrue(root.getContents().size() > index);
+		Assert.assertTrue(root.getContents().get(index) instanceof IndexedMap);
+		IndexedMap<String,TestObject> contents = (IndexedMap<String,TestObject>) root.getContents().get(index);
 		Assert.assertTrue(contents.eResource() instanceof Fragment);
 		return contents;
 	}

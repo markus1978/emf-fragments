@@ -7,8 +7,8 @@ import de.hub.emffrag.datastore.DataStore;
 
 public class BinaryFragmentContainmentIndexedMapTests extends ContainmentIndexedMapTests {
 	@Override
-	protected FragmentedModel createFragmentedModel(DataStore dataStore, URI rootFragmentURI, int cacheSize, EPackage metaModel) {
-		return new FragmentedModel(dataStore, rootFragmentURI, cacheSize, metaModel) {
+	protected FragmentedModel createFragmentedModel(DataStore dataStore, int cacheSize, EPackage metaModel) {
+		return new FragmentedModel(dataStore, cacheSize, metaModel) {
 			@Override
 			protected Fragment newFragment(URI uri, FragmentedModel model) {
 				return new BinaryFragmentImpl(uri, model);

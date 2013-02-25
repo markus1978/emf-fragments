@@ -33,9 +33,9 @@ public class Assertions {
 	}
 	
 	public static Assertions root(FragmentedModel model, int size, int i) {
-		Assert.assertEquals(size, model.getRootContents().size());
-		Assert.assertTrue(model.getRootContents().get(0) instanceof TestObject);
-		return context((TestObject) model.getRootContents().get(i)).assertTestObject();
+		Assert.assertEquals(size, model.root().getContents().size());
+		Assert.assertTrue(model.root().getContents().get(0) instanceof TestObject);
+		return context((TestObject) model.root().getContents().get(i)).assertTestObject();
 	}
 	
 	public static Assertions root(FragmentedModel model) {

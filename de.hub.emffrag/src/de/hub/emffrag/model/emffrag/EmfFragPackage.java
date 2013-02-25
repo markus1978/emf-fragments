@@ -19,6 +19,7 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EReference;
 
 /**
  * <!-- begin-user-doc -->
@@ -234,6 +235,34 @@ public interface EmfFragPackage extends EPackage {
 	int CONTAINMENT_INDEXED_MAP_FEATURE_COUNT = INDEXED_MAP_FEATURE_COUNT + 0;
 
 	/**
+	 * The meta object id for the '{@link de.hub.emffrag.model.emffrag.impl.RootImpl <em>Root</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see de.hub.emffrag.model.emffrag.impl.RootImpl
+	 * @see de.hub.emffrag.model.emffrag.impl.EmfFragPackageImpl#getRoot()
+	 * @generated
+	 */
+	int ROOT = 3;
+
+	/**
+	 * The feature id for the '<em><b>Contents</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ROOT__CONTENTS = 0;
+
+	/**
+	 * The number of structural features of the '<em>Root</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ROOT_FEATURE_COUNT = 1;
+
+	/**
 	 * The meta object id for the '<em>Iterator</em>' data type.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -241,7 +270,7 @@ public interface EmfFragPackage extends EPackage {
 	 * @see de.hub.emffrag.model.emffrag.impl.EmfFragPackageImpl#getIterator()
 	 * @generated
 	 */
-	int ITERATOR = 3;
+	int ITERATOR = 4;
 
 
 	/**
@@ -252,7 +281,7 @@ public interface EmfFragPackage extends EPackage {
 	 * @see de.hub.emffrag.model.emffrag.impl.EmfFragPackageImpl#getKeyType()
 	 * @generated
 	 */
-	int KEY_TYPE = 4;
+	int KEY_TYPE = 5;
 
 
 	/**
@@ -328,6 +357,27 @@ public interface EmfFragPackage extends EPackage {
 	 * @generated
 	 */
 	EClass getContainmentIndexedMap();
+
+	/**
+	 * Returns the meta object for class '{@link de.hub.emffrag.model.emffrag.Root <em>Root</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Root</em>'.
+	 * @see de.hub.emffrag.model.emffrag.Root
+	 * @generated
+	 */
+	EClass getRoot();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link de.hub.emffrag.model.emffrag.Root#getContents <em>Contents</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Contents</em>'.
+	 * @see de.hub.emffrag.model.emffrag.Root#getContents()
+	 * @see #getRoot()
+	 * @generated
+	 */
+	EReference getRoot_Contents();
 
 	/**
 	 * Returns the meta object for data type '{@link java.util.Iterator <em>Iterator</em>}'.
@@ -434,6 +484,24 @@ public interface EmfFragPackage extends EPackage {
 		 * @generated
 		 */
 		EClass CONTAINMENT_INDEXED_MAP = eINSTANCE.getContainmentIndexedMap();
+
+		/**
+		 * The meta object literal for the '{@link de.hub.emffrag.model.emffrag.impl.RootImpl <em>Root</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see de.hub.emffrag.model.emffrag.impl.RootImpl
+		 * @see de.hub.emffrag.model.emffrag.impl.EmfFragPackageImpl#getRoot()
+		 * @generated
+		 */
+		EClass ROOT = eINSTANCE.getRoot();
+
+		/**
+		 * The meta object literal for the '<em><b>Contents</b></em>' containment reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference ROOT__CONTENTS = eINSTANCE.getRoot_Contents();
 
 		/**
 		 * The meta object literal for the '<em>Iterator</em>' data type.

@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.eclipse.emf.common.util.BasicEList;
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
@@ -28,7 +26,9 @@ import de.hub.emffrag.datastore.DataStoreURIHandler;
 import de.hub.emffrag.datastore.KeyType;
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.fragmentation.UserObjectsCache.UserObjectsCacheListener;
+import de.hub.emffrag.model.emffrag.EmfFragFactory;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
+import de.hub.emffrag.model.emffrag.Root;
 
 public class FragmentedModel {
 	
@@ -49,13 +49,13 @@ public class FragmentedModel {
 	}
 
 	private final ResourceSet resourceSet;
-	private Fragment rootFragment;
 	private final FragmentCache fragmentCache;
 	private final DataStore dataStore;
 	private final DataIndex<Long> fragmentIndex;
 	private final ExtrinsicIdIndex extrinsicIdIndex;
-	private final URI rootFragmentKeyURI;
 	private final Statistics statistics = new Statistics();
+	
+	private final Root root;
 
 	public class Statistics {
 		private int creates = 0;
@@ -229,11 +229,11 @@ public class FragmentedModel {
 		return new XMIFragmentImpl(uri, model);
 	}
 
-	public FragmentedModel(DataStore dataStore, URI rootFragmentKeyURI, EPackage... metaModel) {
-		this(dataStore, rootFragmentKeyURI, -1, metaModel);
+	public FragmentedModel(DataStore dataStore, EPackage... metaModel) {
+		this(dataStore, -1, metaModel);
 	}
 
-	public FragmentedModel(DataStore dataStore, URI rootFragmentKeyURI, int cacheSize, EPackage... metaModel) {
+	public FragmentedModel(DataStore dataStore, int cacheSize, EPackage... metaModel) {
 		this.dataStore = dataStore;
 		if (cacheSize == -1) {
 			cacheSize = 100;
@@ -248,36 +248,29 @@ public class FragmentedModel {
 
 		resourceSet = createAndConfigureAResourceSet(dataStore, metaModel);
 
-		if (rootFragmentKeyURI == null) {
+		Fragment rootFragment = null;
+		Long first = fragmentIndex.first();
+		if (first == null) {
 			rootFragment = createFragment(null, null);
-			this.rootFragmentKeyURI = rootFragment.getURI();
 		} else {
-			this.rootFragmentKeyURI = rootFragmentKeyURI;
-			rootFragment = (Fragment) resourceSet.getResource(this.rootFragmentKeyURI, true);
+			rootFragment = (Fragment) resourceSet.getResource(fragmentIndex.getURI(first), true);
 		}
-	}
-
-	public EList<EObject> getRootContents() {
-		EList<EObject> contents = rootFragment.getContents();
-		EList<EObject> result = new BasicEList<EObject>(contents.size());
-		for (EObject internalObject : contents) {
-			result.add(rootFragment.getUserObjectsCache().getUserObject((FInternalObjectImpl) internalObject));
-		}
-		return result;
-	}
-
-	public void addContent(EObject eObject) {
-		FInternalObjectImpl internalObject = ((FObjectImpl) eObject).internalObject();
-		if (internalObject.eResource() == null) {
+		
+		if (rootFragment.getContents().isEmpty()) {		
+			this.root = EmfFragFactory.eINSTANCE.createRoot();		
+			FInternalObjectImpl internalObject = ((FObjectImpl)root).internalObject();
 			UserObjectsCache.newUserObjectsCache.removeCachedUserObject(internalObject);
 			rootFragment.getContents().add(internalObject);
-			rootFragment.getUserObjectsCache().addUserObjectToCache(internalObject, (FObjectImpl) eObject);
+			rootFragment.getUserObjectsCache().addUserObjectToCache(internalObject, (FObjectImpl) root);
 		} else {
-			// TODO (multi fragmentation models)
-			throw new UnsupportedOperationException();
+			this.root = (Root)rootFragment.getUserObjectsCache().getUserObject((FInternalObjectImpl)rootFragment.getContents().get(0));
 		}
 	}
 
+	public Root root() {
+		return root;
+	}
+	
 	ResourceSet getResourceSet() {
 		return resourceSet;
 	}
@@ -294,12 +287,12 @@ public class FragmentedModel {
 	 * @param fragmentRootUserObject
 	 *            The user object of the fragment root. Can be null.
 	 */
-	public Fragment createFragment(FInternalObjectImpl fragmentRoot, FObjectImpl fragmentRootUserObject) {
+	Fragment createFragment(FInternalObjectImpl fragmentRoot, FObjectImpl fragmentRootUserObject) {
 		URI uri = fragmentIndex.getURI(fragmentIndex.add());
 		return createFragment(uri, fragmentRoot, fragmentRootUserObject);
 	}
 
-	public Fragment createFragment(URI fragmentURI, FInternalObjectImpl fragmentRoot, FObjectImpl fragmentRootUserObject) {
+	Fragment createFragment(URI fragmentURI, FInternalObjectImpl fragmentRoot, FObjectImpl fragmentRootUserObject) {
 		Fragment newFragment = (Fragment) resourceSet.createResource(fragmentURI);
 
 		if (fragmentRoot != null) {
@@ -330,11 +323,7 @@ public class FragmentedModel {
 				Throwables.propagate(e);
 			}
 		}
-	}
-
-	public URI getRootFragmentURI() {
-		return rootFragmentKeyURI;
-	}
+	}	
 
 	/**
 	 * Resolved the given URI that denotes a DB entry that contains a serialized
@@ -356,7 +345,7 @@ public class FragmentedModel {
 		return dataStore;
 	}
 
-	public ExtrinsicIdIndex getExtrinsicIdIndex() {
+	ExtrinsicIdIndex getExtrinsicIdIndex() {
 		return extrinsicIdIndex;
 	}
 
@@ -404,6 +393,10 @@ public class FragmentedModel {
 		} else {
 			Assert.assertEquals("Wrong last key for " + name + ".", (Long)last, index.last());
 		}
+	}
+	
+	void assertMaxFragmentsIndexSize(long max) {
+		Assert.assertTrue("Fragments index too large.", fragmentIndex.last() <= max);
 	}
 
 	void assertFragmentsIndex(long first, long last) {

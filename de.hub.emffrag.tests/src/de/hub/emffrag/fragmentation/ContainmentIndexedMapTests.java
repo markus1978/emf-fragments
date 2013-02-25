@@ -15,7 +15,7 @@ public class ContainmentIndexedMapTests extends IndexedMapTests {
 	
 	@Override
 	protected void assertFragmentsIndex() {
-		model.assertFragmentsIndex(0l, 0l);
+		model.assertFragmentsIndex(0l, 1l);
 	}
 	
 	@Override
@@ -25,7 +25,7 @@ public class ContainmentIndexedMapTests extends IndexedMapTests {
 
 	@Test
 	public void addObjectsToMapTest() {
-		model.addContent(testIndex);
+		root.getContents().add(testIndex);
 		testIndex.put("1", object1);
 		testIndex.put("2", object2);
 		testIndex.put("3", object3);

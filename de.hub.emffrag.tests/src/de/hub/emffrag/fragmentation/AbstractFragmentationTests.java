@@ -1,7 +1,6 @@
 package de.hub.emffrag.fragmentation;
 
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
@@ -10,6 +9,7 @@ import org.junit.Before;
 
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
+import de.hub.emffrag.model.emffrag.Root;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 
@@ -18,7 +18,7 @@ public class AbstractFragmentationTests  extends AbstractTests {
 	protected DataStore dataStore = null;
 	protected FragmentedModel model = null;
 	protected TestModelPackage metaModel = null;
-	protected URI rootFragmentURI = null;
+	protected Root root = null;
 	protected TestObject object1 = null;
 	protected TestObject object2 = null;
 	protected TestObject object3 = null;
@@ -56,8 +56,8 @@ public class AbstractFragmentationTests  extends AbstractTests {
 		ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(metaModel);
 		
 		if (doInitializeModel()) {
-			model = createFragmentedModel(dataStore, null, metaModel);
-			rootFragmentURI = model.getRootFragmentURI();
+			model = createFragmentedModel(dataStore, metaModel);
+			root = model.root();
 		}
 		
 		object1 = Assertions.createTestObject(1);
@@ -65,16 +65,16 @@ public class AbstractFragmentationTests  extends AbstractTests {
 		object3 = Assertions.createTestObject(3);
 	}
 	
-	protected final FragmentedModel createFragmentedModel(DataStore dataStore, URI rootFragmentURI, EPackage metaModel) {
-		return createFragmentedModel(dataStore, rootFragmentURI, -1, metaModel);
+	protected final FragmentedModel createFragmentedModel(DataStore dataStore, EPackage metaModel) {
+		return createFragmentedModel(dataStore, -1, metaModel);
 	}
 	
-	protected FragmentedModel createFragmentedModel(DataStore dataStore, URI rootFragmentURI, int cacheSize, EPackage metaModel) {
-		return new FragmentedModel(dataStore, rootFragmentURI, cacheSize, metaModel);
+	protected FragmentedModel createFragmentedModel(DataStore dataStore, int cacheSize, EPackage metaModel) {
+		return new FragmentedModel(dataStore, cacheSize, metaModel);
 	}
 	
 	protected void reinitializeModel() {
-		model = createFragmentedModel(dataStore, rootFragmentURI, TestModelPackage.eINSTANCE);
+		model = createFragmentedModel(dataStore, TestModelPackage.eINSTANCE);
 	}
 	
 	protected TestObject addObject(TestObject container, boolean fragmented) {

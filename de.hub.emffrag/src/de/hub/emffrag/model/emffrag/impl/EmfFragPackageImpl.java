@@ -23,6 +23,7 @@ import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EGenericType;
 import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.ETypeParameter;
 import org.eclipse.emf.ecore.impl.EPackageImpl;
 
@@ -32,6 +33,7 @@ import de.hub.emffrag.model.emffrag.EmfFragFactory;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import de.hub.emffrag.model.emffrag.IndexedList;
 import de.hub.emffrag.model.emffrag.IndexedMap;
+import de.hub.emffrag.model.emffrag.Root;
 
 /**
  * <!-- begin-user-doc -->
@@ -60,6 +62,13 @@ public class EmfFragPackageImpl extends EPackageImpl implements EmfFragPackage {
 	 * @generated
 	 */
 	private EClass containmentIndexedMapEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass rootEClass = null;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -204,6 +213,24 @@ public class EmfFragPackageImpl extends EPackageImpl implements EmfFragPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EClass getRoot() {
+		return rootEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getRoot_Contents() {
+		return (EReference)rootEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EDataType getIterator() {
 		return iteratorEDataType;
 	}
@@ -254,6 +281,9 @@ public class EmfFragPackageImpl extends EPackageImpl implements EmfFragPackage {
 		indexedListEClass = createEClass(INDEXED_LIST);
 
 		containmentIndexedMapEClass = createEClass(CONTAINMENT_INDEXED_MAP);
+
+		rootEClass = createEClass(ROOT);
+		createEReference(rootEClass, ROOT__CONTENTS);
 
 		// Create data types
 		iteratorEDataType = createEDataType(ITERATOR);
@@ -370,12 +400,35 @@ public class EmfFragPackageImpl extends EPackageImpl implements EmfFragPackage {
 
 		initEClass(containmentIndexedMapEClass, ContainmentIndexedMap.class, "ContainmentIndexedMap", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 
+		initEClass(rootEClass, Root.class, "Root", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEReference(getRoot_Contents(), ecorePackage.getEObject(), null, "contents", null, 0, -1, Root.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
 		// Initialize data types
 		initEDataType(iteratorEDataType, Iterator.class, "Iterator", !IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);
 		initEDataType(keyTypeEDataType, KeyType.class, "KeyType", !IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);
 
 		// Create resource
 		createResource(eNS_URI);
+
+		// Create annotations
+		// de.hub.emffrag
+		createDeAnnotations();
+	}
+
+	/**
+	 * Initializes the annotations for <b>de.hub.emffrag</b>.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void createDeAnnotations() {
+		String source = "de.hub.emffrag";		
+		addAnnotation
+		  (getRoot_Contents(), 
+		   source, 
+		   new String[] {
+			 "fragments", "true"
+		   });
 	}
 
 } //EmfFragPackageImpl

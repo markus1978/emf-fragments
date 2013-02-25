@@ -26,7 +26,7 @@ public class IndexedContentsValueSetTests extends IndexedReferenceValueSetTests 
 	
 	@Override
 	protected void assertFragmentsIndex() {
-		model.assertFragmentsIndex(0l, 0l);
+		model.assertFragmentsIndex(0l, 1l);
 	}
 	
 	@Override
@@ -36,7 +36,7 @@ public class IndexedContentsValueSetTests extends IndexedReferenceValueSetTests 
 	
 	@Test
 	public void addTest() {
-		model.addContent(testObject);
+		root.getContents().add(testObject);
 		testObject.getFragmentedContents().add(object1);
 		testObject.getFragmentedContents().add(object2);
 		testObject.getFragmentedContents().add(object3);

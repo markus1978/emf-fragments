@@ -21,7 +21,7 @@ public class OppositeFragmentedContentsTests extends AbstractFragmentationTests 
 	}
 	
 	protected void addObjectsToModel() {
-		model.addContent(object1);
+		root.getContents().add(object1);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -75,7 +75,7 @@ public class OppositeFragmentedContentsTests extends AbstractFragmentationTests 
 		model.save();
 		reinitializeModel();		
 		Assertions.root(model).get(testedReference()).assertSize(0);
-		model.assertFragmentsIndex(0l, 0l);
+		model.assertFragmentsIndex(0l, 1l);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -91,6 +91,6 @@ public class OppositeFragmentedContentsTests extends AbstractFragmentationTests 
 		model.save();
 		reinitializeModel();		
 		Assertions.root(model).get(testedReference()).assertSize(0);
-		model.assertFragmentsIndex(0l, 0l);
+		model.assertFragmentsIndex(0l, 1l);
 	}
 }

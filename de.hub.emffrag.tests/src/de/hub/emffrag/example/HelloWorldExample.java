@@ -1,7 +1,6 @@
 package de.hub.emffrag.example;
 
 import org.eclipse.emf.common.util.TreeIterator;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EcorePackage;
@@ -33,12 +32,11 @@ public class HelloWorldExample {
 
 		// initialize your model
 		ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(TestModelPackage.eINSTANCE);
-		FragmentedModel model = new FragmentedModel(dataStore, null, TestModelPackage.eINSTANCE);
-		URI rootFragmentURI = model.getRootFragmentURI();
+		FragmentedModel model = new FragmentedModel(dataStore, TestModelPackage.eINSTANCE);
 
-		// create a root object and add it to the model
+		// create a object and add it to the model root
 		TestObject testContainer = TestModelFactory.eINSTANCE.createTestObject();
-		model.addContent(testContainer);
+		model.root().getContents().add(testContainer);
 
 		// create the rest of your model as usual
 		TestObject testContents = TestModelFactory.eINSTANCE.createTestObject();
@@ -59,11 +57,11 @@ public class HelloWorldExample {
 
 		// to read a model initialize the environment as before
 		// initialize your model
-		FragmentedModel readModel = new FragmentedModel(dataStore, rootFragmentURI, TestModelPackage.eINSTANCE);
+		FragmentedModel readModel = new FragmentedModel(dataStore, TestModelPackage.eINSTANCE);
 
 		// navigate the model as usual
 		System.out.println("Iterate results: ");
-		TreeIterator<EObject> allContents = readModel.getRootContents().get(0).eAllContents();
+		TreeIterator<EObject> allContents = readModel.root().getContents().get(0).eAllContents();
 		while (allContents.hasNext()) {
 			EObject next = allContents.next();
 			if (next instanceof TestObject) {
