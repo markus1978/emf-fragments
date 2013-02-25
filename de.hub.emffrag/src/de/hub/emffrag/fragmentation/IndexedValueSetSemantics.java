@@ -23,7 +23,7 @@ public class IndexedValueSetSemantics<K> extends AbstractValueSetSemantics<K> {
 	
 	@Override
 	public void setValueForKey(K key, FInternalObjectImpl internalObject) {
-		internalObject.setIsCrossReferenced();
+		internalObject.getExtrinsicID(true);
 		Fragment fragment = internalObject.getFragment();
 		URI uri = model.getExtrinsicIdIndex().createExtrinsicIdUri(fragment.getID(internalObject));
 		index.set(key, uri.toString());

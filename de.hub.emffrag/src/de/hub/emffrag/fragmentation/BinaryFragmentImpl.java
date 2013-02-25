@@ -39,7 +39,6 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 		return model;
 	}
 	
-
 	@Override
 	public void setID(FInternalObjectImpl object, String id) {
 		extrinsicIDs.put(object, id);
@@ -187,10 +186,9 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 			if (!isWritingCrossReferenceURI) {
 				super.writeURI(uri, uriFragment);
 			} else {
-				if (currentObject.isCrossReferenced()) {
+				if (currentObject.hasExtrinsicId()) {
 					Fragment fragment = (Fragment)currentObject.eResource();
-					String extrinsicID = fragment.getID(currentObject);
-					uri = fragment.getFragmentedModel().getExtrinsicIdIndex().createExtrinsicIdUri(extrinsicID);
+					uri = fragment.getFragmentedModel().getExtrinsicIdIndex().createExtrinsicIdUri(currentObject.getExtrinsicID(false));
 					super.writeURI(uri, null);					
 				} else {
 					super.writeURI(uri, uriFragment);

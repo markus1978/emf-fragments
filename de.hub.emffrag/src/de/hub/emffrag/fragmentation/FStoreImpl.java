@@ -44,8 +44,7 @@ public class FStoreImpl implements EStore {
 		if (internalObject == null) {
 			// This object was not yet added to a model
 			internalObject = UserObjectsCache.newUserObjectsCache.createInternalObject((FObjectImpl)userObject);
-		}
-		if (internalObject.eIsProxy()) {
+		} else if (internalObject.eIsProxy()) {
 			FragmentedModel model = internalObject.getFragmentation();
 			if (model != null) {
 				internalObject = (FInternalObjectImpl)EcoreUtil.resolve(internalObject, model.getResourceSet());
@@ -101,7 +100,7 @@ public class FStoreImpl implements EStore {
 			result = oldValue;
 		}
 		if (feature instanceof EReference && !((EReference) feature).isContainment()) {
-			((FInternalObjectImpl) internalValue).setIsCrossReferenced();
+			((FInternalObjectImpl) internalValue).getExtrinsicID(true);
 		}
 		return result;
 	}
@@ -162,7 +161,7 @@ public class FStoreImpl implements EStore {
 		Object internalValue = getInternalValue(value, feature);
 		((EList) getInternalObject(object).eGet(feature)).add(index, internalValue);
 		if (feature instanceof EReference && !((EReference) feature).isContainment()) {
-			((FInternalObjectImpl) internalValue).setIsCrossReferenced();
+			((FInternalObjectImpl) internalValue).getExtrinsicID(true);
 		}
 	}
 

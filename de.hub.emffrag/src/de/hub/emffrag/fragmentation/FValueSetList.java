@@ -29,13 +29,9 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 			throw new IllegalStateException("Operation on indexed value sets can only be performed for objects contained in a fragmented model.");
 		}
 		FragmentedModel model = fragment.getFragmentedModel();
-		DataStore dataStore = model.getDataStore();
-		
-		String extrinsicID = object.getExtrinsicID(true);
-		int featureId = feature.getFeatureID();
-		String indexPrefix = FragmentedModel.INDEX_FEATURES_PREFIX + "_" + extrinsicID + "_" + featureId;
+		DataStore dataStore = model.getDataStore();		
 
-		index = new DataIndex<Long>(dataStore, indexPrefix, LongKeyType.instance);		
+		index = new DataIndex<Long>(dataStore, createPrefix(object, feature), LongKeyType.instance);		
 		
 		if (((EReference)feature).isContainment()) {
 			semantics = new IndexedContainmentValueSetSemantics<Long>(model, index, object, feature);	
@@ -43,6 +39,12 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 			semantics = new IndexedValueSetSemantics<Long>(model, index);
 		}
 		
+	}
+	
+	static String createPrefix(FInternalObjectImpl object, EStructuralFeature feature) {
+		String extrinsicID = object.getExtrinsicID(true);
+		int featureId = feature.getFeatureID();
+		return FragmentedModel.INDEX_FEATURES_PREFIX + "_" + extrinsicID + "_" + featureId;
 	}
 
 	@Override

@@ -22,8 +22,6 @@ import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
 
 public class FInternalObjectImpl extends DynamicEObjectImpl {
 
-	private boolean isCrossReferenced = false;
-
 	public FInternalObjectImpl(EClass eClass) {
 		super(eClass);
 	}
@@ -99,51 +97,51 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 	 * Marks that this object is now cross referenced. Is called even if this
 	 * object is already cross referenced.
 	 */
-	public void setIsCrossReferenced() {
-		if (!isCrossReferenced()) {
-			isCrossReferenced = true;
-			Fragment resource = (Fragment) eResource();
-			FragmentedModel fragmentedModel = getFragmentation();
-			if (fragmentedModel != null) {
-				if (resource != null) {
-					fragmentedModel.getExtrinsicIdIndex().updateObjectURI(null, this);
-				} else {
-					throw new IllegalStateException("Object cannot be cross referenced");
-				}
-			}
-			// else: if the referenced object is not part of the model, TODO
-			// (multi fragmentation models)
-			// should this be an error?
-		}
-	}
+//	public void setHasExtrinsicId() {
+//		if (!hasExtrinsicId()) {
+//			Fragment resource = (Fragment) eResource();
+//			FragmentedModel fragmentedModel = getFragmentation();
+//			if (fragmentedModel != null) {
+//				if (resource != null) {
+//					fragmentedModel.getExtrinsicIdIndex().updateObjectURI(null, this);
+//				} else {
+//					throw new IllegalStateException("Object cannot be cross referenced");
+//				}
+//			}
+//			// else: if the referenced object is not part of the model, TODO
+//			// (multi fragmentation models)
+//			// should this be an error?
+//		}
+//	}
 
-	public boolean isCrossReferenced() {
-		return isCrossReferenced || (eResource() != null && ((Fragment) eResource()).getID(this) != null);
+	public boolean hasExtrinsicId() {
+		Resource eResource = eResource();
+		return (eResource != null && eResource instanceof Fragment && getExtrinsicID(false) != null);
 	}
 
 	/**
-	 * If the object changes resources, its cross referenced status has to move
+	 * If the object changes resources, its extrinsic ID index entry has to move
 	 * too. Further, the cross reference entry needs to be updated.
+	 * 
+	 * TODO This should be part of updateContainment 
 	 */
 	@Override
 	public NotificationChain eSetResource(Internal resource, NotificationChain notifications) {
-		Fragment newResource = (Fragment) eResource();
-		Fragment oldResource = newResource;
+		Fragment oldResource = (Fragment) eResource();
 		String extrinsicID = null;
 		if (oldResource != null) {
 			extrinsicID = oldResource.getID(this);
-		}
-		NotificationChain result = super.eSetResource(resource, notifications);
-		FragmentedModel fragmentedModel = getFragmentation();
-		if (fragmentedModel != null) {
-			if (isCrossReferenced || extrinsicID != null) {
-				fragmentedModel.getExtrinsicIdIndex().updateObjectURI(extrinsicID, this);
+			FragmentedModel fragmentedModel = getFragmentation();
+			if (fragmentedModel != null) {
+				if (hasExtrinsicId() || extrinsicID != null) {
+					fragmentedModel.getExtrinsicIdIndex().updateObjectURI(extrinsicID, this);
+				}
 			}
+			// else: if the referenced object is not part of the model, TODO (multi
+			// fragmentation models)
+			// should this be an error?
 		}
-		// else: if the referenced object is not part of the model, TODO (multi
-		// fragmentation models)
-		// should this be an error?
-		return result;
+		return super.eSetResource(resource, notifications);
 	}
 
 	/**

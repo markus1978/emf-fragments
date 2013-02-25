@@ -126,6 +126,7 @@ public class ReflectiveMetaModelRegistry {
 						reference.setResolveProxies(false);
 					} else if (fragmentationType == FragmentationType.FragmentsIndexedContainment || fragmentationType == FragmentationType.IndexedReferences) {
 						reference.setUnique(false);
+						reference.setTransient(true);
 					}
 				}
 			}

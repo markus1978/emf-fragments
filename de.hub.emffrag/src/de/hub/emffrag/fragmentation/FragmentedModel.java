@@ -11,6 +11,7 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -24,6 +25,7 @@ import com.google.common.base.Throwables;
 import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.DataStoreURIHandler;
+import de.hub.emffrag.datastore.KeyType;
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.fragmentation.UserObjectsCache.UserObjectsCacheListener;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
@@ -182,18 +184,13 @@ public class FragmentedModel {
 		ResourceSet resourceSet = new ResourceSetImpl() {
 			@Override
 			public EObject getEObject(URI uri, boolean loadOnDemand) {
-				Resource resource = getResource(uri.trimFragment(), loadOnDemand);
-				if (resource != null) {
-					if (uri.fragment() == null) {
-						// The URI must be a extrinsic ID URI
-						EObject result = super.getEObject(extrinsicIdIndex.getObjectUriForExtrinsicIdUri(uri), true);
-						return result;
-					} else {
-						return resource.getEObject(uri.fragment());
-					}
+				if (uri.fragment() == null) {
+					// The URI must be a extrinsic ID URI
+					EObject result = super.getEObject(extrinsicIdIndex.getObjectUriForExtrinsicIdUri(uri), true);
+					return result;
 				} else {
-					return null;
-				}
+					return super.getEObject(uri, loadOnDemand);
+				}				
 			}
 
 			@Override
@@ -397,8 +394,16 @@ public class FragmentedModel {
 	}
 	
 	private void assertIndex(DataIndex<Long> index, String name, long first, long last) {
-		Assert.assertEquals("Wrong first key for " + name + ".", (Long)first, index.first());
-		Assert.assertEquals("Wrong last key for " + name + ".", (Long)last, index.last());
+		if (first == -1) {
+			Assert.assertEquals("Wrong first key for " + name + ".", null, index.first());
+		} else {
+			Assert.assertEquals("Wrong first key for " + name + ".", (Long)first, index.first());
+		}
+		if (last == -1) {
+			Assert.assertEquals("Wrong last key for " + name + ".", null, index.last());
+		} else {
+			Assert.assertEquals("Wrong last key for " + name + ".", (Long)last, index.last());
+		}
 	}
 
 	void assertFragmentsIndex(long first, long last) {
@@ -409,4 +414,11 @@ public class FragmentedModel {
 		assertIndex(extrinsicIdIndex, "extrinsic id index", first, last);		
 	}
 
+	void assertValueSetIndex(EObject owner, EStructuralFeature feature, long min, long max) {
+		new DataIndex<Long>(dataStore, FValueSetList.createPrefix(((FObjectImpl)owner).internalObject(), feature), LongKeyType.instance);
+	}
+	
+	<KT> void assertIndexClassIndex(EObject owner, KT min, KT max, KeyType<KT> keyType) {
+		
+	}
 }

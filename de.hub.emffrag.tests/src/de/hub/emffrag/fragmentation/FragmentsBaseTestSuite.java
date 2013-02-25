@@ -13,6 +13,8 @@ import org.junit.runners.Suite;
 		CrossReferenceTests.class, 
 		CacheTests.class, 
 		FileSystemDataStoreTests.class, 
+		IndexedReferenceValueSetTests.class,
+		IndexedContentsValueSetTests.class,
 		IndexedMapTests.class, 
 		ContainmentIndexedMapTests.class,
 		// fragmentation tests based on binary fragments
@@ -20,6 +22,8 @@ import org.junit.runners.Suite;
 		BinaryFragmentCrossReferenceTests.class, 
 		BinaryFragmentCacheTests.class, 
 		BinaryFragmentFileSystemDataStoreTests.class,
+		BinaryFragmentIndexedReferenceValueSetTests.class,
+		BinaryFragmentIndexedContentsValueSetTests.class,
 		BinaryFragmentIndexedMapTests.class,
 		BinaryFragmentContainmentIndexedMapTests.class })
 public class FragmentsBaseTestSuite {

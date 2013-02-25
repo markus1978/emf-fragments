@@ -27,10 +27,9 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		object1.getFragmentedContents().add(object2);
 		object2.getFragmentedContents().add(object3);
 		object1.getCrossReferences().add(object3);
+		
 		model.save();
-
 		reinitializeModel();	
-		model.save();
 
 		model.assertFragmentsIndex(0l, 2l);
 		model.assertExtrinsicIdIndex(0l, 0l);

@@ -3,10 +3,12 @@ package de.hub.emffrag.fragmentation;
 import java.util.Iterator;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 
 public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
@@ -28,6 +30,9 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 		testObject = assertHasModelRootFragment();
 		
 		assertValueSet(valueSet(), 0);
+		model.assertFragmentsIndex(0l, 0l);
+		model.assertExtrinsicIdIndex(0l, 0l);
+		model.assertValueSetIndex(testObject, testFeature(), -1, -1);
 	}
 	
 
@@ -41,18 +46,27 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 		valueSet().add(object2);
 		valueSet().add(object3);
 		
-		model.save();		
-		reinitializeModel();		
+		model.save();	
+		reinitializeModel();
+		System.out.println(dataStore);
 		testObject = assertHasModelRootFragment(0);
 		
 		assertValueSet(valueSet(), 3);
 		assertObjectInValueSet(valueSet(), 0);
 		assertObjectInValueSet(valueSet(), 1);
 		assertObjectInValueSet(valueSet(), 2);		
+		
+		assertFragmentsIndex();
+		assertExtrinsicIdIndex();
+		model.assertValueSetIndex(testObject, testFeature(), 0l, 2l);
 	}
 	
 	protected EList<TestObject> valueSet() {
 		return testObject.getIndexedReferences();
+	}
+	
+	protected EStructuralFeature testFeature() {
+		return TestModelPackage.eINSTANCE.getTestObject_IndexedReferences();
 	}
 	
 	@Test
@@ -107,7 +121,14 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 		}
 		Assert.assertNull("Object is not null.", object);
 		Assert.assertEquals(2, valueSet().size());
-		assertIterator(valueSet().iterator(), 2);			
+		assertIterator(valueSet().iterator(), 2);	
+		assertFragmentsIndex();
+		assertExtrinsicIdIndex();
+		model.assertValueSetIndex(testObject, testFeature(), 0l, 1l);
+	}
+
+	protected void assertFragmentsIndex() {
+		model.assertFragmentsIndex(0l, 1l);
 	}
 	
 	@Test
@@ -121,6 +142,13 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 		
 		assertObjectInValueSet(valueSet(), 1);
 		assertIterator(valueSet().iterator(), 3);
+		assertFragmentsIndex();
+		assertExtrinsicIdIndex();
+		model.assertValueSetIndex(testObject, testFeature(), 0l, 2l);
+	}
+
+	protected void assertExtrinsicIdIndex() {
+		model.assertExtrinsicIdIndex(0l, 3l);
 	}
 		
 	protected void assertIterator(Iterator<TestObject> iterator, int size) {

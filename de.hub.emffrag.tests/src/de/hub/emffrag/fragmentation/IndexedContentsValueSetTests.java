@@ -1,8 +1,10 @@
 package de.hub.emffrag.fragmentation;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.junit.Test;
 
+import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 
 public class IndexedContentsValueSetTests extends IndexedReferenceValueSetTests {
@@ -10,6 +12,21 @@ public class IndexedContentsValueSetTests extends IndexedReferenceValueSetTests 
 	@Override
 	protected EList<TestObject> valueSet() {
 		return testObject.getIndexedContents();
+	}
+	
+	@Override
+	protected EStructuralFeature testFeature() {
+		return TestModelPackage.eINSTANCE.getTestObject_IndexedContents();
+	}
+	
+	@Override
+	protected void assertExtrinsicIdIndex() {
+		model.assertExtrinsicIdIndex(0l, 0l);
+	}
+	
+	@Override
+	protected void assertFragmentsIndex() {
+		model.assertFragmentsIndex(0l, 0l);
 	}
 	
 	@Test
@@ -29,7 +46,11 @@ public class IndexedContentsValueSetTests extends IndexedReferenceValueSetTests 
 		assertValueSet(valueSet(), 3);
 		assertObjectInValueSet(valueSet(), 0);
 		assertObjectInValueSet(valueSet(), 1);
-		assertObjectInValueSet(valueSet(), 2);		
+		assertObjectInValueSet(valueSet(), 2);	
+		
+		assertFragmentsIndex();
+		assertExtrinsicIdIndex();
+		model.assertValueSetIndex(testObject, testFeature(), 0, 3);
 	}
 	
 
