@@ -142,9 +142,13 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 			
 		@Override
 		public InternalEObject loadEObject() throws IOException {
+			String extrinsicID = readString();				
 			InternalEObject object = super.loadEObject();
 			if (lastExtrinsicID != null) {
 				((BinaryFragmentImpl)resource).extrinsicIDs.put((FInternalObjectImpl)object, lastExtrinsicID);
+			}
+			if (extrinsicID != null && !extrinsicID.equals("")) {
+				extrinsicIDs.put((FInternalObjectImpl)object, extrinsicID);
 			}
 			return object;
 		}
@@ -162,7 +166,7 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 	}
 
 
-	public static class MyEObjectOutputStream extends EObjectOutputStream {
+	public class MyEObjectOutputStream extends EObjectOutputStream {
 		boolean isWritingCrossReferenceURI = false;
 		FInternalObjectImpl currentObject = null;
 
@@ -177,6 +181,12 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 				currentObject = (FInternalObjectImpl)internalEObject;
 			} else {
 				isWritingCrossReferenceURI = false;
+			}
+			String extrinsicID = extrinsicIDs.get(internalEObject);
+			if (extrinsicID != null) {
+				writeString(extrinsicID);
+			} else {
+				writeString("");
 			}
 			super.saveEObject(internalEObject, check);
 		}

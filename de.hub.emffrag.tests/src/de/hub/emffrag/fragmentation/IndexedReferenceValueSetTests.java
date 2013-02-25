@@ -48,7 +48,6 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 		
 		model.save();	
 		reinitializeModel();
-		System.out.println(dataStore);
 		testObject = assertHasModelRootFragment(0);
 		
 		assertValueSet(valueSet(), 3);
