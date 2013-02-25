@@ -278,7 +278,9 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 			// new objects realm (if necessary) and if it was a fragment root
 			// the fragment has to be deleted.
 			if (isFragmentRoot()) {
-				removeFragment(getFragment());
+				Fragment fragment = getFragment();
+				fragment.getContents().remove(this);
+				removeFragment(fragment);
 			}
 			UserObjectsCache.newUserObjectsCache.addUserObjectToCache(this, (FObjectImpl) this.getUserObject());
 		}

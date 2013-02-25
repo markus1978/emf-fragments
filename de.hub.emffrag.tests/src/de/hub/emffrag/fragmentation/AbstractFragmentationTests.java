@@ -27,6 +27,10 @@ public class AbstractFragmentationTests  extends AbstractTests {
 	public void resetUOCController() {
 		UserObjectsCache.resetUOCController();
 	}
+	
+	protected TestModelPackage getMetaModel() {
+		return TestModelPackage.eINSTANCE;
+	}
 
 	@Before
 	public void registerPackages() {
@@ -34,7 +38,7 @@ public class AbstractFragmentationTests  extends AbstractTests {
 			EPackage.Registry.INSTANCE.put(TestModelPackage.eINSTANCE.getNsURI(), EmfFragPackage.eINSTANCE);
 		}
 		if (!EPackage.Registry.INSTANCE.containsKey(TestModelPackage.eINSTANCE.getNsURI())) {
-			EPackage.Registry.INSTANCE.put(TestModelPackage.eINSTANCE.getNsURI(), TestModelPackage.eINSTANCE);
+			EPackage.Registry.INSTANCE.put(TestModelPackage.eINSTANCE.getNsURI(), getMetaModel());
 		}
 		if (!EPackage.Registry.INSTANCE.containsKey(EcorePackage.eINSTANCE.getNsURI())) {
 			EPackage.Registry.INSTANCE.put(EcorePackage.eINSTANCE.getNsURI(), EcorePackage.eINSTANCE);
@@ -48,7 +52,7 @@ public class AbstractFragmentationTests  extends AbstractTests {
 	@Before
 	public void standardInitialization() {
 		dataStore = createTestDataStore();
-		metaModel = TestModelPackage.eINSTANCE;
+		metaModel = getMetaModel();
 		ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(metaModel);
 		
 		if (doInitializeModel()) {

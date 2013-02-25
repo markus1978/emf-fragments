@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EReference;
 import org.junit.Assert;
 
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
@@ -31,7 +32,6 @@ public class Assertions {
 		return testObject;
 	}
 	
-
 	public static Assertions root(FragmentedModel model, int size, int i) {
 		Assert.assertEquals(size, model.getRootContents().size());
 		Assert.assertTrue(model.getRootContents().get(0) instanceof TestObject);
@@ -91,6 +91,12 @@ public class Assertions {
 		Assert.assertTrue("Is not part of a fragment.", value().eResource() instanceof Fragment);
 		Assert.assertNotNull("Has no container.", value().eContainer());
 		Assert.assertNotSame("Not the same fragment as container", value().eResource(), value().eContainer().eResource());
+		return this;
+	}
+	
+	public Assertions get(EReference feature) {
+		value = value().eGet(feature);
+		index = -1;
 		return this;
 	}
 	

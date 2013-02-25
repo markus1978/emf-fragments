@@ -93,4 +93,5 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 				.load().getCrossReferences().assertSize(1).get(0).assertId(3);
 		
 	}
+
 }

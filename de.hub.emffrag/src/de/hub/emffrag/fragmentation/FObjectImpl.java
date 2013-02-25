@@ -107,11 +107,4 @@ public class FObjectImpl extends EStoreEObjectImpl {
 		// double realization of containment
 		return msgs;
 	}
-	
-	@Override
-	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, Class<?> baseClass, NotificationChain msgs) {
-		// disables superclass implementation to avoid double remove through
-		// double realization of containment
-		return msgs;
-	 }
 }

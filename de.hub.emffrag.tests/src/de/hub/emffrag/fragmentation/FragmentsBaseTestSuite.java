@@ -25,7 +25,11 @@ import org.junit.runners.Suite;
 		BinaryFragmentIndexedReferenceValueSetTests.class,
 		BinaryFragmentIndexedContentsValueSetTests.class,
 		BinaryFragmentIndexedMapTests.class,
-		BinaryFragmentContainmentIndexedMapTests.class })
+		BinaryFragmentContainmentIndexedMapTests.class,
+		// opposite test, those change the TestModelPackage and should be run last
+		OppositeFragmentedContentsTests.class,
+		OppositeIndexedContentsTests.class,
+		OppositeIndexedReferencesTests.class})
 public class FragmentsBaseTestSuite {
 	// nothing
 }
