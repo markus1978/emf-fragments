@@ -5,7 +5,6 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
-import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 
@@ -46,7 +45,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		object1 = assertHasModelRootFragment();
 		object2 = assertHasContents(object1, metaModel.getTestObject_FragmentedContents());
 		assertContainment(object1, object2, metaModel.getTestObject_FragmentedContents(), true);
-		assertIndexDimenions(dataStore, "f", 0l, 1l, LongKeyType.instance);
+		model.assertFragmentsIndex(0l, 1l);
 	}
 
 	@Test
@@ -57,7 +56,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		model.save();		
 				
 		reinitializeModel();
-		assertIndexDimenions(dataStore, "f", 0l, 0l, LongKeyType.instance);
+		model.assertFragmentsIndex(0l, 0l);
 		object1 = assertHasModelRootFragment();
 		object2 = assertHasContents(object1, metaModel.getTestObject_RegularContents());
 		assertContainment(object1, object2, metaModel.getTestObject_RegularContents(), false);		
@@ -68,7 +67,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		reinitializeModel();
 		object1 = assertHasModelRootFragment();
 		Assert.assertTrue(object1.eContents().isEmpty());	
-		assertIndexDimenions(dataStore, "f", 0l, 0l, LongKeyType.instance);
+		model.assertFragmentsIndex(0l, 0l);
 	}
 
 	@Test
@@ -83,7 +82,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		object1.getFragmentedContents().add(object2);
 		model.save();
 		
-		assertIndexDimenions(dataStore, "f", 0l, 1l, LongKeyType.instance);
+		model.assertFragmentsIndex(0l, 1l);
 		
 		object1.getFragmentedContents().remove(object2);
 		model.save();
@@ -91,7 +90,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		reinitializeModel();
 		object1 = assertHasModelRootFragment();
 		Assert.assertTrue(object1.eContents().isEmpty());	
-		assertIndexDimenions(dataStore, "f", 0l, 0l, LongKeyType.instance);		
+		model.assertFragmentsIndex(0l, 0l);		
 	}
 
 	/**
@@ -123,7 +122,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 					container = newContainer;
 				}
 				model.save();
-				assertIndexDimenions(dataStore, "f", 0l, (long)fragmentationDepth, LongKeyType.instance);
+				model.assertFragmentsIndex(0l, (long)fragmentationDepth);
 			}
 			while (container.eContainer() != null) {
 				TestObject newContainer = (TestObject)container.eContainer();
@@ -142,7 +141,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		reinitializeModel();
 		object1 = assertHasModelRootFragment();
 		Assert.assertTrue(object1.eContents().isEmpty());	
-		assertIndexDimenions(dataStore, "f", 0l, 0l, LongKeyType.instance);	
+		model.assertFragmentsIndex(0l, 0l);
 	}
 	
 	@SuppressWarnings("unused")
@@ -168,7 +167,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		object1 = assertHasModelRootFragment();
 		object2 = assertHasContents(object1, metaModel.getTestObject_RegularContents());
 		assertContainment(object1, object2, metaModel.getTestObject_RegularContents(), false);
-		assertIndexDimenions(dataStore, "f", 0l, 0l, LongKeyType.instance);
+		model.assertFragmentsIndex(0l, 0l);
 	}
 
 	@Test
@@ -184,7 +183,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		Assert.assertEquals(2, object1.getFragmentedContents().size());
 		Assert.assertTrue(object1.getFragmentedContents().get(0).getFragmentedContents().isEmpty());
 		Assert.assertTrue(object1.getFragmentedContents().get(1).getFragmentedContents().isEmpty());
-		assertIndexDimenions(dataStore, "f", 0l, 2l, LongKeyType.instance);
+		model.assertFragmentsIndex(0l, 2l);
 	}
 
 	@Test
@@ -198,7 +197,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		object1 = assertHasModelRootFragment();
 		object2 = assertHasContents(object1, metaModel.getTestObject_FragmentedContents());
 		assertContainment(object1, object2, metaModel.getTestObject_FragmentedContents(), true);
-		assertIndexDimenions(dataStore, "f", 0l, 1l, LongKeyType.instance);
+		model.assertFragmentsIndex(0l, 1l);
 	}
 
 	@Test
@@ -215,6 +214,6 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		object3 = assertHasContents(object2, metaModel.getTestObject_RegularContents());
 		assertContainment(object1, object2, metaModel.getTestObject_FragmentedContents(), true);
 		assertContainment(object2, object3, metaModel.getTestObject_RegularContents(), false);
-		assertIndexDimenions(dataStore, "f", 0l, 1l, LongKeyType.instance);
+		model.assertFragmentsIndex(0l, 1l);
 	}
 }

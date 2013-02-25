@@ -7,7 +7,6 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.junit.Test;
 
-import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 
@@ -36,14 +35,13 @@ public class CacheTests extends AbstractFragmentationTests {
 		Assert.assertTrue(model.getFragment(object2.eResource().getURI()).getUserObjectsCache().hasReferences());
 		Assert.assertNotNull(model.getFragment(object3.eResource().getURI()));
 		Assert.assertTrue(model.getFragment(object3.eResource().getURI()).getUserObjectsCache().hasReferences());
-		Assert.assertEquals(3, model.numberOfLoadedFragments());
+		model.assertNumberOfLoadedFragments(3);
 
 		deleteReference(object2);
 		deleteReference(object3);
 		Thread.sleep(100);
-		model.purgeCache();
 
-		Assert.assertEquals(2, model.numberOfLoadedFragments());
+		model.assertNumberOfLoadedFragments(2);
 	}
 
 	@Test
@@ -59,11 +57,11 @@ public class CacheTests extends AbstractFragmentationTests {
 			object1 = object2;
 
 			Thread.sleep(10);
-			assertStatistic("loaded fragments", model.numberOfLoadedFragments(), 0, 10);
+			model.assertNumberOfLoadedFragments(0, 10);
 		}
 
-		assertIndexDimenions(dataStore, "f", 0l, 100l, LongKeyType.instance);
-		assertStatistics(0, 10, 0, 5, 90, 101, 101, 101);
+		model.assertFragmentsIndex(0l, 100l);
+		model.assertStatistics(0, 10, 0, 5, 90, 101, 101, 101);
 	}
 
 	private void deleteReference(TestObject object) {
@@ -83,16 +81,15 @@ public class CacheTests extends AbstractFragmentationTests {
 			deleteReference(object2);
 			Thread.sleep(10);
 
-			assertStatistic("loaded fragments", model.numberOfLoadedFragments(), 0, 10);
+			model.assertNumberOfLoadedFragments(0, 10);
 		}
 
-		assertIndexDimenions(dataStore, "f", 0l, 100l, LongKeyType.instance);
+		model.assertFragmentsIndex(0l, 100l);
 		// Before EMF adds a value to a list, it checks if this value is already
 		// in that list. If the list is small (<4), it compare each element with
-		// the
-		// added element and therefore has to resolve proxies if necessary. This
-		// causes a few loads.
-		assertStatistics(0, 10, 0, 5, 90, 101, 101, 101);
+		// the added element and therefore has to resolve proxies if necessary.
+		// This causes a few loads.
+		model.assertStatistics(0, 10, 0, 5, 90, 110, 101, 101);
 	}
 
 	@Test
@@ -108,20 +105,19 @@ public class CacheTests extends AbstractFragmentationTests {
 		Assert.assertTrue(model.getFragment(object2.eResource().getURI()).getUserObjectsCache().hasReferences());
 		Assert.assertNotNull(model.getFragment(object3.eResource().getURI()));
 		Assert.assertTrue(model.getFragment(object3.eResource().getURI()).getUserObjectsCache().hasReferences());
-		Assert.assertEquals(3, model.numberOfLoadedFragments());
+		model.assertNumberOfLoadedFragments(3);
 
 		deleteReference(object2);
 		deleteReference(object3);
 		Thread.sleep(10);
-		model.purgeCache();
-		Assert.assertEquals(2, model.numberOfLoadedFragments());
+		model.assertNumberOfLoadedFragments(2);
 
 		object1 = assertHasModelRootFragment();
 		object2 = assertHasContents(object1, metaModel.getTestObject_FragmentedContents());
 		object3 = assertHasContents(object2, metaModel.getTestObject_FragmentedContents());
 		Assert.assertEquals("testValue", object2.getName());
 		Assert.assertEquals("testValue", object3.getName());
-		assertStatistics(3, 3, 1, 1, 1, 1, 3, 3);
+		model.assertStatistics(3, 3, 1, 1, 1, 1, 3, 3);
 	}
 
 	@Test
@@ -149,9 +145,7 @@ public class CacheTests extends AbstractFragmentationTests {
 		}
 
 		Thread.sleep(100);
-		model.purgeCache();
-		assertStatistic("unloads", model.getStatistics().getUnloads(), 50, 200);
-		assertStatistic("loaded fragments", model.numberOfLoadedFragments(), 5, 10);
+		model.assertStatistics(5, 10, -1, -1, 50, 200, -1, -1);
 
 		// touch the first 5 objects and see if they were cached
 		for (int i = 0; i < 5; i++) {
@@ -184,9 +178,10 @@ public class CacheTests extends AbstractFragmentationTests {
 	private void printResource(Resource resource) {
 		TreeIterator<EObject> allContents = resource.getAllContents();
 		while (allContents.hasNext()) {
-			FInternalObjectImpl next = (FInternalObjectImpl)allContents.next();
+			FInternalObjectImpl next = (FInternalObjectImpl) allContents.next();
 			System.out.print(resource.getURIFragment(next) + ":");
-			System.out.print(next.eGet(ReflectiveMetaModelRegistry.instance.getOppositeFeature(metaModel.getTestObject_Name())) + ":");
+			System.out.print(next.eGet(ReflectiveMetaModelRegistry.instance.getOppositeFeature(metaModel.getTestObject_Name()))
+					+ ":");
 			System.out.print(next.eIsProxy() + ":");
 			System.out.print(System.identityHashCode(next) + ":");
 			System.out.println("");
@@ -203,27 +198,21 @@ public class CacheTests extends AbstractFragmentationTests {
 		TestObject contents = TestModelFactory.eINSTANCE.createTestObject();
 		contents.setName("testValue");
 		object3.getRegularContents().add(contents);
-		String uriFragment = object3.eResource().getURIFragment(((FObjectImpl)contents).internalObject());
+		String uriFragment = object3.eResource().getURIFragment(((FObjectImpl) contents).internalObject());
 		Assert.assertEquals("//@regularContents.0", uriFragment);
-		
-//		printResource(object3.eResource());
 
 		deleteReference(object2);
 		deleteReference(object3);
 		Thread.sleep(10);
-		model.purgeCache();
-		Assert.assertEquals(2, model.numberOfLoadedFragments());
-		
-//		printResource(model.getResourceSet().getResource(URI.createURI("hbase://localhost/testmodel/Zl8AAAAAAAAAAQ"), true));
-//		printResource(model.getResourceSet().getResource(URI.createURI("hbase://localhost/testmodel/Zl8AAAAAAAAAAg"), true));
+		model.assertNumberOfLoadedFragments(2);
 
 		object1 = assertHasModelRootFragment();
 		object2 = assertHasContents(object1, metaModel.getTestObject_FragmentedContents());
 		object3 = assertHasContents(object2, metaModel.getTestObject_FragmentedContents());
 		contents = assertHasContents(object3, metaModel.getTestObject_RegularContents());
-		assertStatistics(3, 3, 1, 1, 1, 1, 3, 3);
-		
-		uriFragment = object3.eResource().getURIFragment(((FObjectImpl)contents).internalObject());
-		Assert.assertEquals("//@regularContents.0", uriFragment);		
+		model.assertStatistics(3, 3, 1, 1, 1, 1, 3, 3);
+
+		uriFragment = object3.eResource().getURIFragment(((FObjectImpl) contents).internalObject());
+		Assert.assertEquals("//@regularContents.0", uriFragment);
 	}
 }

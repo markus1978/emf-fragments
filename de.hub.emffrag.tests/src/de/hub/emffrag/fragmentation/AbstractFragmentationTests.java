@@ -9,9 +9,7 @@ import org.eclipse.emf.ecore.EcorePackage;
 import org.junit.Assert;
 import org.junit.Before;
 
-import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
-import de.hub.emffrag.datastore.KeyType;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
@@ -119,27 +117,6 @@ public class AbstractFragmentationTests  extends AbstractTests {
 		}
 		Assert.assertSame(feature, contents.eContainingFeature());				
 	}
-	
-	protected <KT> void assertIndexDimenions(DataStore dataStore, String prefix, KT minKey, KT maxKey, KeyType<KT> keyType) {
-		DataIndex<KT> dataIndex = new DataIndex<KT>(dataStore, prefix, keyType);
-		Assert.assertEquals(minKey, dataIndex.first());
-		Assert.assertEquals(maxKey, dataIndex.last());
-	}
-	
-
-	protected void assertStatistic(String name, int value, int min, int max) {
-		Assert.assertTrue("Too many " + name + " " + value, value <= max);
-		Assert.assertTrue("Too few " + name + " " + value, value >= min);
-	}
-
-	protected void assertStatistics(int minLoaded, int maxLoaded, int minLoads, int maxLoads, int minUnloads, int maxUnloads,
-			int minCreates, int maxCreates) {
-		assertStatistic("loaded fragments", model.numberOfLoadedFragments(), minLoaded, maxLoaded);
-		assertStatistic("loads", model.getStatistics().getLoads(), minLoads, maxLoads);
-		assertStatistic("unloads", model.getStatistics().getUnloads(), minUnloads, maxUnloads);
-		assertStatistic("creates", model.getStatistics().getCreates(), minCreates, maxCreates);
-	}
-	
 
 	protected TestObject addObject(TestObject container, boolean fragmented) {
 		TestObject contents = TestModelFactory.eINSTANCE.createTestObject();

@@ -4,8 +4,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import de.hub.emffrag.datastore.LongKeyType;
-
 public class CrossReferenceTests extends AbstractFragmentationTests {
 
 	@Test
@@ -16,8 +14,8 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		model.save();
 		
 		reinitializeModel();		
-		assertIndexDimenions(dataStore, "f", 0l, 0l, LongKeyType.instance);
-		assertIndexDimenions(dataStore, "c", 0l, 0l, LongKeyType.instance);
+		model.assertFragmentsIndex(0l, 0l);
+		model.assertExtrinsicIdIndex(0l, 0l);
 		object1 = assertHasModelRootFragment();
 		object2 = assertHasContents(object1, metaModel.getTestObject_RegularContents());
 		Assert.assertTrue(object1.getCrossReferences().contains(object2));
@@ -34,8 +32,8 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		reinitializeModel();	
 		model.save();
 
-		assertIndexDimenions(dataStore, "f", 0l, 2l, LongKeyType.instance);
-		assertIndexDimenions(dataStore, "c", 0l, 0l, LongKeyType.instance);
+		model.assertFragmentsIndex(0l, 2l);
+		model.assertExtrinsicIdIndex(0l, 0l);
 		object1 = assertHasModelRootFragment();
 		Assert.assertEquals("testValue", object1.getCrossReferences().get(0).getName());
 		object2 = assertHasContents(object1, metaModel.getTestObject_FragmentedContents());
@@ -52,8 +50,8 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		model.save();
 		
 		reinitializeModel();		
-		assertIndexDimenions(dataStore, "f", 0l, 0l, LongKeyType.instance);
-		assertIndexDimenions(dataStore, "c", 0l, 0l, LongKeyType.instance);
+		model.assertFragmentsIndex(0l, 0l);
+		model.assertExtrinsicIdIndex(0l, 0l);
 		object1 = assertHasModelRootFragment();
 		object2 = assertHasContents(object1, metaModel.getTestObject_RegularContents());
 		Assert.assertTrue(object1.getCrossReferences().isEmpty());
@@ -70,8 +68,8 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		model.save();
 		
 		reinitializeModel();		
-		assertIndexDimenions(dataStore, "f", 0l, 0l, LongKeyType.instance);
-		assertIndexDimenions(dataStore, "c", 0l, 0l, LongKeyType.instance);
+		model.assertFragmentsIndex(0l, 0l);
+		model.assertExtrinsicIdIndex(0l, 0l);
 		object1 = assertHasModelRootFragment();
 		Assert.assertEquals("testValue", object1.getCrossReferences().get(0).getName());
 		object2 = assertHasContents(object1, metaModel.getTestObject_RegularContents());
@@ -89,8 +87,8 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		model.save();
 		
 		reinitializeModel();		
-		assertIndexDimenions(dataStore, "f", 0l, 2l, LongKeyType.instance);
-		assertIndexDimenions(dataStore, "c", 0l, 0l, LongKeyType.instance);
+		model.assertFragmentsIndex(0l, 2l);
+		model.assertExtrinsicIdIndex(0l, 0l);
 		object1 = assertHasModelRootFragment();
 		Assert.assertEquals("testValue", object1.getCrossReferences().get(0).getName());
 		object2 = assertHasContents(object1, metaModel.getTestObject_FragmentedContents());

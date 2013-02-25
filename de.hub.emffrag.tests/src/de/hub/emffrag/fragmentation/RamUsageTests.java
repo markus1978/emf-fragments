@@ -5,7 +5,6 @@ import java.util.Random;
 
 import org.junit.Test;
 
-import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 
 public class RamUsageTests extends AbstractFragmentationTests {
@@ -13,7 +12,7 @@ public class RamUsageTests extends AbstractFragmentationTests {
 	/**
 	 * TODO
 	 * 
-	 * There is not data store that does not need memory when it grows.
+	 * There is no data store that does not need memory when it grows.
 	 */
 	@Test
 	public void testConstantRamUsage() throws Exception {
@@ -42,8 +41,7 @@ public class RamUsageTests extends AbstractFragmentationTests {
 						+ " fm: " + NumberFormat.getIntegerInstance().format(Runtime.getRuntime().freeMemory()) 
 						+ " unloads: " + model.getStatistics().getUnloads() 
 						+ " loads: " + model.getStatistics().getLoads() 
-						+ " creates: " + model.getStatistics().getCreates() 
-						+ " managed: " + model.numberOfLoadedFragments());
+						+ " creates: " + model.getStatistics().getCreates());
 				meassure++;
 				if (meassure > (objects / 1000) / 2) {
 					if (totalMemory == -1) {
@@ -68,8 +66,8 @@ public class RamUsageTests extends AbstractFragmentationTests {
 		}
 		model.save();
 
-		assertIndexDimenions(dataStore, "f", 0l, (long) numberOfFragments, LongKeyType.instance);
-		assertStatistics(0, 5000, 0, objects, (int) ((objects / 2) * 0.8f), (int) ((objects / 2) * 1.2),
+		model.assertFragmentsIndex(0l, (long) numberOfFragments);
+		model.assertStatistics(0, 5000, 0, objects, (int) ((objects / 2) * 0.8f), (int) ((objects / 2) * 1.2),
 				(int) ((objects / 2) * 0.8f), (int) ((objects / 2) * 1.2));
 	}
 

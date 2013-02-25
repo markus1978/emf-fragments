@@ -17,6 +17,7 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMLParserPoolImpl;
+import org.junit.Assert;
 
 import com.google.common.base.Throwables;
 
@@ -363,25 +364,49 @@ public class FragmentedModel {
 	}
 
 	/**
-	 * Only for testing purposes, hence package visibility. Tries to remove
-	 * unnecessary fragments from main memory.
-	 */
-	void purgeCache() {
-		fragmentCache.purgeUnreferencedFragments();
-	}
-
-	/**
 	 * Only for testing purposes, hence package visibility.
 	 */
 	Fragment getFragment(URI fragmentURI) {
 		return (Fragment) getResourceSet().getResource(fragmentURI, false);
 	}
+	
+	private void assertStatistic(String name, int value, int min, int max) {
+		if (max != -1) {
+			Assert.assertTrue("Too many " + name + " " + value, value <= max);
+		}
+		if (min != -1) {
+			Assert.assertTrue("Too few " + name + " " + value, value >= min);
+		}
+	}
+	
+	void assertNumberOfLoadedFragments(int min, int max) {
+		fragmentCache.purgeUnreferencedFragments();
+		assertStatistic("loaded fragments", getResourceSet().getResources().size(), min, max);
+	}
+	
+	void assertNumberOfLoadedFragments(int size) {
+		assertNumberOfLoadedFragments(size, size);
+	}
+	
+	void assertStatistics(int minLoaded, int maxLoaded, int minLoads, int maxLoads, int minUnloads, int maxUnloads, int minCreates, int maxCreates) {
+		fragmentCache.purgeUnreferencedFragments();
+		assertStatistic("loaded fragments", getResourceSet().getResources().size(), minLoaded, maxLoaded);
+		assertStatistic("loads", statistics.getLoads(), minLoads, maxLoads);
+		assertStatistic("unloads", statistics.getUnloads(), minUnloads, maxUnloads);
+		assertStatistic("creates", statistics.getCreates(), minCreates, maxCreates);
+	}
+	
+	private void assertIndex(DataIndex<Long> index, String name, long first, long last) {
+		Assert.assertEquals("Wrong first key for " + name + ".", (Long)first, index.first());
+		Assert.assertEquals("Wrong last key for " + name + ".", (Long)last, index.last());
+	}
 
-	/**
-	 * Only for testing purposes, hence package visibility.
-	 */
-	int numberOfLoadedFragments() {
-		return getResourceSet().getResources().size();
+	void assertFragmentsIndex(long first, long last) {
+		assertIndex(fragmentIndex, "fragments index", first, last);		
+	}
+	
+	void assertExtrinsicIdIndex(long first, long last) {
+		assertIndex(extrinsicIdIndex, "extrinsic id index", first, last);		
 	}
 
 }
