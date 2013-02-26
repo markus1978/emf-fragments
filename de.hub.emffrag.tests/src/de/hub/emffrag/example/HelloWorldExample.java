@@ -51,11 +51,11 @@ public class HelloWorldExample {
 
 		// to read a model initialize the environment as before
 		// initialize your model
-		FragmentedModel readModel = new FragmentedModel(URI.createURI("memory://localhost/test"));
+		resource = new FResourceSet().createResource(URI.createURI("memory://localhost/test"));
 
 		// navigate the model as usual
 		System.out.println("Iterate results: ");
-		TreeIterator<EObject> allContents = readModel.getAllContents();
+		TreeIterator<EObject> allContents = resource.getAllContents();
 		while (allContents.hasNext()) {
 			System.out.println(allContents.next());			
 		}
