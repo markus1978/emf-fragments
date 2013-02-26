@@ -64,7 +64,7 @@ public class RamUsageTests extends AbstractFragmentationTests {
 				}
 			}
 		}
-		model.save();
+		model.save(null);
 
 		model.assertFragmentsIndex(0l, (long) numberOfFragments + 1);
 		model.assertStatistics(0, 5000, 0, objects, (int) ((objects / 2) * 0.8f), (int) ((objects / 2) * 1.2),

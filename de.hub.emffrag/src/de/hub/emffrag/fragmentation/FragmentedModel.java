@@ -29,6 +29,7 @@ import de.hub.emffrag.datastore.KeyType;
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.fragmentation.UserObjectsCache.UserObjectsCacheListener;
 import de.hub.emffrag.model.emffrag.EmfFragFactory;
+import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import de.hub.emffrag.model.emffrag.Root;
 
 public class FragmentedModel extends ResourceImpl {
@@ -69,6 +70,9 @@ public class FragmentedModel extends ResourceImpl {
 
 	FragmentedModel(DataStore dataStore, int cacheSize) {
 		super(URI.createURI(dataStore.getURIString()));
+		
+		ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(EmfFragPackage.eINSTANCE);
+		
 		this.dataStore = dataStore;
 		if (cacheSize == -1) {
 			cacheSize = 100;
@@ -356,8 +360,19 @@ public class FragmentedModel extends ResourceImpl {
 		statistics.creates++;
 		return newFragment;
 	}
+	
+	@Override
+	public void delete(Map<?, ?> options) throws IOException {
+		throw new UnsupportedOperationException("This is not supported yet.");
+	}
 
-	public void save() {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void save(Map<?, ?> options) {
+		if (options != null) {
+			options.putAll((Map)FragmentedModel.options);
+		} else {
+			options = FragmentedModel.options;
+		}
 		for (Resource resource : resourceSet.getResources()) {
 			try {
 				resource.save(options);

@@ -25,7 +25,7 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 		root.getContents().add(testObject);
 		assertValueSet(valueSet(), 0);
 		
-		model.save();
+		model.save(null);
 		reinitializeModel();
 		testObject = Assertions.root(model).assertId(0).value();
 		
@@ -46,7 +46,7 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 		valueSet().add(object2);
 		valueSet().add(object3);
 		
-		model.save();	
+		model.save(null);	
 		reinitializeModel();
 		testObject = assertTestObject();
 		
@@ -108,7 +108,7 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 		Assert.assertEquals(3, valueSet().size());
 		valueSet().remove(2);
 		
-		model.save();
+		model.save(null);
 		reinitializeModel();
 		testObject = assertTestObject();
 		
@@ -135,7 +135,7 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 		addTest();
 		valueSet().set(1, valueSet().get(1));
 		
-		model.save();
+		model.save(null);
 		reinitializeModel();
 		testObject = assertTestObject();
 		

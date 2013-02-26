@@ -44,7 +44,7 @@ public class IndexedContentsValueSetTests extends IndexedReferenceValueSetTests 
 		valueSet().add(object2);				
 		valueSet().add(object3);
 	
-		model.save();		
+		model.save(null);		
 		reinitializeModel();		
 		testObject = Assertions.root(model).assertId(0).value();
 		

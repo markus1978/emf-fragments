@@ -9,7 +9,7 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		root.getContents().add(object1);
 		object1.getRegularContents().add(object2);
 		object1.getCrossReferences().add(object2);
-		model.save();
+		model.save(null);
 		
 		reinitializeModel();		
 		model.assertFragmentsIndex(0l, 1l);
@@ -28,7 +28,7 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		object2.getFragmentedContents().add(object3);
 		object1.getCrossReferences().add(object3);
 		
-		model.save();
+		model.save(null);
 		reinitializeModel();	
 
 		model.assertFragmentsIndex(0l, 3l);
@@ -45,7 +45,7 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		object1.getRegularContents().add(object2);
 		object1.getCrossReferences().add(object2);
 		object1.getCrossReferences().clear();
-		model.save();
+		model.save(null);
 		
 		reinitializeModel();		
 		model.assertFragmentsIndex(0l, 1l);
@@ -65,7 +65,7 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		object1.getCrossReferences().add(object3);
 		object1.getRegularContents().add(object3);
 		object1.getRegularContents().remove(object2);
-		model.save();
+		model.save(null);
 		
 		reinitializeModel();		
 		model.assertFragmentsIndex(0l, 1l);
@@ -83,7 +83,7 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		object1.getCrossReferences().add(object3);
 		object1.getFragmentedContents().add(object3);
 		object1.getFragmentedContents().remove(object2);
-		model.save();
+		model.save(null);
 		
 		reinitializeModel();		
 		model.assertFragmentsIndex(0l, 3l);

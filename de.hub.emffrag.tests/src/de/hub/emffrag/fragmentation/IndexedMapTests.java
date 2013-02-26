@@ -37,7 +37,7 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 		testIndex.put("1", object1);
 		testIndex.put("2", object2);
 		testIndex.put("3", object3);
-		model.save();
+		model.save(null);
 		
 		reinitializeModel();
 		
@@ -184,7 +184,7 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 		object1.getRegularContents().add(testObject);
 		testIndex.put(key, testObject);
 		
-		model.save();
+		model.save(null);
 		reinitializeModel();
 		
 		testIndex = assertTestIndex(0);

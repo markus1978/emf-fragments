@@ -31,7 +31,7 @@ public class OppositeFragmentedContentsTests extends AbstractFragmentationTests 
 		((EList<TestObject>)object1.eGet(testedReference())).add(object2);
 		Assertions.root(model).get(testedReference()).assertSize(1).get(0).assertId(2).getCrossReferences().assertSize(1).get(0).assertId(1);
 		
-		model.save();
+		model.save(null);
 		reinitializeModel();
 		Assertions.root(model).get(testedReference()).assertSize(1).get(0).assertId(2).getCrossReferences().assertSize(1).get(0).assertId(1);
 	}
@@ -42,7 +42,7 @@ public class OppositeFragmentedContentsTests extends AbstractFragmentationTests 
 		object2.getCrossReferences().add(object1);
 		Assertions.root(model).get(testedReference()).assertSize(1).get(0).assertId(2).getCrossReferences().assertSize(1).get(0).assertId(1);
 		
-		model.save();
+		model.save(null);
 		reinitializeModel();
 		Assertions.root(model).get(testedReference()).assertSize(1).get(0).assertId(2).getCrossReferences().assertSize(1).get(0).assertId(1);
 	}
@@ -56,7 +56,7 @@ public class OppositeFragmentedContentsTests extends AbstractFragmentationTests 
 		Assertions.root(model).get(testedReference()).assertSize(2).get(0).assertId(2).getCrossReferences().assertSize(1).get(0).assertId(1);
 		Assertions.root(model).get(testedReference()).assertSize(2).get(1).assertId(3).getCrossReferences().assertSize(1).get(0).assertId(1);
 		
-		model.save();
+		model.save(null);
 		reinitializeModel();
 		Assertions.root(model).get(testedReference()).assertSize(2).get(0).assertId(2).getCrossReferences().assertSize(1).get(0).assertId(1);
 		Assertions.root(model).get(testedReference()).assertSize(2).get(1).assertId(3).getCrossReferences().assertSize(1).get(0).assertId(1);
@@ -72,7 +72,7 @@ public class OppositeFragmentedContentsTests extends AbstractFragmentationTests 
 		((EList<TestObject>)object1.eGet(testedReference())).remove(0);
 		Assertions.context(object2).getCrossReferences().assertSize(0);
 		
-		model.save();
+		model.save(null);
 		reinitializeModel();		
 		Assertions.root(model).get(testedReference()).assertSize(0);
 		model.assertFragmentsIndex(0l, 1l);
@@ -88,7 +88,7 @@ public class OppositeFragmentedContentsTests extends AbstractFragmentationTests 
 		object2.getCrossReferences().remove(0);
 		Assertions.context(object2).getCrossReferences().assertSize(0);
 		
-		model.save();
+		model.save(null);
 		reinitializeModel();		
 		Assertions.root(model).get(testedReference()).assertSize(0);
 		model.assertFragmentsIndex(0l, 1l);

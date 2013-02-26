@@ -29,7 +29,7 @@ public class ContainmentIndexedMapTests extends IndexedMapTests {
 		testIndex.put("1", object1);
 		testIndex.put("2", object2);
 		testIndex.put("3", object3);
-		model.save();
+		model.save(null);
 		
 		reinitializeModel();
 		

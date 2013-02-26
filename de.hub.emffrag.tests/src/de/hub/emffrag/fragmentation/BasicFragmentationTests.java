@@ -16,7 +16,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 	@Test
 	public void testEmpty() {
 		FragmentedModel model = new FragmentedModel(createTestDataStore());
-		model.save();
+		model.save(null);
 		model.assertFragmentsIndex(0l, 0l);
 		model.assertExtrinsicIdIndex(-1l, -1l);
 	}
@@ -30,7 +30,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		model.root().getContents().add(object1);
 		Assertions.root(model).assertId(1);
 		
-		model.save();
+		model.save(null);
 		reinitializeModel();
 		
 		Assertions.root(model).assertId(1).getFragmentedContents().assertSize(0);		
@@ -45,7 +45,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 	public void testAddFragment() {
 		model.root().getContents().add(object1);
 		object1.getFragmentedContents().add(object2);
-		model.save();
+		model.save(null);
 
 		reinitializeModel();
 
@@ -63,7 +63,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		model.root().getContents().add(object1);
 		Assertions.root(model).assertId(1);
 		object1.getRegularContents().add(object2);
-		model.save();		
+		model.save(null);		
 				
 		reinitializeModel();
 		model.assertFragmentsIndex(0l, 1l);
@@ -74,7 +74,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 				.eContainer().assertId(1).value();	
 
 		Assert.assertTrue(object1.getRegularContents().remove(object1.getRegularContents().get(0)));
-		model.save();
+		model.save(null);
 
 		reinitializeModel();
 		Assertions
@@ -98,12 +98,12 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		Assertions.root(model).assertId(1);
 		
 		object1.getFragmentedContents().add(object2);
-		model.save();
+		model.save(null);
 		
 		model.assertFragmentsIndex(0l, 2l);
 		
 		object1.getFragmentedContents().remove(object2);
-		model.save();
+		model.save(null);
 
 		reinitializeModel();
 		Assertions
@@ -143,7 +143,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 					}				
 					container = newContainer;
 				}
-				model.save();
+				model.save(null);
 				model.assertFragmentsIndex(0l, (long)fragmentationDepth + 1);
 			}
 			while (container.eContainer() instanceof TestObject) {
@@ -157,7 +157,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		}
 
 		Assert.assertNotNull(container.eResource());
-		model.save();
+		model.save(null);
 
 		reinitializeModel();
 		reinitializeModel();
@@ -184,7 +184,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		object1.getRegularContents().add(object2);		
 		object2 = object1.getRegularContents().get(0);
 		
-		model.save();
+		model.save(null);
 		reinitializeModel();
 		Assertions
 				.root(model).assertId(1)
@@ -202,7 +202,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		object1.getFragmentedContents().add(object2);
 		object2.getFragmentedContents().add(object3);		
 		object1.getFragmentedContents().add(object3);
-		model.save();
+		model.save(null);
 		
 		reinitializeModel();
 		Assertions
@@ -222,7 +222,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		model.root().getContents().add(object1);
 		object1.getRegularContents().add(object2);
 		object1.getFragmentedContents().add(object2);
-		model.save();
+		model.save(null);
 		
 		reinitializeModel();
 		Assertions
@@ -240,7 +240,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		object1.getFragmentedContents().add(object2);
 		object1.getRegularContents().add(object3);
 		object2.getRegularContents().add(object3);
-		model.save();
+		model.save(null);
 		
 		reinitializeModel();
 		Assertions
