@@ -64,7 +64,7 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 	
 	private void init() {
 		if (semantics == null) {
-			Resource eResource = eResource();
+			Resource eResource = fInternalObject().eResource();
 			if (eResource instanceof Fragment) {
 				Fragment fragment = (Fragment)eResource;
 				FragmentedModel model = fragment.getFragmentedModel();
@@ -72,7 +72,7 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 								
 				String prefix = getPrefix();
 				if (prefix == null) {
-					String extrinsicId = internalObject().getExtrinsicID(true);
+					String extrinsicId = fInternalObject().getExtrinsicID(true);
 					prefix = FragmentedModel.INDEX_CLASSES_PREFIX + "_" + extrinsicId;
 					setPrefix(prefix);
 				}
@@ -251,7 +251,7 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 	public void put(K key, V value) {
 		init();
 		if (value instanceof FObjectImpl) {
-			semantics.setValueForKey(key, ((FObjectImpl)value).internalObject());
+			semantics.setValueForKey(key, ((FObjectImpl)value).fInternalObject());
 		} else {
 			throw new IllegalArgumentException("Non fragmented model objects are not supported as map values.");
 		}

@@ -68,7 +68,7 @@ public class Assertions {
 	
 	public Assertions assertTestObject() {
 		Assert.assertTrue("Not a test object.", value().getName().startsWith(prefix));
-		Assert.assertTrue("Not part of a fragmented model.", value().eResource() instanceof Fragment);
+		Assert.assertTrue("Not part of a fragmented model.", ((FObjectImpl)value()).fInternalObject().eResource() instanceof Fragment);
 		return this;
 	}
 	
@@ -79,18 +79,20 @@ public class Assertions {
 	}
 	
 	public Assertions assertSameFragmentAsContainer() {
-		Assert.assertNotNull("Is not part of a fragment.", value().eResource());
-		Assert.assertTrue("Is not part of a fragment.", value().eResource() instanceof Fragment);
-		Assert.assertNotNull("Has no container.", value().eContainer());
-		Assert.assertSame("Not the same fragment as container", value().eResource(), value().eContainer().eResource());
+		FInternalObjectImpl internalObject = ((FObjectImpl)value()).fInternalObject();
+		Assert.assertNotNull("Is not part of a fragment.", internalObject.eResource());		
+		Assert.assertTrue("Is not part of a fragment.", internalObject.eResource() instanceof Fragment);
+		Assert.assertNotNull("Has no container.", internalObject.eContainer());
+		Assert.assertSame("Not the same fragment as container", internalObject.eResource(), internalObject.eContainer().eResource());
 		return this;
 	}
 	
 	public Assertions assertDifferentFragmentAsContainer() {
-		Assert.assertNotNull("Is not part of a fragment.", value().eResource());
-		Assert.assertTrue("Is not part of a fragment.", value().eResource() instanceof Fragment);
-		Assert.assertNotNull("Has no container.", value().eContainer());
-		Assert.assertNotSame("Not the same fragment as container", value().eResource(), value().eContainer().eResource());
+		FInternalObjectImpl internalObject = ((FObjectImpl)value()).fInternalObject();
+		Assert.assertNotNull("Is not part of a fragment.", internalObject.eResource());		
+		Assert.assertTrue("Is not part of a fragment.", internalObject.eResource() instanceof Fragment);
+		Assert.assertNotNull("Has no container.", internalObject.eContainer());
+		Assert.assertNotSame("Not the same fragment as container", internalObject.eResource(), internalObject.eContainer().eResource());
 		return this;
 	}
 	

@@ -13,7 +13,7 @@ public class UserObjectCacheTests extends AbstractTests {
 	public void testUserObjectCache() {
 		UserObjectsCache cache = new UserObjectsCache();
 		TestObject object = TestModelFactory.eINSTANCE.createTestObject();
-		FInternalObjectImpl internalObject = ((FObjectImpl)object).internalObject();
+		FInternalObjectImpl internalObject = ((FObjectImpl)object).fInternalObject();
 		cache.addUserObjectToCache(internalObject, (FObjectImpl)object);
 		Assert.assertNotNull(cache.getUserObject(internalObject));
 		cache.removeCachedUserObject(internalObject);

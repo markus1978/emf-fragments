@@ -6,12 +6,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.eclipse.emf.common.notify.NotificationChain;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
@@ -30,8 +33,8 @@ import de.hub.emffrag.model.emffrag.EmfFragFactory;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import de.hub.emffrag.model.emffrag.Root;
 
-public class FragmentedModel {
-	
+public class FragmentedModel extends ResourceImpl {
+
 	public static final String FRAGMENTS_INDEX_PREFIX = "f";
 	public static final String EXTRINSIC_ID_INDEX_PREFIX = "c";
 	public static final String INDEX_CLASSES_PREFIX = "i";
@@ -54,8 +57,7 @@ public class FragmentedModel {
 	private final DataIndex<Long> fragmentIndex;
 	private final ExtrinsicIdIndex extrinsicIdIndex;
 	private final Statistics statistics = new Statistics();
-	
-	private final Root root;
+	private final Fragment rootFragment;
 
 	public class Statistics {
 		private int creates = 0;
@@ -76,7 +78,6 @@ public class FragmentedModel {
 	}
 
 	class FragmentCache {
-
 		class CacheState implements UserObjectsCacheListener {
 			private final Fragment fragment;
 			private boolean cached = false;
@@ -190,7 +191,7 @@ public class FragmentedModel {
 					return result;
 				} else {
 					return super.getEObject(uri, loadOnDemand);
-				}				
+				}
 			}
 
 			@Override
@@ -234,6 +235,7 @@ public class FragmentedModel {
 	}
 
 	public FragmentedModel(DataStore dataStore, int cacheSize, EPackage... metaModel) {
+		super(URI.createURI(dataStore.getURIString()));
 		this.dataStore = dataStore;
 		if (cacheSize == -1) {
 			cacheSize = 100;
@@ -248,30 +250,71 @@ public class FragmentedModel {
 
 		resourceSet = createAndConfigureAResourceSet(dataStore, metaModel);
 
-		Fragment rootFragment = null;
 		Long first = fragmentIndex.first();
 		if (first == null) {
 			rootFragment = createFragment(null, null);
 		} else {
 			rootFragment = (Fragment) resourceSet.getResource(fragmentIndex.getURI(first), true);
-		}
-		
-		if (rootFragment.getContents().isEmpty()) {		
-			this.root = EmfFragFactory.eINSTANCE.createRoot();		
-			FInternalObjectImpl internalObject = ((FObjectImpl)root).internalObject();
-			UserObjectsCache.newUserObjectsCache.removeCachedUserObject(internalObject);
-			rootFragment.getContents().add(internalObject);
-			rootFragment.getUserObjectsCache().addUserObjectToCache(internalObject, (FObjectImpl) root);
-		} else {
-			this.root = (Root)rootFragment.getUserObjectsCache().getUserObject((FInternalObjectImpl)rootFragment.getContents().get(0));
+			for (EObject object: rootFragment.getContents()) {
+				getContents().add(((FInternalObjectImpl)object).getUserObject());
+			}
 		}
 	}
 
-	public Root root() {
-		return root;
+	/**
+	 * We use a version of {@link ContentsEList} that handles inverses differently, because
+	 * the resource does not need to be set on the user objects. They know that
+	 * they belong to a {@link FragmentedModel} differently.
+	 */
+	@Override
+	public EList<EObject> getContents() {
+		if (contents == null) {
+			contents = new ContentsEList<EObject>() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public NotificationChain inverseAdd(EObject object, NotificationChain notifications) {										
+					if (object instanceof FObjectImpl) {
+						FInternalObjectImpl internalObject = ((FObjectImpl)object).fInternalObject();
+						rootFragment.getContents().add(internalObject);
+					} else {
+						throw new IllegalArgumentException("Only FObjects can be added to fragmented models, generate you model code accordingly.");
+					}
+					FragmentedModel.this.attached(object);
+					return notifications;
+				}
+
+				@Override
+				public NotificationChain inverseRemove(EObject object, NotificationChain notifications) {
+					if (FragmentedModel.this.isLoaded) {
+				        FragmentedModel.this.detached(object);
+				    }
+					if (object instanceof FObjectImpl) {
+						FInternalObjectImpl internalObject = ((FObjectImpl)object).fInternalObject();
+						return internalObject.eSetResource(null, notifications);
+					} else {
+						throw new RuntimeException("Supposed unreachable.");
+					}
+				}																
+			};
+		}
+		return contents;
 	}
-	
-	ResourceSet getResourceSet() {
+
+	public Root root() {
+		if (getContents().isEmpty()) {
+			Root root = EmfFragFactory.eINSTANCE.createRoot();
+			getContents().add(root);
+		}
+		EObject eObject = getContents().get(0);
+		if (eObject instanceof Root) {
+			return (Root)eObject;
+		} else {
+			return null;
+		}
+	}
+
+	ResourceSet getInternalResourceSet() {
 		return resourceSet;
 	}
 
@@ -323,7 +366,7 @@ public class FragmentedModel {
 				Throwables.propagate(e);
 			}
 		}
-	}	
+	}
 
 	/**
 	 * Resolved the given URI that denotes a DB entry that contains a serialized
@@ -353,9 +396,9 @@ public class FragmentedModel {
 	 * Only for testing purposes, hence package visibility.
 	 */
 	Fragment getFragment(URI fragmentURI) {
-		return (Fragment) getResourceSet().getResource(fragmentURI, false);
+		return (Fragment) getInternalResourceSet().getResource(fragmentURI, false);
 	}
-	
+
 	private void assertStatistic(String name, int value, int min, int max) {
 		if (max != -1) {
 			Assert.assertTrue("Too many " + name + " " + value, value <= max);
@@ -364,54 +407,56 @@ public class FragmentedModel {
 			Assert.assertTrue("Too few " + name + " " + value, value >= min);
 		}
 	}
-	
+
 	void assertNumberOfLoadedFragments(int min, int max) {
 		fragmentCache.purgeUnreferencedFragments();
-		assertStatistic("loaded fragments", getResourceSet().getResources().size(), min, max);
+		assertStatistic("loaded fragments", getInternalResourceSet().getResources().size(), min, max);
 	}
-	
+
 	void assertNumberOfLoadedFragments(int size) {
 		assertNumberOfLoadedFragments(size, size);
 	}
-	
-	void assertStatistics(int minLoaded, int maxLoaded, int minLoads, int maxLoads, int minUnloads, int maxUnloads, int minCreates, int maxCreates) {
+
+	void assertStatistics(int minLoaded, int maxLoaded, int minLoads, int maxLoads, int minUnloads, int maxUnloads,
+			int minCreates, int maxCreates) {
 		fragmentCache.purgeUnreferencedFragments();
-		assertStatistic("loaded fragments", getResourceSet().getResources().size(), minLoaded, maxLoaded);
+		assertStatistic("loaded fragments", getInternalResourceSet().getResources().size(), minLoaded, maxLoaded);
 		assertStatistic("loads", statistics.getLoads(), minLoads, maxLoads);
 		assertStatistic("unloads", statistics.getUnloads(), minUnloads, maxUnloads);
 		assertStatistic("creates", statistics.getCreates(), minCreates, maxCreates);
 	}
-	
+
 	private void assertIndex(DataIndex<Long> index, String name, long first, long last) {
 		if (first == -1) {
 			Assert.assertEquals("Wrong first key for " + name + ".", null, index.first());
 		} else {
-			Assert.assertEquals("Wrong first key for " + name + ".", (Long)first, index.first());
+			Assert.assertEquals("Wrong first key for " + name + ".", (Long) first, index.first());
 		}
 		if (last == -1) {
 			Assert.assertEquals("Wrong last key for " + name + ".", null, index.last());
 		} else {
-			Assert.assertEquals("Wrong last key for " + name + ".", (Long)last, index.last());
+			Assert.assertEquals("Wrong last key for " + name + ".", (Long) last, index.last());
 		}
 	}
-	
+
 	void assertMaxFragmentsIndexSize(long max) {
 		Assert.assertTrue("Fragments index too large.", fragmentIndex.last() <= max);
 	}
 
 	void assertFragmentsIndex(long first, long last) {
-		assertIndex(fragmentIndex, "fragments index", first, last);		
+		assertIndex(fragmentIndex, "fragments index", first, last);
 	}
-	
+
 	void assertExtrinsicIdIndex(long first, long last) {
-		assertIndex(extrinsicIdIndex, "extrinsic id index", first, last);		
+		assertIndex(extrinsicIdIndex, "extrinsic id index", first, last);
 	}
 
 	void assertValueSetIndex(EObject owner, EStructuralFeature feature, long min, long max) {
-		new DataIndex<Long>(dataStore, FValueSetList.createPrefix(((FObjectImpl)owner).internalObject(), feature), LongKeyType.instance);
+		new DataIndex<Long>(dataStore, FValueSetList.createPrefix(((FObjectImpl) owner).fInternalObject(), feature),
+				LongKeyType.instance);
 	}
-	
+
 	<KT> void assertIndexClassIndex(EObject owner, KT min, KT max, KeyType<KT> keyType) {
-		
+
 	}
 }

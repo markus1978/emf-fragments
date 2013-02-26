@@ -212,7 +212,7 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 		Assert.assertTrue(root.getContents().size() > index);
 		Assert.assertTrue(root.getContents().get(index) instanceof IndexedMap);
 		IndexedMap<String,TestObject> contents = (IndexedMap<String,TestObject>) root.getContents().get(index);
-		Assert.assertTrue(contents.eResource() instanceof Fragment);
+		Assert.assertTrue(((FObjectImpl)contents).fInternalObject().eResource() instanceof Fragment);
 		return contents;
 	}
 	

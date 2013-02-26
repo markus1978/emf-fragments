@@ -128,20 +128,38 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 	@Override
 	public NotificationChain eSetResource(Internal resource, NotificationChain notifications) {
 		Fragment oldResource = (Fragment) eResource();
-		String extrinsicID = null;
-		if (oldResource != null) {
-			extrinsicID = oldResource.getID(this);
+		Fragment newResource = (Fragment) resource;
+		
+		NotificationChain result = super.eSetResource(resource, notifications);
+		
+		if (oldResource != null && newResource != null && oldResource.getFragmentedModel() == newResource.getFragmentedModel()) {
+			String extrinsicID = oldResource.getID(this);
 			FragmentedModel fragmentedModel = getFragmentation();
 			if (fragmentedModel != null) {
 				if (hasExtrinsicId() || extrinsicID != null) {
 					fragmentedModel.getExtrinsicIdIndex().updateObjectURI(extrinsicID, this);
 				}
 			}
-			// else: if the referenced object is not part of the model, TODO (multi
-			// fragmentation models)
-			// should this be an error?
+		} else {
+			if (oldResource != null) {
+				if (newResource != null) {
+					throw new UnsupportedOperationException("Moving objects between fragment models is not yet supported."); // TODO
+				}
+				
+				String extrinsicID = oldResource.getID(this);
+				FragmentedModel fragmentedModel = getFragmentation();
+				if (fragmentedModel != null) {
+					if (hasExtrinsicId() || extrinsicID != null) {
+						fragmentedModel.getExtrinsicIdIndex().updateObjectURI(extrinsicID, this);
+					}
+				}
+			}
+			if (newResource != null) {
+				getUserObjectCache().removeCachedUserObject(this);
+				newResource.getUserObjectsCache().addUserObjectToCache(this, (FObjectImpl)getUserObject());
+			}
 		}
-		return super.eSetResource(resource, notifications);
+		return result;
 	}
 
 	/**
@@ -173,21 +191,6 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 		}		
 	}
 
-//	@Override
-//	public Object eGet(int featureID, boolean resolve, boolean coreType) {
-//		EStructuralFeature eFeature = eClass().getEStructuralFeature(featureID);
-//		FragmentationType type = EMFFragUtil.getFragmentationType(eFeature);
-//		if (type == FragmentationType.None || type == FragmentationType.FragmentsContainment) {
-//			return super.eGet(featureID, resolve, coreType);
-//		} else {
-//			if (type == FragmentationType.FragmentsIndexedContainment || type == FragmentationType.IndexedReferences) {
-//				return new FList(this, eFeature);
-//			} else {
-//				throw new RuntimeException("Supposed unreachable.");
-//			}
-//		}
-//	}
-
 	@Override
 	protected void eBasicSetContainer(InternalEObject newContainer, int newContainerFeatureID) {
 		super.eBasicSetContainer(newContainer, newContainerFeatureID);
@@ -197,11 +200,6 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 			updateContainment(newContainer, newContainerFeatureID, null);
 		}
 	}
-//
-//	void setContainer(InternalEObject newContainer, int newContainerFeatureID, URI newFragmentURI) {
-//		super.eBasicSetContainer(newContainer, newContainerFeatureID);
-//		updateContainment(newContainer, newContainerFeatureID, newFragmentURI);
-//	}
 
 	/**
 	 * Creates/deletes fragments if appropriately.

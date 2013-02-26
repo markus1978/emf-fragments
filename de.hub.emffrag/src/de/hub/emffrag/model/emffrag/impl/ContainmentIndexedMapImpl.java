@@ -55,7 +55,7 @@ public class ContainmentIndexedMapImpl<K, V> extends IndexedMapImpl<K, V> implem
 
 	@Override
 	protected AbstractValueSetSemantics<K> createValueSet(FragmentedModel model, DataIndex<K> index) {
-		return new IndexedContainmentValueSetSemantics<K>(model, index, this.internalObject(), null);
+		return new IndexedContainmentValueSetSemantics<K>(model, index, this.fInternalObject(), null);
 	}
 		
 } //ContainmentIndexedMapImpl

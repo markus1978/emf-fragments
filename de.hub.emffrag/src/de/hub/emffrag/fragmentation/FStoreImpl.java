@@ -40,14 +40,14 @@ public class FStoreImpl implements EStore {
 	}
 
 	private EObject getInternalObject(InternalEObject userObject) {
-		FInternalObjectImpl internalObject = ((FObjectImpl) userObject).internalObject();
+		FInternalObjectImpl internalObject = ((FObjectImpl) userObject).fInternalObject();
 		if (internalObject == null) {
 			// This object was not yet added to a model
 			internalObject = UserObjectsCache.newUserObjectsCache.createInternalObject((FObjectImpl)userObject);
 		} else if (internalObject.eIsProxy()) {
 			FragmentedModel model = internalObject.getFragmentation();
 			if (model != null) {
-				internalObject = (FInternalObjectImpl)EcoreUtil.resolve(internalObject, model.getResourceSet());
+				internalObject = (FInternalObjectImpl)EcoreUtil.resolve(internalObject, model.getInternalResourceSet());
 				if (internalObject.eIsProxy()) {
 					throw new RuntimeException("Could not resolve " + internalObject.eProxyURI());
 				}

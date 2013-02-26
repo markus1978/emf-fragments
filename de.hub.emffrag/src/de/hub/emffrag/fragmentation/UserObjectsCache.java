@@ -34,7 +34,7 @@ public class UserObjectsCache {
 		private final FInternalObjectImpl internalObject;
 		public UserObjectReference(FObjectImpl referent, ReferenceQueue<? super FObjectImpl> q) {
 			super(referent, q);
-			internalObject = referent.internalObject();
+			internalObject = referent.fInternalObject();
 		}		
 	}
 	
@@ -102,13 +102,13 @@ public class UserObjectsCache {
 	private FObjectImpl createUserObject(FInternalObjectImpl internalObject) {
 		EPackage userMetaModel = ReflectiveMetaModelRegistry.instance.getOppositeMetaModel(internalObject.eClass().getEPackage());
 		FObjectImpl userObject = (FObjectImpl) userMetaModel.getEFactoryInstance().create(ReflectiveMetaModelRegistry.instance.getOppositeClass(internalObject.eClass()));
-		userObject.setInternalObject(internalObject);
+		userObject.fSetInternalObject(internalObject);
 		addUserObjectToCache(internalObject, (FObjectImpl) userObject);
 		return userObject;
 	}
 
 	FInternalObjectImpl createInternalObject(FObjectImpl userObject) {
-		assert (userObject.internalObject() == null);
+		assert (userObject.fInternalObject() == null);
 		// create an uncontained internal object
 		// add the new internal object to the map for all uncontained (not
 		// added) internal objects
@@ -119,7 +119,7 @@ public class UserObjectsCache {
 		FInternalObjectImpl internalObject = new FInternalObjectImpl((EClass)internalPackage.getEClassifier(userClass.getName()));		
 		
 		boolean hasReferences = hasReferences();
-		userObject.setInternalObject(internalObject);
+		userObject.fSetInternalObject(internalObject);
 		addUserObjectToCache(internalObject, (FObjectImpl) userObject);
 		if (listener != null && !hasReferences) {			
 			listener.handleReferenced();
@@ -151,7 +151,7 @@ public class UserObjectsCache {
 	 * collection of the given user object.
 	 */
 	static void deleteReference(FObjectImpl object) {
-		FInternalObjectImpl internalObject = object.internalObject();
+		FInternalObjectImpl internalObject = object.fInternalObject();
 		if (internalObject != null) {
 			UserObjectsCache userObjectsCache = newUserObjectsCache;
 			Fragment fragment = internalObject.getFragment();

@@ -170,8 +170,8 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 	@SuppressWarnings("unused")
 	private void print(TestObject object2) {
 		System.out.println(System.identityHashCode(object2));
-		System.out.println(System.identityHashCode(((FObjectImpl)object2).internalObject()));
-		System.out.println(((FObjectImpl)object2).internalObject().eResource().getURI());
+		System.out.println(System.identityHashCode(((FObjectImpl)object2).fInternalObject()));
+		System.out.println(((FObjectImpl)object2).fInternalObject().eResource().getURI());
 		System.out.println(object2.eResource().getURI());
 		System.out.println(object2.eContainer().eResource().getURI());
 		System.out.println(object2.eContainingFeature().getName());

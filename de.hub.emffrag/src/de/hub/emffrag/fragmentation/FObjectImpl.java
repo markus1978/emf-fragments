@@ -17,11 +17,11 @@ public class FObjectImpl extends EStoreEObjectImpl {
 		eContainerFeatureID = Integer.MAX_VALUE;
 	}
 
-	protected void setInternalObject(FInternalObjectImpl internalObject) {
+	protected void fSetInternalObject(FInternalObjectImpl internalObject) {
 		this.internalObject = internalObject;
 	}
 
-	public FInternalObjectImpl internalObject() {
+	public FInternalObjectImpl fInternalObject() {
 		if (internalObject == null) {
 			// This object was not yet added to a model
 			internalObject = UserObjectsCache.newUserObjectsCache.createInternalObject(this);
@@ -29,9 +29,13 @@ public class FObjectImpl extends EStoreEObjectImpl {
 		return internalObject;
 	}
 
+	/**
+	 * Changes the super class behavior so that the fragmented model is always
+	 * returned as the objects resource.
+	 */
 	@Override
 	public Internal eDirectResource() {
-		return (Internal) internalObject().eResource();
+		return (Internal) fInternalObject().getFragmentation();
 	}
 
 	/**
@@ -88,12 +92,21 @@ public class FObjectImpl extends EStoreEObjectImpl {
 	 */
 	@Override
 	protected void eBasicSetContainer(InternalEObject newContainer, int newContainerFeatureID) {
+		// Container are handled internally, externally there are not container
+		// to change. This disables the according super class functionality.
+
 		// update the weak reference that is used instead of EMF's hard
-		// reference
-		super.eBasicSetContainer(newContainer, newContainerFeatureID);
+		// reference super.eBasicSetContainer(newContainer,
+		// newContainerFeatureID);
 		containerReference = new WeakReference<InternalEObject>(eContainer);
 	}
-	
+
+	public NotificationChain eBasicSetContainer(InternalEObject newContainer, int newContainerFeatureID, NotificationChain msgs) {
+		// Container are handled internally, externally there are not container
+		// to change. This disables the according super class functionality.
+		return msgs;
+	}
+
 	@Override
 	public NotificationChain eBasicRemoveFromContainer(NotificationChain msgs) {
 		// disables superclass implementation to avoid instant remove through

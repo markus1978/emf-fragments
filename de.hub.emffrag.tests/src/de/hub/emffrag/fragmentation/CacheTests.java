@@ -30,11 +30,14 @@ public class CacheTests extends AbstractFragmentationTests {
 		object1.getFragmentedContents().add(object2);
 		object2.getFragmentedContents().add(object3);
 
-		Assert.assertTrue(((FObjectImpl)object1).internalObject().getFragment().getUserObjectsCache().hasReferences());
-		Assert.assertNotNull(model.getFragment(object2.eResource().getURI()));
-		Assert.assertTrue(model.getFragment(object2.eResource().getURI()).getUserObjectsCache().hasReferences());
-		Assert.assertNotNull(model.getFragment(object3.eResource().getURI()));
-		Assert.assertTrue(model.getFragment(object3.eResource().getURI()).getUserObjectsCache().hasReferences());
+		FInternalObjectImpl iObject2 = ((FObjectImpl)object2).fInternalObject();
+		FInternalObjectImpl iObject3 = ((FObjectImpl)object3).fInternalObject();
+		
+		Assert.assertTrue(((FObjectImpl)object1).fInternalObject().getFragment().getUserObjectsCache().hasReferences());
+		Assert.assertNotNull(model.getFragment(iObject2.eResource().getURI()));
+		Assert.assertTrue(model.getFragment(iObject2.eResource().getURI()).getUserObjectsCache().hasReferences());
+		Assert.assertNotNull(model.getFragment(iObject3.eResource().getURI()));
+		Assert.assertTrue(model.getFragment(iObject3.eResource().getURI()).getUserObjectsCache().hasReferences());
 		model.assertNumberOfLoadedFragments(4);
 
 		deleteReference(object2);
@@ -100,11 +103,13 @@ public class CacheTests extends AbstractFragmentationTests {
 		object1.getFragmentedContents().add(object2);
 		object2.getFragmentedContents().add(object3);
 
-		Assert.assertTrue(((FObjectImpl)object1).internalObject().getFragment().getUserObjectsCache().hasReferences());
-		Assert.assertNotNull(model.getFragment(object2.eResource().getURI()));
-		Assert.assertTrue(model.getFragment(object2.eResource().getURI()).getUserObjectsCache().hasReferences());
-		Assert.assertNotNull(model.getFragment(object3.eResource().getURI()));
-		Assert.assertTrue(model.getFragment(object3.eResource().getURI()).getUserObjectsCache().hasReferences());
+		Assert.assertTrue(((FObjectImpl)object1).fInternalObject().getFragment().getUserObjectsCache().hasReferences());
+		FInternalObjectImpl iObject2 = ((FObjectImpl)object2).fInternalObject();
+		FInternalObjectImpl iObject3 = ((FObjectImpl)object3).fInternalObject();
+		Assert.assertNotNull(model.getFragment(iObject2.eResource().getURI()));
+		Assert.assertTrue(model.getFragment(iObject2.eResource().getURI()).getUserObjectsCache().hasReferences());
+		Assert.assertNotNull(model.getFragment(iObject3.eResource().getURI()));
+		Assert.assertTrue(model.getFragment(iObject3.eResource().getURI()).getUserObjectsCache().hasReferences());
 		model.assertNumberOfLoadedFragments(4);
 
 		deleteReference(object2);
@@ -153,12 +158,12 @@ public class CacheTests extends AbstractFragmentationTests {
 		for (int i = 0; i < 5; i++) {
 			Assert.assertEquals("testValue" + i, object1.getFragmentedContents().get(i).getName());
 		}
-		Assert.assertEquals(0, model.getStatistics().getLoads());
+		model.assertStatistics(-1, -1, 0, 1, -1, -1, -1, -1);
 		// touch the next 5 objects and see if they were not cached
 		for (int i = 5; i < 10; i++) {
 			Assert.assertEquals("testValue" + i, object1.getFragmentedContents().get(i).getName());
 		}
-		Assert.assertEquals(5, model.getStatistics().getLoads());
+		model.assertStatistics(-1, -1, 5, 6, -1, -1, -1, -1);
 	}
 
 	@Test
@@ -199,7 +204,7 @@ public class CacheTests extends AbstractFragmentationTests {
 		object2.getFragmentedContents().add(object3);
 		TestObject contents = Assertions.createTestObject(4);
 		object3.getRegularContents().add(contents);
-		String uriFragment = object3.eResource().getURIFragment(((FObjectImpl) contents).internalObject());
+		String uriFragment = ((FObjectImpl)object3).fInternalObject().eResource().getURIFragment(((FObjectImpl) contents).fInternalObject());
 		Assert.assertEquals("//@regularContents.0", uriFragment);
 
 		deleteReference(object2);
@@ -220,7 +225,7 @@ public class CacheTests extends AbstractFragmentationTests {
 		
 		model.assertStatistics(4, 4, 1, 1, 1, 1, 4, 4);
 
-		uriFragment = object3.eResource().getURIFragment(((FObjectImpl) contents).internalObject());
+		uriFragment = ((FObjectImpl)object3).fInternalObject().eResource().getURIFragment(((FObjectImpl) contents).fInternalObject());
 		Assert.assertEquals("//@regularContents.0", uriFragment);
 	}
 }

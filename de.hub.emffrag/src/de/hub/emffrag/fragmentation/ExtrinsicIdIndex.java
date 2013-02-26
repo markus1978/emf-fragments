@@ -64,8 +64,12 @@ public class ExtrinsicIdIndex extends DataIndex<Long> {
 			issueExtrinsicID(object);
 		} else {
 			Resource resource = object.eResource();
-			URI objectURI = resource.getURI().appendFragment(resource.getURIFragment(object));
-			set(Long.parseLong(extrinsicId), objectURI.toString());			
+			if (resource != null) { // TODO check if the object was moved to a different fragmented model
+				URI objectURI = resource.getURI().appendFragment(resource.getURIFragment(object));
+				set(Long.parseLong(extrinsicId), objectURI.toString());
+			} else {
+				remove(Long.parseLong(extrinsicId));
+			}
 		}
 	}
 	
