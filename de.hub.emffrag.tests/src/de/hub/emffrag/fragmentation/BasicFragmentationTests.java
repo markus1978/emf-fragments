@@ -6,7 +6,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import de.hub.emffrag.model.emffrag.Root;
-import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 
 public class BasicFragmentationTests extends AbstractFragmentationTests {
@@ -16,7 +15,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 	 */
 	@Test
 	public void testEmpty() {
-		FragmentedModel model = new FragmentedModel(createTestDataStore(), TestModelPackage.eINSTANCE);
+		FragmentedModel model = new FragmentedModel(createTestDataStore());
 		model.save();
 		model.assertFragmentsIndex(0l, 0l);
 		model.assertExtrinsicIdIndex(-1l, -1l);

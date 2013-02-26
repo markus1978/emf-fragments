@@ -10,7 +10,6 @@ import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -30,7 +29,6 @@ import de.hub.emffrag.datastore.KeyType;
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.fragmentation.UserObjectsCache.UserObjectsCacheListener;
 import de.hub.emffrag.model.emffrag.EmfFragFactory;
-import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import de.hub.emffrag.model.emffrag.Root;
 
 public class FragmentedModel extends ResourceImpl {
@@ -58,6 +56,43 @@ public class FragmentedModel extends ResourceImpl {
 	private final ExtrinsicIdIndex extrinsicIdIndex;
 	private final Statistics statistics = new Statistics();
 	private final Fragment rootFragment;
+	
+	
+	
+	public FragmentedModel(URI uri) {
+		this(DataStore.registry.createDataStore(uri));
+	}
+
+	FragmentedModel(DataStore dataStore) {
+		this(dataStore, -1);
+	}
+
+	FragmentedModel(DataStore dataStore, int cacheSize) {
+		super(URI.createURI(dataStore.getURIString()));
+		this.dataStore = dataStore;
+		if (cacheSize == -1) {
+			cacheSize = 100;
+		}
+		if (cacheSize < 1) {
+			throw new IllegalArgumentException("A zero fragment cache is not allowed. Try a larger cache size.");
+		}
+		fragmentCache = new FragmentCache(cacheSize);
+
+		this.fragmentIndex = new DataIndex<Long>(dataStore, FRAGMENTS_INDEX_PREFIX, LongKeyType.instance);
+		this.extrinsicIdIndex = new ExtrinsicIdIndex(dataStore);
+
+		resourceSet = createAndConfigureAResourceSet(dataStore);
+
+		Long first = fragmentIndex.first();
+		if (first == null) {
+			rootFragment = createFragment(null, null);
+		} else {
+			rootFragment = (Fragment) resourceSet.getResource(fragmentIndex.getURI(first), true);
+			for (EObject object: rootFragment.getContents()) {
+				getContents().add(((FInternalObjectImpl)object).getUserObject());
+			}
+		}
+	}
 
 	public class Statistics {
 		private int creates = 0;
@@ -181,7 +216,7 @@ public class FragmentedModel extends ResourceImpl {
 	 * configuration loading and saving models. This methods creates a
 	 * {@link ResourceSet} with the listed characteristics.
 	 */
-	private ResourceSet createAndConfigureAResourceSet(DataStore dataStore, EPackage... metaModels) {
+	private ResourceSet createAndConfigureAResourceSet(DataStore dataStore) {
 		ResourceSet resourceSet = new ResourceSetImpl() {
 			@Override
 			public EObject getEObject(URI uri, boolean loadOnDemand) {
@@ -201,12 +236,7 @@ public class FragmentedModel extends ResourceImpl {
 			}
 
 		};
-		resourceSet.getPackageRegistry().put(EmfFragPackage.eINSTANCE.getNsURI(),
-				ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(EmfFragPackage.eINSTANCE));
-		for (EPackage metaModel : metaModels) {
-			EPackage reflectiveMetaModel = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(metaModel);
-			resourceSet.getPackageRegistry().put(metaModel.getNsURI(), reflectiveMetaModel);
-		}
+
 		resourceSet.getURIConverter().getURIHandlers().add(0, new DataStoreURIHandler(dataStore));
 		resourceSet.getLoadOptions().putAll(options);
 		resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap()
@@ -228,37 +258,6 @@ public class FragmentedModel extends ResourceImpl {
 	 */
 	protected Fragment newFragment(URI uri, FragmentedModel model) {
 		return new XMIFragmentImpl(uri, model);
-	}
-
-	public FragmentedModel(DataStore dataStore, EPackage... metaModel) {
-		this(dataStore, -1, metaModel);
-	}
-
-	public FragmentedModel(DataStore dataStore, int cacheSize, EPackage... metaModel) {
-		super(URI.createURI(dataStore.getURIString()));
-		this.dataStore = dataStore;
-		if (cacheSize == -1) {
-			cacheSize = 100;
-		}
-		if (cacheSize < 1) {
-			throw new IllegalArgumentException("A zero fragment cache is not allowed. Try a larger cache size.");
-		}
-		fragmentCache = new FragmentCache(cacheSize);
-
-		this.fragmentIndex = new DataIndex<Long>(dataStore, FRAGMENTS_INDEX_PREFIX, LongKeyType.instance);
-		this.extrinsicIdIndex = new ExtrinsicIdIndex(dataStore);
-
-		resourceSet = createAndConfigureAResourceSet(dataStore, metaModel);
-
-		Long first = fragmentIndex.first();
-		if (first == null) {
-			rootFragment = createFragment(null, null);
-		} else {
-			rootFragment = (Fragment) resourceSet.getResource(fragmentIndex.getURI(first), true);
-			for (EObject object: rootFragment.getContents()) {
-				getContents().add(((FInternalObjectImpl)object).getUserObject());
-			}
-		}
 	}
 
 	/**

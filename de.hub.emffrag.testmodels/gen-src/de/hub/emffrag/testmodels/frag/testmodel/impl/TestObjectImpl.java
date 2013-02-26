@@ -137,5 +137,10 @@ public class TestObjectImpl extends FObjectImpl implements TestObject {
 	public EList<TestObject> getIndexedContents() {
 		return (EList<TestObject>)eGet(TestModelPackage.Literals.TEST_OBJECT__INDEXED_CONTENTS, true);
 	}
+	
+	@Override
+	public String toString() {
+		return getName();
+	}
 
 } //TestObjectImpl

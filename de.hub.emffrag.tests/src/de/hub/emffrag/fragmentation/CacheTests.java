@@ -158,7 +158,7 @@ public class CacheTests extends AbstractFragmentationTests {
 		for (int i = 0; i < 5; i++) {
 			Assert.assertEquals("testValue" + i, object1.getFragmentedContents().get(i).getName());
 		}
-		model.assertStatistics(-1, -1, 0, 1, -1, -1, -1, -1);
+		model.assertStatistics(-1, -1, 0, 2, -1, -1, -1, -1);
 		// touch the next 5 objects and see if they were not cached
 		for (int i = 5; i < 10; i++) {
 			Assert.assertEquals("testValue" + i, object1.getFragmentedContents().get(i).getName());

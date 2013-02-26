@@ -3,6 +3,10 @@ package de.hub.emffrag.datastore;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.eclipse.emf.common.util.URI;
 
 /**
  * TODO scan functionality
@@ -16,6 +20,40 @@ public abstract class DataStore {
 	private final String protocol;
 	private final String domain;
 	private final String dataStoreId;
+	
+	public interface DataStoreFactory {
+		public DataStore createDataStore(URI uri);
+	}
+	
+	public final static Registry registry = new Registry();
+	static {
+		registry.registerDataStoreFactory("memory", new DataStoreFactory() {	
+			public Map<String, DataStore> stores = new HashMap<String, DataStore>();
+			
+			@Override
+			public DataStore createDataStore(URI uri) {
+				String id = uri.authority() + uri.path();
+				DataStore dataStore = stores.get(id);
+				if (dataStore == null) {
+					dataStore = new InMemoryDataStore(uri.scheme(), uri.authority(), uri.path().substring(1), false);
+					stores.put(id, dataStore);
+				}
+				return dataStore;
+			}
+		});
+	}
+	
+	public final static class Registry {		
+		private final Map<String, DataStoreFactory> factories = new HashMap<String, DataStore.DataStoreFactory>();
+		public DataStore createDataStore(URI uri) {
+			DataStoreFactory dataStoreFactory = factories.get(uri.scheme());
+			return dataStoreFactory == null ? null : dataStoreFactory.createDataStore(uri);
+		}
+		
+		public void registerDataStoreFactory(String scheme, DataStoreFactory factory) {
+			factories.put(scheme, factory);
+		}
+	}
 
 	public DataStore(String protocol, String domain, String dataStoreId) {
 		super();

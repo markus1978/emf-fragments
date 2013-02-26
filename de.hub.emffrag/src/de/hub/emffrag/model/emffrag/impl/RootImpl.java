@@ -18,7 +18,9 @@ package de.hub.emffrag.model.emffrag.impl;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 
+import de.hub.emffrag.fragmentation.FInternalObjectImpl;
 import de.hub.emffrag.fragmentation.FObjectImpl;
+import de.hub.emffrag.fragmentation.FragmentedModel;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import de.hub.emffrag.model.emffrag.Root;
 import org.eclipse.emf.common.util.EList;
@@ -74,6 +76,17 @@ public class RootImpl extends FObjectImpl implements Root {
 	@SuppressWarnings("unchecked")
 	public EList<EObject> getContents() {
 		return (EList<EObject>)eGet(EmfFragPackage.Literals.ROOT__CONTENTS, true);
+	}
+	
+	@Override
+	public String toString() {
+		FInternalObjectImpl fInternalObject = fInternalObject();
+		FragmentedModel fragmentation = fInternalObject.getFragmentation();
+		if (fragmentation != null) {
+			return "root of " + fragmentation.getURI();
+		} else {
+			return "unattached root";
+		}
 	}
 
 } //RootImpl

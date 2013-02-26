@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
@@ -22,7 +23,13 @@ public class UserObjectsCache {
 		public void handleUnReferenced();
 	}
 	
-	private final static ExecutorService es = Executors.newSingleThreadExecutor();
+	private final static ExecutorService es = Executors.newSingleThreadExecutor(new ThreadFactory() {				
+	    public Thread newThread(Runnable r) {
+	        Thread t=new Thread(r);
+	        t.setDaemon(true);
+	        return t;
+	    }
+	});
 	
 	final static UserObjectsCache newUserObjectsCache = new UserObjectsCache();
 	private static UOCController uocController = new UOCController();
@@ -115,7 +122,7 @@ public class UserObjectsCache {
 
 		// TODO this seems to have low performance
 		EClass userClass = userObject.eClass();
-		EPackage internalPackage = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(userClass.getEPackage());
+		EPackage internalPackage = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(userClass.getEPackage());		
 		FInternalObjectImpl internalObject = new FInternalObjectImpl((EClass)internalPackage.getEClassifier(userClass.getName()));		
 		
 		boolean hasReferences = hasReferences();

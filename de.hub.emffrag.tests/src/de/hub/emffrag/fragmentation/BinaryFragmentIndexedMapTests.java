@@ -9,7 +9,7 @@ public class BinaryFragmentIndexedMapTests extends IndexedMapTests {
 
 	@Override
 	protected FragmentedModel createFragmentedModel(DataStore dataStore, int cacheSize, EPackage metaModel) {
-		return new FragmentedModel(dataStore, cacheSize, metaModel) {
+		return new FragmentedModel(dataStore, cacheSize) {
 			@Override
 			protected Fragment newFragment(URI uri, FragmentedModel model) {
 				return new BinaryFragmentImpl(uri, model);

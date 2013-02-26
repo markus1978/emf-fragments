@@ -6,6 +6,7 @@ import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EStructuralFeature.Setting;
 import org.eclipse.emf.ecore.InternalEObject;
@@ -157,8 +158,15 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 			if (newResource != null) {
 				getUserObjectCache().removeCachedUserObject(this);
 				newResource.getUserObjectsCache().addUserObjectToCache(this, (FObjectImpl)getUserObject());
+				
+				FragmentedModel newFragmentedModel = newResource.getFragmentedModel();
+				if (newFragmentedModel != null) {
+					EPackage metaModel = eClass().getEPackage();
+					newFragmentedModel.getInternalResourceSet().getPackageRegistry().put(metaModel.getNsURI(), metaModel);
+				}
 			}
 		}
+		
 		return result;
 	}
 
