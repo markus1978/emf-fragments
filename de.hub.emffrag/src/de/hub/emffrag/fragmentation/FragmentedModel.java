@@ -361,6 +361,15 @@ public class FragmentedModel extends ResourceImpl {
 		return newFragment;
 	}
 	
+	
+	/**
+	 * Fragment
+	 */
+	@Override
+	public void load(Map<?, ?> options) throws IOException {
+	
+	}
+
 	@Override
 	public void delete(Map<?, ?> options) throws IOException {
 		throw new UnsupportedOperationException("This is not supported yet.");
