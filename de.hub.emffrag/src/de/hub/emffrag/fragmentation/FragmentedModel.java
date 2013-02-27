@@ -57,14 +57,8 @@ public class FragmentedModel extends ResourceImpl {
 	private final ExtrinsicIdIndex extrinsicIdIndex;
 	private final Statistics statistics = new Statistics();
 	private final Fragment rootFragment;
-	
-	
-	
-	public FragmentedModel(URI uri) {
-		this(DataStore.registry.createDataStore(uri));
-	}
 
-	FragmentedModel(DataStore dataStore) {
+	public FragmentedModel(DataStore dataStore) {
 		this(dataStore, -1);
 	}
 
