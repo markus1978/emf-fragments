@@ -16,8 +16,11 @@
 package de.hub.emffrag.model.emffrag.presentation;
 
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -912,18 +915,34 @@ public class EmfFragEditor
 	 * @generated NOT
 	 */
 	public void createModel() {		
-		URI resourceURI = EditUIUtil.getURI(getEditorInput());
-		resourceURI = URI.createURI("memory://localhost/test");
+		URI resourceURI = null;		
+		try {
+			String uriString = null;
+			char[] chars = new char[512];
+			URL url = new URL(EditUIUtil.getURI(getEditorInput()).toString());
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()));
+			bufferedReader.read(chars);
+			bufferedReader.close();
+			uriString = new String(chars);
+			resourceURI = URI.createURI(uriString);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+
 		Exception exception = null;
 		Resource resource = null;
 		try {
 			// Load the resource through the editing domain.
 			//
 			resource = editingDomain.getResourceSet().getResource(resourceURI, true);			
+			
+			// TODO this should be removed
 			if (resource.getContents().isEmpty()) {
-				ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(TestModelPackage.eINSTANCE);
+				ReflectiveMetaModelRegistry.instance.registerUserMetaModel(TestModelPackage.eINSTANCE);
 				((FragmentedModel)resource).root().getContents().add(TestModelFactory.eINSTANCE.createTestObject());
 			}
+			
 			resource.save(null);
 		}
 		catch (Exception e) {

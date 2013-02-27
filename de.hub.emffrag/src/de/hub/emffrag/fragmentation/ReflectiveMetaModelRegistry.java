@@ -38,52 +38,66 @@ public class ReflectiveMetaModelRegistry {
 	private ReflectiveMetaModelRegistry() {
 	}
 
-	private final Map<EPackage, EPackage> reflectiveMetaModelRegistry = new HashMap<EPackage, EPackage>();
-	private final Map<EPackage, EPackage> regularMetaModelRegistry = new HashMap<EPackage, EPackage>();
+	private final Map<String, EPackage> internalMetaModelRegistry = new HashMap<String, EPackage>();
+	private final Map<String, EPackage> userMetaModelRegistry = new HashMap<String, EPackage>();
 
 	@SuppressWarnings("unchecked")
-	public <T extends EPackage> T registerRegularMetaModel(T source) {
-		T target = (T) reflectiveMetaModelRegistry.get(source);
+	public <T extends EPackage> T registerUserMetaModel(T source) {
+		String nsURI = source.getNsURI();
+		T target = (T) internalMetaModelRegistry.get(nsURI);
 		if (target == null) {
 			target = generateReflectiveMetaModel(source);
-			reflectiveMetaModelRegistry.put(source, target);
-			regularMetaModelRegistry.put(target, source);
+			internalMetaModelRegistry.put(nsURI, target);
+			userMetaModelRegistry.put(nsURI, source);
 		}
 		return target;
 	}
 	
 	private boolean isReflectiveClass(EClass reflectiveClass) {
-		return regularMetaModelRegistry.get(reflectiveClass.getEPackage()) != null;		
+		return userMetaModelRegistry.get(reflectiveClass.getEPackage()) != null;		
+	}
+	
+	public EClass getInternalClass(EClass theClass) {
+		return getOtherClass(internalMetaModelRegistry, theClass);
+	}
+	
+	public EStructuralFeature getInternalFeature(EStructuralFeature feature) {
+		return getOtherFeature(internalMetaModelRegistry, feature);
+	}
+	
+	public EPackage getInternalMetaModel(EPackage thePackage) {
+		return getOtherMetaModel(internalMetaModelRegistry, thePackage);
+	}
+	
+	private EClass getOtherClass(Map<String, EPackage> mapping, EClass theClass) {
+		EPackage metaModel = getOtherMetaModel(mapping, theClass.getEPackage());
+		return metaModel == null ? null : (EClass)metaModel.getEClassifier(theClass.getName());
+	}
+	
+	private EStructuralFeature getOtherFeature(Map<String, EPackage> mapping, EStructuralFeature feature) {
+		EClass theClass = getOtherClass(mapping, feature.getEContainingClass());
+		return theClass == null ? null : theClass.getEStructuralFeature(feature.getFeatureID());
+	}
+	
+	private EPackage getOtherMetaModel(Map<String, EPackage> mapping, EPackage thePackage) {
+		return mapping.get(thePackage.getNsURI());
+	}
+	
+	public EStructuralFeature getRegularFeature(EStructuralFeature feature) {
+		return getOtherFeature(userMetaModelRegistry, feature);
 	}
 
-	public EClass getOppositeClass(EClass theClass) {
-		EPackage metaModel = theClass.getEPackage();
-		return metaModel == null ? null : (EClass) getOppositeMetaModel(metaModel).getEClassifier(theClass.getName());
+	public EPackage getUserMetaModel(EPackage thePackage) {
+		return getOtherMetaModel(userMetaModelRegistry, thePackage);
 	}
 
-	public EPackage getOppositeMetaModel(EPackage metaModel) {
-		EPackage reflectiveMetaModel = reflectiveMetaModelRegistry.get(metaModel);
-		EPackage regularMetaModel = regularMetaModelRegistry.get(metaModel);
-		if (reflectiveMetaModel == null) {
-			if (regularMetaModel == null) {
-				return null;
-			} else {
-				return regularMetaModel;
-			}
-		} else if (regularMetaModel == null) {
-			return reflectiveMetaModel;
-		} else {
-			throw new IllegalArgumentException("meta model is registered in both directions");
-		}
-	}
-
-	public EStructuralFeature getOppositeFeature(EStructuralFeature theFeature) {
-		EClass oppositeClass = getOppositeClass(theFeature.getEContainingClass());		
-		return oppositeClass == null ? null : oppositeClass.getEStructuralFeature(theFeature.getFeatureID());
+	public EClass getUserClass(EClass theClass) {
+		return getOtherClass(userMetaModelRegistry, theClass);
 	}
 
 	@SuppressWarnings("unchecked")
 	private <T extends EPackage> T generateReflectiveMetaModel(T source) {
+		source = (T)EPackage.Registry.INSTANCE.get(source.getNsURI());
 		EFactory regularFactory = source.getEFactoryInstance();
 		T target = null;
 		try {
@@ -95,8 +109,7 @@ public class ReflectiveMetaModelRegistry {
 			target.getClass().getMethod("initializePackageContents", new Class<?>[] {}).invoke(target, new Object[] {});
 			target.getClass().getMethod("freeze", new Class<?>[] {}).invoke(target, new Object[] {});
 		} catch (Exception e) {
-			throw new RuntimeException(
-					"Exception during reflective meta-model generation, probably EMF internals have changed.", e);
+			throw new RuntimeException("Exception during reflective meta-model generation, probably EMF internals have changed.", e);
 		}
 		// EMF uses its notification process to clear a packages factory, if a
 		// new package instance is created. Weird.
@@ -122,8 +135,8 @@ public class ReflectiveMetaModelRegistry {
 					for (Integer superTypeIndex: superTypesToChange) {
 						EClass superType = superTypes.get(superTypeIndex);
 						if (!isReflectiveClass(superType)) {
-							registerRegularMetaModel(superType.getEPackage());
-							superTypes.set(superTypeIndex, getOppositeClass(superType));
+							registerUserMetaModel(superType.getEPackage());
+							superTypes.set(superTypeIndex, getInternalClass(superType));
 						}
 					}
 				} else if (next instanceof EReference) {
@@ -166,7 +179,7 @@ public class ReflectiveMetaModelRegistry {
 	}
 
 	void clear() {
-		reflectiveMetaModelRegistry.clear();
-		regularMetaModelRegistry.clear();
+		internalMetaModelRegistry.clear();
+		userMetaModelRegistry.clear();
 	}
 }

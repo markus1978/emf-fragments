@@ -61,7 +61,7 @@ public class FStoreImpl implements EStore {
 	}
 
 	private EStructuralFeature getInternalFeature(EStructuralFeature feature) {
-		return ReflectiveMetaModelRegistry.instance.getOppositeFeature(feature);		
+		return ReflectiveMetaModelRegistry.instance.getInternalFeature(feature);		
 	}
 
 	private Object getInternalValue(Object userValue, EStructuralFeature internalFeature) {
@@ -99,7 +99,7 @@ public class FStoreImpl implements EStore {
 			internalObject.eSet(feature, internalValue);
 			result = oldValue;
 		}
-		if (feature instanceof EReference && !((EReference) feature).isContainment()) {
+		if (feature instanceof EReference && internalValue != null && !((EReference) feature).isContainment()) {
 			((FInternalObjectImpl) internalValue).getExtrinsicID(true);
 		}
 		return result;
@@ -221,7 +221,7 @@ public class FStoreImpl implements EStore {
 	@Override
 	public EStructuralFeature getContainingFeature(InternalEObject object) {
 		EStructuralFeature internalFeature = getInternalObject(object).eContainingFeature();
-		return ReflectiveMetaModelRegistry.instance.getOppositeFeature(internalFeature);		
+		return ReflectiveMetaModelRegistry.instance.getRegularFeature(internalFeature);		
 	}
 
 	@Override

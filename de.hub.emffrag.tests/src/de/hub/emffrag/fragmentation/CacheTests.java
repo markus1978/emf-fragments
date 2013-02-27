@@ -187,7 +187,7 @@ public class CacheTests extends AbstractFragmentationTests {
 		while (allContents.hasNext()) {
 			FInternalObjectImpl next = (FInternalObjectImpl) allContents.next();
 			System.out.print(resource.getURIFragment(next) + ":");
-			System.out.print(next.eGet(ReflectiveMetaModelRegistry.instance.getOppositeFeature(metaModel.getTestObject_Name()))
+			System.out.print(next.eGet(ReflectiveMetaModelRegistry.instance.getInternalFeature(metaModel.getTestObject_Name()))
 					+ ":");
 			System.out.print(next.eIsProxy() + ":");
 			System.out.print(System.identityHashCode(next) + ":");

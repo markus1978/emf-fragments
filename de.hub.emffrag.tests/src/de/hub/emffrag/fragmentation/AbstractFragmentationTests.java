@@ -53,7 +53,7 @@ public class AbstractFragmentationTests  extends AbstractTests {
 	public void standardInitialization() {
 		dataStore = createTestDataStore();
 		metaModel = getMetaModel();
-		ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(metaModel);
+		ReflectiveMetaModelRegistry.instance.registerUserMetaModel(metaModel);
 		
 		if (doInitializeModel()) {
 			model = createFragmentedModel(dataStore, metaModel);

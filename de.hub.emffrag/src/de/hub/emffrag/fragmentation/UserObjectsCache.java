@@ -107,8 +107,8 @@ public class UserObjectsCache {
 	}
 
 	private FObjectImpl createUserObject(FInternalObjectImpl internalObject) {
-		EPackage userMetaModel = ReflectiveMetaModelRegistry.instance.getOppositeMetaModel(internalObject.eClass().getEPackage());
-		FObjectImpl userObject = (FObjectImpl) userMetaModel.getEFactoryInstance().create(ReflectiveMetaModelRegistry.instance.getOppositeClass(internalObject.eClass()));
+		EPackage userMetaModel = ReflectiveMetaModelRegistry.instance.getUserMetaModel(internalObject.eClass().getEPackage());
+		FObjectImpl userObject = (FObjectImpl) userMetaModel.getEFactoryInstance().create(ReflectiveMetaModelRegistry.instance.getUserClass(internalObject.eClass()));
 		userObject.fSetInternalObject(internalObject);
 		addUserObjectToCache(internalObject, (FObjectImpl) userObject);
 		return userObject;
@@ -122,7 +122,7 @@ public class UserObjectsCache {
 
 		// TODO this seems to have low performance
 		EClass userClass = userObject.eClass();
-		EPackage internalPackage = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(userClass.getEPackage());		
+		EPackage internalPackage = ReflectiveMetaModelRegistry.instance.registerUserMetaModel(userClass.getEPackage());		
 		FInternalObjectImpl internalObject = new FInternalObjectImpl((EClass)internalPackage.getEClassifier(userClass.getName()));		
 		
 		boolean hasReferences = hasReferences();

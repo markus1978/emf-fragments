@@ -7,6 +7,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EStructuralFeature.Setting;
 import org.eclipse.emf.ecore.InternalEObject;
@@ -241,8 +242,17 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 		// have an effect on the fragmentation. The following code realizes
 		// these effects.
 		if (newContainer != null && newFragmentURI == null) {
-			int featureID = EOPPOSITE_FEATURE_BASE - newContainerFeatureID;
-			EStructuralFeature feature = newContainer.eClass().getEStructuralFeature(featureID);
+			EStructuralFeature feature;
+			if (newContainerFeatureID <= EOPPOSITE_FEATURE_BASE) {
+				newContainerFeatureID = EOPPOSITE_FEATURE_BASE - newContainerFeatureID;
+				feature = newContainer.eClass().getEStructuralFeature(newContainerFeatureID);
+			} else {			
+				EStructuralFeature containerFeature = this.eClass().getEStructuralFeature(newContainerFeatureID);
+				feature = ((EReference)containerFeature).getEOpposite();
+				if (feature == null) {
+					throw new RuntimeException("Unknown opposite.");			
+				}
+			}
 			FragmentationType fragmentationType = EMFFragUtil.getFragmentationType(feature);
 			if (feature != null && fragmentationType != FragmentationType.None) {
 				// if the object is not yet root of a fragment, a new fragment

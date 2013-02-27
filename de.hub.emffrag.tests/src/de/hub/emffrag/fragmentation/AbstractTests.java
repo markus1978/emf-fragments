@@ -2,6 +2,7 @@ package de.hub.emffrag.fragmentation;
 
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.junit.Before;
 import org.junit.BeforeClass;
 
 import de.hub.emffrag.datastore.DataIndex;
@@ -17,6 +18,11 @@ import de.hub.emffrag.datastore.LongKeyType;
  * frameworks (XMI, XMI with reflection, EMF-Fragments).
  */
 public class AbstractTests {
+	
+	@Before
+	public void resetRegistry() {
+//		ReflectiveMetaModelRegistry.instance.clear(); // TODO weird stuff happends if we clear the registry everytime.
+	}
 
 	@BeforeClass
 	public static void setUp() {		

@@ -102,8 +102,8 @@ public class ReflectiveMetaModelTests extends AbstractReflectiveModelTests {
 
 	@Test
 	public void testReflectiveMetaModelRegistryTest() {
-		TestModelPackage one = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(TestModelPackage.eINSTANCE);
-		TestModelPackage two = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(TestModelPackage.eINSTANCE);
+		TestModelPackage one = ReflectiveMetaModelRegistry.instance.registerUserMetaModel(TestModelPackage.eINSTANCE);
+		TestModelPackage two = ReflectiveMetaModelRegistry.instance.registerUserMetaModel(TestModelPackage.eINSTANCE);
 
 		Assert.assertEquals(one, two);
 	}

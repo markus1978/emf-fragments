@@ -65,7 +65,7 @@ public class FragmentedModel extends ResourceImpl {
 	FragmentedModel(DataStore dataStore, int cacheSize) {
 		super(URI.createURI(dataStore.getURIString()));
 		
-		ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(EmfFragPackage.eINSTANCE);
+		ReflectiveMetaModelRegistry.instance.registerUserMetaModel(EmfFragPackage.eINSTANCE);
 		
 		this.dataStore = dataStore;
 		if (cacheSize == -1) {

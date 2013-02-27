@@ -32,7 +32,7 @@ public class AbstractReflectiveModelTests extends AbstractTests {
 	@Before
 	public void standardInitialization() {
 		dataStore = createTestDataStore();
-		metaModel = ReflectiveMetaModelRegistry.instance.registerRegularMetaModel(TestModelPackage.eINSTANCE);
+		metaModel = ReflectiveMetaModelRegistry.instance.registerUserMetaModel(TestModelPackage.eINSTANCE);
 		object1 = new FInternalObjectImpl(metaModel.getTestObject());
 		object2 = new FInternalObjectImpl(metaModel.getTestObject());
 		object3 = new FInternalObjectImpl(metaModel.getTestObject());
