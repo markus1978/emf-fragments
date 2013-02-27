@@ -51,10 +51,14 @@ public class ReflectiveMetaModelRegistry {
 		}
 		return target;
 	}
+	
+	private boolean isReflectiveClass(EClass reflectiveClass) {
+		return regularMetaModelRegistry.get(reflectiveClass.getEPackage()) != null;		
+	}
 
 	public EClass getOppositeClass(EClass theClass) {
 		EPackage metaModel = theClass.getEPackage();
-		return (EClass) getOppositeMetaModel(metaModel).getEClassifier(theClass.getName());
+		return metaModel == null ? null : (EClass) getOppositeMetaModel(metaModel).getEClassifier(theClass.getName());
 	}
 
 	public EPackage getOppositeMetaModel(EPackage metaModel) {
@@ -62,7 +66,7 @@ public class ReflectiveMetaModelRegistry {
 		EPackage regularMetaModel = regularMetaModelRegistry.get(metaModel);
 		if (reflectiveMetaModel == null) {
 			if (regularMetaModel == null) {
-				throw new IllegalArgumentException("meta model is not registered");
+				return null;
 			} else {
 				return regularMetaModel;
 			}
@@ -74,7 +78,8 @@ public class ReflectiveMetaModelRegistry {
 	}
 
 	public EStructuralFeature getOppositeFeature(EStructuralFeature theFeature) {
-		return getOppositeClass(theFeature.getEContainingClass()).getEStructuralFeature(theFeature.getFeatureID());
+		EClass oppositeClass = getOppositeClass(theFeature.getEContainingClass());		
+		return oppositeClass == null ? null : oppositeClass.getEStructuralFeature(theFeature.getFeatureID());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -116,8 +121,10 @@ public class ReflectiveMetaModelRegistry {
 					}
 					for (Integer superTypeIndex: superTypesToChange) {
 						EClass superType = superTypes.get(superTypeIndex);
-						registerRegularMetaModel(superType.getEPackage());
-						superTypes.set(superTypeIndex, getOppositeClass(superType));
+						if (!isReflectiveClass(superType)) {
+							registerRegularMetaModel(superType.getEPackage());
+							superTypes.set(superTypeIndex, getOppositeClass(superType));
+						}
 					}
 				} else if (next instanceof EReference) {
 					FragmentationType fragmentationType = EMFFragUtil.getFragmentationType((EReference)next);
@@ -156,5 +163,10 @@ public class ReflectiveMetaModelRegistry {
 		factory.setEPackage(target);
 		target.setEFactoryInstance(factory);
 		return target;
+	}
+
+	void clear() {
+		reflectiveMetaModelRegistry.clear();
+		regularMetaModelRegistry.clear();
 	}
 }

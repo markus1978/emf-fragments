@@ -163,7 +163,7 @@ public class CacheTests extends AbstractFragmentationTests {
 		for (int i = 5; i < 10; i++) {
 			Assert.assertEquals("testValue" + i, object1.getFragmentedContents().get(i).getName());
 		}
-		model.assertStatistics(-1, -1, 5, 6, -1, -1, -1, -1);
+		model.assertStatistics(-1, -1, 5, 8, -1, -1, -1, -1);
 	}
 
 	@Test

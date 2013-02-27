@@ -88,9 +88,9 @@ public class FStoreImpl implements EStore {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Object set(InternalEObject object, EStructuralFeature feature, int index, Object value) {
-		feature = getInternalFeature(feature);
-		Object internalValue = getInternalValue(value, feature);
 		EObject internalObject = getInternalObject(object);
+		feature = getInternalFeature(feature);
+		Object internalValue = getInternalValue(value, feature);		
 		Object result = null;
 		if (feature.isMany()) {
 			result = getUserValue(((EList) internalObject.eGet(feature)).set(index, internalValue), feature);

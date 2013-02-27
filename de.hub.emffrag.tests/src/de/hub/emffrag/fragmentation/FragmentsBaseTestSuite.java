@@ -7,7 +7,9 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ 
 		// non fragmentation tests
-		IndexTests.class, ReflectiveMetaModelTests.class,
+		IndexTests.class, 
+		ReflectiveMetaModelTests.class, 
+		ReflectiveMetaModelRegistryTests.class,
 		// fragmentation tests based on XMI-fragments
 		BasicFragmentationTests.class, 
 		CrossReferenceTests.class, 
