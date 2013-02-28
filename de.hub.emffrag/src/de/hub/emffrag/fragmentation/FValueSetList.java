@@ -42,7 +42,10 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 	}
 	
 	static String createPrefix(FInternalObjectImpl object, EStructuralFeature feature) {
-		String extrinsicID = object.getExtrinsicID(true);
+		String extrinsicID = object.getExtrinsicID(true);		
+		if (FInternalObjectImpl.isPreliminary(extrinsicID)) {
+			throw new RuntimeException("Indexed reference owner have to be added to a fragmented model before the indexed reference can be used.");
+		}
 		int featureId = feature.getFeatureID();
 		return FragmentedModel.INDEX_FEATURES_PREFIX + "_" + extrinsicID + "_" + featureId;
 	}

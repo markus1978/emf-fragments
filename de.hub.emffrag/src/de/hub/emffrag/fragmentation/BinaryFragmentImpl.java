@@ -198,7 +198,11 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 			} else {
 				if (currentObject.hasExtrinsicId()) {
 					Fragment fragment = (Fragment)currentObject.eResource();
-					uri = fragment.getFragmentedModel().getExtrinsicIdIndex().createExtrinsicIdUri(currentObject.getExtrinsicID(false));
+					String extrinsicID = currentObject.getExtrinsicID(false);
+					if (FInternalObjectImpl.isPreliminary(extrinsicID)) {
+						throw new RuntimeException("Objects that reference other objects with only priliminary extrinsic IDs cannot be persisted. Add the referenced object to a fragmented model first.");
+					}
+					uri = fragment.getFragmentedModel().getExtrinsicIdIndex().createExtrinsicIdUri(extrinsicID);
 					super.writeURI(uri, null);					
 				} else {
 					super.writeURI(uri, uriFragment);

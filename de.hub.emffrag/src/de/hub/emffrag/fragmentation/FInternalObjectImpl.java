@@ -23,6 +23,13 @@ import de.hub.emffrag.util.EMFFragUtil;
 import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
 
 public class FInternalObjectImpl extends DynamicEObjectImpl {
+	
+	private boolean hasPriliminaryExtrinsicID = false;
+	private static String preliminaryID = "PRELIMINARY_ID";
+	
+	public static boolean isPreliminary(String extrinsicID) {
+		return preliminaryID.equals(extrinsicID);
+	}
 
 	public FInternalObjectImpl(EClass eClass) {
 		super(eClass);
@@ -32,18 +39,23 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 		Resource eResource = eResource();
 		return eResource != null && eResource instanceof Fragment
 				&& (eContainer() == null || eResource != eContainer().eResource());
-	}
+	}		
 
 	public String getExtrinsicID(boolean issueIfNecessary) {
 		Fragment fragment = getFragment();
 		if (fragment != null) {
-			String extrinsicID = fragment.getID(this);
-			if (extrinsicID == null && issueIfNecessary) {
+			String extrinsicID = fragment.getID(this);						
+			if (extrinsicID == null && (issueIfNecessary || hasPriliminaryExtrinsicID)) {
 				extrinsicID = fragment.getFragmentedModel().getExtrinsicIdIndex().issueExtrinsicID(this);
 			}
 			return extrinsicID;
 		} else {
-			throw new RuntimeException("Objects has to be part of a fragmented model.");
+			if (hasPriliminaryExtrinsicID || issueIfNecessary) {
+				hasPriliminaryExtrinsicID = true;
+				return preliminaryID; 
+			} else {
+				return null;
+			}
 		}
 	}
 
@@ -94,27 +106,6 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 			return null;
 		}
 	}
-
-	/**
-	 * Marks that this object is now cross referenced. Is called even if this
-	 * object is already cross referenced.
-	 */
-//	public void setHasExtrinsicId() {
-//		if (!hasExtrinsicId()) {
-//			Fragment resource = (Fragment) eResource();
-//			FragmentedModel fragmentedModel = getFragmentation();
-//			if (fragmentedModel != null) {
-//				if (resource != null) {
-//					fragmentedModel.getExtrinsicIdIndex().updateObjectURI(null, this);
-//				} else {
-//					throw new IllegalStateException("Object cannot be cross referenced");
-//				}
-//			}
-//			// else: if the referenced object is not part of the model, TODO
-//			// (multi fragmentation models)
-//			// should this be an error?
-//		}
-//	}
 
 	public boolean hasExtrinsicId() {
 		Resource eResource = eResource();
