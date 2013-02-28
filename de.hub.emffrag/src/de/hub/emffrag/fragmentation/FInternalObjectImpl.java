@@ -52,6 +52,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 				if (defaultModelExtrinsicId != null) {
 					extrinsicID = defaultModelExtrinsicId;
 					fragment.getFragmentedModel().getExtrinsicIdIndex().updateObjectURI(defaultModelExtrinsicId, this);
+					fragment.setID(this, extrinsicID);
 					defaultModelExtrinsicId = null;
 					return extrinsicID;
 				} else if (issueIfNecessary || hasPriliminaryExtrinsicID) {
@@ -68,7 +69,9 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 					hasPriliminaryExtrinsicID = true;
 					return preliminaryID; 
 				} else if (EmfFragActivator.instance.extrinsicIdBehaviour == ExtrinsicIdBehaviour.defaultModel) {
-					defaultModelExtrinsicId = EmfFragActivator.instance.defaultModelForExtrinsicIdBehavior.getExtrinsicIdIndex().issueExtrinsicID(this);
+					if (defaultModelExtrinsicId == null) {
+						defaultModelExtrinsicId = EmfFragActivator.instance.defaultModelForExtrinsicIdBehavior.getExtrinsicIdIndex().issueExtrinsicID(this);
+					}
 					return defaultModelExtrinsicId;
 				} else {
 					throw new NotInAFragmentedModelException();
