@@ -366,10 +366,11 @@ public class FragmentedModel extends ResourceImpl {
 
 	@Override
 	public void delete(Map<?, ?> options) throws IOException {
-		throw new UnsupportedOperationException("This is not supported yet.");
+		dataStore.drop();
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
 	public void save(Map<?, ?> options) {
 		if (options != null) {
 			options.putAll((Map)FragmentedModel.options);

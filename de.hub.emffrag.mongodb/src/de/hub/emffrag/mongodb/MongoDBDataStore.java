@@ -57,13 +57,13 @@ public class MongoDBDataStore extends DataStore {
 		} catch (UnknownHostException e) {
 			throw new IllegalArgumentException("Given host does not exists or DB is not running: " + host);	
 		}
-		db = dbClient.getDB(dataStoreId);
+		db = dbClient.getDB("emffrag");
 		
-		collection = db.getCollection("emffrag");		
+		collection = db.getCollection(dataStoreId);		
 		if (dropFirst) {
 			collection.dropIndexes();
 			collection.drop();
-			collection = db.getCollection("emffrag");	
+			collection = db.getCollection(dataStoreId);	
 		}
 		collection.ensureIndex(KEY);				
 	}
@@ -114,7 +114,7 @@ public class MongoDBDataStore extends DataStore {
 	public boolean check(byte[] key) {
 		DBCursor cursor = collection.find(new BasicDBObject(KEY, new String(key)));
 		try {
-			return cursor.hasNext();
+			return !cursor.hasNext();
 		} finally {
 			cursor.close();
 		}		
@@ -139,4 +139,10 @@ public class MongoDBDataStore extends DataStore {
 		collection.findAndRemove(new BasicDBObject(KEY, new String(key)));
 	}
 
+	@Override
+	public void drop() {
+		collection.drop();
+	}
+
+	
 }

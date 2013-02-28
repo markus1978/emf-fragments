@@ -90,7 +90,7 @@ public class DataIndex<KT> {
 		return ceiling == null ? null : keyType.deserialize(ceiling, fullPrefix.length);
 	}
 	
-	public boolean existis(KT key) {
+	public boolean exists(KT key) {
 		return !store.check(getStoreKey(key));
 	}
 	

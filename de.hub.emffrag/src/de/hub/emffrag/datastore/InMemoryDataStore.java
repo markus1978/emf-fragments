@@ -86,6 +86,12 @@ public class InMemoryDataStore extends DataStore {
 		}
 		return buffer.toString();
 	}
+
+	@Override
+	public void drop() {
+		store.clear();
+	}
+	
 	
 
 }

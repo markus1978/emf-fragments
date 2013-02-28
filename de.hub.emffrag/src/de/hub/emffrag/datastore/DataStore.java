@@ -80,6 +80,11 @@ public abstract class DataStore {
 	public abstract boolean ckeckAndCreate(byte[] key);
 
 	public abstract void delete(byte[] bytes);
+	
+	/**
+	 * Delete the whole store. It cannot be used afterwards.
+	 */
+	public abstract void drop();
 
 	public String getProtocol() {
 		return protocol;

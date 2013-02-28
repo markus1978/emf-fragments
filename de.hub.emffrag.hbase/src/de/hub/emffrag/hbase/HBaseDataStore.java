@@ -247,4 +247,16 @@ public class HBaseDataStore extends DataStore {
 			Throwables.propagate(e);
 		}
 	}
+
+	@Override
+	public void drop() {
+		initialize();
+		try {
+			admin.deleteTable(dataStoreId);
+		} catch (IOException e) {
+			Throwables.propagate(e);
+		}
+	}
+	
+	
 }

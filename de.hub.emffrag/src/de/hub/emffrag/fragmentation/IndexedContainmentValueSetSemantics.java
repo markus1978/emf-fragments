@@ -18,7 +18,7 @@ public class IndexedContainmentValueSetSemantics<K> extends IndexedValueSetSeman
 
 	@Override
 	public FInternalObjectImpl getValueForExactKey(K key) {
-		if (index.existis(key)) {
+		if (index.exists(key)) {
 			return (FInternalObjectImpl)model.resolveObjectURI(index.getURI(key).appendFragment("/"));
 		} else {
 			return null;

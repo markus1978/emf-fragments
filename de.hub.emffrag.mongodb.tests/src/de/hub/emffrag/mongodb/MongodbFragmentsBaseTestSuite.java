@@ -8,10 +8,17 @@ import de.hub.emffrag.fragmentation.FragmentsBaseTestSuite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ 
 		// fragmentation tests based on XMI-fragments
-		MongodbFragmentationTests.class, MongodbCrossReferenceTests.class, MongodbCacheTests.class,
+		MongodbFragmentationTests.class, 
+		MongodbCrossReferenceTests.class, 
+		MongodbCacheTests.class,
+		MongodbIndexedReferencesValueSetTests.class,
+		MongodbIndexedContentsValueSetTests.class,
 		// fragmentation tests based on binary fragments
-		MongodbBinaryFragmentBasicFragmentationTests.class, MongodbBinaryFragmentCrossReferenceTests.class, 
-		MongodbBinaryFragmentCacheTests.class })
+		MongodbBinaryFragmentBasicFragmentationTests.class, 
+		MongodbBinaryFragmentCrossReferenceTests.class, 
+		MongodbBinaryFragmentCacheTests.class,
+		MongodbBinaryFragmentIndexedReferencesValueSetTests.class,
+		MongodbBinaryFragmentIndexedContentsValueSetTests.class })
 public class MongodbFragmentsBaseTestSuite extends FragmentsBaseTestSuite {
 	// nothing
 }

@@ -123,4 +123,11 @@ public class FileSystemDataStore extends DataStore {
 			fileTree.remove(key);
 		}
 	}
+
+	@Override
+	public void drop() {
+		throw new UnsupportedOperationException("Not implemented.");
+	}
+	
+	
 }
