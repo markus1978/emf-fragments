@@ -17,6 +17,7 @@ package de.hub.emffrag.testmodels.frag.testmodel;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 
@@ -135,13 +136,22 @@ public interface TestModelPackage extends EPackage {
 	int TEST_OBJECT__INDEXED_CONTENTS = 5;
 
 	/**
+	 * The feature id for the '<em><b>Enum Attribute</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TEST_OBJECT__ENUM_ATTRIBUTE = 6;
+
+	/**
 	 * The number of structural features of the '<em>Test Object</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int TEST_OBJECT_FEATURE_COUNT = 6;
+	int TEST_OBJECT_FEATURE_COUNT = 7;
 
 
 	/**
@@ -257,6 +267,17 @@ public interface TestModelPackage extends EPackage {
 
 
 	/**
+	 * The meta object id for the '{@link de.hub.emffrag.testmodels.frag.testmodel.TestEnum <em>Test Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.TestEnum
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.TestModelPackageImpl#getTestEnum()
+	 * @generated
+	 */
+	int TEST_ENUM = 3;
+
+
+	/**
 	 * Returns the meta object for class '{@link de.hub.emffrag.testmodels.frag.testmodel.TestObject <em>Test Object</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -333,6 +354,17 @@ public interface TestModelPackage extends EPackage {
 	EReference getTestObject_IndexedContents();
 
 	/**
+	 * Returns the meta object for the attribute '{@link de.hub.emffrag.testmodels.frag.testmodel.TestObject#getEnumAttribute <em>Enum Attribute</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Enum Attribute</em>'.
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.TestObject#getEnumAttribute()
+	 * @see #getTestObject()
+	 * @generated
+	 */
+	EAttribute getTestObject_EnumAttribute();
+
+	/**
 	 * Returns the meta object for class '{@link de.hub.emffrag.testmodels.frag.testmodel.TestObjectIndex <em>Test Object Index</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -351,6 +383,16 @@ public interface TestModelPackage extends EPackage {
 	 * @generated
 	 */
 	EClass getTestContainmentIndex();
+
+	/**
+	 * Returns the meta object for enum '{@link de.hub.emffrag.testmodels.frag.testmodel.TestEnum <em>Test Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Test Enum</em>'.
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.TestEnum
+	 * @generated
+	 */
+	EEnum getTestEnum();
 
 	/**
 	 * Returns the factory that creates the instances of the model.
@@ -433,6 +475,14 @@ public interface TestModelPackage extends EPackage {
 		EReference TEST_OBJECT__INDEXED_CONTENTS = eINSTANCE.getTestObject_IndexedContents();
 
 		/**
+		 * The meta object literal for the '<em><b>Enum Attribute</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute TEST_OBJECT__ENUM_ATTRIBUTE = eINSTANCE.getTestObject_EnumAttribute();
+
+		/**
 		 * The meta object literal for the '{@link de.hub.emffrag.testmodels.frag.testmodel.impl.TestObjectIndexImpl <em>Test Object Index</em>}' class.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -451,6 +501,16 @@ public interface TestModelPackage extends EPackage {
 		 * @generated
 		 */
 		EClass TEST_CONTAINMENT_INDEX = eINSTANCE.getTestContainmentIndex();
+
+		/**
+		 * The meta object literal for the '{@link de.hub.emffrag.testmodels.frag.testmodel.TestEnum <em>Test Enum</em>}' enum.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see de.hub.emffrag.testmodels.frag.testmodel.TestEnum
+		 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.TestModelPackageImpl#getTestEnum()
+		 * @generated
+		 */
+		EEnum TEST_ENUM = eINSTANCE.getTestEnum();
 
 	}
 

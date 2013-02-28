@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import de.hub.emffrag.model.emffrag.Root;
+import de.hub.emffrag.testmodels.frag.testmodel.TestEnum;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 
 public class BasicFragmentationTests extends AbstractFragmentationTests {
@@ -253,5 +254,22 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		
 		model.assertFragmentsIndex(0l, 2l);
 		model.assertExtrinsicIdIndex(-1l, -1l);
+	}
+	
+	@Test
+	public void testEnums() {
+		model.root().getContents().add(object1);
+		try {
+			object1.setEnumAttribute(TestEnum.LITERAL1);
+			Assert.assertEquals("Wrong value.", TestEnum.LITERAL1, object1.getEnumAttribute());
+			object1.setEnumAttribute(TestEnum.LITERAL2);
+			Assert.assertEquals("Wrong value.", TestEnum.LITERAL2, object1.getEnumAttribute());
+		} catch (ClassCastException e) {
+			Assert.fail("Internally EMF-Fragments uses wrong enum types.");
+		}
+		
+		model.save(null);
+		reinitializeModel();
+		Assert.assertEquals("Wrong value.", TestEnum.LITERAL2,Assertions.root(model).value().getEnumAttribute());
 	}
 }

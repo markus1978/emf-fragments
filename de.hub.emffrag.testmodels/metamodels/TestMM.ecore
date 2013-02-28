@@ -27,6 +27,7 @@
         <details key="indexes" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="enumAttribute" eType="#//TestEnum"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="TestObjectIndex">
     <eGenericSuperTypes eClassifier="ecore:EClass ../../de.hub.emffrag/metamodels/emffrag.ecore#//IndexedMap">
@@ -39,5 +40,9 @@
       <eTypeArguments eClassifier="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
       <eTypeArguments eClassifier="#//TestObject"/>
     </eGenericSuperTypes>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="TestEnum">
+    <eLiterals name="literal1"/>
+    <eLiterals name="literal2"/>
   </eClassifiers>
 </ecore:EPackage>

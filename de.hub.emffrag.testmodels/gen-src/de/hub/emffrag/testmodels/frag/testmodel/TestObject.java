@@ -32,6 +32,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link de.hub.emffrag.testmodels.frag.testmodel.TestObject#getCrossReferences <em>Cross References</em>}</li>
  *   <li>{@link de.hub.emffrag.testmodels.frag.testmodel.TestObject#getIndexedReferences <em>Indexed References</em>}</li>
  *   <li>{@link de.hub.emffrag.testmodels.frag.testmodel.TestObject#getIndexedContents <em>Indexed Contents</em>}</li>
+ *   <li>{@link de.hub.emffrag.testmodels.frag.testmodel.TestObject#getEnumAttribute <em>Enum Attribute</em>}</li>
  * </ul>
  * </p>
  *
@@ -147,5 +148,34 @@ public interface TestObject extends EObject {
 	 * @generated
 	 */
 	EList<TestObject> getIndexedContents();
+
+	/**
+	 * Returns the value of the '<em><b>Enum Attribute</b></em>' attribute.
+	 * The literals are from the enumeration {@link de.hub.emffrag.testmodels.frag.testmodel.TestEnum}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Enum Attribute</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Enum Attribute</em>' attribute.
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.TestEnum
+	 * @see #setEnumAttribute(TestEnum)
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage#getTestObject_EnumAttribute()
+	 * @model
+	 * @generated
+	 */
+	TestEnum getEnumAttribute();
+
+	/**
+	 * Sets the value of the '{@link de.hub.emffrag.testmodels.frag.testmodel.TestObject#getEnumAttribute <em>Enum Attribute</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Enum Attribute</em>' attribute.
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.TestEnum
+	 * @see #getEnumAttribute()
+	 * @generated
+	 */
+	void setEnumAttribute(TestEnum value);
 
 } // TestObject

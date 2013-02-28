@@ -17,6 +17,7 @@ package de.hub.emffrag.testmodels.frag.testmodel.impl;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EGenericType;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
@@ -24,6 +25,7 @@ import org.eclipse.emf.ecore.impl.EPackageImpl;
 
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestContainmentIndex;
+import de.hub.emffrag.testmodels.frag.testmodel.TestEnum;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
@@ -56,6 +58,13 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 	 * @generated
 	 */
 	private EClass testContainmentIndexEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EEnum testEnumEEnum = null;
 
 	/**
 	 * Creates an instance of the model <b>Package</b>, registered with
@@ -189,6 +198,15 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getTestObject_EnumAttribute() {
+		return (EAttribute)testObjectEClass.getEStructuralFeatures().get(6);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EClass getTestObjectIndex() {
 		return testObjectIndexEClass;
 	}
@@ -200,6 +218,15 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 	 */
 	public EClass getTestContainmentIndex() {
 		return testContainmentIndexEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EEnum getTestEnum() {
+		return testEnumEEnum;
 	}
 
 	/**
@@ -237,10 +264,14 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 		createEReference(testObjectEClass, TEST_OBJECT__CROSS_REFERENCES);
 		createEReference(testObjectEClass, TEST_OBJECT__INDEXED_REFERENCES);
 		createEReference(testObjectEClass, TEST_OBJECT__INDEXED_CONTENTS);
+		createEAttribute(testObjectEClass, TEST_OBJECT__ENUM_ATTRIBUTE);
 
 		testObjectIndexEClass = createEClass(TEST_OBJECT_INDEX);
 
 		testContainmentIndexEClass = createEClass(TEST_CONTAINMENT_INDEX);
+
+		// Create enums
+		testEnumEEnum = createEEnum(TEST_ENUM);
 	}
 
 	/**
@@ -295,10 +326,16 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 		initEReference(getTestObject_CrossReferences(), this.getTestObject(), null, "crossReferences", null, 0, -1, TestObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getTestObject_IndexedReferences(), this.getTestObject(), null, "indexedReferences", null, 0, -1, TestObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getTestObject_IndexedContents(), this.getTestObject(), null, "indexedContents", null, 0, -1, TestObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getTestObject_EnumAttribute(), this.getTestEnum(), "enumAttribute", null, 0, 1, TestObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(testObjectIndexEClass, TestObjectIndex.class, "TestObjectIndex", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 
 		initEClass(testContainmentIndexEClass, TestContainmentIndex.class, "TestContainmentIndex", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+
+		// Initialize enums and add enum literals
+		initEEnum(testEnumEEnum, TestEnum.class, "TestEnum");
+		addEEnumLiteral(testEnumEEnum, TestEnum.LITERAL1);
+		addEEnumLiteral(testEnumEEnum, TestEnum.LITERAL2);
 
 		// Create resource
 		createResource(eNS_URI);

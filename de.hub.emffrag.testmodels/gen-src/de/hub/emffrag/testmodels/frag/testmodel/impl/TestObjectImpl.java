@@ -19,6 +19,7 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 
 import de.hub.emffrag.fragmentation.FObjectImpl;
+import de.hub.emffrag.testmodels.frag.testmodel.TestEnum;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 
@@ -35,6 +36,7 @@ import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
  *   <li>{@link de.hub.emffrag.testmodels.frag.testmodel.impl.TestObjectImpl#getCrossReferences <em>Cross References</em>}</li>
  *   <li>{@link de.hub.emffrag.testmodels.frag.testmodel.impl.TestObjectImpl#getIndexedReferences <em>Indexed References</em>}</li>
  *   <li>{@link de.hub.emffrag.testmodels.frag.testmodel.impl.TestObjectImpl#getIndexedContents <em>Indexed Contents</em>}</li>
+ *   <li>{@link de.hub.emffrag.testmodels.frag.testmodel.impl.TestObjectImpl#getEnumAttribute <em>Enum Attribute</em>}</li>
  * </ul>
  * </p>
  *
@@ -138,6 +140,24 @@ public class TestObjectImpl extends FObjectImpl implements TestObject {
 		return (EList<TestObject>)eGet(TestModelPackage.Literals.TEST_OBJECT__INDEXED_CONTENTS, true);
 	}
 	
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public TestEnum getEnumAttribute() {
+		return (TestEnum)eGet(TestModelPackage.Literals.TEST_OBJECT__ENUM_ATTRIBUTE, true);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setEnumAttribute(TestEnum newEnumAttribute) {
+		eSet(TestModelPackage.Literals.TEST_OBJECT__ENUM_ATTRIBUTE, newEnumAttribute);
+	}
+
 	@Override
 	public String toString() {
 		return getName();
