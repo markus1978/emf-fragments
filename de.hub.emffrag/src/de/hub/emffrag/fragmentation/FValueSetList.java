@@ -10,6 +10,8 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.util.EcoreEList;
 
+import de.hub.emffrag.EmfFragActivator;
+import de.hub.emffrag.EmfFragActivator.IndexedValueSetBahaviour;
 import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.LongKeyType;
@@ -22,29 +24,31 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 
 	public FValueSetList(int kind, Class<?> dataClass, InternalEObject owner, EStructuralFeature feature) {
 		super(kind, dataClass, owner, feature);
-		FInternalObjectImpl object = (FInternalObjectImpl)owner;
-	
+		FInternalObjectImpl object = (FInternalObjectImpl) owner;
+
 		Fragment fragment = object.getFragment();
 		if (fragment == null) {
-			throw new IllegalStateException("Operation on indexed value sets can only be performed for objects contained in a fragmented model.");
+			throw new NotInAFragmentedModelException(
+					"Operation on indexed value sets can only be performed for objects contained in a fragmented model.");
 		}
 		FragmentedModel model = fragment.getFragmentedModel();
-		DataStore dataStore = model.getDataStore();		
+		DataStore dataStore = model.getDataStore();
 
-		index = new DataIndex<Long>(dataStore, createPrefix(object, feature), LongKeyType.instance);		
-		
-		if (((EReference)feature).isContainment()) {
-			semantics = new IndexedContainmentValueSetSemantics<Long>(model, index, object, feature);	
+		index = new DataIndex<Long>(dataStore, createPrefix(object, feature), LongKeyType.instance);
+
+		if (((EReference) feature).isContainment()) {
+			semantics = new IndexedContainmentValueSetSemantics<Long>(model, index, object, feature);
 		} else {
 			semantics = new IndexedValueSetSemantics<Long>(model, index);
 		}
-		
+
 	}
-	
+
 	static String createPrefix(FInternalObjectImpl object, EStructuralFeature feature) {
-		String extrinsicID = object.getExtrinsicID(true);		
+		String extrinsicID = object.getExtrinsicID(true);
 		if (FInternalObjectImpl.isPreliminary(extrinsicID)) {
-			throw new RuntimeException("Indexed reference owner have to be added to a fragmented model before the indexed reference can be used.");
+			throw new RuntimeException(
+					"Indexed reference owner have to be added to a fragmented model before the indexed reference can be used.");
 		}
 		int featureId = feature.getFeatureID();
 		return FragmentedModel.INDEX_FEATURES_PREFIX + "_" + extrinsicID + "_" + featureId;
@@ -67,7 +71,7 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 
 	@Override
 	public void setData(int size, Object[] data) {
-		
+
 	}
 
 	@Override
@@ -82,7 +86,7 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 
 	@Override
 	public void addUnique(FInternalObjectImpl object) {
-		size = (int)(long)index.last();
+		size = (int) (long) index.last();
 		super.addUnique(object);
 	}
 
@@ -125,10 +129,10 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 	public Object clone() {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	@Override
 	public boolean add(FInternalObjectImpl e) {
-		semantics.setValueForKey(index.add(), e);		
+		semantics.setValueForKey(index.add(), e);
 		return true;
 	}
 
@@ -136,14 +140,14 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 	public void doAddUnique(int index, FInternalObjectImpl element) {
 		Long last = this.index.last();
 		if ((last == null && index == 0) || (last + 1 == index)) {
-			semantics.setValueForKey((long)index, element);
+			semantics.setValueForKey((long) index, element);
 		}
 	}
 
 	@Override
 	public boolean addAll(Collection<? extends FInternalObjectImpl> c) {
 		boolean result = true;
-		for (FInternalObjectImpl e: c) {
+		for (FInternalObjectImpl e : c) {
 			result &= add(e);
 		}
 		return result;
@@ -161,7 +165,11 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 
 	@Override
 	public boolean contains(Object o) {
-		throw new UnsupportedOperationException("This method is not supported for indexed value sets.");
+		if (EmfFragActivator.instance.indexedValueSetBahaviour == IndexedValueSetBahaviour.neverContains) {
+			return false;
+		} else {
+			throw new UnsupportedOperationException("This method is not supported for indexed value sets.");
+		}
 	}
 
 	@Override
@@ -171,7 +179,7 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 
 	@Override
 	public FInternalObjectImpl get(int index) {
-		FInternalObjectImpl result = semantics.getValueForExactKey((long)index);
+		FInternalObjectImpl result = semantics.getValueForExactKey((long) index);
 		if (result == null) {
 			throw new IndexOutOfBoundsException();
 		}
@@ -205,14 +213,14 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 
 	@Override
 	public ListIterator<FInternalObjectImpl> listIterator(int index) {
-		return semantics.iterator((long)index, this.index.last());
+		return semantics.iterator((long) index, this.index.last());
 	}
 
 	@Override
 	public FInternalObjectImpl doRemove(int index) {
-		if ((long)index == this.index.last()) {
+		if ((long) index == this.index.last()) {
 			FInternalObjectImpl value = get(index);
-			semantics.removeValueForKey((long)index, value);
+			semantics.removeValueForKey((long) index, value);
 			return value;
 		} else {
 			throw new IllegalArgumentException("You can only remove the last entry of an indexed value set.");
@@ -237,14 +245,14 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 	@Override
 	public FInternalObjectImpl doSetUnique(int index, FInternalObjectImpl element) {
 		FInternalObjectImpl result = get(index);
-		semantics.setValueForKey((long)index, element);
+		semantics.setValueForKey((long) index, element);
 		return result;
 	}
 
 	@Override
 	public int size() {
 		Long last = index.last();
-		return last == null ? 0 : (int)(last + 1);
+		return last == null ? 0 : (int) (last + 1);
 	}
 
 	@Override
@@ -278,6 +286,5 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 		super.basicIterator();
 		return iterator();
 	}
-	
-	
+
 }

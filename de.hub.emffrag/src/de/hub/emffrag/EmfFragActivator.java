@@ -16,11 +16,21 @@ import de.hub.emffrag.datastore.InMemoryDataStore;
 import de.hub.emffrag.fragmentation.FragmentedModel;
 
 public class EmfFragActivator extends Plugin {
+	
+	public enum ExtrinsicIdBehaviour { strict, preliminary, defaultModel };
+	public enum IndexedValueSetBahaviour { strict, neverContains };
+	
+	public ExtrinsicIdBehaviour extrinsicIdBehaviour = ExtrinsicIdBehaviour.strict;
+	public FragmentedModel defaultModelForExtrinsicIdBehavior = null;
+	public IndexedValueSetBahaviour indexedValueSetBahaviour = IndexedValueSetBahaviour.strict;
+	
+	public static EmfFragActivator instance = null;
 
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		init();
+		instance = this;
 	}
 
 	private static void init() {
@@ -48,6 +58,7 @@ public class EmfFragActivator extends Plugin {
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("ecore", new XMIResourceFactoryImpl());
 		
 		init();
+		instance = new EmfFragActivator();
 	}
 
 }

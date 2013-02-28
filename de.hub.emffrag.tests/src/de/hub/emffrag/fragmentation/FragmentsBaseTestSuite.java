@@ -19,6 +19,7 @@ import org.junit.runners.Suite;
 		IndexedContentsValueSetTests.class,
 		IndexedMapTests.class, 
 		ContainmentIndexedMapTests.class,
+		ConfigurationTests.class,
 		// fragmentation tests based on binary fragments
 		BinaryFragmentBasicFragmentationTests.class, 
 		BinaryFragmentCrossReferenceTests.class, 

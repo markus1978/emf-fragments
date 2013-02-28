@@ -19,6 +19,8 @@ import org.eclipse.emf.ecore.util.EcoreEList;
 
 import com.google.common.base.Throwables;
 
+import de.hub.emffrag.EmfFragActivator;
+import de.hub.emffrag.EmfFragActivator.ExtrinsicIdBehaviour;
 import de.hub.emffrag.util.EMFFragUtil;
 import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
 
@@ -26,6 +28,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 	
 	private boolean hasPriliminaryExtrinsicID = false;
 	private static String preliminaryID = "PRELIMINARY_ID";
+	private String defaultModelExtrinsicId = null;
 	
 	public static boolean isPreliminary(String extrinsicID) {
 		return preliminaryID.equals(extrinsicID);
@@ -43,16 +46,33 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 
 	public String getExtrinsicID(boolean issueIfNecessary) {
 		Fragment fragment = getFragment();
-		if (fragment != null) {
+		if (fragment != null) {			
 			String extrinsicID = fragment.getID(this);						
-			if (extrinsicID == null && (issueIfNecessary || hasPriliminaryExtrinsicID)) {
-				extrinsicID = fragment.getFragmentedModel().getExtrinsicIdIndex().issueExtrinsicID(this);
+			if (extrinsicID == null) {
+				if (defaultModelExtrinsicId != null) {
+					extrinsicID = defaultModelExtrinsicId;
+					fragment.getFragmentedModel().getExtrinsicIdIndex().updateObjectURI(defaultModelExtrinsicId, this);
+					defaultModelExtrinsicId = null;
+					return extrinsicID;
+				} else if (issueIfNecessary || hasPriliminaryExtrinsicID) {
+					return fragment.getFragmentedModel().getExtrinsicIdIndex().issueExtrinsicID(this);
+				} else {
+					return null;
+				}
+			} else {
+				return extrinsicID;
 			}
-			return extrinsicID;
 		} else {
 			if (hasPriliminaryExtrinsicID || issueIfNecessary) {
-				hasPriliminaryExtrinsicID = true;
-				return preliminaryID; 
+				if (EmfFragActivator.instance.extrinsicIdBehaviour == ExtrinsicIdBehaviour.preliminary) {
+					hasPriliminaryExtrinsicID = true;
+					return preliminaryID; 
+				} else if (EmfFragActivator.instance.extrinsicIdBehaviour == ExtrinsicIdBehaviour.defaultModel) {
+					defaultModelExtrinsicId = EmfFragActivator.instance.defaultModelForExtrinsicIdBehavior.getExtrinsicIdIndex().issueExtrinsicID(this);
+					return defaultModelExtrinsicId;
+				} else {
+					throw new NotInAFragmentedModelException();
+				}
 			} else {
 				return null;
 			}

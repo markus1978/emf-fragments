@@ -23,7 +23,9 @@ public class IndexedValueSetSemantics<K> extends AbstractValueSetSemantics<K> {
 	
 	@Override
 	public void setValueForKey(K key, FInternalObjectImpl internalObject) {
-		internalObject.getExtrinsicID(true);
+		if (FInternalObjectImpl.isPreliminary(internalObject.getExtrinsicID(true))) {
+			throw new RuntimeException("Indexed value sets can only be used, if the values are already part of a fragmented model.");
+		}
 		Fragment fragment = internalObject.getFragment();
 		URI uri = model.getExtrinsicIdIndex().createExtrinsicIdUri(fragment.getID(internalObject));
 		index.set(key, uri.toString());

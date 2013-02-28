@@ -3,6 +3,8 @@ package de.hub.emffrag.fragmentation;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 
+import de.hub.emffrag.EmfFragActivator;
+import de.hub.emffrag.EmfFragActivator.ExtrinsicIdBehaviour;
 import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.LongKeyType;
@@ -77,11 +79,14 @@ public class ExtrinsicIdIndex extends DataIndex<Long> {
 		String extrinsicId = Long.toString(add());
 		Resource resource = object.eResource();
 		if (resource == null || !(resource instanceof Fragment)) {
-			throw new RuntimeException("Only objects in a fragmented model can have an extrinsic id.");
+			if (EmfFragActivator.instance.extrinsicIdBehaviour != ExtrinsicIdBehaviour.defaultModel) {
+				throw new NotInAFragmentedModelException("Only objects in a fragmented model can have an extrinsic id.");
+			}
+		} else {
+			((Fragment)resource).setID(object, extrinsicId);
+			URI objectURI = resource.getURI().appendFragment(resource.getURIFragment(object));
+			set(Long.parseLong(extrinsicId), objectURI.toString());
 		}
-		((Fragment)resource).setID(object, extrinsicId);
-		URI objectURI = resource.getURI().appendFragment(resource.getURIFragment(object));
-		set(Long.parseLong(extrinsicId), objectURI.toString());
 		return extrinsicId;		
 	}
 
