@@ -81,6 +81,8 @@ public class ExtrinsicIdIndex extends DataIndex<Long> {
 		if (resource == null || !(resource instanceof Fragment)) {
 			if (EmfFragActivator.instance.extrinsicIdBehaviour != ExtrinsicIdBehaviour.defaultModel) {
 				throw new NotInAFragmentedModelException("Only objects in a fragmented model can have an extrinsic id.");
+			} else {
+				set(Long.parseLong(extrinsicId), "#never added and saved within a fragmented model#");
 			}
 		} else {
 			((Fragment)resource).setID(object, extrinsicId);

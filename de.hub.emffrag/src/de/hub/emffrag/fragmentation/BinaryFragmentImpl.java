@@ -17,6 +17,9 @@ import org.eclipse.emf.ecore.resource.impl.BinaryResourceImpl;
 
 import com.google.common.base.Throwables;
 
+import de.hub.emffrag.EmfFragActivator;
+import de.hub.emffrag.EmfFragActivator.ExtrinsicIdBehaviour;
+
 public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 
 	private final UserObjectsCache userObjectsCache;
@@ -176,6 +179,13 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 
 		@Override
 		public void saveEObject(InternalEObject internalEObject, Check check) throws IOException {
+			// Ensure that URIs in the extrinsic id
+			// index are saved, when the object is saved.					
+			FInternalObjectImpl fInternalObject = (FInternalObjectImpl)internalEObject;
+			if (EmfFragActivator.instance.extrinsicIdBehaviour == ExtrinsicIdBehaviour.defaultModel && fInternalObject.hasExtrinsicId()) {
+				fInternalObject.getExtrinsicID(false);
+			}
+				
 			if (check == Check.RESOURCE) {
 				isWritingCrossReferenceURI = true;
 				currentObject = (FInternalObjectImpl)internalEObject;

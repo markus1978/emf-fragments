@@ -17,13 +17,15 @@ import org.eclipse.emf.ecore.xmi.impl.XMLHelperImpl;
 
 import com.google.common.base.Throwables;
 
+import de.hub.emffrag.EmfFragActivator;
+import de.hub.emffrag.EmfFragActivator.ExtrinsicIdBehaviour;
 import de.hub.emffrag.util.EMFFragUtil;
 import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
 
 public class XMIFragmentImpl extends XMIResourceImpl implements Fragment {
 
 	private final UserObjectsCache userObjectsCache;
-	private final FragmentedModel model;	
+	private final FragmentedModel model;
 
 	public XMIFragmentImpl(URI uri, FragmentedModel model) {
 		super(uri);
@@ -73,9 +75,10 @@ public class XMIFragmentImpl extends XMIResourceImpl implements Fragment {
 
 		@Override
 		protected URI getHREF(Resource otherResource, EObject obj) {
-			if (obj instanceof FInternalObjectImpl && ((FInternalObjectImpl) obj).hasExtrinsicId() && otherResource instanceof Fragment) {
+			if (obj instanceof FInternalObjectImpl && ((FInternalObjectImpl) obj).hasExtrinsicId()
+					&& otherResource instanceof Fragment) {
 				if (currentFeature instanceof EReference && !((EReference) currentFeature).isContainment()) {
-					String extrinsicID = ((FInternalObjectImpl)obj).getExtrinsicID(false);
+					String extrinsicID = ((FInternalObjectImpl) obj).getExtrinsicID(false);
 					FragmentedModel fragmentedModel = ((Fragment) otherResource).getFragmentedModel();
 					URI uri = fragmentedModel.getExtrinsicIdIndex().createExtrinsicIdUri(extrinsicID);
 					return uri;
@@ -101,6 +104,20 @@ public class XMIFragmentImpl extends XMIResourceImpl implements Fragment {
 				((MyXMLHelper) helper).currentFeature = f;
 				super.saveHref(remote, f);
 			}
+
+			/**
+			 * This override is used to ensure that URIs in the extrinsic id
+			 * index are saved, when the object is saved.
+			 */
+			@Override
+			protected void saveElementID(EObject o) {
+				super.saveElementID(o);
+				FInternalObjectImpl internalObject = (FInternalObjectImpl) o;
+				if (EmfFragActivator.instance.extrinsicIdBehaviour == ExtrinsicIdBehaviour.defaultModel
+						&& internalObject.hasExtrinsicId()) {
+					internalObject.getExtrinsicID(false);
+				}
+			}
 		};
 	}
 
@@ -112,26 +129,24 @@ public class XMIFragmentImpl extends XMIResourceImpl implements Fragment {
 	 */
 	@Override
 	protected void doUnload() {
-	    Iterator<EObject> allContents = getAllProperContents(unloadingContents); 
-	    
+		Iterator<EObject> allContents = getAllProperContents(unloadingContents);
+
 		super.doUnload();
-		while (allContents.hasNext())
-	    {
+		while (allContents.hasNext()) {
 			FInternalObjectImpl internalObject = (FInternalObjectImpl) allContents.next();
 			internalObject.trulyUnload();
-	    }
+		}
 	}
 
 	@Override
 	public void setID(FInternalObjectImpl object, String id) {
 		super.setID(object, id);
-		
+
 	}
 
 	@Override
 	public String getID(FInternalObjectImpl object) {
 		return super.getID(object);
 	}
-	
-	
+
 }

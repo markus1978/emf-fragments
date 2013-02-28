@@ -132,7 +132,8 @@ public class FInternalObjectImpl extends DynamicEObjectImpl {
 
 	public boolean hasExtrinsicId() {
 		Resource eResource = eResource();
-		return (eResource != null && eResource instanceof Fragment && getExtrinsicID(false) != null);
+		return (eResource != null && eResource instanceof Fragment && getExtrinsicID(false) != null) ||
+				(EmfFragActivator.instance.extrinsicIdBehaviour == ExtrinsicIdBehaviour.defaultModel && defaultModelExtrinsicId != null);
 	}
 
 	/**
