@@ -6,6 +6,7 @@ import junit.framework.Assert;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EFactory;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -13,6 +14,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceFactoryImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.junit.After;
 import org.junit.Before;
 
 import de.hub.emffrag.datastore.DataIndex;
@@ -29,8 +31,14 @@ public class AbstractReflectiveModelTests extends AbstractTests {
 	protected FInternalObjectImpl object3 = null;
 	protected DataStore dataStore = null;
 	
+	private EFactory originalFactories[];
+	private EPackage metaModels[];
+	
 	@Before
 	public void standardInitialization() {
+		originalFactories = null;
+		metaModels = null;
+		
 		dataStore = createTestDataStore();
 		metaModel = ReflectiveMetaModelRegistry.instance.registerUserMetaModel(TestModelPackage.eINSTANCE);
 		object1 = new FInternalObjectImpl(metaModel.getTestObject());
@@ -49,8 +57,18 @@ public class AbstractReflectiveModelTests extends AbstractTests {
 	
 	protected ResourceSet createAndConfigureAResourceSet(DataStore dataStore, EPackage... metaModels) {
 		ResourceSet resourceSet = new ResourceSetImpl();
+		boolean saveOriginalFactories = false;
+		if (this.originalFactories == null) {
+			this.metaModels = metaModels;
+			this.originalFactories = new EFactory[metaModels.length];
+			saveOriginalFactories = true;
+		}
+		int i = 0;
 		for (EPackage metaModel : metaModels) {
 			resourceSet.getPackageRegistry().put(metaModel.getNsURI(), metaModel);
+			if (saveOriginalFactories) {
+				originalFactories[i++] = metaModel.getEFactoryInstance();
+			}
 			metaModel.setEFactoryInstance(new org.eclipse.emf.ecore.impl.EFactoryImpl() {
 				@Override
 				public EObject create(EClass eClass) {
@@ -61,6 +79,16 @@ public class AbstractReflectiveModelTests extends AbstractTests {
 		resourceSet.getURIConverter().getURIHandlers().add(0, new DataStoreURIHandler(dataStore));
 		resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put(dataStore.getProtocol(), createResourceFactoryImpl()); 
 		return resourceSet;
+	}
+	
+	@After
+	public void reset() {
+		int i = 0;
+		if (metaModels != null) {
+			for (EPackage metaModel: metaModels) {
+				metaModel.setEFactoryInstance(originalFactories[i++]);
+			}
+		}
 	}
 
 	protected Resource[] createResourceSet(DataStore dataStore, EPackage metaModel, int numberOfResources, boolean loadResources) {

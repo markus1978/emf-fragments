@@ -9,6 +9,7 @@ import java.util.Map;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EFactory;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
@@ -96,8 +97,7 @@ public class ReflectiveMetaModelRegistry {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends EPackage> T generateReflectiveMetaModel(T source) {
-		source = (T)EPackage.Registry.INSTANCE.get(source.getNsURI());
+	private <T extends EPackage> T generateReflectiveMetaModel(final T source) {
 		EFactory regularFactory = source.getEFactoryInstance();
 		T target = null;
 		try {
@@ -167,15 +167,29 @@ public class ReflectiveMetaModelRegistry {
 			}
 		}
 
-		EFactoryImpl factory = new EFactoryImpl() {
-			@Override
-			public EObject create(EClass eClass) {
-				return new FInternalObjectImpl(eClass);
-			}
-		};
-		factory.setEPackage(target);
-		target.setEFactoryInstance(factory);
+		EFactory targetFactory = new InternalEFactoryImpl(source.getEFactoryInstance());
+		targetFactory.setEPackage(target);
+		target.setEFactoryInstance(targetFactory);
 		return target;
+	}
+	
+	private static class InternalEFactoryImpl extends EFactoryImpl {
+		private final EFactory sourceFactory;
+		
+		public InternalEFactoryImpl(EFactory sourceFactory) {
+			super();
+			this.sourceFactory = sourceFactory;
+		}
+
+		@Override
+		public EObject create(EClass eClass) {
+			return new FInternalObjectImpl(eClass);
+		}
+
+		@Override
+		public Object createFromString(EDataType eDataType, String stringValue) {
+			return sourceFactory.createFromString(eDataType, stringValue);
+		}		
 	}
 
 	void clear() {

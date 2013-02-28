@@ -2,6 +2,7 @@ package de.hub.emffrag.fragmentation;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EObject;
@@ -65,8 +66,9 @@ public class FStoreImpl implements EStore {
 	}
 
 	private Object getInternalValue(Object userValue, EStructuralFeature internalFeature) {
-		if (internalFeature.getEType() instanceof EEnum) {
-			return EcoreUtil.createFromString((EDataType) internalFeature.getEType(), userValue.toString());
+		EClassifier eType = internalFeature.getEType();
+		if (eType instanceof EEnum) {
+			return eType.getEPackage().getEFactoryInstance().createFromString((EDataType)eType, userValue.toString());
 		} else if (userValue != null && userValue instanceof FObjectImpl) {
 			return getInternalObject((InternalEObject) userValue);
 		} else {
