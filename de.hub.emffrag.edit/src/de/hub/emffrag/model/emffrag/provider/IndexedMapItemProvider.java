@@ -16,27 +16,26 @@
 package de.hub.emffrag.model.emffrag.provider;
 
 
-import de.hub.emffrag.model.emffrag.EmfFragPackage;
-import de.hub.emffrag.model.emffrag.IndexedMap;
-
 import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.notify.Notification;
-
 import org.eclipse.emf.common.util.ResourceLocator;
-
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.edit.provider.ComposeableAdapterFactory;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
+import org.eclipse.emf.edit.provider.IItemColorProvider;
 import org.eclipse.emf.edit.provider.IItemLabelProvider;
 import org.eclipse.emf.edit.provider.IItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.IItemPropertySource;
 import org.eclipse.emf.edit.provider.IStructuredItemContentProvider;
 import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
 import org.eclipse.emf.edit.provider.ItemPropertyDescriptor;
-import org.eclipse.emf.edit.provider.ItemProviderAdapter;
 import org.eclipse.emf.edit.provider.ViewerNotification;
+
+import de.hub.emffrag.model.emffrag.EmfFragPackage;
+import de.hub.emffrag.model.emffrag.IndexedMap;
 
 /**
  * This is the item provider adapter for a {@link de.hub.emffrag.model.emffrag.IndexedMap} object.
@@ -45,13 +44,9 @@ import org.eclipse.emf.edit.provider.ViewerNotification;
  * @generated
  */
 public class IndexedMapItemProvider
-	extends ItemProviderAdapter
+	extends EmfFragItemProviderAdapter
 	implements
-		IEditingDomainItemProvider,
-		IStructuredItemContentProvider,
-		ITreeItemContentProvider,
-		IItemLabelProvider,
-		IItemPropertySource {
+		IEditingDomainItemProvider, IStructuredItemContentProvider, ITreeItemContentProvider, IItemLabelProvider, IItemPropertySource, IItemColorProvider {
 	/**
 	 * This constructs an instance from a factory and a notifier.
 	 * <!-- begin-user-doc -->
@@ -184,15 +179,16 @@ public class IndexedMapItemProvider
 	 * This returns the label text for the adapted class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	@Override
 	public String getText(Object object) {
-		Object labelValue = ((IndexedMap<?, ?>)object).getFirstKey();
-		String label = labelValue == null ? null : labelValue.toString();
-		return label == null || label.length() == 0 ?
-			getString("_UI_IndexedMap_type") :
-			getString("_UI_IndexedMap_type") + " " + label;
+		return ((EObject)object).eClass().getName() + ":INDEX-MAP";
+//		Object labelValue = ((IndexedMap<?, ?>)object).getFirstKey();
+//		String label = labelValue == null ? null : labelValue.toString();
+//		return label == null || label.length() == 0 ?
+//			getString("_UI_IndexedMap_type") :
+//			getString("_UI_IndexedMap_type") + " " + label;
 	}
 
 	/**

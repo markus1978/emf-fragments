@@ -1,8 +1,26 @@
 package de.hub.emffrag.fragmentation;
 
+import junit.framework.Assert;
+
 import org.junit.Test;
 
+import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
+
 public class CrossReferenceTests extends AbstractFragmentationTests {
+	
+	@Test
+	public void testExtrinsicIDPersitence() {
+		root.getContents().add(object1);
+		String extrinsicID = ((FObjectImpl)object1).fInternalObject().getExtrinsicID(true);
+		
+		model.save(null);
+		reinitializeModel();
+		
+		TestObject value = Assertions.root(model).assertId(1).value();
+		String newExtrinsicID = ((FObjectImpl)value).fInternalObject().getExtrinsicID(false);
+		Assert.assertNotNull("Extrinsic ID not persisted.", newExtrinsicID);
+		Assert.assertEquals("Wrong extrinsic ID.", extrinsicID, newExtrinsicID);
+	}
 
 	@Test
 	public void testAddCrossReference() {

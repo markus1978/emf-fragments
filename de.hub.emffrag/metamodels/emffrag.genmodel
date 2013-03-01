@@ -5,7 +5,8 @@
     modelDirectory="/de.hub.emffrag/src" modelPluginID="de.hub.emffrag" modelName="emffrag"
     rootExtendsClass="de.hub.emffrag.fragmentation.FObjectImpl" reflectiveDelegation="true"
     importerID="org.eclipse.emf.importer.ecore" bundleManifest="false" featureDelegation="Reflective"
-    containmentProxies="true" complianceLevel="6.0" copyrightFields="false">
+    containmentProxies="true" complianceLevel="6.0" copyrightFields="false" providerRootExtendsClass="de.hub.emffrag.model.emffrag.provider.EmfFragItemProviderAdapter"
+    colorProviders="true">
   <foreignModel>emffrag.ecore</foreignModel>
   <genPackages prefix="EmfFrag" basePackage="de.hub.emffrag.model" disposableProviderFactory="true"
       ecorePackage="emffrag.ecore#/">

@@ -28,6 +28,7 @@
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="de.hub.emffrag" export="true"/>
       <import plugin="org.eclipse.emf.edit" export="true"/>
+      <import plugin="org.eclipse.ui" version="3.7.0"/>
    </requires>
 
    <runtime>
