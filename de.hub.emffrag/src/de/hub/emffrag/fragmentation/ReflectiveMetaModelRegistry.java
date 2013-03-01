@@ -9,7 +9,9 @@ import java.util.Map;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EDataType;
+import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EFactory;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
@@ -48,14 +50,8 @@ public class ReflectiveMetaModelRegistry {
 		T target = (T) internalMetaModelRegistry.get(nsURI);
 		if (target == null) {
 			target = generateReflectiveMetaModel(source);
-			internalMetaModelRegistry.put(nsURI, target);
-			userMetaModelRegistry.put(nsURI, source);
 		}
 		return target;
-	}
-	
-	private boolean isReflectiveClass(EClass reflectiveClass) {
-		return userMetaModelRegistry.get(reflectiveClass.getEPackage()) != null;		
 	}
 	
 	public EClass getInternalClass(EClass theClass) {
@@ -114,6 +110,9 @@ public class ReflectiveMetaModelRegistry {
 		// EMF uses its notification process to clear a packages factory, if a
 		// new package instance is created. Weird.
 		source.setEFactoryInstance(regularFactory);
+		
+		internalMetaModelRegistry.put(source.getNsURI(), target);
+		userMetaModelRegistry.put(source.getNsURI(), source);
 
 		// check and modify target properties
 		{
@@ -134,10 +133,8 @@ public class ReflectiveMetaModelRegistry {
 					}
 					for (Integer superTypeIndex: superTypesToChange) {
 						EClass superType = superTypes.get(superTypeIndex);
-						if (!isReflectiveClass(superType)) {
-							registerUserMetaModel(superType.getEPackage());
-							superTypes.set(superTypeIndex, getInternalClass(superType));
-						}
+						registerUserMetaModel(superType.getEPackage());
+						superTypes.set(superTypeIndex, getInternalClass(superType));						
 					}
 				} else if (next instanceof EReference) {
 					FragmentationType fragmentationType = EMFFragUtil.getFragmentationType((EReference)next);
@@ -147,6 +144,11 @@ public class ReflectiveMetaModelRegistry {
 					} else if (fragmentationType == FragmentationType.FragmentsIndexedContainment || fragmentationType == FragmentationType.IndexedReferences) {
 						reference.setUnique(false);
 						reference.setTransient(true);
+					}
+					EClassifier type = reference.getEType();
+					if (type instanceof EClass) {
+						registerUserMetaModel(((EClass)type).getEPackage());
+						reference.setEType(getInternalClass((EClass)type));
 					}
 				}
 			}
@@ -188,7 +190,11 @@ public class ReflectiveMetaModelRegistry {
 
 		@Override
 		public Object createFromString(EDataType eDataType, String stringValue) {
-			return sourceFactory.createFromString(eDataType, stringValue);
+			if (eDataType instanceof EEnum) {
+				return sourceFactory.createFromString(eDataType, stringValue);	
+			} else {
+				return super.createFromString(eDataType, stringValue);
+			}			
 		}		
 	}
 

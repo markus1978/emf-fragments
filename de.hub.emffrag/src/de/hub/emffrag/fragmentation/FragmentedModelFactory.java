@@ -23,6 +23,10 @@ public class FragmentedModelFactory implements Resource.Factory {
 			stores.put(id, dataStore);
 		}
 		
+		for (String key: stores.keySet()) {
+			System.out.println(key.length() + " " + key);
+		}
+		
 		return new FragmentedModel(dataStore) {
 			@Override
 			protected Fragment newFragment(URI uri, FragmentedModel model) {

@@ -7,6 +7,7 @@ public class MongodbBinaryFragmentBasicFragmentationTests extends BinaryFragment
 
 	@Override
 	protected DataStore createTestDataStore() {
+		EmfFragMongoDBActivator.standalone();
 		return new MongoDBDataStore("localhost", "testmodel", true);
 	}
 }

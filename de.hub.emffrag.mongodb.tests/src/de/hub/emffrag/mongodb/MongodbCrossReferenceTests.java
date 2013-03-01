@@ -7,6 +7,7 @@ public class MongodbCrossReferenceTests extends CrossReferenceTests {
 	
 	@Override
 	protected DataStore createTestDataStore() {
+		EmfFragMongoDBActivator.standalone();
 		return new MongoDBDataStore("localhost", "testmodel", true);
 	}
 }

@@ -10,13 +10,6 @@ public class StringKeyType implements KeyType<String> {
 	@Override
 	public String next(String key) {
 		return key + (char)0;
-//		int lastChar = key.charAt(key.length() - 1);
-//		if (lastChar < 'z') {
-//			lastChar++;
-//			return key.substring(0, key.length() - 1) + (char)lastChar;
-//		} else {
-//			return key + 'a';
-//		}
 	}
 
 	@Override

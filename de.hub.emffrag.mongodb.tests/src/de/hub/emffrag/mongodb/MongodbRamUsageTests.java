@@ -7,6 +7,7 @@ public class MongodbRamUsageTests extends RamUsageTests {
 	
 	@Override
 	protected DataStore createTestDataStore() {
+		EmfFragMongoDBActivator.standalone();
 		return new MongoDBDataStore("localhost", "testmodel", true);
 	}
 	

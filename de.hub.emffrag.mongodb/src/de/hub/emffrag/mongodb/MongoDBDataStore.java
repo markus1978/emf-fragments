@@ -5,14 +5,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.UnknownHostException;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
 
 import de.hub.emffrag.datastore.DataStore;
 
@@ -22,7 +20,6 @@ public class MongoDBDataStore extends DataStore {
 	private static final String KEY = "key";
 	private DBCollection collection;
 	private DB db;
-	private MongoClient dbClient;
 	
 	public MongoDBDataStore(String host, String dataStoreId) {
 		this(host, dataStoreId, false);
@@ -46,19 +43,8 @@ public class MongoDBDataStore extends DataStore {
 		} else {
 			throw new IllegalArgumentException("Invalid host format: " + host);			
 		}
-	
-		dbClient = null;
-		try {
-			if (hostPort != -1) {
-				dbClient = new MongoClient(hostName, hostPort);
-			} else {
-				dbClient = new MongoClient(hostName);	
-			}			
-		} catch (UnknownHostException e) {
-			throw new IllegalArgumentException("Given host does not exists or DB is not running: " + host);	
-		}
-		db = dbClient.getDB("emffrag");
-		
+
+		db = EmfFragMongoDBActivator.instance.getDataBase(hostName, hostPort);
 		collection = db.getCollection(dataStoreId);		
 		if (dropFirst) {
 			collection.dropIndexes();
@@ -69,8 +55,10 @@ public class MongoDBDataStore extends DataStore {
 	}
 
 	@Override
-	public byte[] ceiling(byte[] key) {
-		DBObject result = collection.findOne(new BasicDBObject(KEY, new BasicDBObject("$gte", new String(key))), new BasicDBObject(KEY, ""), new BasicDBObject(KEY, 1));
+	synchronized public byte[] ceiling(byte[] key) {
+		String keyString = new String(key);
+		keyString.getBytes();
+		DBObject result = collection.findOne(new BasicDBObject(KEY, new BasicDBObject("$gte", keyString)), new BasicDBObject(KEY, ""), new BasicDBObject(KEY, 1));
 		if (result != null) {
 			return ((String)result.get(KEY)).getBytes();
 		} else {
@@ -79,7 +67,7 @@ public class MongoDBDataStore extends DataStore {
 	}
 
 	@Override
-	public byte[] floor(byte[] key) {
+	synchronized public byte[] floor(byte[] key) {
 		DBObject result = collection.findOne(new BasicDBObject(KEY, new BasicDBObject("$lte", new String(key))), new BasicDBObject(KEY, ""), new BasicDBObject(KEY, -1));
 		if (result != null) {
 			return ((String)result.get(KEY)).getBytes();
@@ -89,7 +77,7 @@ public class MongoDBDataStore extends DataStore {
 	}
 
 	@Override
-	public InputStream openInputStream(byte[] key) {
+	synchronized public InputStream openInputStream(byte[] key) {
 		DBObject result = collection.findOne(new BasicDBObject(KEY, new String(key)));
 		if (result != null) {
 			return new ByteArrayInputStream((byte[])result.get(VALUE));
@@ -99,7 +87,7 @@ public class MongoDBDataStore extends DataStore {
 	}
 
 	@Override
-	public OutputStream openOutputStream(final byte[] key) {
+	synchronized public OutputStream openOutputStream(final byte[] key) {
 		return new ByteArrayOutputStream(256) {
 			@Override
 			public void close() throws IOException {
@@ -111,7 +99,7 @@ public class MongoDBDataStore extends DataStore {
 	}
 
 	@Override
-	public boolean check(byte[] key) {
+	synchronized public boolean check(byte[] key) {
 		DBCursor cursor = collection.find(new BasicDBObject(KEY, new String(key)));
 		try {
 			return !cursor.hasNext();
@@ -121,7 +109,7 @@ public class MongoDBDataStore extends DataStore {
 	}
 
 	@Override
-	public boolean ckeckAndCreate(byte[] key) {
+	synchronized public boolean ckeckAndCreate(byte[] key) {
 		String keyString = new String(key);
 		DBObject result = collection.findAndModify(
 				new BasicDBObject(KEY, keyString),								// query 
@@ -135,12 +123,12 @@ public class MongoDBDataStore extends DataStore {
 	}
 
 	@Override
-	public void delete(byte[] key) {
+	synchronized public void delete(byte[] key) {
 		collection.findAndRemove(new BasicDBObject(KEY, new String(key)));
 	}
 
 	@Override
-	public void drop() {
+	synchronized public void drop() {
 		collection.drop();
 	}
 

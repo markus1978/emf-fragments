@@ -134,6 +134,7 @@ import org.eclipse.ui.views.properties.IPropertySheetPage;
 import org.eclipse.ui.views.properties.PropertySheet;
 import org.eclipse.ui.views.properties.PropertySheetPage;
 
+import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.fragmentation.FragmentedModel;
 import de.hub.emffrag.fragmentation.ReflectiveMetaModelRegistry;
 import de.hub.emffrag.model.emffrag.provider.EmfFragItemProviderAdapterFactory;
@@ -914,16 +915,17 @@ public class EmfFragEditor
 	 * <!-- end-user-doc -->
 	 * @generated NOT
 	 */
-	public void createModel() {		
+	public void createModel() {			
+		EmfFragActivator.instance.useBinaryFragments = true;
 		URI resourceURI = null;		
 		try {
 			String uriString = null;
 			char[] chars = new char[512];
 			URL url = new URL(EditUIUtil.getURI(getEditorInput()).toString());
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()));
-			bufferedReader.read(chars);
+			int read = bufferedReader.read(chars);
 			bufferedReader.close();
-			uriString = new String(chars);
+			uriString = new String(chars).substring(0, read);
 			resourceURI = URI.createURI(uriString);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -934,19 +936,18 @@ public class EmfFragEditor
 		Resource resource = null;
 		try {
 			// Load the resource through the editing domain.
-			//
-			resource = editingDomain.getResourceSet().getResource(resourceURI, true);			
+			resource = editingDomain.getResourceSet().createResource(resourceURI);			
 			
 			// TODO this should be removed
 			if (resource.getContents().isEmpty()) {
 				ReflectiveMetaModelRegistry.instance.registerUserMetaModel(TestModelPackage.eINSTANCE);
 				((FragmentedModel)resource).root().getContents().add(TestModelFactory.eINSTANCE.createTestObject());
+				resource.save(null);
 			}
-			
-			resource.save(null);
 		}
 		catch (Exception e) {
 			exception = e;
+			e.printStackTrace();
 			resource = editingDomain.getResourceSet().getResource(resourceURI, false);
 		}
 

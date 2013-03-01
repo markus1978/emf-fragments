@@ -2,11 +2,13 @@ package de.hub.emffrag;
 
 import java.util.Map;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 import de.hub.emffrag.fragmentation.FragmentedModel;
@@ -26,9 +28,18 @@ public class EmfFragActivator extends Plugin {
 
 	@Override
 	public void start(BundleContext context) throws Exception {
-		super.start(context);
+		super.start(context);		
 		instance = this;
 		init();		
+		
+		Bundle bundle = Platform.getBundle("de.hub.emffrag.mongodb");
+		if (bundle != null) {
+			try {
+				bundle.start();
+			} catch (Exception e) {
+				
+			}
+		}
 	}
 
 	private void init() {

@@ -7,6 +7,7 @@ public class MongodbBinaryFragmentCrossReferenceTests extends BinaryFragmentCros
 	
 	@Override
 	protected DataStore createTestDataStore() {
+		EmfFragMongoDBActivator.standalone();
 		return new MongoDBDataStore("localhost", "testmodel", true);
 	}
 }

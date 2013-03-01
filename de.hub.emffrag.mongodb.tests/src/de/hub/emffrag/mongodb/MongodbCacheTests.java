@@ -7,6 +7,7 @@ public class MongodbCacheTests extends CacheTests {
 	
 	@Override
 	protected DataStore createTestDataStore() {
+		EmfFragMongoDBActivator.standalone();
 		return new MongoDBDataStore("localhost", "testmodel", true);
 	}
 }
