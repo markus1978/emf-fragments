@@ -1,15 +1,20 @@
 package de.hub.emffrag.fragmentation;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EFactory;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -246,10 +251,11 @@ public class FragmentedModel extends ResourceImpl {
 						return fragment;
 					}
 				});
+		resourceSet.setPackageRegistry(ReflectiveMetaModelRegistry.instance);
 
 		return resourceSet;
 	}
-
+	
 	/**
 	 * Factory method for Fragments. Creates {@link XMIFragmentImpl} by default.
 	 * Can be changed by subclasses.

@@ -85,7 +85,7 @@ public class ExtrinsicIdIndex extends DataIndex<Long> {
 				set(Long.parseLong(extrinsicId), "#never added and saved within a fragmented model#");
 			}
 		} else {
-			((Fragment)resource).setID(object, extrinsicId);
+//			((Fragment)resource).setID(object, extrinsicId);
 			URI objectURI = resource.getURI().appendFragment(resource.getURIFragment(object));
 			set(Long.parseLong(extrinsicId), objectURI.toString());
 		}

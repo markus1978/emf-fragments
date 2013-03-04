@@ -105,19 +105,19 @@ public class XMIFragmentImpl extends XMIResourceImpl implements Fragment {
 				super.saveHref(remote, f);
 			}
 
-			/**
-			 * This override is used to ensure that URIs in the extrinsic id
-			 * index are saved, when the object is saved.
-			 */
-			@Override
-			protected void saveElementID(EObject o) {
-				super.saveElementID(o);
-				FInternalObjectImpl internalObject = (FInternalObjectImpl) o;
-				if (EmfFragActivator.instance.extrinsicIdBehaviour == ExtrinsicIdBehaviour.defaultModel
-						&& internalObject.hasExtrinsicId()) {
-					internalObject.getExtrinsicID(false);
-				}
-			}
+//			/**
+//			 * This override is used to ensure that URIs in the extrinsic id
+//			 * index are saved, when the object is saved.
+//			 */
+//			@Override
+//			protected void saveElementID(EObject o) {
+//				super.saveElementID(o);
+//				FInternalObjectImpl internalObject = (FInternalObjectImpl) o;
+//				if (EmfFragActivator.instance.extrinsicIdBehaviour == ExtrinsicIdBehaviour.defaultModel
+//						&& internalObject.hasExtrinsicId()) {
+//					internalObject.getExtrinsicID(false);
+//				}
+//			}
 		};
 	}
 
@@ -138,15 +138,15 @@ public class XMIFragmentImpl extends XMIResourceImpl implements Fragment {
 		}
 	}
 
-	@Override
-	public void setID(FInternalObjectImpl object, String id) {
-		super.setID(object, id);
-
-	}
-
-	@Override
-	public String getID(FInternalObjectImpl object) {
-		return super.getID(object);
-	}
+//	@Override
+//	public void setID(FInternalObjectImpl object, String id) {
+//		super.setID(object, id);
+//
+//	}
+//
+//	@Override
+//	public String getID(FInternalObjectImpl object) {
+//		return super.getID(object);
+//	}
 
 }

@@ -31,7 +31,7 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		
 		reinitializeModel();		
 		model.assertFragmentsIndex(0l, 1l);
-		model.assertExtrinsicIdIndex(0l, 0l);
+		model.assertExtrinsicIdIndex(0l, 1l);
 		Assertions
 				.root(model).assertId(1)
 				.getRegularContents().assertSize(1).get(0).assertId(2).save()
@@ -50,7 +50,7 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		reinitializeModel();	
 
 		model.assertFragmentsIndex(0l, 3l);
-		model.assertExtrinsicIdIndex(0l, 0l);
+		model.assertExtrinsicIdIndex(0l, 2l);
 		
 		Assertions
 				.root(model).assertId(1).save().getCrossReferences().assertSize(1).get(0).assertId(3)
@@ -67,7 +67,7 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		
 		reinitializeModel();		
 		model.assertFragmentsIndex(0l, 1l);
-		model.assertExtrinsicIdIndex(0l, 0l);
+		model.assertExtrinsicIdIndex(0l, 1l);
 		
 		Assertions
 				.root(model).assertId(1)
@@ -87,7 +87,7 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		
 		reinitializeModel();		
 		model.assertFragmentsIndex(0l, 1l);
-		model.assertExtrinsicIdIndex(0l, 0l);
+		model.assertExtrinsicIdIndex(0l, 2l);
 		Assertions
 				.root(model).assertId(1).save().getRegularContents().assertSize(1).get(0).assertId(3)
 				.load().getCrossReferences().assertSize(1).get(0).assertId(3);
@@ -105,7 +105,7 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		
 		reinitializeModel();		
 		model.assertFragmentsIndex(0l, 3l);
-		model.assertExtrinsicIdIndex(0l, 0l);
+		model.assertExtrinsicIdIndex(0l, 2l);
 		Assertions
 				.root(model).assertId(1).save().getFragmentedContents().assertSize(1).get(0).assertId(3)
 				.load().getCrossReferences().assertSize(1).get(0).assertId(3);

@@ -8,8 +8,8 @@ public interface Fragment extends Resource {
 
 	public FragmentedModel getFragmentedModel();
 	
-	public void setID(FInternalObjectImpl object, String id);
-	
-	public String getID(FInternalObjectImpl object);
+//	public void setID(FInternalObjectImpl object, String id);
+//	
+//	public String getID(FInternalObjectImpl object);
 
 }

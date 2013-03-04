@@ -4,7 +4,9 @@ import junit.framework.Assert;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.junit.Test;
@@ -24,7 +26,7 @@ public class ReflectiveMetaModelTests extends AbstractReflectiveModelTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void testContainmentReferences() {
-		EList contents = (EList) object1.eGet(metaModel.getTestObject_FragmentedContents());
+		EList contents = (EList) object1.eGet(((EClass)metaModel.getEClassifier("TestObject")).getEStructuralFeature("fragmentedContents"));
 		contents.add(object2);
 
 		Assert.assertEquals(1, contents.size());
@@ -33,13 +35,13 @@ public class ReflectiveMetaModelTests extends AbstractReflectiveModelTests {
 
 	@Test
 	public void testIsSet() {
-		object1.eIsSet(metaModel.getTestObject_RegularContents());
+		object1.eIsSet(((EClass)metaModel.getEClassifier("TestObject")).getEStructuralFeature("regularContents"));
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void testNonContainmentReferences() {
-		EReference testObject_crossReferences = metaModel.getTestObject_CrossReferences();
+		EReference testObject_crossReferences = (EReference)((EClass)metaModel.getEClassifier("TestObject")).getEStructuralFeature("crossReferences");
 		EList crossReferences = (EList) object1.eGet(testObject_crossReferences);
 		crossReferences.add(object2);
 
@@ -51,10 +53,10 @@ public class ReflectiveMetaModelTests extends AbstractReflectiveModelTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void testContainmentProxyResolution() {
-		EReference fragmentedContents = metaModel.getTestObject_FragmentedContents();
+		EReference fragmentedContents = (EReference)((EClass)metaModel.getEClassifier("TestObject")).getEStructuralFeature("fragmentedContents");
 		EList contents = (EList) object1.eGet(fragmentedContents);
 		contents.add(object2);
-		object2.eSet(metaModel.getTestObject_Name(), "testValue");
+		object2.eSet(((EClass)metaModel.getEClassifier("TestObject")).getEStructuralFeature("name"), "testValue");
 
 		Resource[] resources = createResourceSet(dataStore, metaModel, 2, false);
 		resources[0].getContents().add(object1);
@@ -71,16 +73,16 @@ public class ReflectiveMetaModelTests extends AbstractReflectiveModelTests {
 		Assert.assertTrue(resources[0] != object2.eResource());
 		Assert.assertTrue(resources[0] == object1.eResource());
 		Assert.assertFalse(object2.eIsProxy());
-		Assert.assertEquals(object2.eGet(metaModel.getTestObject_Name()), "testValue");
+		Assert.assertEquals(object2.eGet(((EClass)metaModel.getEClassifier("TestObject")).getEStructuralFeature("name")), "testValue");
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testProxyResolution() {
-		EReference testObject_crossReferences = metaModel.getTestObject_CrossReferences();
+		EReference testObject_crossReferences = (EReference)((EClass)metaModel.getEClassifier("TestObject")).getEStructuralFeature("crossReferences");
 		EList crossReferences = (EList) object1.eGet(testObject_crossReferences);
 		crossReferences.add(object2);
-		object2.eSet(metaModel.getTestObject_Name(), "testValue");
+		object2.eSet(((EClass)metaModel.getEClassifier("TestObject")).getEStructuralFeature("name"), "testValue");
 
 		Resource[] resources = createResourceSet(dataStore, metaModel, 2, false);
 		resources[0].getContents().add(object1);
@@ -97,13 +99,13 @@ public class ReflectiveMetaModelTests extends AbstractReflectiveModelTests {
 		Assert.assertTrue(resources[0] != object2.eResource());
 		Assert.assertTrue(resources[0] == object1.eResource());
 		Assert.assertFalse(object2.eIsProxy());
-		Assert.assertEquals("testValue", object2.eGet(metaModel.getTestObject_Name()));
+		Assert.assertEquals("testValue", object2.eGet(((EClass)metaModel.getEClassifier("TestObject")).getEStructuralFeature("name")));
 	}
 
 	@Test
 	public void testReflectiveMetaModelRegistryTest() {
-		TestModelPackage one = ReflectiveMetaModelRegistry.instance.registerUserMetaModel(TestModelPackage.eINSTANCE);
-		TestModelPackage two = ReflectiveMetaModelRegistry.instance.registerUserMetaModel(TestModelPackage.eINSTANCE);
+		EPackage one = ReflectiveMetaModelRegistry.instance.registerUserMetaModel(TestModelPackage.eINSTANCE);
+		EPackage two = ReflectiveMetaModelRegistry.instance.registerUserMetaModel(TestModelPackage.eINSTANCE);
 
 		Assert.assertEquals(one, two);
 	}
@@ -111,13 +113,13 @@ public class ReflectiveMetaModelTests extends AbstractReflectiveModelTests {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testMoveContents() {
-		((EList) object1.eGet(metaModel.getTestObject_FragmentedContents())).add(object2);
+		((EList) object1.eGet(((EClass)metaModel.getEClassifier("TestObject")).getEStructuralFeature("fragmentedContents"))).add(object2);
 		Resource[] resources = createResourceSet(dataStore, metaModel, 2, false);
 		resources[0].getContents().add(object1);
 		resources[1].getContents().add(object2);
 		saveResources(resources);
 
-		((EList) object1.eGet(metaModel.getTestObject_RegularContents())).add(object2);
+		((EList) object1.eGet(((EClass)metaModel.getEClassifier("TestObject")).getEStructuralFeature("regularContents"))).add(object2);
 		saveResources(resources);
 	}
 
@@ -132,7 +134,7 @@ public class ReflectiveMetaModelTests extends AbstractReflectiveModelTests {
 		Resource[] resources = createResourceSet(dataStore, metaModel, 1, false);
 
 		resources[0].getContents().add(object1);
-		EList eList = (EList) object1.eGet(metaModel.getTestObject_RegularContents());
+		EList eList = (EList) object1.eGet(((EClass)metaModel.getEClassifier("TestObject")).getEStructuralFeature("regularContents"));
 		eList.add(object2);
 		Assert.assertTrue(resources[0].getContents().contains(object1));
 		Assert.assertTrue(eList.contains(object2));

@@ -1,6 +1,5 @@
 package de.hub.emffrag.fragmentation;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +7,7 @@ import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
+import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EDataType;
@@ -19,6 +19,8 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.impl.EClassImpl;
 import org.eclipse.emf.ecore.impl.EFactoryImpl;
+import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.relaxng.datatype.Datatype;
 
 import de.hub.emffrag.util.EMFFragUtil;
 import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
@@ -34,50 +36,58 @@ import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
  * corresponding opposite elements of the other meta-model.
  * 
  */
-public class ReflectiveMetaModelRegistry {
+public class ReflectiveMetaModelRegistry extends HashMap<String, Object> implements EPackage.Registry {
 
 	public static final ReflectiveMetaModelRegistry instance = new ReflectiveMetaModelRegistry();
 
 	private ReflectiveMetaModelRegistry() {
 	}
 
-	private final Map<String, EPackage> internalMetaModelRegistry = new HashMap<String, EPackage>();
 	private final Map<String, EPackage> userMetaModelRegistry = new HashMap<String, EPackage>();
 
-	@SuppressWarnings("unchecked")
-	public <T extends EPackage> T registerUserMetaModel(T source) {
+	public EPackage registerUserMetaModel(EPackage source) {
 		String nsURI = source.getNsURI();
-		T target = (T) internalMetaModelRegistry.get(nsURI);
+		EPackage target = (EPackage)get(nsURI);
 		if (target == null) {
 			target = generateReflectiveMetaModel(source);
 		}
 		return target;
 	}
-	
+		
+	@Override
+	public EPackage getEPackage(String nsURI) {
+		return (EPackage)get(nsURI);
+	}
+
+	@Override
+	public EFactory getEFactory(String nsURI) {
+		return getEPackage(nsURI).getEFactoryInstance();
+	}
+
 	public EClass getInternalClass(EClass theClass) {
-		return getOtherClass(internalMetaModelRegistry, theClass);
+		return getOtherClass(this, theClass);
 	}
 	
 	public EStructuralFeature getInternalFeature(EStructuralFeature feature) {
-		return getOtherFeature(internalMetaModelRegistry, feature);
+		return getOtherFeature(this, feature);
 	}
 	
 	public EPackage getInternalMetaModel(EPackage thePackage) {
-		return getOtherMetaModel(internalMetaModelRegistry, thePackage);
+		return getOtherMetaModel(this, thePackage);
 	}
 	
-	private EClass getOtherClass(Map<String, EPackage> mapping, EClass theClass) {
+	private EClass getOtherClass(Map<String, ? extends Object> mapping, EClass theClass) {
 		EPackage metaModel = getOtherMetaModel(mapping, theClass.getEPackage());
-		return metaModel == null ? null : (EClass)metaModel.getEClassifier(theClass.getName());
+		return metaModel == null ? null : (EClass)metaModel.getEClassifier(theClass.getName()); // TODO performance
 	}
 	
-	private EStructuralFeature getOtherFeature(Map<String, EPackage> mapping, EStructuralFeature feature) {
+	private EStructuralFeature getOtherFeature(Map<String, ? extends Object> mapping, EStructuralFeature feature) {
 		EClass theClass = getOtherClass(mapping, feature.getEContainingClass());
-		return theClass == null ? null : theClass.getEStructuralFeature(feature.getFeatureID());
+		return theClass == null ? null : theClass.getEStructuralFeature(feature.getName()); // TODO performance
 	}
 	
-	private EPackage getOtherMetaModel(Map<String, EPackage> mapping, EPackage thePackage) {
-		return mapping.get(thePackage.getNsURI());
+	private EPackage getOtherMetaModel(Map<String, ? extends Object> mapping, EPackage thePackage) {
+		return (EPackage)mapping.get(thePackage.getNsURI());
 	}
 	
 	public EStructuralFeature getRegularFeature(EStructuralFeature feature) {
@@ -92,26 +102,29 @@ public class ReflectiveMetaModelRegistry {
 		return getOtherClass(userMetaModelRegistry, theClass);
 	}
 
-	@SuppressWarnings("unchecked")
-	private <T extends EPackage> T generateReflectiveMetaModel(final T source) {
-		EFactory regularFactory = source.getEFactoryInstance();
-		T target = null;
-		try {
-			Constructor<? extends EPackage> declaredConstructor = source.getClass().getDeclaredConstructor(new Class[] {});
-			declaredConstructor.setAccessible(true);
-			target = (T) declaredConstructor.newInstance(new Object[] {});
-			declaredConstructor.setAccessible(false);
-			target.getClass().getMethod("createPackageContents", new Class<?>[] {}).invoke(target, new Object[] {});
-			target.getClass().getMethod("initializePackageContents", new Class<?>[] {}).invoke(target, new Object[] {});
-			target.getClass().getMethod("freeze", new Class<?>[] {}).invoke(target, new Object[] {});
-		} catch (Exception e) {
-			throw new RuntimeException("Exception during reflective meta-model generation, probably EMF internals have changed.", e);
-		}
+//	@SuppressWarnings("unchecked")
+	private EPackage generateReflectiveMetaModel(final EPackage source) {
+		EPackage target = EcoreUtil.copy(source);
+		
+		
+//		EFactory regularFactory = source.getEFactoryInstance();
+//		T target = null;
+//		try {
+//			Constructor<? extends EPackage> declaredConstructor = source.getClass().getDeclaredConstructor(new Class[] {});
+//			declaredConstructor.setAccessible(true);
+//			target = (T) declaredConstructor.newInstance(new Object[] {});
+//			declaredConstructor.setAccessible(false);
+//			target.getClass().getMethod("createPackageContents", new Class<?>[] {}).invoke(target, new Object[] {});
+//			target.getClass().getMethod("initializePackageContents", new Class<?>[] {}).invoke(target, new Object[] {});
+//			target.getClass().getMethod("freeze", new Class<?>[] {}).invoke(target, new Object[] {});
+//		} catch (Exception e) {
+//			throw new RuntimeException("Exception during reflective meta-model generation, probably EMF internals have changed.", e);
+//		}
 		// EMF uses its notification process to clear a packages factory, if a
 		// new package instance is created. Weird.
-		source.setEFactoryInstance(regularFactory);
-		
-		internalMetaModelRegistry.put(source.getNsURI(), target);
+//		source.setEFactoryInstance(regularFactory);
+//		
+		put(source.getNsURI(), target);
 		userMetaModelRegistry.put(source.getNsURI(), source);
 
 		// check and modify target properties
@@ -136,6 +149,10 @@ public class ReflectiveMetaModelRegistry {
 						registerUserMetaModel(superType.getEPackage());
 						superTypes.set(superTypeIndex, getInternalClass(superType));						
 					}
+					superTypes.add(InternalPackage.eINSTANCE.getFInternalObject());
+				} else if (next instanceof EDataType) {
+					EDataType sourceDataType = (EDataType)source.getEClassifier(((EDataType) next).getName());
+					((EDataType) next).setInstanceTypeName(sourceDataType.getInstanceTypeName());					
 				} else if (next instanceof EReference) {
 					FragmentationType fragmentationType = EMFFragUtil.getFragmentationType((EReference)next);
 					EReference reference = (EReference)next;
@@ -198,8 +215,9 @@ public class ReflectiveMetaModelRegistry {
 		}		
 	}
 
-	void clear() {
-		internalMetaModelRegistry.clear();
+	@Override
+	public void clear() {
+		super.clear();
 		userMetaModelRegistry.clear();
 	}
 }

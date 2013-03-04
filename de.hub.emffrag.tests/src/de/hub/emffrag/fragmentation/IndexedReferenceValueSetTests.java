@@ -145,6 +145,12 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 		assertExtrinsicIdIndex();
 		model.assertValueSetIndex(testObject, testFeature(), 0l, 2l);
 	}
+	
+	@Test
+	public void testMandantoryExtrinsicID() {
+		root.getContents().add(testObject);
+		Assert.assertNotNull("Mandantory extrinsic ID not present.", ((FObjectImpl)testObject).fInternalObject().getExtrinsicID(false));
+	}
 
 	protected void assertExtrinsicIdIndex() {
 		model.assertExtrinsicIdIndex(0l, 3l);

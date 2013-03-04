@@ -21,7 +21,7 @@ public class IndexedContentsValueSetTests extends IndexedReferenceValueSetTests 
 	
 	@Override
 	protected void assertExtrinsicIdIndex() {
-		model.assertExtrinsicIdIndex(0l, 0l);
+		model.assertExtrinsicIdIndex(0l, 3l);
 	}
 	
 	@Override

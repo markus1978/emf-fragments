@@ -204,8 +204,6 @@ public class CacheTests extends AbstractFragmentationTests {
 		object2.getFragmentedContents().add(object3);
 		TestObject contents = Assertions.createTestObject(4);
 		object3.getRegularContents().add(contents);
-		String uriFragment = ((FObjectImpl)object3).fInternalObject().eResource().getURIFragment(((FObjectImpl) contents).fInternalObject());
-		Assert.assertEquals("//@regularContents.0", uriFragment);
 
 		deleteReference(object2);
 		deleteReference(object3);
@@ -224,8 +222,5 @@ public class CacheTests extends AbstractFragmentationTests {
 				.get(0).assertId(4).assertSameFragmentAsContainer().value();
 		
 		model.assertStatistics(4, 4, 1, 1, 1, 1, 4, 4);
-
-		uriFragment = ((FObjectImpl)object3).fInternalObject().eResource().getURIFragment(((FObjectImpl) contents).fInternalObject());
-		Assert.assertEquals("//@regularContents.0", uriFragment);
 	}
 }

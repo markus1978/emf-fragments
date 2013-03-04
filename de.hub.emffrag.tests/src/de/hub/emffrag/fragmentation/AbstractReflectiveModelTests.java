@@ -25,7 +25,7 @@ import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 
 public class AbstractReflectiveModelTests extends AbstractTests {
 	
-	protected TestModelPackage metaModel = null;
+	protected EPackage metaModel = null;
 	protected FInternalObjectImpl object1 = null;
 	protected FInternalObjectImpl object2 = null;
 	protected FInternalObjectImpl object3 = null;
@@ -41,9 +41,9 @@ public class AbstractReflectiveModelTests extends AbstractTests {
 		
 		dataStore = createTestDataStore();
 		metaModel = ReflectiveMetaModelRegistry.instance.registerUserMetaModel(TestModelPackage.eINSTANCE);
-		object1 = new FInternalObjectImpl(metaModel.getTestObject());
-		object2 = new FInternalObjectImpl(metaModel.getTestObject());
-		object3 = new FInternalObjectImpl(metaModel.getTestObject());
+		object1 = new FInternalObjectImpl((EClass)metaModel.getEClassifier("TestObject"));
+		object2 = new FInternalObjectImpl((EClass)metaModel.getEClassifier("TestObject"));
+		object3 = new FInternalObjectImpl((EClass)metaModel.getEClassifier("TestObject"));
 	}
 	
 	protected ResourceFactoryImpl createResourceFactoryImpl() {
