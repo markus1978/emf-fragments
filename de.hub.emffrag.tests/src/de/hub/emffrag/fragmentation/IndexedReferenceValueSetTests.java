@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
+import de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes;
 
 public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 	
@@ -17,7 +18,7 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 	
 	@Before
 	public void indexInitialization() {
-		testObject = Assertions.createTestObject(0);
+		testObject = Assertions.createTestObjectWithIndexes(0);
 	}
 	
 	@Test
@@ -31,7 +32,7 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 		
 		assertValueSet(valueSet(), 0);
 		model.assertFragmentsIndex(0l, 1l);
-		model.assertExtrinsicIdIndex(0l, 0l);
+		model.assertIdIndex(0l, 0l);
 		model.assertValueSetIndex(testObject, testFeature(), -1, -1);
 	}
 	
@@ -56,16 +57,16 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 		assertObjectInValueSet(valueSet(), 2);		
 		
 		assertFragmentsIndex();
-		assertExtrinsicIdIndex();
+		assertIdIndex();
 		model.assertValueSetIndex(testObject, testFeature(), 0l, 2l);
 	}
 	
 	protected EList<TestObject> valueSet() {
-		return testObject.getIndexedReferences();
+		return ((TestObjectWithIndexes)testObject).getIndexedReferences();
 	}
 	
 	protected EStructuralFeature testFeature() {
-		return TestModelPackage.eINSTANCE.getTestObject_IndexedReferences();
+		return TestModelPackage.eINSTANCE.getTestObjectWithIndexes_IndexedReferences();
 	}
 	
 	@Test
@@ -122,7 +123,7 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 		Assert.assertEquals(2, valueSet().size());
 		assertIterator(valueSet().iterator(), 2);	
 		assertFragmentsIndex();
-		assertExtrinsicIdIndex();
+		assertIdIndex();
 		model.assertValueSetIndex(testObject, testFeature(), 0l, 1l);
 	}
 
@@ -142,18 +143,18 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 		assertObjectInValueSet(valueSet(), 1);
 		assertIterator(valueSet().iterator(), 3);
 		assertFragmentsIndex();
-		assertExtrinsicIdIndex();
+		assertIdIndex();
 		model.assertValueSetIndex(testObject, testFeature(), 0l, 2l);
 	}
 	
 	@Test
-	public void testMandantoryExtrinsicID() {
+	public void testMandantoryId() {
 		root.getContents().add(testObject);
-		Assert.assertNotNull("Mandantory extrinsic ID not present.", ((FObjectImpl)testObject).fInternalObject().getExtrinsicID(false));
+		Assert.assertNotNull("Mandantory ID not present.", ((FObjectImpl)testObject).fInternalObject().getId(false));
 	}
 
-	protected void assertExtrinsicIdIndex() {
-		model.assertExtrinsicIdIndex(0l, 3l);
+	protected void assertIdIndex() {
+		model.assertIdIndex(0l, 3l);
 	}
 		
 	protected void assertIterator(Iterator<TestObject> iterator, int size) {

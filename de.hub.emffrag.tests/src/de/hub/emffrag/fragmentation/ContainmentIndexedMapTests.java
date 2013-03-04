@@ -17,6 +17,11 @@ public class ContainmentIndexedMapTests extends IndexedMapTests {
 	protected void assertFragmentsIndex() {
 		model.assertFragmentsIndex(0l, 1l);
 	}
+	
+	@Override
+	protected void assertIdIndex(boolean plusOne) {
+		model.assertIdIndex(0l, 0l);
+	}
 
 	@Test
 	public void addObjectsToMapTest() {
@@ -35,7 +40,7 @@ public class ContainmentIndexedMapTests extends IndexedMapTests {
 		assertIndexedObject(testIndex, "3");
 		
 		assertFragmentsIndex();
-		assertExtrinsicIdIndex(false);
+		assertIdIndex(false);
 		model.assertIndexClassIndex(testIndex, "1", "3", StringKeyType.instance);
 	}
 }

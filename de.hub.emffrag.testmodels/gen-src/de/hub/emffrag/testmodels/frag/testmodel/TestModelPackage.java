@@ -118,31 +118,13 @@ public interface TestModelPackage extends EPackage {
 	int TEST_OBJECT__CROSS_REFERENCES = 3;
 
 	/**
-	 * The feature id for the '<em><b>Indexed References</b></em>' reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int TEST_OBJECT__INDEXED_REFERENCES = 4;
-
-	/**
-	 * The feature id for the '<em><b>Indexed Contents</b></em>' containment reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int TEST_OBJECT__INDEXED_CONTENTS = 5;
-
-	/**
 	 * The feature id for the '<em><b>Enum Attribute</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int TEST_OBJECT__ENUM_ATTRIBUTE = 6;
+	int TEST_OBJECT__ENUM_ATTRIBUTE = 4;
 
 	/**
 	 * The number of structural features of the '<em>Test Object</em>' class.
@@ -151,7 +133,7 @@ public interface TestModelPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int TEST_OBJECT_FEATURE_COUNT = 7;
+	int TEST_OBJECT_FEATURE_COUNT = 5;
 
 
 	/**
@@ -267,6 +249,88 @@ public interface TestModelPackage extends EPackage {
 
 
 	/**
+	 * The meta object id for the '{@link de.hub.emffrag.testmodels.frag.testmodel.impl.TestObjectWithIndexesImpl <em>Test Object With Indexes</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.TestObjectWithIndexesImpl
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.TestModelPackageImpl#getTestObjectWithIndexes()
+	 * @generated
+	 */
+	int TEST_OBJECT_WITH_INDEXES = 3;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TEST_OBJECT_WITH_INDEXES__NAME = TEST_OBJECT__NAME;
+
+	/**
+	 * The feature id for the '<em><b>Regular Contents</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TEST_OBJECT_WITH_INDEXES__REGULAR_CONTENTS = TEST_OBJECT__REGULAR_CONTENTS;
+
+	/**
+	 * The feature id for the '<em><b>Fragmented Contents</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TEST_OBJECT_WITH_INDEXES__FRAGMENTED_CONTENTS = TEST_OBJECT__FRAGMENTED_CONTENTS;
+
+	/**
+	 * The feature id for the '<em><b>Cross References</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TEST_OBJECT_WITH_INDEXES__CROSS_REFERENCES = TEST_OBJECT__CROSS_REFERENCES;
+
+	/**
+	 * The feature id for the '<em><b>Enum Attribute</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TEST_OBJECT_WITH_INDEXES__ENUM_ATTRIBUTE = TEST_OBJECT__ENUM_ATTRIBUTE;
+
+	/**
+	 * The feature id for the '<em><b>Indexed References</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TEST_OBJECT_WITH_INDEXES__INDEXED_REFERENCES = TEST_OBJECT_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Indexed Contents</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TEST_OBJECT_WITH_INDEXES__INDEXED_CONTENTS = TEST_OBJECT_FEATURE_COUNT + 1;
+
+	/**
+	 * The number of structural features of the '<em>Test Object With Indexes</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TEST_OBJECT_WITH_INDEXES_FEATURE_COUNT = TEST_OBJECT_FEATURE_COUNT + 2;
+
+	/**
 	 * The meta object id for the '{@link de.hub.emffrag.testmodels.frag.testmodel.TestEnum <em>Test Enum</em>}' enum.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -274,7 +338,7 @@ public interface TestModelPackage extends EPackage {
 	 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.TestModelPackageImpl#getTestEnum()
 	 * @generated
 	 */
-	int TEST_ENUM = 3;
+	int TEST_ENUM = 4;
 
 
 	/**
@@ -332,28 +396,6 @@ public interface TestModelPackage extends EPackage {
 	EReference getTestObject_CrossReferences();
 
 	/**
-	 * Returns the meta object for the reference list '{@link de.hub.emffrag.testmodels.frag.testmodel.TestObject#getIndexedReferences <em>Indexed References</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the reference list '<em>Indexed References</em>'.
-	 * @see de.hub.emffrag.testmodels.frag.testmodel.TestObject#getIndexedReferences()
-	 * @see #getTestObject()
-	 * @generated
-	 */
-	EReference getTestObject_IndexedReferences();
-
-	/**
-	 * Returns the meta object for the containment reference list '{@link de.hub.emffrag.testmodels.frag.testmodel.TestObject#getIndexedContents <em>Indexed Contents</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the containment reference list '<em>Indexed Contents</em>'.
-	 * @see de.hub.emffrag.testmodels.frag.testmodel.TestObject#getIndexedContents()
-	 * @see #getTestObject()
-	 * @generated
-	 */
-	EReference getTestObject_IndexedContents();
-
-	/**
 	 * Returns the meta object for the attribute '{@link de.hub.emffrag.testmodels.frag.testmodel.TestObject#getEnumAttribute <em>Enum Attribute</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -383,6 +425,38 @@ public interface TestModelPackage extends EPackage {
 	 * @generated
 	 */
 	EClass getTestContainmentIndex();
+
+	/**
+	 * Returns the meta object for class '{@link de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes <em>Test Object With Indexes</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Test Object With Indexes</em>'.
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes
+	 * @generated
+	 */
+	EClass getTestObjectWithIndexes();
+
+	/**
+	 * Returns the meta object for the reference list '{@link de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes#getIndexedReferences <em>Indexed References</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference list '<em>Indexed References</em>'.
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes#getIndexedReferences()
+	 * @see #getTestObjectWithIndexes()
+	 * @generated
+	 */
+	EReference getTestObjectWithIndexes_IndexedReferences();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes#getIndexedContents <em>Indexed Contents</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Indexed Contents</em>'.
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes#getIndexedContents()
+	 * @see #getTestObjectWithIndexes()
+	 * @generated
+	 */
+	EReference getTestObjectWithIndexes_IndexedContents();
 
 	/**
 	 * Returns the meta object for enum '{@link de.hub.emffrag.testmodels.frag.testmodel.TestEnum <em>Test Enum</em>}'.
@@ -459,22 +533,6 @@ public interface TestModelPackage extends EPackage {
 		EReference TEST_OBJECT__CROSS_REFERENCES = eINSTANCE.getTestObject_CrossReferences();
 
 		/**
-		 * The meta object literal for the '<em><b>Indexed References</b></em>' reference list feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EReference TEST_OBJECT__INDEXED_REFERENCES = eINSTANCE.getTestObject_IndexedReferences();
-
-		/**
-		 * The meta object literal for the '<em><b>Indexed Contents</b></em>' containment reference list feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EReference TEST_OBJECT__INDEXED_CONTENTS = eINSTANCE.getTestObject_IndexedContents();
-
-		/**
 		 * The meta object literal for the '<em><b>Enum Attribute</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -501,6 +559,32 @@ public interface TestModelPackage extends EPackage {
 		 * @generated
 		 */
 		EClass TEST_CONTAINMENT_INDEX = eINSTANCE.getTestContainmentIndex();
+
+		/**
+		 * The meta object literal for the '{@link de.hub.emffrag.testmodels.frag.testmodel.impl.TestObjectWithIndexesImpl <em>Test Object With Indexes</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.TestObjectWithIndexesImpl
+		 * @see de.hub.emffrag.testmodels.frag.testmodel.impl.TestModelPackageImpl#getTestObjectWithIndexes()
+		 * @generated
+		 */
+		EClass TEST_OBJECT_WITH_INDEXES = eINSTANCE.getTestObjectWithIndexes();
+
+		/**
+		 * The meta object literal for the '<em><b>Indexed References</b></em>' reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference TEST_OBJECT_WITH_INDEXES__INDEXED_REFERENCES = eINSTANCE.getTestObjectWithIndexes_IndexedReferences();
+
+		/**
+		 * The meta object literal for the '<em><b>Indexed Contents</b></em>' containment reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference TEST_OBJECT_WITH_INDEXES__INDEXED_CONTENTS = eINSTANCE.getTestObjectWithIndexes_IndexedContents();
 
 		/**
 		 * The meta object literal for the '{@link de.hub.emffrag.testmodels.frag.testmodel.TestEnum <em>Test Enum</em>}' enum.

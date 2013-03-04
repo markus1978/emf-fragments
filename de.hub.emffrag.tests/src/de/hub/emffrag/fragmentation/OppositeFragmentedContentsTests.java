@@ -24,6 +24,10 @@ public class OppositeFragmentedContentsTests extends AbstractFragmentationTests 
 		root.getContents().add(object1);
 	}
 	
+	protected TestObject createTestObject(int id) {
+		return Assertions.createTestObjectWithIndexes(id);
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testAddOpposite() {

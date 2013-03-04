@@ -19,7 +19,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		FragmentedModel model = new FragmentedModel(createTestDataStore());
 		model.save(null);
 		model.assertFragmentsIndex(0l, 0l);
-		model.assertExtrinsicIdIndex(-1l, -1l);
+		model.assertIdIndex(-1l, -1l);
 	}
 
 	/**
@@ -36,7 +36,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		
 		Assertions.root(model).assertId(1).getFragmentedContents().assertSize(0);		
 		model.assertFragmentsIndex(0l, 1l);
-		model.assertExtrinsicIdIndex(0l, 0l);
+		model.assertIdIndex(-1l, -1l);
 	}
 
 	/**
@@ -56,7 +56,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 			.get(0).assertId(2).assertDifferentFragmentAsContainer()
 			.eContainer().assertId(1);
 		model.assertFragmentsIndex(0l, 2l);
-		model.assertExtrinsicIdIndex(0l, 1l);
+		model.assertIdIndex(-1l, -1l);
 	}
 
 	@Test
@@ -85,7 +85,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 				.eContents().assertSize(0);
 			
 		model.assertFragmentsIndex(0l, 1l);
-		model.assertExtrinsicIdIndex(0l, 1l);
+		model.assertIdIndex(-1l, -1l);
 	}
 
 	@Test
@@ -113,7 +113,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 				.getFragmentedContents().assertSize(0);
 			
 		model.assertFragmentsIndex(0l, 1l);	
-		model.assertExtrinsicIdIndex(0l, 1l);
+		model.assertIdIndex(-1l, -1l);
 	}
 
 	/**
@@ -163,7 +163,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		reinitializeModel();
 		reinitializeModel();
 		Assertions.root(model).eContents().assertSize(0);
-		model.assertFragmentsIndex(0l, 1l);
+		model.assertIdIndex(-1l, -1l);
 	}
 	
 	@SuppressWarnings("unused")
@@ -193,7 +193,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 				.get(0).assertId(2).assertSameFragmentAsContainer();
 		
 		model.assertFragmentsIndex(0l, 1l);
-		model.assertExtrinsicIdIndex(0l, 1l);
+		model.assertIdIndex(-1l, -1l);
 	}
 
 	@Test
@@ -214,7 +214,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 				.eContainer().assertId(1);
 		
 		model.assertFragmentsIndex(0l, 3l);
-		model.assertExtrinsicIdIndex(0l, 2l);
+		model.assertIdIndex(-1l, -1l);
 	}
 
 	@Test
@@ -231,7 +231,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 				.eContainer().assertId(1);
 		
 		model.assertFragmentsIndex(0l, 2l);
-		model.assertExtrinsicIdIndex(0l, 1l);
+		model.assertIdIndex(-1l, -1l);
 	}
 
 	@Test
@@ -252,7 +252,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 				.eContainer().assertId(2);
 		
 		model.assertFragmentsIndex(0l, 2l);
-		model.assertExtrinsicIdIndex(0l, 2l);
+		model.assertIdIndex(-1l, -1l);
 	}
 	
 	@Test

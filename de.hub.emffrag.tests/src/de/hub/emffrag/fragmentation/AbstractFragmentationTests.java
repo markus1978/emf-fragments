@@ -60,9 +60,13 @@ public class AbstractFragmentationTests  extends AbstractTests {
 			root = model.root();
 		}
 		
-		object1 = Assertions.createTestObject(1);
-		object2 = Assertions.createTestObject(2);
-		object3 = Assertions.createTestObject(3);
+		object1 = createTestObject(1);
+		object2 = createTestObject(2);
+		object3 = createTestObject(3);
+	}
+	
+	protected TestObject createTestObject(int index) {
+		return Assertions.createTestObject(index);
 	}
 	
 	protected final FragmentedModel createFragmentedModel(DataStore dataStore, EPackage metaModel) {

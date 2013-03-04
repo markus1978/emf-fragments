@@ -24,8 +24,8 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 		model.assertFragmentsIndex(0l, 3l);
 	}
 	
-	protected void assertExtrinsicIdIndex(boolean plusOne) {
-		model.assertExtrinsicIdIndex(0l, plusOne ? 4l : 3l);
+	protected void assertIdIndex(boolean plusOne) {
+		model.assertIdIndex(0l, plusOne ? 4l : 3l);
 	}
 
 	@Test
@@ -48,7 +48,7 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 		assertIndexedObject(testIndex, "3");
 		
 		assertFragmentsIndex();
-		assertExtrinsicIdIndex(false);
+		assertIdIndex(false);
 		model.assertIndexClassIndex(testIndex, "1", "3", StringKeyType.instance);
 	}
 	
@@ -121,7 +121,7 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 		assertIterator(testIndex.iterator(), 2);
 		
 		assertFragmentsIndex();
-		assertExtrinsicIdIndex(false);
+		assertIdIndex(false);
 		model.assertIndexClassIndex(testIndex, "1", "3", StringKeyType.instance);
 	}
 	
@@ -193,7 +193,7 @@ public class IndexedMapTests extends AbstractFragmentationTests {
 		assertIterator(testIndex.iterator(), size);
 		
 		assertFragmentsIndex();
-		assertExtrinsicIdIndex(true);
+		assertIdIndex(true);
 		model.assertIndexClassIndex(testIndex, firstKey, lastKey, StringKeyType.instance);
 	}
 	

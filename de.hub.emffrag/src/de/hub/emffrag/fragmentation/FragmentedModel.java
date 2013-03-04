@@ -1,20 +1,15 @@
 package de.hub.emffrag.fragmentation;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EFactory;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -40,7 +35,7 @@ import de.hub.emffrag.model.emffrag.Root;
 public class FragmentedModel extends ResourceImpl {
 
 	public static final String FRAGMENTS_INDEX_PREFIX = "f";
-	public static final String EXTRINSIC_ID_INDEX_PREFIX = "c";
+	public static final String ID_INDEX_PREFIX = "c";
 	public static final String INDEX_CLASSES_PREFIX = "i";
 	public static final String INDEX_FEATURES_PREFIX = "j";
 
@@ -59,7 +54,7 @@ public class FragmentedModel extends ResourceImpl {
 	private final FragmentCache fragmentCache;
 	private final DataStore dataStore;
 	private final DataIndex<Long> fragmentIndex;
-	private final ExtrinsicIdIndex extrinsicIdIndex;
+	private final IdIndex idIndex;
 	private final Statistics statistics = new Statistics();
 	private final Fragment rootFragment;
 
@@ -82,7 +77,7 @@ public class FragmentedModel extends ResourceImpl {
 		fragmentCache = new FragmentCache(cacheSize);
 
 		this.fragmentIndex = new DataIndex<Long>(dataStore, FRAGMENTS_INDEX_PREFIX, LongKeyType.instance);
-		this.extrinsicIdIndex = new ExtrinsicIdIndex(dataStore);
+		this.idIndex = new IdIndex(dataStore);
 
 		resourceSet = createAndConfigureAResourceSet(dataStore);
 
@@ -224,8 +219,8 @@ public class FragmentedModel extends ResourceImpl {
 			@Override
 			public EObject getEObject(URI uri, boolean loadOnDemand) {
 				if (uri.fragment() == null) {
-					// The URI must be a extrinsic ID URI
-					EObject result = super.getEObject(extrinsicIdIndex.getObjectUriForExtrinsicIdUri(uri), true);
+					// The URI must be a ID URI
+					EObject result = super.getEObject(idIndex.getObjectUriForIdUri(uri), true);
 					return result;
 				} else {
 					return super.getEObject(uri, loadOnDemand);
@@ -412,8 +407,8 @@ public class FragmentedModel extends ResourceImpl {
 		return dataStore;
 	}
 
-	ExtrinsicIdIndex getExtrinsicIdIndex() {
-		return extrinsicIdIndex;
+	IdIndex getIdIndex() {
+		return idIndex;
 	}
 
 	/**
@@ -471,8 +466,8 @@ public class FragmentedModel extends ResourceImpl {
 		assertIndex(fragmentIndex, "fragments index", first, last);
 	}
 
-	void assertExtrinsicIdIndex(long first, long last) {
-		assertIndex(extrinsicIdIndex, "extrinsic id index", first, last);
+	void assertIdIndex(long first, long last) {
+		assertIndex(idIndex, "id index", first, last);
 	}
 
 	void assertValueSetIndex(EObject owner, EStructuralFeature feature, long min, long max) {

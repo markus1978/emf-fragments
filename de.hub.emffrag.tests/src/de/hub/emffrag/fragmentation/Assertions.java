@@ -10,6 +10,7 @@ import org.junit.Assert;
 
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
+import de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes;
 
 public class Assertions {
 
@@ -28,6 +29,12 @@ public class Assertions {
 	
 	public static TestObject createTestObject(int id) {
 		TestObject testObject = TestModelFactory.eINSTANCE.createTestObject();
+		testObject.setName(prefix + id);
+		return testObject;
+	}
+	
+	public static TestObject createTestObjectWithIndexes(int id) {
+		TestObject testObject = TestModelFactory.eINSTANCE.createTestObjectWithIndexes();
 		testObject.setName(prefix + id);
 		return testObject;
 	}
@@ -121,13 +128,15 @@ public class Assertions {
 	}
 
 	public Assertions getIndexedContents() {
-		value = value().getIndexedContents();
+		Assert.assertTrue("Object has wrong type.", value() instanceof TestObjectWithIndexes);
+		value = ((TestObjectWithIndexes)value()).getIndexedContents();
 		index = -1;
 		return this;
 	}
 
 	public Assertions getIndexedReferences() {
-		value = value().getIndexedReferences();
+		Assert.assertTrue("Object has wrong type.", value() instanceof TestObjectWithIndexes);
+		value = ((TestObjectWithIndexes)value()).getIndexedReferences();
 		index = -1;
 		return this;
 	}

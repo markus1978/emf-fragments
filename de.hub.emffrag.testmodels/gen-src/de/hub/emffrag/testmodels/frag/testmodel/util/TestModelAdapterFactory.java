@@ -26,6 +26,7 @@ import de.hub.emffrag.testmodels.frag.testmodel.TestContainmentIndex;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObjectIndex;
+import de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes;
 
 /**
  * <!-- begin-user-doc -->
@@ -96,6 +97,10 @@ public class TestModelAdapterFactory extends AdapterFactoryImpl {
 				return createTestContainmentIndexAdapter();
 			}
 			@Override
+			public Adapter caseTestObjectWithIndexes(TestObjectWithIndexes object) {
+				return createTestObjectWithIndexesAdapter();
+			}
+			@Override
 			public <K, V> Adapter caseIndexedMap(IndexedMap<K, V> object) {
 				return createIndexedMapAdapter();
 			}
@@ -162,6 +167,20 @@ public class TestModelAdapterFactory extends AdapterFactoryImpl {
 	 * @generated
 	 */
 	public Adapter createTestContainmentIndexAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes <em>Test Object With Indexes</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes
+	 * @generated
+	 */
+	public Adapter createTestObjectWithIndexesAdapter() {
 		return null;
 	}
 

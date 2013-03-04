@@ -9,7 +9,7 @@ public class OppositeIndexedContentsTests extends OppositeFragmentedContentsTest
 
 	@Override
 	protected EReference testedReference() {
-		return TestModelPackage.eINSTANCE.getTestObject_IndexedContents();
+		return TestModelPackage.eINSTANCE.getTestObjectWithIndexes_IndexedContents();
 	}
 
 	@Test

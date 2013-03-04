@@ -102,7 +102,7 @@ public class FStoreImpl implements EStore {
 			result = oldValue;
 		}
 		if (feature instanceof EReference && internalValue != null && !((EReference) feature).isContainment()) {
-			((FInternalObjectImpl) internalValue).getExtrinsicID(true);
+			((FInternalObjectImpl) internalValue).getId(true);
 		}
 		return result;
 	}
@@ -163,7 +163,7 @@ public class FStoreImpl implements EStore {
 		Object internalValue = getInternalValue(value, feature);
 		((EList) getInternalObject(object).eGet(feature)).add(index, internalValue);
 		if (feature instanceof EReference && !((EReference) feature).isContainment()) {
-			((FInternalObjectImpl) internalValue).getExtrinsicID(true);
+			((FInternalObjectImpl) internalValue).getId(true);
 		}
 	}
 

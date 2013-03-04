@@ -17,8 +17,6 @@ import org.eclipse.emf.ecore.xmi.impl.XMLHelperImpl;
 
 import com.google.common.base.Throwables;
 
-import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.EmfFragActivator.ExtrinsicIdBehaviour;
 import de.hub.emffrag.util.EMFFragUtil;
 import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
 
@@ -60,8 +58,8 @@ public class XMIFragmentImpl extends XMIResourceImpl implements Fragment {
 	 * HREF URIs in XMI. This is necessary to point cross references towards
 	 * cross reference entries in the data-base rather then the objects
 	 * themselves. This requires each cross-referenced object to have an
-	 * extrinsic id. But EMF exports HREFs towards objects with extrinsic IDs as
-	 * a URI that uses these extrinsic IDs. We don't want that. This
+	 * ID. But EMF exports HREFs towards objects with IDs as
+	 * a URI that uses these IDs. We don't want that. This
 	 * implementation uses regular URI-fragments for containment references and
 	 * URIs pointing at cross-reference entries in the data-store for cross
 	 * references.
@@ -72,19 +70,27 @@ public class XMIFragmentImpl extends XMIResourceImpl implements Fragment {
 		public MyXMLHelper(XMLResource resource) {
 			super(resource);
 		}
+		
+		@Override
+		public String getID(EObject obj) {
+			// Ensure that URIs in the id
+			// index are saved, when the object is saved.
+			((FInternalObjectImpl)obj).getId(false);			
+			return super.getID(obj);
+		}
 
 		@Override
 		protected URI getHREF(Resource otherResource, EObject obj) {
-			if (obj instanceof FInternalObjectImpl && ((FInternalObjectImpl) obj).hasExtrinsicId()
-					&& otherResource instanceof Fragment) {
+			FInternalObjectImpl internalObject = (FInternalObjectImpl)obj;
+			
+			if (internalObject.hasId() && otherResource instanceof Fragment) {
 				if (currentFeature instanceof EReference && !((EReference) currentFeature).isContainment()) {
-					String extrinsicID = ((FInternalObjectImpl) obj).getExtrinsicID(false);
+					String id = ((FInternalObjectImpl) obj).getId(false);
 					FragmentedModel fragmentedModel = ((Fragment) otherResource).getFragmentedModel();
-					if (FInternalObjectImpl.isPreliminary(extrinsicID)) {
-						// give a chance to create a real id
-						extrinsicID = ((FInternalObjectImpl)obj).getExtrinsicID(true);
+					if (FInternalObjectImpl.isPreliminary(id) || fragmentedModel == null) {
+						throw new NotInAFragmentedModelException();
 					}
-					URI uri = fragmentedModel.getExtrinsicIdIndex().createExtrinsicIdUri(extrinsicID);
+					URI uri = fragmentedModel.getIdIndex().createIdUri(id);
 					return uri;
 				} else if (EMFFragUtil.getFragmentationType(currentFeature) != FragmentationType.None) {
 					return otherResource.getURI().appendFragment("/");
@@ -108,20 +114,6 @@ public class XMIFragmentImpl extends XMIResourceImpl implements Fragment {
 				((MyXMLHelper) helper).currentFeature = f;
 				super.saveHref(remote, f);
 			}
-
-//			/**
-//			 * This override is used to ensure that URIs in the extrinsic id
-//			 * index are saved, when the object is saved.
-//			 */
-//			@Override
-//			protected void saveElementID(EObject o) {
-//				super.saveElementID(o);
-//				FInternalObjectImpl internalObject = (FInternalObjectImpl) o;
-//				if (EmfFragActivator.instance.extrinsicIdBehaviour == ExtrinsicIdBehaviour.defaultModel
-//						&& internalObject.hasExtrinsicId()) {
-//					internalObject.getExtrinsicID(false);
-//				}
-//			}
 		};
 	}
 
@@ -141,16 +133,4 @@ public class XMIFragmentImpl extends XMIResourceImpl implements Fragment {
 			internalObject.trulyUnload();
 		}
 	}
-
-//	@Override
-//	public void setID(FInternalObjectImpl object, String id) {
-//		super.setID(object, id);
-//
-//	}
-//
-//	@Override
-//	public String getID(FInternalObjectImpl object) {
-//		return super.getID(object);
-//	}
-
 }

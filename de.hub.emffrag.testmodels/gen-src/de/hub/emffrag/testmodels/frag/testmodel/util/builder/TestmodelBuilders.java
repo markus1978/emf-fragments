@@ -61,4 +61,22 @@ public class TestmodelBuilders {
   public static final TestContainmentIndexBuilder newTestContainmentIndexBuilder(de.hub.emffrag.testmodels.frag.testmodel.TestContainmentIndex p_testContainmentIndex) {
     return TestContainmentIndexBuilder.newTestContainmentIndexBuilder(p_testContainmentIndex);
   }
+
+  /**
+   * Creates a new <em><b>TestObjectWithIndexesBuilder</b></em>.
+   */
+  public static final TestObjectWithIndexesBuilder newTestObjectWithIndexesBuilder() {
+    return TestObjectWithIndexesBuilder.newTestObjectWithIndexesBuilder();
+  }
+
+  /**
+   * Creates a new <em><b>TestObjectWithIndexesBuilder</b></em> initialized with an existing <em><b>  
+  
+  de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes
+  
+  </b></em> model element.
+   */
+  public static final TestObjectWithIndexesBuilder newTestObjectWithIndexesBuilder(de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes p_testObjectWithIndexes) {
+    return TestObjectWithIndexesBuilder.newTestObjectWithIndexesBuilder(p_testObjectWithIndexes);
+  }
 }

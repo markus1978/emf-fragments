@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
-import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EDataType;
@@ -20,7 +19,6 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.impl.EClassImpl;
 import org.eclipse.emf.ecore.impl.EFactoryImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.relaxng.datatype.Datatype;
 
 import de.hub.emffrag.util.EMFFragUtil;
 import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
@@ -38,6 +36,8 @@ import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
  */
 public class ReflectiveMetaModelRegistry extends HashMap<String, Object> implements EPackage.Registry {
 
+	private static final long serialVersionUID = 1L;
+	
 	public static final ReflectiveMetaModelRegistry instance = new ReflectiveMetaModelRegistry();
 
 	private ReflectiveMetaModelRegistry() {
@@ -56,7 +56,14 @@ public class ReflectiveMetaModelRegistry extends HashMap<String, Object> impleme
 		
 	@Override
 	public EPackage getEPackage(String nsURI) {
-		return (EPackage)get(nsURI);
+		EPackage target = (EPackage)get(nsURI);
+		if (target == null) {
+			EPackage source = EPackage.Registry.INSTANCE.getEPackage(nsURI);
+			if (source != null) {
+				target = registerUserMetaModel(source);
+			}
+		}
+		return target;
 	}
 
 	@Override

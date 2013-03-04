@@ -17,14 +17,10 @@ import org.eclipse.emf.ecore.resource.impl.BinaryResourceImpl;
 
 import com.google.common.base.Throwables;
 
-import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.EmfFragActivator.ExtrinsicIdBehaviour;
-
 public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 
 	private final UserObjectsCache userObjectsCache;
-	private final FragmentedModel model;	
-//	private final Map<FInternalObjectImpl, String> extrinsicIDs = new HashMap<FInternalObjectImpl, String>();
+	private final FragmentedModel model;
 
 	public BinaryFragmentImpl(URI uri, FragmentedModel model) {
 		super(uri);
@@ -41,16 +37,6 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 	public FragmentedModel getFragmentedModel() {
 		return model;
 	}
-	
-//	@Override
-//	public void setID(FInternalObjectImpl object, String id) {
-//		extrinsicIDs.put(object, id);
-//	}
-//
-//	@Override
-//	public String getID(FInternalObjectImpl object) {
-//		return extrinsicIDs.get(object);
-//	}
 	
 	@Override
 	public void detached(EObject eObject) {
@@ -136,42 +122,16 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 	}
 
 	private class MyEObjectInputStream extends EObjectInputStream {
-
-//		private String lastExtrinsicID = null;
 		
-		public MyEObjectInputStream(InputStream arg0, Map<?, ?> arg1) throws IOException {
-			super(arg0, arg1);
-		}
-			
-//		@Override
-//		public InternalEObject loadEObject() throws IOException {
-////			String extrinsicID = readString();				
-//			InternalEObject object = super.loadEObject();
-////			if (lastExtrinsicID != null) {
-////				((BinaryFragmentImpl)resource).extrinsicIDs.put((FInternalObjectImpl)object, lastExtrinsicID);
-////			}
-////			if (extrinsicID != null && !extrinsicID.equals("")) {
-////				extrinsicIDs.put((FInternalObjectImpl)object, extrinsicID);
-////			}
-//			return object;
-//		}
-
-//		@Override
-//		public URI readURI() throws IOException {
-//			URI uri = super.readURI();
-//			if (uri.fragment() == null || uri.fragment().equals("")) {
-//				lastExtrinsicID = model.getExtrinsicIdIndex().getExtrinsicId(uri);
-//				return uri;
-//			} else {
-//				return uri;
-//			}
-//		}		
+		public MyEObjectInputStream(InputStream is, Map<?, ?> options) throws IOException {
+			super(is, options);
+		}	
 		
 		@Override
 		 protected EPackageData readEPackage() throws IOException { 
 		 	EPackageData ePackageData = super.readEPackage();
 			if (resourceSet != null) {
-				EPackage ePackage = (EPackage)resourceSet.getPackageRegistry().get(ePackageData.ePackage.getNsURI());
+				EPackage ePackage = resourceSet.getPackageRegistry().getEPackage(ePackageData.ePackage.getNsURI());
 				if (ePackage != null) {
 					ePackageData.ePackage = ePackage;
 				}
@@ -184,23 +144,20 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 		    
 	}
 
-
 	public class MyEObjectOutputStream extends EObjectOutputStream {
 		boolean isWritingCrossReferenceURI = false;
 		FInternalObjectImpl currentObject = null;
 
-		public MyEObjectOutputStream(OutputStream arg0, Map<?, ?> arg1) throws IOException {
-			super(arg0, arg1);
+		public MyEObjectOutputStream(OutputStream os, Map<?, ?> options) throws IOException {
+			super(os, options);
 		}
 
 		@Override
 		public void saveEObject(InternalEObject internalEObject, Check check) throws IOException {
-			// Ensure that URIs in the extrinsic id
+			// Ensure that URIs in the id
 			// index are saved, when the object is saved.					
-			FInternalObjectImpl fInternalObject = (FInternalObjectImpl)internalEObject;
-			if (EmfFragActivator.instance.extrinsicIdBehaviour == ExtrinsicIdBehaviour.defaultModel && fInternalObject.hasExtrinsicId()) {
-				fInternalObject.getExtrinsicID(false);
-			}
+			FInternalObjectImpl fInternalObject = (FInternalObjectImpl)internalEObject;			
+			fInternalObject.getId(false);
 				
 			if (check == Check.RESOURCE) {
 				isWritingCrossReferenceURI = true;
@@ -208,32 +165,26 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 			} else {
 				isWritingCrossReferenceURI = false;
 			}
-//			String extrinsicID = extrinsicIDs.get(internalEObject);
-//			if (extrinsicID != null) {
-//				writeString(extrinsicID);
-//			} else {
-//				writeString("");
-//			}
 			super.saveEObject(internalEObject, check);
 		}
 
-//		@Override
-//		public void writeURI(URI uri, String uriFragment) throws IOException {
-//			if (!isWritingCrossReferenceURI) {
-//				super.writeURI(uri, uriFragment);
-//			} else {
-//				if (currentObject.hasExtrinsicId()) {
-//					Fragment fragment = (Fragment)currentObject.eResource();
-//					String extrinsicID = currentObject.getExtrinsicID(false);
-//					if (FInternalObjectImpl.isPreliminary(extrinsicID)) {
-//						throw new RuntimeException("Objects that reference other objects with only priliminary extrinsic IDs cannot be persisted. Add the referenced object to a fragmented model first.");
-//					}
-//					uri = fragment.getFragmentedModel().getExtrinsicIdIndex().createExtrinsicIdUri(extrinsicID);
-//					super.writeURI(uri, null);					
-//				} else {
-//					super.writeURI(uri, uriFragment);
-//				}
-//			}
-//		}
+		@Override
+		public void writeURI(URI uri, String uriFragment) throws IOException {
+			if (!isWritingCrossReferenceURI) {
+				super.writeURI(uri, uriFragment);
+			} else {			
+				if (currentObject.hasId()) {
+					Fragment fragment = (Fragment)currentObject.eResource();
+					String id = currentObject.getId(false);
+					if (FInternalObjectImpl.isPreliminary(id)) {
+						throw new NotInAFragmentedModelException();
+					}
+					uri = fragment.getFragmentedModel().getIdIndex().createIdUri(id);
+					super.writeURI(uri, null);					
+				} else {
+					super.writeURI(uri, uriFragment);
+				}
+			}
+		}
 	}
 }

@@ -16,18 +16,18 @@ public class IndexedValueSetSemantics<K> extends AbstractValueSetSemantics<K> {
 		if (value == null) {
 			return null;
 		}
-		URI objectUri = model.getExtrinsicIdIndex().getObjectUriForExtrinsicIdUri(URI.createURI(value));
+		URI objectUri = model.getIdIndex().getObjectUriForIdUri(URI.createURI(value));
 		FInternalObjectImpl internalObject = (FInternalObjectImpl)model.resolveObjectURI(objectUri);
 		return internalObject;
 	}
 	
 	@Override
 	public void setValueForKey(K key, FInternalObjectImpl internalObject) {
-		String extrinsicID = internalObject.getExtrinsicID(true);
-		if (extrinsicID == null || FInternalObjectImpl.isPreliminary(extrinsicID)) {
+		String id = internalObject.getId(true);
+		if (id == null || FInternalObjectImpl.isPreliminary(id)) {
 			throw new NotInAFragmentedModelException("Indexed value sets can only be used, if the values are already part of a fragmented model.");
 		}
-		URI uri = model.getExtrinsicIdIndex().createExtrinsicIdUri(extrinsicID);
+		URI uri = model.getIdIndex().createIdUri(id);
 		index.set(key, uri.toString());
 	}
 	

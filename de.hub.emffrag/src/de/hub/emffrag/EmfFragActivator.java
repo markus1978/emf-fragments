@@ -16,11 +16,11 @@ import de.hub.emffrag.fragmentation.FragmentedModelFactory;
 
 public class EmfFragActivator extends Plugin {
 	
-	public enum ExtrinsicIdBehaviour { strict, preliminary, defaultModel };
+	public enum IdBehaviour { strict, preliminary, defaultModel };
 	public enum IndexedValueSetBahaviour { strict, neverContains };
 	
-	public ExtrinsicIdBehaviour extrinsicIdBehaviour = ExtrinsicIdBehaviour.strict;
-	public FragmentedModel defaultModelForExtrinsicIdBehavior = null;
+	public IdBehaviour idBehaviour = IdBehaviour.strict;
+	public FragmentedModel defaultModelForIdBehavior = null;
 	public IndexedValueSetBahaviour indexedValueSetBahaviour = IndexedValueSetBahaviour.strict;
 	public boolean useBinaryFragments = false;
 	

@@ -6,22 +6,23 @@ import org.junit.Test;
 
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
+import de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes;
 
 public class IndexedContentsValueSetTests extends IndexedReferenceValueSetTests {
 
 	@Override
 	protected EList<TestObject> valueSet() {
-		return testObject.getIndexedContents();
+		return ((TestObjectWithIndexes)testObject).getIndexedContents();
 	}
 	
 	@Override
 	protected EStructuralFeature testFeature() {
-		return TestModelPackage.eINSTANCE.getTestObject_IndexedContents();
+		return TestModelPackage.eINSTANCE.getTestObjectWithIndexes_IndexedContents();
 	}
 	
 	@Override
-	protected void assertExtrinsicIdIndex() {
-		model.assertExtrinsicIdIndex(0l, 3l);
+	protected void assertIdIndex() {
+		model.assertIdIndex(0l, 0l);
 	}
 	
 	@Override
@@ -54,7 +55,7 @@ public class IndexedContentsValueSetTests extends IndexedReferenceValueSetTests 
 		assertObjectInValueSet(valueSet(), 2);	
 		
 		assertFragmentsIndex();
-		assertExtrinsicIdIndex();
+		assertIdIndex();
 		model.assertValueSetIndex(testObject, testFeature(), 0, 3);
 	}
 	

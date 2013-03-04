@@ -9,17 +9,17 @@ import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 public class CrossReferenceTests extends AbstractFragmentationTests {
 	
 	@Test
-	public void testExtrinsicIDPersitence() {
+	public void testIdPersitence() {
 		root.getContents().add(object1);
-		String extrinsicID = ((FObjectImpl)object1).fInternalObject().getExtrinsicID(true);
+		String id = ((FObjectImpl)object1).fInternalObject().getId(true);
 		
 		model.save(null);
 		reinitializeModel();
 		
 		TestObject value = Assertions.root(model).assertId(1).value();
-		String newExtrinsicID = ((FObjectImpl)value).fInternalObject().getExtrinsicID(false);
-		Assert.assertNotNull("Extrinsic ID not persisted.", newExtrinsicID);
-		Assert.assertEquals("Wrong extrinsic ID.", extrinsicID, newExtrinsicID);
+		String newId = ((FObjectImpl)value).fInternalObject().getId(false);
+		Assert.assertNotNull("ID not persisted.", newId);
+		Assert.assertEquals("Wrong ID.", id, newId);
 	}
 
 	@Test
@@ -31,7 +31,7 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		
 		reinitializeModel();		
 		model.assertFragmentsIndex(0l, 1l);
-		model.assertExtrinsicIdIndex(0l, 1l);
+		model.assertIdIndex(0l, 0l);
 		Assertions
 				.root(model).assertId(1)
 				.getRegularContents().assertSize(1).get(0).assertId(2).save()
@@ -50,7 +50,7 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		reinitializeModel();	
 
 		model.assertFragmentsIndex(0l, 3l);
-		model.assertExtrinsicIdIndex(0l, 2l);
+		model.assertIdIndex(0l, 0l);
 		
 		Assertions
 				.root(model).assertId(1).save().getCrossReferences().assertSize(1).get(0).assertId(3)
@@ -67,7 +67,7 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		
 		reinitializeModel();		
 		model.assertFragmentsIndex(0l, 1l);
-		model.assertExtrinsicIdIndex(0l, 1l);
+		model.assertIdIndex(0l, 0l);
 		
 		Assertions
 				.root(model).assertId(1)
@@ -87,7 +87,7 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		
 		reinitializeModel();		
 		model.assertFragmentsIndex(0l, 1l);
-		model.assertExtrinsicIdIndex(0l, 2l);
+		model.assertIdIndex(0l, 0l);
 		Assertions
 				.root(model).assertId(1).save().getRegularContents().assertSize(1).get(0).assertId(3)
 				.load().getCrossReferences().assertSize(1).get(0).assertId(3);
@@ -105,7 +105,7 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 		
 		reinitializeModel();		
 		model.assertFragmentsIndex(0l, 3l);
-		model.assertExtrinsicIdIndex(0l, 2l);
+		model.assertIdIndex(0l, 0l);
 		Assertions
 				.root(model).assertId(1).save().getFragmentedContents().assertSize(1).get(0).assertId(3)
 				.load().getCrossReferences().assertSize(1).get(0).assertId(3);

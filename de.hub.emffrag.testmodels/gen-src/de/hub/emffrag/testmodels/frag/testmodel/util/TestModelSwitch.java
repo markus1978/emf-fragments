@@ -25,6 +25,7 @@ import de.hub.emffrag.testmodels.frag.testmodel.TestContainmentIndex;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObjectIndex;
+import de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes;
 
 /**
  * <!-- begin-user-doc -->
@@ -104,6 +105,13 @@ public class TestModelSwitch<T> extends Switch<T> {
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
+			case TestModelPackage.TEST_OBJECT_WITH_INDEXES: {
+				TestObjectWithIndexes testObjectWithIndexes = (TestObjectWithIndexes)theEObject;
+				T result = caseTestObjectWithIndexes(testObjectWithIndexes);
+				if (result == null) result = caseTestObject(testObjectWithIndexes);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
 			default: return defaultCase(theEObject);
 		}
 	}
@@ -150,6 +158,21 @@ public class TestModelSwitch<T> extends Switch<T> {
 	 * @generated
 	 */
 	public T caseTestContainmentIndex(TestContainmentIndex object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Test Object With Indexes</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Test Object With Indexes</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseTestObjectWithIndexes(TestObjectWithIndexes object) {
 		return null;
 	}
 

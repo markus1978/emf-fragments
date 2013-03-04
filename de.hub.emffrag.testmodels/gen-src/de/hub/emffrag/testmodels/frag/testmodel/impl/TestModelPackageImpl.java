@@ -30,6 +30,7 @@ import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObjectIndex;
+import de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes;
 
 /**
  * <!-- begin-user-doc -->
@@ -58,6 +59,13 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 	 * @generated
 	 */
 	private EClass testContainmentIndexEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass testObjectWithIndexesEClass = null;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -180,26 +188,8 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getTestObject_IndexedReferences() {
-		return (EReference)testObjectEClass.getEStructuralFeatures().get(4);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EReference getTestObject_IndexedContents() {
-		return (EReference)testObjectEClass.getEStructuralFeatures().get(5);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	public EAttribute getTestObject_EnumAttribute() {
-		return (EAttribute)testObjectEClass.getEStructuralFeatures().get(6);
+		return (EAttribute)testObjectEClass.getEStructuralFeatures().get(4);
 	}
 
 	/**
@@ -218,6 +208,33 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 	 */
 	public EClass getTestContainmentIndex() {
 		return testContainmentIndexEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EClass getTestObjectWithIndexes() {
+		return testObjectWithIndexesEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getTestObjectWithIndexes_IndexedReferences() {
+		return (EReference)testObjectWithIndexesEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getTestObjectWithIndexes_IndexedContents() {
+		return (EReference)testObjectWithIndexesEClass.getEStructuralFeatures().get(1);
 	}
 
 	/**
@@ -262,13 +279,15 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 		createEReference(testObjectEClass, TEST_OBJECT__REGULAR_CONTENTS);
 		createEReference(testObjectEClass, TEST_OBJECT__FRAGMENTED_CONTENTS);
 		createEReference(testObjectEClass, TEST_OBJECT__CROSS_REFERENCES);
-		createEReference(testObjectEClass, TEST_OBJECT__INDEXED_REFERENCES);
-		createEReference(testObjectEClass, TEST_OBJECT__INDEXED_CONTENTS);
 		createEAttribute(testObjectEClass, TEST_OBJECT__ENUM_ATTRIBUTE);
 
 		testObjectIndexEClass = createEClass(TEST_OBJECT_INDEX);
 
 		testContainmentIndexEClass = createEClass(TEST_CONTAINMENT_INDEX);
+
+		testObjectWithIndexesEClass = createEClass(TEST_OBJECT_WITH_INDEXES);
+		createEReference(testObjectWithIndexesEClass, TEST_OBJECT_WITH_INDEXES__INDEXED_REFERENCES);
+		createEReference(testObjectWithIndexesEClass, TEST_OBJECT_WITH_INDEXES__INDEXED_CONTENTS);
 
 		// Create enums
 		testEnumEEnum = createEEnum(TEST_ENUM);
@@ -317,6 +336,7 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 		g2 = createEGenericType(this.getTestObject());
 		g1.getETypeArguments().add(g2);
 		testContainmentIndexEClass.getEGenericSuperTypes().add(g1);
+		testObjectWithIndexesEClass.getESuperTypes().add(this.getTestObject());
 
 		// Initialize classes and features; add operations and parameters
 		initEClass(testObjectEClass, TestObject.class, "TestObject", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
@@ -324,13 +344,15 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 		initEReference(getTestObject_RegularContents(), this.getTestObject(), null, "regularContents", null, 0, -1, TestObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getTestObject_FragmentedContents(), this.getTestObject(), null, "fragmentedContents", null, 0, -1, TestObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getTestObject_CrossReferences(), this.getTestObject(), null, "crossReferences", null, 0, -1, TestObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getTestObject_IndexedReferences(), this.getTestObject(), null, "indexedReferences", null, 0, -1, TestObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getTestObject_IndexedContents(), this.getTestObject(), null, "indexedContents", null, 0, -1, TestObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getTestObject_EnumAttribute(), this.getTestEnum(), "enumAttribute", null, 0, 1, TestObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(testObjectIndexEClass, TestObjectIndex.class, "TestObjectIndex", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 
 		initEClass(testContainmentIndexEClass, TestContainmentIndex.class, "TestContainmentIndex", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+
+		initEClass(testObjectWithIndexesEClass, TestObjectWithIndexes.class, "TestObjectWithIndexes", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEReference(getTestObjectWithIndexes_IndexedReferences(), this.getTestObject(), null, "indexedReferences", null, 0, -1, TestObjectWithIndexes.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getTestObjectWithIndexes_IndexedContents(), this.getTestObject(), null, "indexedContents", null, 0, -1, TestObjectWithIndexes.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		// Initialize enums and add enum literals
 		initEEnum(testEnumEEnum, TestEnum.class, "TestEnum");
@@ -360,13 +382,13 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 			 "fragments", "true"
 		   });		
 		addAnnotation
-		  (getTestObject_IndexedReferences(), 
+		  (getTestObjectWithIndexes_IndexedReferences(), 
 		   source, 
 		   new String[] {
 			 "indexes", "true"
 		   });		
 		addAnnotation
-		  (getTestObject_IndexedContents(), 
+		  (getTestObjectWithIndexes_IndexedContents(), 
 		   source, 
 		   new String[] {
 			 "indexes", "true"

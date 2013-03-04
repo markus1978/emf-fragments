@@ -72,11 +72,11 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 								
 				String prefix = getPrefix();
 				if (prefix == null) {
-					String extrinsicId = fInternalObject().getExtrinsicID(true);
-					if (FInternalObjectImpl.isPreliminary(extrinsicId)) {
+					String id = fInternalObject().getId(true);
+					if (FInternalObjectImpl.isPreliminary(id)) {
 						throw new RuntimeException("Inxed classes must be part of a fragmented model before they can be used.");
 					}
-					prefix = FragmentedModel.INDEX_CLASSES_PREFIX + "_" + extrinsicId;
+					prefix = FragmentedModel.INDEX_CLASSES_PREFIX + "_" + id;
 					setPrefix(prefix);
 				}
 				index = new DataIndex<K>(dataStore, prefix, getKeytype());

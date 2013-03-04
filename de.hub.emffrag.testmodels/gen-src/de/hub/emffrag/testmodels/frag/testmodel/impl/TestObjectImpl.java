@@ -34,8 +34,6 @@ import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
  *   <li>{@link de.hub.emffrag.testmodels.frag.testmodel.impl.TestObjectImpl#getRegularContents <em>Regular Contents</em>}</li>
  *   <li>{@link de.hub.emffrag.testmodels.frag.testmodel.impl.TestObjectImpl#getFragmentedContents <em>Fragmented Contents</em>}</li>
  *   <li>{@link de.hub.emffrag.testmodels.frag.testmodel.impl.TestObjectImpl#getCrossReferences <em>Cross References</em>}</li>
- *   <li>{@link de.hub.emffrag.testmodels.frag.testmodel.impl.TestObjectImpl#getIndexedReferences <em>Indexed References</em>}</li>
- *   <li>{@link de.hub.emffrag.testmodels.frag.testmodel.impl.TestObjectImpl#getIndexedContents <em>Indexed Contents</em>}</li>
  *   <li>{@link de.hub.emffrag.testmodels.frag.testmodel.impl.TestObjectImpl#getEnumAttribute <em>Enum Attribute</em>}</li>
  * </ul>
  * </p>
@@ -120,26 +118,6 @@ public class TestObjectImpl extends FObjectImpl implements TestObject {
 		return (EList<TestObject>)eGet(TestModelPackage.Literals.TEST_OBJECT__CROSS_REFERENCES, true);
 	}
 
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@SuppressWarnings("unchecked")
-	public EList<TestObject> getIndexedReferences() {
-		return (EList<TestObject>)eGet(TestModelPackage.Literals.TEST_OBJECT__INDEXED_REFERENCES, true);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@SuppressWarnings("unchecked")
-	public EList<TestObject> getIndexedContents() {
-		return (EList<TestObject>)eGet(TestModelPackage.Literals.TEST_OBJECT__INDEXED_CONTENTS, true);
-	}
-	
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
