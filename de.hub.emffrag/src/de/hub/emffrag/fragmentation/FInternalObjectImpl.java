@@ -65,7 +65,11 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 					id = EmfFragActivator.instance.defaultModelForExtrinsicIdBehavior.getExtrinsicIdIndex().issueExtrinsicID(this);
 					setId(id);
 					return id;
+				} else {
+					throw new NotInAFragmentedModelException("Could not issue an ID because the object is not part of a fragmented model.");
 				}
+			} else if (hasPriliminaryExtrinsicID) {
+				return preliminaryID;
 			}
 		}
 		

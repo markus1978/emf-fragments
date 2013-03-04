@@ -92,7 +92,7 @@ public class CacheTests extends AbstractFragmentationTests {
 		// in that list. If the list is small (<4), it compare each element with
 		// the added element and therefore has to resolve proxies if necessary.
 		// This causes a few loads.
-		model.assertStatistics(0, 10, 0, 5, 90, 110, 100, 102);
+		model.assertStatistics(0, 10, 0, 6, 90, 110, 100, 102);
 	}
 
 	@Test
