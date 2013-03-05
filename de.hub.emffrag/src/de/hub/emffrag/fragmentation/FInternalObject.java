@@ -6,6 +6,7 @@
  */
 package de.hub.emffrag.fragmentation;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
 /**
@@ -17,6 +18,9 @@ import org.eclipse.emf.ecore.EObject;
  * The following features are supported:
  * <ul>
  *   <li>{@link de.hub.emffrag.fragmentation.FInternalObject#getId <em>Id</em>}</li>
+ *   <li>{@link de.hub.emffrag.fragmentation.FInternalObject#getExtensions <em>Extensions</em>}</li>
+ *   <li>{@link de.hub.emffrag.fragmentation.FInternalObject#getAccessed <em>Accessed</em>}</li>
+ *   <li>{@link de.hub.emffrag.fragmentation.FInternalObject#getLoaded <em>Loaded</em>}</li>
  * </ul>
  * </p>
  *
@@ -50,5 +54,73 @@ public interface FInternalObject extends EObject {
 	 * @generated
 	 */
 	void setId(String value);
+
+	/**
+	 * Returns the value of the '<em><b>Extensions</b></em>' containment reference list.
+	 * The list contents are of type {@link org.eclipse.emf.ecore.EObject}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Extensions</em>' containment reference list isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Extensions</em>' containment reference list.
+	 * @see de.hub.emffrag.fragmentation.InternalPackage#getFInternalObject_Extensions()
+	 * @model containment="true" resolveProxies="true"
+	 * @generated
+	 */
+	EList<EObject> getExtensions();
+
+	/**
+	 * Returns the value of the '<em><b>Accessed</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Accessed</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Accessed</em>' attribute.
+	 * @see #setAccessed(long)
+	 * @see de.hub.emffrag.fragmentation.InternalPackage#getFInternalObject_Accessed()
+	 * @model
+	 * @generated
+	 */
+	long getAccessed();
+
+	/**
+	 * Sets the value of the '{@link de.hub.emffrag.fragmentation.FInternalObject#getAccessed <em>Accessed</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Accessed</em>' attribute.
+	 * @see #getAccessed()
+	 * @generated
+	 */
+	void setAccessed(long value);
+
+	/**
+	 * Returns the value of the '<em><b>Loaded</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Loaded</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Loaded</em>' attribute.
+	 * @see #setLoaded(long)
+	 * @see de.hub.emffrag.fragmentation.InternalPackage#getFInternalObject_Loaded()
+	 * @model
+	 * @generated
+	 */
+	long getLoaded();
+
+	/**
+	 * Sets the value of the '{@link de.hub.emffrag.fragmentation.FInternalObject#getLoaded <em>Loaded</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Loaded</em>' attribute.
+	 * @see #getLoaded()
+	 * @generated
+	 */
+	void setLoaded(long value);
 
 } // FInternalObject

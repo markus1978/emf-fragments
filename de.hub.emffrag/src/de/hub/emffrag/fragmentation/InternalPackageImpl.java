@@ -10,6 +10,7 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
 
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.impl.EPackageImpl;
 
 /**
@@ -110,6 +111,33 @@ public class InternalPackageImpl extends EPackageImpl implements InternalPackage
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EReference getFInternalObject_Extensions() {
+		return (EReference)fInternalObjectEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getFInternalObject_Accessed() {
+		return (EAttribute)fInternalObjectEClass.getEStructuralFeatures().get(2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getFInternalObject_Loaded() {
+		return (EAttribute)fInternalObjectEClass.getEStructuralFeatures().get(3);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public InternalFactory getInternalFactory() {
 		return (InternalFactory)getEFactoryInstance();
 	}
@@ -135,6 +163,9 @@ public class InternalPackageImpl extends EPackageImpl implements InternalPackage
 		// Create classes and their features
 		fInternalObjectEClass = createEClass(FINTERNAL_OBJECT);
 		createEAttribute(fInternalObjectEClass, FINTERNAL_OBJECT__ID);
+		createEReference(fInternalObjectEClass, FINTERNAL_OBJECT__EXTENSIONS);
+		createEAttribute(fInternalObjectEClass, FINTERNAL_OBJECT__ACCESSED);
+		createEAttribute(fInternalObjectEClass, FINTERNAL_OBJECT__LOADED);
 	}
 
 	/**
@@ -169,6 +200,9 @@ public class InternalPackageImpl extends EPackageImpl implements InternalPackage
 		// Initialize classes and features; add operations and parameters
 		initEClass(fInternalObjectEClass, FInternalObject.class, "FInternalObject", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getFInternalObject_Id(), ecorePackage.getEString(), "id", null, 0, 1, FInternalObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getFInternalObject_Extensions(), ecorePackage.getEObject(), null, "extensions", null, 0, -1, FInternalObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFInternalObject_Accessed(), ecorePackage.getELong(), "accessed", null, 0, 1, FInternalObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFInternalObject_Loaded(), ecorePackage.getELong(), "loaded", null, 0, 1, FInternalObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		// Create resource
 		createResource(eNS_URI);

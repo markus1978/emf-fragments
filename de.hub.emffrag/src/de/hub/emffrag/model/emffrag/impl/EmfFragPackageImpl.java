@@ -31,9 +31,11 @@ import de.hub.emffrag.datastore.KeyType;
 import de.hub.emffrag.model.emffrag.ContainmentIndexedMap;
 import de.hub.emffrag.model.emffrag.EmfFragFactory;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
+import de.hub.emffrag.model.emffrag.Extension;
 import de.hub.emffrag.model.emffrag.IndexedList;
 import de.hub.emffrag.model.emffrag.IndexedMap;
 import de.hub.emffrag.model.emffrag.Root;
+import de.hub.emffrag.model.emffrag.Statistics;
 
 /**
  * <!-- begin-user-doc -->
@@ -69,6 +71,20 @@ public class EmfFragPackageImpl extends EPackageImpl implements EmfFragPackage {
 	 * @generated
 	 */
 	private EClass rootEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass statisticsEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass extensionEClass = null;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -231,6 +247,42 @@ public class EmfFragPackageImpl extends EPackageImpl implements EmfFragPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EClass getStatistics() {
+		return statisticsEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getStatistics_Accessed() {
+		return (EAttribute)statisticsEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getStatistics_Loaded() {
+		return (EAttribute)statisticsEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EClass getExtension() {
+		return extensionEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EDataType getIterator() {
 		return iteratorEDataType;
 	}
@@ -284,6 +336,12 @@ public class EmfFragPackageImpl extends EPackageImpl implements EmfFragPackage {
 
 		rootEClass = createEClass(ROOT);
 		createEReference(rootEClass, ROOT__CONTENTS);
+
+		statisticsEClass = createEClass(STATISTICS);
+		createEAttribute(statisticsEClass, STATISTICS__ACCESSED);
+		createEAttribute(statisticsEClass, STATISTICS__LOADED);
+
+		extensionEClass = createEClass(EXTENSION);
 
 		// Create data types
 		iteratorEDataType = createEDataType(ITERATOR);
@@ -339,6 +397,7 @@ public class EmfFragPackageImpl extends EPackageImpl implements EmfFragPackage {
 		g2 = createEGenericType(containmentIndexedMapEClass_V);
 		g1.getETypeArguments().add(g2);
 		containmentIndexedMapEClass.getEGenericSuperTypes().add(g1);
+		statisticsEClass.getESuperTypes().add(this.getExtension());
 
 		// Initialize classes and features; add operations and parameters
 		initEClass(indexedMapEClass, IndexedMap.class, "IndexedMap", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
@@ -402,6 +461,12 @@ public class EmfFragPackageImpl extends EPackageImpl implements EmfFragPackage {
 
 		initEClass(rootEClass, Root.class, "Root", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getRoot_Contents(), ecorePackage.getEObject(), null, "contents", null, 0, -1, Root.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
+		initEClass(statisticsEClass, Statistics.class, "Statistics", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEAttribute(getStatistics_Accessed(), ecorePackage.getELong(), "accessed", null, 0, 1, Statistics.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getStatistics_Loaded(), ecorePackage.getELong(), "loaded", null, 0, 1, Statistics.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
+		initEClass(extensionEClass, Extension.class, "Extension", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 
 		// Initialize data types
 		initEDataType(iteratorEDataType, Iterator.class, "Iterator", !IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);

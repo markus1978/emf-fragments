@@ -16,6 +16,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.ui.PlatformUI;
 
 import de.hub.emffrag.fragmentation.FObjectImpl;
+import de.hub.emffrag.model.emffrag.Extension;
+import de.hub.emffrag.util.Extensions;
 
 public class EmfFragItemProviderAdapter extends ItemProviderAdapter implements IItemColorProvider {
 
@@ -116,4 +118,15 @@ public class EmfFragItemProviderAdapter extends ItemProviderAdapter implements I
 		}
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public Collection<?> getChildren(Object object) {
+		Collection result = super.getChildren(object);
+		if (!(object instanceof Extension) && (object instanceof FObjectImpl)) {
+			for (EObject extension: Extensions.getAll((EObject)object)) {
+				result.add(extension);
+			}
+		}
+		return result;
+	}
 }

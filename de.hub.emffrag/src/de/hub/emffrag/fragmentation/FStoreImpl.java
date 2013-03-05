@@ -26,21 +26,24 @@ public class FStoreImpl implements EStore {
 			return EcoreUtil.createFromString((EDataType) userFeature.getEType(), internalValue.toString());
 		} else if (internalValue != null && internalValue instanceof DynamicEObjectImpl) {
 			FInternalObjectImpl internalObject = (FInternalObjectImpl) internalValue;
-			Fragment fragment = (Fragment) internalObject.eResource();
-			EObject userObject = null;
-			if (fragment != null) {
-				userObject = fragment.getUserObjectsCache().getUserObject(internalObject);	
-			} else {
-				userObject = UserObjectsCache.newUserObjectsCache.getUserObject(internalObject);				
-			}
-
-			return userObject;
+			return getUserObject(internalObject);
 		} else {
 			return internalValue;
 		}
 	}
+	
+	public EObject getUserObject(FInternalObjectImpl internalObject) {
+		Fragment fragment = (Fragment) internalObject.eResource();
+		EObject userObject = null;
+		if (fragment != null) {
+			userObject = fragment.getUserObjectsCache().getUserObject(internalObject);	
+		} else {
+			userObject = UserObjectsCache.newUserObjectsCache.getUserObject(internalObject);				
+		}
+		return userObject;
+	}
 
-	private EObject getInternalObject(InternalEObject userObject) {
+	public FInternalObjectImpl getInternalObject(EObject userObject) {
 		FInternalObjectImpl internalObject = ((FObjectImpl) userObject).fInternalObject();
 		if (internalObject == null) {
 			// This object was not yet added to a model

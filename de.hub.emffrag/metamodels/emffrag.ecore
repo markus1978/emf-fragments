@@ -102,4 +102,11 @@
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Statistics" eSuperTypes="#//Extension">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="accessed" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"
+        volatile="true" transient="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="loaded" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"
+        volatile="true" transient="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Extension"/>
 </ecore:EPackage>

@@ -23,8 +23,10 @@ public class EmfFragActivator extends Plugin {
 	public FragmentedModel defaultModelForIdBehavior = null;
 	public IndexedValueSetBahaviour indexedValueSetBahaviour = IndexedValueSetBahaviour.strict;
 	public boolean useBinaryFragments = false;
+	public boolean collectStatistics = false;
 	
 	public static EmfFragActivator instance = null;
+
 
 	@Override
 	public void start(BundleContext context) throws Exception {

@@ -263,6 +263,62 @@ public interface EmfFragPackage extends EPackage {
 	int ROOT_FEATURE_COUNT = 1;
 
 	/**
+	 * The meta object id for the '{@link de.hub.emffrag.model.emffrag.impl.ExtensionImpl <em>Extension</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see de.hub.emffrag.model.emffrag.impl.ExtensionImpl
+	 * @see de.hub.emffrag.model.emffrag.impl.EmfFragPackageImpl#getExtension()
+	 * @generated
+	 */
+	int EXTENSION = 5;
+
+	/**
+	 * The number of structural features of the '<em>Extension</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EXTENSION_FEATURE_COUNT = 0;
+
+	/**
+	 * The meta object id for the '{@link de.hub.emffrag.model.emffrag.impl.StatisticsImpl <em>Statistics</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see de.hub.emffrag.model.emffrag.impl.StatisticsImpl
+	 * @see de.hub.emffrag.model.emffrag.impl.EmfFragPackageImpl#getStatistics()
+	 * @generated
+	 */
+	int STATISTICS = 4;
+
+	/**
+	 * The feature id for the '<em><b>Accessed</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STATISTICS__ACCESSED = EXTENSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Loaded</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STATISTICS__LOADED = EXTENSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The number of structural features of the '<em>Statistics</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STATISTICS_FEATURE_COUNT = EXTENSION_FEATURE_COUNT + 2;
+
+	/**
 	 * The meta object id for the '<em>Iterator</em>' data type.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -270,7 +326,7 @@ public interface EmfFragPackage extends EPackage {
 	 * @see de.hub.emffrag.model.emffrag.impl.EmfFragPackageImpl#getIterator()
 	 * @generated
 	 */
-	int ITERATOR = 4;
+	int ITERATOR = 6;
 
 
 	/**
@@ -281,7 +337,7 @@ public interface EmfFragPackage extends EPackage {
 	 * @see de.hub.emffrag.model.emffrag.impl.EmfFragPackageImpl#getKeyType()
 	 * @generated
 	 */
-	int KEY_TYPE = 5;
+	int KEY_TYPE = 7;
 
 
 	/**
@@ -378,6 +434,48 @@ public interface EmfFragPackage extends EPackage {
 	 * @generated
 	 */
 	EReference getRoot_Contents();
+
+	/**
+	 * Returns the meta object for class '{@link de.hub.emffrag.model.emffrag.Statistics <em>Statistics</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Statistics</em>'.
+	 * @see de.hub.emffrag.model.emffrag.Statistics
+	 * @generated
+	 */
+	EClass getStatistics();
+
+	/**
+	 * Returns the meta object for the attribute '{@link de.hub.emffrag.model.emffrag.Statistics#getAccessed <em>Accessed</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Accessed</em>'.
+	 * @see de.hub.emffrag.model.emffrag.Statistics#getAccessed()
+	 * @see #getStatistics()
+	 * @generated
+	 */
+	EAttribute getStatistics_Accessed();
+
+	/**
+	 * Returns the meta object for the attribute '{@link de.hub.emffrag.model.emffrag.Statistics#getLoaded <em>Loaded</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Loaded</em>'.
+	 * @see de.hub.emffrag.model.emffrag.Statistics#getLoaded()
+	 * @see #getStatistics()
+	 * @generated
+	 */
+	EAttribute getStatistics_Loaded();
+
+	/**
+	 * Returns the meta object for class '{@link de.hub.emffrag.model.emffrag.Extension <em>Extension</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Extension</em>'.
+	 * @see de.hub.emffrag.model.emffrag.Extension
+	 * @generated
+	 */
+	EClass getExtension();
 
 	/**
 	 * Returns the meta object for data type '{@link java.util.Iterator <em>Iterator</em>}'.
@@ -502,6 +600,42 @@ public interface EmfFragPackage extends EPackage {
 		 * @generated
 		 */
 		EReference ROOT__CONTENTS = eINSTANCE.getRoot_Contents();
+
+		/**
+		 * The meta object literal for the '{@link de.hub.emffrag.model.emffrag.impl.StatisticsImpl <em>Statistics</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see de.hub.emffrag.model.emffrag.impl.StatisticsImpl
+		 * @see de.hub.emffrag.model.emffrag.impl.EmfFragPackageImpl#getStatistics()
+		 * @generated
+		 */
+		EClass STATISTICS = eINSTANCE.getStatistics();
+
+		/**
+		 * The meta object literal for the '<em><b>Accessed</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute STATISTICS__ACCESSED = eINSTANCE.getStatistics_Accessed();
+
+		/**
+		 * The meta object literal for the '<em><b>Loaded</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute STATISTICS__LOADED = eINSTANCE.getStatistics_Loaded();
+
+		/**
+		 * The meta object literal for the '{@link de.hub.emffrag.model.emffrag.impl.ExtensionImpl <em>Extension</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see de.hub.emffrag.model.emffrag.impl.ExtensionImpl
+		 * @see de.hub.emffrag.model.emffrag.impl.EmfFragPackageImpl#getExtension()
+		 * @generated
+		 */
+		EClass EXTENSION = eINSTANCE.getExtension();
 
 		/**
 		 * The meta object literal for the '<em>Iterator</em>' data type.

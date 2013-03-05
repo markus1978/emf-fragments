@@ -26,6 +26,9 @@ public class FObjectImpl extends EStoreEObjectImpl {
 			// This object was not yet added to a model
 			internalObject = UserObjectsCache.newUserObjectsCache.createInternalObject(this);
 		}
+
+		internalObject.onAccess();
+		
 		return internalObject;
 	}
 

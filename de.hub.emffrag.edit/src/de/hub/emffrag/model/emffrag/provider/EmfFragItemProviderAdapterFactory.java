@@ -179,6 +179,29 @@ public class EmfFragItemProviderAdapterFactory extends EmfFragAdapterFactory imp
 	}
 
 	/**
+	 * This keeps track of the one adapter used for all {@link de.hub.emffrag.model.emffrag.Statistics} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected StatisticsItemProvider statisticsItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link de.hub.emffrag.model.emffrag.Statistics}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Adapter createStatisticsAdapter() {
+		if (statisticsItemProvider == null) {
+			statisticsItemProvider = new StatisticsItemProvider(this);
+		}
+
+		return statisticsItemProvider;
+	}
+
+	/**
 	 * This returns the root adapter factory that contains this factory.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -281,6 +304,7 @@ public class EmfFragItemProviderAdapterFactory extends EmfFragAdapterFactory imp
 		if (indexedListItemProvider != null) indexedListItemProvider.dispose();
 		if (containmentIndexedMapItemProvider != null) containmentIndexedMapItemProvider.dispose();
 		if (rootItemProvider != null) rootItemProvider.dispose();
+		if (statisticsItemProvider != null) statisticsItemProvider.dispose();
 	}
 
 }

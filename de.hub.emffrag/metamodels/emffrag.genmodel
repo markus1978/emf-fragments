@@ -55,5 +55,6 @@
     <genClasses ecoreClass="emffrag.ecore#//Root">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference emffrag.ecore#//Root/contents"/>
     </genClasses>
+    <genClasses ecoreClass="emffrag.ecore#//Statistics"/>
   </genPackages>
 </genmodel:GenModel>

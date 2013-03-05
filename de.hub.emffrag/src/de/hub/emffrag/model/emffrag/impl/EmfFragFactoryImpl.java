@@ -77,6 +77,8 @@ public class EmfFragFactoryImpl extends EFactoryImpl implements EmfFragFactory {
 			case EmfFragPackage.INDEXED_LIST: return createIndexedList();
 			case EmfFragPackage.CONTAINMENT_INDEXED_MAP: return createContainmentIndexedMap();
 			case EmfFragPackage.ROOT: return createRoot();
+			case EmfFragPackage.STATISTICS: return createStatistics();
+			case EmfFragPackage.EXTENSION: return createExtension();
 			default:
 				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
 		}
@@ -146,6 +148,26 @@ public class EmfFragFactoryImpl extends EFactoryImpl implements EmfFragFactory {
 	public Root createRoot() {
 		RootImpl root = new RootImpl();
 		return root;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Statistics createStatistics() {
+		StatisticsImpl statistics = new StatisticsImpl();
+		return statistics;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Extension createExtension() {
+		ExtensionImpl extension = new ExtensionImpl();
+		return extension;
 	}
 
 	/**

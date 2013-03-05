@@ -9,6 +9,7 @@ package de.hub.emffrag.fragmentation;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EReference;
 
 /**
  * <!-- begin-user-doc -->
@@ -78,13 +79,40 @@ public interface InternalPackage extends EPackage {
 	int FINTERNAL_OBJECT__ID = 0;
 
 	/**
+	 * The feature id for the '<em><b>Extensions</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FINTERNAL_OBJECT__EXTENSIONS = 1;
+
+	/**
+	 * The feature id for the '<em><b>Accessed</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FINTERNAL_OBJECT__ACCESSED = 2;
+
+	/**
+	 * The feature id for the '<em><b>Loaded</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FINTERNAL_OBJECT__LOADED = 3;
+
+	/**
 	 * The number of structural features of the '<em>FInternal Object</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int FINTERNAL_OBJECT_FEATURE_COUNT = 1;
+	int FINTERNAL_OBJECT_FEATURE_COUNT = 4;
 
 
 	/**
@@ -107,6 +135,39 @@ public interface InternalPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getFInternalObject_Id();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link de.hub.emffrag.fragmentation.FInternalObject#getExtensions <em>Extensions</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Extensions</em>'.
+	 * @see de.hub.emffrag.fragmentation.FInternalObject#getExtensions()
+	 * @see #getFInternalObject()
+	 * @generated
+	 */
+	EReference getFInternalObject_Extensions();
+
+	/**
+	 * Returns the meta object for the attribute '{@link de.hub.emffrag.fragmentation.FInternalObject#getAccessed <em>Accessed</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Accessed</em>'.
+	 * @see de.hub.emffrag.fragmentation.FInternalObject#getAccessed()
+	 * @see #getFInternalObject()
+	 * @generated
+	 */
+	EAttribute getFInternalObject_Accessed();
+
+	/**
+	 * Returns the meta object for the attribute '{@link de.hub.emffrag.fragmentation.FInternalObject#getLoaded <em>Loaded</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Loaded</em>'.
+	 * @see de.hub.emffrag.fragmentation.FInternalObject#getLoaded()
+	 * @see #getFInternalObject()
+	 * @generated
+	 */
+	EAttribute getFInternalObject_Loaded();
 
 	/**
 	 * Returns the factory that creates the instances of the model.
@@ -147,6 +208,30 @@ public interface InternalPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute FINTERNAL_OBJECT__ID = eINSTANCE.getFInternalObject_Id();
+
+		/**
+		 * The meta object literal for the '<em><b>Extensions</b></em>' containment reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference FINTERNAL_OBJECT__EXTENSIONS = eINSTANCE.getFInternalObject_Extensions();
+
+		/**
+		 * The meta object literal for the '<em><b>Accessed</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute FINTERNAL_OBJECT__ACCESSED = eINSTANCE.getFInternalObject_Accessed();
+
+		/**
+		 * The meta object literal for the '<em><b>Loaded</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute FINTERNAL_OBJECT__LOADED = eINSTANCE.getFInternalObject_Loaded();
 
 	}
 

@@ -16,13 +16,18 @@
 package de.hub.emffrag.model.emffrag.provider;
 
 
+import de.hub.emffrag.model.emffrag.EmfFragPackage;
+import de.hub.emffrag.model.emffrag.Statistics;
+
 import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.notify.Notification;
+
 import org.eclipse.emf.common.util.ResourceLocator;
-import org.eclipse.emf.ecore.EStructuralFeature;
+
+import org.eclipse.emf.edit.provider.ComposeableAdapterFactory;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
 import org.eclipse.emf.edit.provider.IItemColorProvider;
 import org.eclipse.emf.edit.provider.IItemLabelProvider;
@@ -30,29 +35,31 @@ import org.eclipse.emf.edit.provider.IItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.IItemPropertySource;
 import org.eclipse.emf.edit.provider.IStructuredItemContentProvider;
 import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
+import org.eclipse.emf.edit.provider.ItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.ViewerNotification;
 
-import de.hub.emffrag.model.emffrag.EmfFragFactory;
-import de.hub.emffrag.model.emffrag.EmfFragPackage;
-import de.hub.emffrag.model.emffrag.Root;
-
 /**
- * This is the item provider adapter for a {@link de.hub.emffrag.model.emffrag.Root} object.
+ * This is the item provider adapter for a {@link de.hub.emffrag.model.emffrag.Statistics} object.
  * <!-- begin-user-doc -->
  * <!-- end-user-doc -->
  * @generated
  */
-public class RootItemProvider
+public class StatisticsItemProvider
 	extends EmfFragItemProviderAdapter
 	implements
-		IEditingDomainItemProvider, IStructuredItemContentProvider, ITreeItemContentProvider, IItemLabelProvider, IItemPropertySource, IItemColorProvider {
+		IEditingDomainItemProvider,
+		IStructuredItemContentProvider,
+		ITreeItemContentProvider,
+		IItemLabelProvider,
+		IItemPropertySource,
+		IItemColorProvider {
 	/**
 	 * This constructs an instance from a factory and a notifier.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public RootItemProvider(AdapterFactory adapterFactory) {
+	public StatisticsItemProvider(AdapterFactory adapterFactory) {
 		super(adapterFactory);
 	}
 
@@ -67,60 +74,76 @@ public class RootItemProvider
 		if (itemPropertyDescriptors == null) {
 			super.getPropertyDescriptors(object);
 
+			addAccessedPropertyDescriptor(object);
+			addLoadedPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
 
 	/**
-	 * This specifies how to implement {@link #getChildren} and is used to deduce an appropriate feature for an
-	 * {@link org.eclipse.emf.edit.command.AddCommand}, {@link org.eclipse.emf.edit.command.RemoveCommand} or
-	 * {@link org.eclipse.emf.edit.command.MoveCommand} in {@link #createCommand}.
+	 * This adds a property descriptor for the Accessed feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	@Override
-	public Collection<? extends EStructuralFeature> getChildrenFeatures(Object object) {
-		if (childrenFeatures == null) {
-			super.getChildrenFeatures(object);
-			childrenFeatures.add(EmfFragPackage.Literals.ROOT__CONTENTS);
-		}
-		return childrenFeatures;
+	protected void addAccessedPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Statistics_accessed_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Statistics_accessed_feature", "_UI_Statistics_type"),
+				 EmfFragPackage.Literals.STATISTICS__ACCESSED,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
+	 * This adds a property descriptor for the Loaded feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	@Override
-	protected EStructuralFeature getChildFeature(Object object, Object child) {
-		// Check the type of the specified child object and return the proper feature to use for
-		// adding (see {@link AddCommand}) it as a child.
-
-		return super.getChildFeature(object, child);
+	protected void addLoadedPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Statistics_loaded_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Statistics_loaded_feature", "_UI_Statistics_type"),
+				 EmfFragPackage.Literals.STATISTICS__LOADED,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
-	 * This returns Root.gif.
+	 * This returns Statistics.gif.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
 	public Object getImage(Object object) {
-		return overlayImage(object, getResourceLocator().getImage("full/obj16/Root"));
+		return overlayImage(object, getResourceLocator().getImage("full/obj16/Statistics"));
 	}
 
 	/**
 	 * This returns the label text for the adapted class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	@Override
 	public String getText(Object object) {
-		return getString("_UI_Root_type");
+		return "accessed: " + ((Statistics)object).getAccessed() + ", loaded: "  + ((Statistics)object).getLoaded();
 	}
 
 	/**
@@ -134,9 +157,10 @@ public class RootItemProvider
 	public void notifyChanged(Notification notification) {
 		updateChildren(notification);
 
-		switch (notification.getFeatureID(Root.class)) {
-			case EmfFragPackage.ROOT__CONTENTS:
-				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
+		switch (notification.getFeatureID(Statistics.class)) {
+			case EmfFragPackage.STATISTICS__ACCESSED:
+			case EmfFragPackage.STATISTICS__LOADED:
+				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 		}
 		super.notifyChanged(notification);
@@ -152,31 +176,6 @@ public class RootItemProvider
 	@Override
 	protected void collectNewChildDescriptors(Collection<Object> newChildDescriptors, Object object) {
 		super.collectNewChildDescriptors(newChildDescriptors, object);
-
-		newChildDescriptors.add
-			(createChildParameter
-				(EmfFragPackage.Literals.ROOT__CONTENTS,
-				 EmfFragFactory.eINSTANCE.createIndexedMap()));
-
-		newChildDescriptors.add
-			(createChildParameter
-				(EmfFragPackage.Literals.ROOT__CONTENTS,
-				 EmfFragFactory.eINSTANCE.createIndexedList()));
-
-		newChildDescriptors.add
-			(createChildParameter
-				(EmfFragPackage.Literals.ROOT__CONTENTS,
-				 EmfFragFactory.eINSTANCE.createContainmentIndexedMap()));
-
-		newChildDescriptors.add
-			(createChildParameter
-				(EmfFragPackage.Literals.ROOT__CONTENTS,
-				 EmfFragFactory.eINSTANCE.createRoot()));
-
-		newChildDescriptors.add
-			(createChildParameter
-				(EmfFragPackage.Literals.ROOT__CONTENTS,
-				 EmfFragFactory.eINSTANCE.createStatistics()));
 	}
 
 	/**
