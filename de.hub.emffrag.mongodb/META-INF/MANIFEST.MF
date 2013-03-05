@@ -7,6 +7,18 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ClassPath: libs/mongo-2.10.1.jar,
  .
 Require-Bundle: de.hub.emffrag;bundle-version="1.0.0"
-Export-Package: de.hub.emffrag.mongodb
+Export-Package: com.mongodb,
+ com.mongodb.gridfs,
+ com.mongodb.io,
+ com.mongodb.tools,
+ com.mongodb.util,
+ com.mongodb.util.management,
+ com.mongodb.util.management.jmx,
+ de.hub.emffrag.mongodb,
+ org.bson,
+ org.bson.io,
+ org.bson.types,
+ org.bson.util,
+ org.bson.util.annotations
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: de.hub.emffrag.mongodb.EmfFragMongoDBActivator
