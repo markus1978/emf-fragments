@@ -197,7 +197,7 @@ public class CacheTests extends AbstractFragmentationTests {
 
 	@Test
 	public void testRegularContainmentAfterReload() throws Exception {
-		initializeModel(1);
+		initializeModel(0);
 
 		model.root().getContents().add(object1);
 		object1.getFragmentedContents().add(object2);

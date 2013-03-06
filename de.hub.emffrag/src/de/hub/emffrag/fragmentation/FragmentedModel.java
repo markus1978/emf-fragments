@@ -71,9 +71,9 @@ public class FragmentedModel extends ResourceImpl {
 		if (cacheSize == -1) {
 			cacheSize = 100;
 		}
-		if (cacheSize < 1) {
-			throw new IllegalArgumentException("A zero fragment cache is not allowed. Try a larger cache size.");
-		}
+//		if (cacheSize < 1) {
+//			throw new IllegalArgumentException("A zero fragment cache is not allowed. Try a larger cache size.");
+//		}
 		fragmentCache = new FragmentCache(cacheSize);
 
 		this.fragmentIndex = new DataIndex<Long>(dataStore, FRAGMENTS_INDEX_PREFIX, LongKeyType.instance);
@@ -147,6 +147,7 @@ public class FragmentedModel extends ResourceImpl {
 		private final int cacheSize;
 		private int currentUseKey = 0;
 		private boolean isDirty = false;
+		private boolean isPurging = false;
 		private final TreeMap<CacheState, CacheState> cacheContents = new TreeMap<CacheState, CacheState>(
 				new Comparator<CacheState>() {
 					@Override
@@ -177,7 +178,8 @@ public class FragmentedModel extends ResourceImpl {
 		}
 
 		synchronized void purgeUnreferencedFragments() {
-			if (isDirty) {
+			if (isDirty && !isPurging) {
+				isPurging = true;
 				int size = cacheContents.size();
 				if (size > 1.5f * cacheSize) {
 					int numberOfFragmentsToRemove = Math.max(0, size - cacheSize);
@@ -186,6 +188,7 @@ public class FragmentedModel extends ResourceImpl {
 						unloadFragment(cacheStateToRemove.fragment);
 					}
 				}
+				isPurging = false;
 			}
 		}
 	}
@@ -316,45 +319,54 @@ public class FragmentedModel extends ResourceImpl {
 		return resourceSet;
 	}
 
-	/**
-	 * Creates a new fragment and adds it to the model. That means it creates a
-	 * resource (fragment), adds it to the resource set, and creates an
-	 * appropriate entry in the persistence.
-	 * 
-	 * @param fragmentRoot
-	 *            The object that is going to be the root of the new fragment.
-	 *            It can be a part of an existing fragment or something from the
-	 *            realm of new objects.
-	 * @param fragmentRootUserObject
-	 *            The user object of the fragment root. Can be null.
-	 */
-	Fragment createFragment(FInternalObjectImpl fragmentRoot, FObjectImpl fragmentRootUserObject) {
-		URI uri = fragmentIndex.getURI(fragmentIndex.add());
-		return createFragment(uri, fragmentRoot, fragmentRootUserObject);
-	}
-
-	Fragment createFragment(URI fragmentURI, FInternalObjectImpl fragmentRoot, FObjectImpl fragmentRootUserObject) {
-		Fragment newFragment = (Fragment) resourceSet.createResource(fragmentURI);
-
-		if (fragmentRoot != null) {
-			Resource oldResource = fragmentRoot.eResource();
-			Fragment oldFragment = null;
-			if (oldResource != null && oldResource instanceof Fragment) {
-				oldFragment = (Fragment) oldResource;
-			}
-
-			newFragment.getContents().add(fragmentRoot);
-			if (fragmentRootUserObject != null) {
-				newFragment.getUserObjectsCache().addUserObjectToCache(fragmentRoot, fragmentRootUserObject);
-			}
-			if (oldFragment != null) {
-				oldFragment.getUserObjectsCache().removeCachedUserObject(fragmentRoot);
-			}
+	
+	Fragment createFragment(URI fragmentURI, FInternalObjectImpl root) {
+		if (fragmentURI == null) {
+			fragmentURI = fragmentIndex.getURI(fragmentIndex.add());
 		}
-
+		Fragment newFragment = (Fragment) resourceSet.createResource(fragmentURI);		
+		if (root != null) {
+			newFragment.getContents().add(root);
+		}
 		statistics.creates++;
 		return newFragment;
 	}
+	
+	void deleteFragment(Fragment fragment) {
+		try {
+			fragment.delete(null);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+//	Fragment createFragment(FInternalObjectImpl fragmentRoot, FObjectImpl fragmentRootUserObject) {
+//		URI uri = fragmentIndex.getURI(fragmentIndex.add());
+//		return createFragment(uri, fragmentRoot, fragmentRootUserObject);
+//	}
+//
+//	Fragment createFragment(URI fragmentURI, FInternalObjectImpl fragmentRoot, FObjectImpl fragmentRootUserObject) {
+//		Fragment newFragment = (Fragment) resourceSet.createResource(fragmentURI);
+//
+//		if (fragmentRoot != null) {
+//			Resource oldResource = fragmentRoot.eResource();
+//			Fragment oldFragment = null;
+//			if (oldResource != null && oldResource instanceof Fragment) {
+//				oldFragment = (Fragment) oldResource;
+//			}
+//
+//			newFragment.getContents().add(fragmentRoot);
+//			if (fragmentRootUserObject != null) {
+//				newFragment.getUserObjectsCache().addUserObjectToCache(fragmentRoot, fragmentRootUserObject);
+//			}
+//			if (oldFragment != null) {
+//				oldFragment.getUserObjectsCache().removeCachedUserObject(fragmentRoot);
+//			}
+//		}
+//
+//		statistics.creates++;
+//		return newFragment;
+//	}
 	
 	
 	/**

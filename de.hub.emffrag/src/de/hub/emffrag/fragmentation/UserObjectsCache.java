@@ -87,11 +87,10 @@ public class UserObjectsCache {
 		if (reference == null) {
 			result = createUserObject(internalObject);			
 		} else {
-			if (reference.get() == null) {
+			result = reference.get();
+			if (result == null) {
 				cache.remove(internalObject);				
 				result = getUserObject(internalObject);
-			} else {
-				result = reference.get();
 			}
 			
 			if (listener != null && result != null) {

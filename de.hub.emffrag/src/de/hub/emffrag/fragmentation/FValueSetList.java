@@ -11,6 +11,7 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.util.EcoreEList;
 
 import de.hub.emffrag.EmfFragActivator;
+import de.hub.emffrag.EmfFragActivator.IdBehaviour;
 import de.hub.emffrag.EmfFragActivator.IndexedValueSetBahaviour;
 import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
@@ -26,12 +27,15 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 		super(kind, dataClass, owner, feature);
 		FInternalObjectImpl object = (FInternalObjectImpl) owner;
 
-		Fragment fragment = object.getFragment();
-		if (fragment == null) {
-			throw new NotInAFragmentedModelException(
-					"Operation on indexed value sets can only be performed for objects contained in a fragmented model.");
+		FragmentedModel model = object.getFragmentation();
+		if (model == null) {
+			if (EmfFragActivator.instance.idBehaviour == IdBehaviour.defaultModel) {
+				model = EmfFragActivator.instance.defaultModelForIdBehavior;
+			} else {
+				throw new NotInAFragmentedModelException(
+						"Operation on indexed value sets can only be performed for objects contained in a fragmented model.");
+			}
 		}
-		FragmentedModel model = fragment.getFragmentedModel();
 		DataStore dataStore = model.getDataStore();
 
 		index = new DataIndex<Long>(dataStore, createPrefix(object, feature), LongKeyType.instance);
