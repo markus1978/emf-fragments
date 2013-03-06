@@ -15,15 +15,12 @@
  */
 package de.hub.emffrag.model.emffrag.impl;
 
-import de.hub.emffrag.fragmentation.FInternalObjectImpl;
-import de.hub.emffrag.fragmentation.FObjectImpl;
-import de.hub.emffrag.fragmentation.FStoreImpl;
-
-import de.hub.emffrag.model.emffrag.EmfFragPackage;
-import de.hub.emffrag.model.emffrag.Extension;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
+
+import de.hub.emffrag.fragmentation.FObjectImpl;
+import de.hub.emffrag.model.emffrag.EmfFragPackage;
+import de.hub.emffrag.model.emffrag.Extension;
 
 /**
  * <!-- begin-user-doc -->
@@ -66,7 +63,8 @@ public class ExtensionImpl extends FObjectImpl implements Extension {
 	
 	@Override
 	public EObject eContainer() {
-		return FStoreImpl.getInstance().getUserObject((FInternalObjectImpl)fInternalObject().eContainer());
+		return null; 
 	}
+	
 
 } //ExtensionImpl
