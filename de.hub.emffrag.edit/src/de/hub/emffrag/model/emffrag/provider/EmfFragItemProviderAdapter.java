@@ -2,12 +2,15 @@ package de.hub.emffrag.model.emffrag.provider;
 
 import java.util.Collection;
 
+import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.util.ResourceLocator;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.edit.command.CommandParameter;
+import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.emf.edit.provider.AttributeValueWrapperItemProvider;
 import org.eclipse.emf.edit.provider.DelegatingWrapperItemProvider;
 import org.eclipse.emf.edit.provider.IItemColorProvider;
@@ -129,4 +132,12 @@ public class EmfFragItemProviderAdapter extends ItemProviderAdapter implements I
 		}
 		return result;
 	}
+
+	@Override
+	protected Command factorRemoveCommand(EditingDomain domain, CommandParameter commandParameter) {
+		// TODO Auto-generated method stub [task27]
+		return super.factorRemoveCommand(domain, commandParameter);
+	}
+	
+	
 }

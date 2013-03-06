@@ -46,7 +46,7 @@ public class DataIndex<KT> {
 		if (add(key)) {
 			return key;
 		} else {
-			// TODO error handling
+			// TODO error handling: retry for a couple of times and then fail?
 			throw new RuntimeException("Could not add key " + new String(keyType.serialize(key)));
 		}
 	}

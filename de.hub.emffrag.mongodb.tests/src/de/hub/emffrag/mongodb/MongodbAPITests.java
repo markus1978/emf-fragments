@@ -2,10 +2,10 @@ package de.hub.emffrag.mongodb;
 
 import java.net.UnknownHostException;
 
+import junit.framework.Assert;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import junit.framework.Assert;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -13,6 +13,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoException;
 
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.LongKeyType;
@@ -40,7 +41,7 @@ public class MongodbAPITests {
 		db.dropDatabase();
 		db = dbClient.getDB(dataBaseName);
 		collection = db.getCollection("test");
-		collection.ensureIndex("key");
+		collection.ensureIndex(new BasicDBObject("key",1), new BasicDBObject("unique", true));
 	}
 
 	@Test
@@ -65,17 +66,24 @@ public class MongodbAPITests {
 	}
 	
 	private void addLong(long key) {
-		collection.insert(new BasicDBObject("key", new String(keyType.serialize(key))).append("value", ("HelloWorld: " + key).getBytes()));
+		addLong(key, "HelloWorld: " + key);
+	}
+	
+	private void addLong(long key, String value) {
+		collection.insert(new BasicDBObject("key", new String(keyType.serialize(key))).append("value", value.getBytes()));
 	}
 	
 	@Test
 	public void testCollision() {		
-		addLong(0);
-		addLong(0);
-		assertCollection();
+		addLong(0, "a");
+		try {
+			addLong(0, "b");
+		} catch (MongoException e) {
+			return;
+		}
+		Assert.fail("Mongo added entry with dublicate key.");
 	}
 	
-
 	private void assertCollection() {
 		DBCursor cursor = collection.find().sort(new BasicDBObject("key", 1));
 		byte[] last = new byte[] {};

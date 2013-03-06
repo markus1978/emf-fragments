@@ -11,6 +11,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.MongoException;
 
 import de.hub.emffrag.datastore.DataStore;
 
@@ -51,7 +52,7 @@ public class MongoDBDataStore extends DataStore {
 			collection.drop();
 			collection = db.getCollection(dataStoreId);	
 		}
-		collection.ensureIndex(KEY);				
+		collection.ensureIndex(new BasicDBObject(KEY, 1).append("unique", "true"));				
 	}
 
 	@Override
@@ -109,17 +110,14 @@ public class MongoDBDataStore extends DataStore {
 	}
 
 	@Override
-	synchronized public boolean ckeckAndCreate(byte[] key) {
+	synchronized public boolean ckeckAndCreate(byte[] key) {				
 		String keyString = new String(key);
-		DBObject result = collection.findAndModify(
-				new BasicDBObject(KEY, keyString),								// query 
-				null, 															// field
-				null, 															// sort
-				false, 															// remove
-				new BasicDBObject(KEY, keyString).append(VALUE, new byte[]{}), 	// update
-				false, 															// return new
-				true);															// upsert
-		return result == null;				
+		try {
+			collection.insert(new BasicDBObject(KEY, keyString));
+		} catch (MongoException e) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override
