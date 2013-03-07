@@ -143,105 +143,66 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 		return getId() != null || hasPriliminaryId;
 	}
 
-	/**
-	 * If the object changes resources, its ID index entry has to move
-	 * too. Further, the cross reference entry needs to be updated.
-	 * 
-	 * TODO This should be part of updateContainment ?
-	 */
 	@Override
 	public NotificationChain eSetResource(Internal resource, NotificationChain notifications) {
 		Resource oldResource = eResource();
 		NotificationChain result = super.eSetResource(resource, notifications);
-		updateFragmentationAfterSetResource(oldResource, resource);
-
-//		if (oldResource != null && newResource != null && oldResource.getFragmentedModel() == newResource.getFragmentedModel()) {
-//			// case: object is moved from one to another fragment in the same
-//			// model
-//			String id = getId();
-//			FragmentedModel fragmentedModel = getFragmentation();
-//			if (fragmentedModel != null) {
-//				if (hasId() || id != null) {
-//					fragmentedModel.getIdIndex().updateObjectURI(id, this);
-//				}
-//			}
-//		} else {
-//			if (oldResource != null) {
-//				if (newResource != null) {
-//					throw new UnsupportedOperationException("Moving objects between fragment models is not yet supported."); // TODO
-//				}
-//
-//				// case: the object is removed from the fragmented model
-//				String id = getId();
-//				FragmentedModel fragmentedModel = getFragmentation();
-//				if (fragmentedModel != null) {
-//					if (hasId() || id != null) {
-//						fragmentedModel.getIdIndex().updateObjectURI(id, this);
-//					}
-//				}
-//			}
-//			if (newResource != null) {
-//				// case: the object is added to the fragmented model
-//				getUserObjectCache().removeCachedUserObject(this);
-//				newResource.getUserObjectsCache().addUserObjectToCache(this, (FObjectImpl) getUserObject());
-//
-//				FragmentedModel newFragmentedModel = newResource.getFragmentedModel();
-//				if (newFragmentedModel != null) {
-//					EPackage metaModel = eClass().getEPackage();
-//					newFragmentedModel.getInternalResourceSet().getPackageRegistry().put(metaModel.getNsURI(), metaModel);
-//				}
-//				
-//				onCreate();
-//			}
-//		}
-
+		updateAfterResourceChange(oldResource);
 		return result;
 	}
 	
-	private boolean updateFragmentationAfterSetResource(Resource oldResource, Resource newResource) {
+	private void updateAfterResourceChange(Resource oldResource) {
 		ensureHasRequiredId();
 		Fragment oldFragment = (Fragment)oldResource;
 		Fragment newFragment = (Fragment)getFragment();
 		if (oldFragment == newFragment) {
-			return false;
+			return;
 		}
 		
-		if (oldFragment != null) {
-			oldFragment.getUserObjectsCache().removeCachedUserObject(this);
-		} else {
-			UserObjectsCache.newUserObjectsCache.removeCachedUserObject(this);
+		UserObjectsCache oldUOC = oldFragment != null ? oldFragment.getUserObjectsCache() : UserObjectsCache.newUserObjectsCache;
+		UserObjectsCache newUOC = newFragment != null ? newFragment.getUserObjectsCache() : UserObjectsCache.newUserObjectsCache;	
+		
+		updateUOCAfterFragmentChange(oldUOC, newUOC, this, newFragment);
+		
+		if (newFragment != null && oldFragment == null) {
+			onCreate();
+			EPackage metaModel = eClass().getEPackage();
+			FragmentedModel fragmentedModel = newFragment.getFragmentedModel();
+			if (fragmentedModel != null) {
+				fragmentedModel.getInternalResourceSet().getPackageRegistry().put(metaModel.getNsURI(), metaModel);
+			}
 		}
 		
 		if (newFragment != null) {
-			newFragment.getUserObjectsCache().getUserObject(this);
-			if (oldFragment == null) {
-				onCreate();
-				EPackage metaModel = eClass().getEPackage();
-				FragmentedModel fragmentedModel = newFragment.getFragmentedModel();
-				if (fragmentedModel != null) {
-					fragmentedModel.getInternalResourceSet().getPackageRegistry().put(metaModel.getNsURI(), metaModel);
-				}
-			}
+			updateIdsAfterContainerChange(this, newFragment);
 		} else {
-			UserObjectsCache.newUserObjectsCache.getUserObject(this);
+			// TODO remove objects from the index?
 		}
-		
-		String id = getId();
-		if (id != null) {
-			if (newFragment != null) {
-				FragmentedModel fragmentedModel = newFragment.getFragmentedModel();
-				if (fragmentedModel != null) {
-					fragmentedModel.getIdIndex().updateObjectURI(id, this);
-				}
-			} else if (oldFragment != null) {
-				oldFragment.getFragmentedModel().getIdIndex().updateObjectURI(id, this);
-			}
-		}
-		
-		return true;
 	}
 	
-	private void updateFragmentationAfterSetContainer(Fragment oldFragment) {
+	private void updateUOCAfterFragmentChange(UserObjectsCache oldUOC, UserObjectsCache newUOC, FInternalObjectImpl object, Fragment fragment) {
+		oldUOC.moveUserObject(object, newUOC);
+
+		for (EObject content: object.eContents()) {
+			if (content.eResource() == fragment) {
+				updateUOCAfterFragmentChange(oldUOC, newUOC, (FInternalObjectImpl)content, fragment);
+			}
+		}
+	}
+	
+	private void updateIdsAfterContainerChange(FInternalObjectImpl object, Fragment fragment) {
+		String id = object.getId();
+		if (id != null) {
+			fragment.getFragmentedModel().getIdIndex().updateObjectURI(id, object);
+		}
+		for (EObject content: object.eContents()) {
+			if (content.eResource() == fragment) {
+				updateIdsAfterContainerChange((FInternalObjectImpl)content, fragment);
+			}
+		}
+	}
+	
+	private void updateAfterContainerChange(Fragment oldFragment) {
 		EStructuralFeature eContainingFeature = eContainingFeature();
 		FragmentationType fragmentationType = eContainingFeature != null ? EMFFragUtil.getFragmentationType(eContainingFeature) : FragmentationType.None;
 		boolean isFragmenting = fragmentationType == FragmentationType.FragmentsContainment || fragmentationType == FragmentationType.FragmentsIndexedContainment;
@@ -261,21 +222,19 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 			newFragment.getContents().remove(this);
 		}		
 		
-		if (!updateFragmentationAfterSetResource(oldFragment, newFragment)) {
-			String id = getId();
-			if (id != null) {
-				if (fragmentation != null) {
-					fragmentation.getIdIndex().updateObjectURI(id, this);
-				}
-			}	
-		} else {		
+		if (oldFragment != eResource()) {
+			updateAfterResourceChange(oldFragment);
 			if (oldFragment != null) {
 				// delete if the old fragment is empty and is not deleted already
 				if (oldFragment.getContents().isEmpty() && oldFragment.getResourceSet() != null) {
 					oldFragment.getFragmentedModel().deleteFragment(oldFragment);
 				}
 			}
-		}
+		} else {
+			if (newFragment != null) {
+				updateIdsAfterContainerChange(this, newFragment);
+			}
+		}		
 		
 		fragmentURIForContainerChange = null;
 	}
@@ -337,7 +296,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 			// the object is loaded and not modified by a user.
 			Resource oldResource = eResource();
 			indexClass.getFragmentation().createFragment(uri, this);
-			updateFragmentationAfterSetResource(oldResource, eResource());
+			updateAfterResourceChange(oldResource);
 		}
 	}
 
@@ -349,184 +308,10 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 		if (!eIsProxy()) {
 			// Do not update containment if the object is a proxy. In that case
 			// the object is loaded and not modified by a user.
-			updateFragmentationAfterSetContainer(oldFragment);
-//			updateContainment((FInternalObjectImpl)oldContainer, oldContainingFeature, 
-//					(FInternalObjectImpl)newContainer, newContainingFeature, null);
+			updateAfterContainerChange(oldFragment);
 		}
 	}
 
-//	/**
-//	 * Creates/deletes fragments if appropriately.
-//	 * 
-//	 * @param newContainer
-//	 *            The container that this object is now a part of, or null if
-//	 *            the object is removed from a container or placed into its own
-//	 *            independent fragment (e.g. as part of a indexed map).
-//	 * @param newContainerFeatureID
-//	 *            The feature ID under which this object is to be contained, or
-//	 *            -1.
-//	 * @param newFragmentURI
-//	 *            Optional URI if a new fragment is to be created, this works
-//	 *            only if there is no container for the object, and the object
-//	 *            is stored in its own independent fragment.
-//	 */
-//	void updateContainment(InternalEObject newContainer, int newContainerFeatureID, URI newFragmentURI) {
-//		FragmentedModel fragmentation = getFragmentation();
-//		FragmentedModel containerFragmentation = null;
-//		if (newContainer != null) {
-//			containerFragmentation = ((FInternalObjectImpl) newContainer).getFragmentation();
-//		}				
-//		
-//		if (containerFragmentation == null && fragmentation == null) {
-//			// both models are not part of a fragmentation, we do nothing yet.
-//			return;
-//		} else if (fragmentation == null) {
-//			fragmentation = containerFragmentation;
-//		}
-//
-//		// The object was moved to a new (including null) container. This can
-//		// have an effect on the fragmentation. The following code realizes
-//		// these effects.
-//		if (newContainer != null && newFragmentURI == null) {
-//			EStructuralFeature feature;
-//			if (newContainerFeatureID <= EOPPOSITE_FEATURE_BASE) {
-//				newContainerFeatureID = EOPPOSITE_FEATURE_BASE - newContainerFeatureID;
-//				feature = newContainer.eClass().getEStructuralFeature(newContainerFeatureID);
-//			} else {
-//				EStructuralFeature containerFeature = this.eClass().getEStructuralFeature(newContainerFeatureID);
-//				feature = ((EReference) containerFeature).getEOpposite();
-//				if (feature == null) {
-//					throw new RuntimeException("Unknown opposite.");
-//				}
-//			}
-//			FragmentationType fragmentationType = EMFFragUtil.getFragmentationType(feature);
-//			if (feature != null && fragmentationType != FragmentationType.None) {
-//				// if the object is not yet root of a fragment, a new fragment
-//				// has to be created
-//				if (!isFragmentRoot()) {
-//					if (fragmentation == null) {
-//						throw new RuntimeException(
-//								"You cannot add a value to a fragmenting reference if the new container is not part of a fragmented model");
-//					} else {
-//						if (fragmentationType == FragmentationType.FragmentsContainment) {
-//							fragmentation.createFragment(this, (FObjectImpl) this.getUserObject());
-//						}
-//						// else:
-//						// the fragment was already be created, we have nothing
-//						// left to do
-//					}
-//				}
-//			}
-//			// else:
-//			// if the object was a fragment root, the Fragment implementation
-//			// will automatically delete itself
-//		} else if (newFragmentURI != null) {
-//			// this object is added or moved to be an independent root (e.g. as
-//			// a value in a indexed map)
-//			if (fragmentation == null) {
-//				throw new RuntimeException(
-//						"You cannot at a value to a fragmenting reference if the new container is not part of a fragmented model");
-//			} else {
-//				Fragment oldFragment = null;
-//				if (isFragmentRoot()) {
-//					oldFragment = getFragment();
-//				}
-//				fragmentation.createFragment(newFragmentURI, this, (FObjectImpl) this.getUserObject());
-//				if (oldFragment != null) {
-//					removeFragment(oldFragment);
-//				}
-//			}
-//		} else {
-//			// this object was removed from the model, it has to be moved to the
-//			// new objects realm (if necessary) and if it was a fragment root
-//			// the fragment has to be deleted.
-//			if (isFragmentRoot()) {
-//				Fragment fragment = getFragment();
-//				fragment.getContents().remove(this);
-//				removeFragment(fragment);
-//			}
-//			UserObjectsCache.newUserObjectsCache.addUserObjectToCache(this, (FObjectImpl) this.getUserObject());
-//		}
-//		
-//		ensureHasRequiredId();
-//	}
-	
-//	void updateContainment(FInternalObjectImpl oldContainer, EStructuralFeature oldContainerFeature, FInternalObjectImpl newContainer, EStructuralFeature newContainerFeature, URI newFragmentURI) {
-//		ensureHasRequiredId();
-//		
-//		Fragment oldFragment = oldContainer != null ? oldContainer.getFragment() : null;
-//		FragmentedModel oldFragmentedModel = oldFragment != null ? oldFragment.getFragmentedModel() : null;
-//		Fragment newFragment = newContainer != null ? newContainer.getFragment() : null;
-//		FragmentedModel newFragmentedModel = newFragment != null ? newFragment.getFragmentedModel() : null;
-//		
-//		FragmentationType oldFragType = oldContainerFeature != null ? EMFFragUtil.getFragmentationType(oldContainerFeature) : FragmentationType.None;
-//		boolean oldIsFragmenting = oldFragType == FragmentationType.FragmentsContainment || oldFragType == FragmentationType.FragmentsIndexedContainment;
-//		FragmentationType newFragType = newContainerFeature != null ? EMFFragUtil.getFragmentationType(newContainerFeature) : FragmentationType.None;
-//		boolean newIsFragmenting = newFragType == FragmentationType.FragmentsContainment || newFragType == FragmentationType.FragmentsIndexedContainment;
-//		
-//		// create and remove fragments
-//		boolean sameModel = oldFragmentedModel == newFragmentedModel;
-//		if (oldIsFragmenting && newIsFragmenting && sameModel) {
-//			// reuse fragment
-//		} else if ((oldIsFragmenting || !sameModel) && oldFragmentedModel != null) {
-//			// delete old fragment		
-//			oldFragmentedModel.deleteFragment(oldFragment);			
-//		} else if ((newIsFragmenting || !sameModel) && newFragmentedModel != null) {
-//			// create new fragment
-//			if (newFragment != getFragment())
-//			newFragment = newFragmentedModel.createFragment(newFragmentURI, this);
-//		} else {
-//			// nothing
-//		}
-//		
-//		// update meta-model registries
-//		if (!sameModel && newFragmentedModel != null) {
-//			EPackage metaModel = eClass().getEPackage();
-//			newFragmentedModel.getInternalResourceSet().getPackageRegistry().put(metaModel.getNsURI(), metaModel);
-//			
-//			onCreate();
-//		}
-//		
-//		// update user object caches
-//		if (oldFragment != newFragment) {
-//			if (oldFragment != null) {
-//				oldFragment.getUserObjectsCache().removeCachedUserObject(this);			
-//			} else {
-//				UserObjectsCache.newUserObjectsCache.removeCachedUserObject(this);
-//			}
-//			if (newFragment != null) {
-//				UserObjectsCache newFragmentUOC = newFragment.getUserObjectsCache();
-//				newFragmentUOC.getUserObject(this);
-//			} else {
-//				UserObjectsCache.newUserObjectsCache.getUserObject(this);
-//			}
-//		}
-//		
-//		// update id index entries
-//		if (oldContainer != newContainer) {
-//			String id = getId();
-//			if (id != null) {
-//				if (oldFragmentedModel != newFragmentedModel) {
-//					if (oldFragmentedModel != null) {
-//						// remove from id index
-//						oldFragmentedModel.getIdIndex().remove(Long.parseLong(id));
-//					}
-//					if (newFragmentedModel != null) {
-//						// add to id index
-//						throw new UnsupportedOperationException("It is not supported to move object with ids from one model to another.");
-//					}
-//				} else {				
-//					if (newFragment == null) {
-//						// remove from id index
-//						oldFragmentedModel.getIdIndex().remove(Long.parseLong(id));
-//					} else {
-//						// update id index	
-//						oldFragmentedModel.getIdIndex().updateObjectURI(id, this);
-//					}
-//				}
-//			}
-//		}
-//	}
 	
 	private void onLoad() {
 		if (EmfFragActivator.instance.collectStatistics) {
@@ -548,27 +333,6 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 			setAccessed(getAccessed() + 1);
 		}
 	}
-
-
-//	/**
-//	 * Removes the fragment of the given root. Removes the resource and the
-//	 * corresponding entry in persistence. This must not remove the fragment
-//	 * immediately, since the fragmentRoot is still attached to it.
-//	 * 
-//	 * @param fObjectImpl
-//	 *            The root of the fragment to delete.
-//	 */
-//	private void removeFragment(Fragment oldFragment) {
-//		if (oldFragment.getResourceSet() != null) {
-//			try {
-//				oldFragment.delete(null);
-//			} catch (IOException e) {
-//				Throwables.propagate(e);
-//			}
-//		}
-//		// else:
-//		// the resource was already deleted automatically, because it got empty
-//	}
 
 	/**
 	 * The default value of the '{@link #getId() <em>Id</em>}' attribute.

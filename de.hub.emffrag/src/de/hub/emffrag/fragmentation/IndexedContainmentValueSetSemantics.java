@@ -32,13 +32,11 @@ public class IndexedContainmentValueSetSemantics<K> extends IndexedValueSetSeman
 		} else {
 			value.fragmentURIForContainerChange(index.getURI(key));
 		}
-//		value.updateContainment((FInternalObjectImpl)value.eContainer(), value.eContainingFeature(), container, feature, index.getURI(key));
 	}
 
 	@Override
 	public void removeValueForKey(K key, FInternalObjectImpl value) {
 		super.removeValueForKey(key, value);
-//		value.updateContainment((FInternalObjectImpl)value.eContainer(), value.eContainingFeature(), null, feature, null);
 	}
 	
 	

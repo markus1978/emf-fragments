@@ -10,7 +10,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
+import junit.framework.Assert;
+
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 
 import com.google.common.base.Throwables;
@@ -79,6 +82,19 @@ public class UserObjectsCache {
 	
 	void setListener(UserObjectsCacheListener listener) {
 		this.listener = listener;
+	}
+	
+	void moveUserObject(FInternalObjectImpl internalObject, UserObjectsCache newCache) {
+		UserObjectReference reference = cache.get(internalObject);
+		FObjectImpl userObject = null;
+		if (reference != null) {
+			userObject = reference.get();		
+			cache.remove(internalObject);				
+		}
+		
+		if (userObject != null) {
+			newCache.addUserObjectToCache(internalObject, userObject);
+		} 
 	}
 
 	public FObjectImpl getUserObject(FInternalObjectImpl internalObject) {
@@ -170,5 +186,13 @@ public class UserObjectsCache {
 				userObjectReference.enqueue();
 			}
 		}
+	}
+	
+	void assertNotCached(EObject object) {
+		Assert.assertNull("Object is cached.", cache.get(((FObjectImpl)object).fInternalObject()));
+	}
+	
+	void assertCached(EObject object) {
+		Assert.assertNotNull("Object not is cached.", cache.get(((FObjectImpl)object).fInternalObject()));
 	}
 }

@@ -111,5 +111,27 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 				.load().getCrossReferences().assertSize(1).get(0).assertId(3);
 		
 	}
+	
+	@Test
+	public void testIncrementalFragmentChange() {
+		model.root().getContents().add(object1);
+		
+		object1.getRegularContents().add(object2);
+		object2.getRegularContents().add(object3);
+		object1.getCrossReferences().add(object3);
+		object1.getFragmentedContents().add(object2);
+
+		TestObject object3New = Assertions
+			.root(model).assertId(1).getCrossReferences().assertSize(1)
+			.get(0).assertId(3).value();
+		Assert.assertEquals(object3, object3New);
+		
+		model.save(null);
+		reinitializeModel();
+		
+		Assertions
+				.root(model).assertId(1).getCrossReferences().assertSize(1)
+				.get(0).assertId(3);
+	}
 
 }

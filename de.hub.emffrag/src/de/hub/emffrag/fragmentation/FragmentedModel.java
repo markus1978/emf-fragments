@@ -71,9 +71,6 @@ public class FragmentedModel extends ResourceImpl {
 		if (cacheSize == -1) {
 			cacheSize = 100;
 		}
-//		if (cacheSize < 1) {
-//			throw new IllegalArgumentException("A zero fragment cache is not allowed. Try a larger cache size.");
-//		}
 		fragmentCache = new FragmentCache(cacheSize);
 
 		this.fragmentIndex = new DataIndex<Long>(dataStore, FRAGMENTS_INDEX_PREFIX, LongKeyType.instance);
@@ -318,7 +315,6 @@ public class FragmentedModel extends ResourceImpl {
 	ResourceSet getInternalResourceSet() {
 		return resourceSet;
 	}
-
 	
 	Fragment createFragment(URI fragmentURI, FInternalObjectImpl root) {
 		if (fragmentURI == null) {
@@ -338,36 +334,7 @@ public class FragmentedModel extends ResourceImpl {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-	}
-	
-//	Fragment createFragment(FInternalObjectImpl fragmentRoot, FObjectImpl fragmentRootUserObject) {
-//		URI uri = fragmentIndex.getURI(fragmentIndex.add());
-//		return createFragment(uri, fragmentRoot, fragmentRootUserObject);
-//	}
-//
-//	Fragment createFragment(URI fragmentURI, FInternalObjectImpl fragmentRoot, FObjectImpl fragmentRootUserObject) {
-//		Fragment newFragment = (Fragment) resourceSet.createResource(fragmentURI);
-//
-//		if (fragmentRoot != null) {
-//			Resource oldResource = fragmentRoot.eResource();
-//			Fragment oldFragment = null;
-//			if (oldResource != null && oldResource instanceof Fragment) {
-//				oldFragment = (Fragment) oldResource;
-//			}
-//
-//			newFragment.getContents().add(fragmentRoot);
-//			if (fragmentRootUserObject != null) {
-//				newFragment.getUserObjectsCache().addUserObjectToCache(fragmentRoot, fragmentRootUserObject);
-//			}
-//			if (oldFragment != null) {
-//				oldFragment.getUserObjectsCache().removeCachedUserObject(fragmentRoot);
-//			}
-//		}
-//
-//		statistics.creates++;
-//		return newFragment;
-//	}
-	
+	}	
 	
 	/**
 	 * Fragment

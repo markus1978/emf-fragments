@@ -46,6 +46,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 	public void testAddFragment() {
 		model.root().getContents().add(object1);
 		object1.getFragmentedContents().add(object2);
+	
 		model.save(null);
 
 		reinitializeModel();
@@ -57,6 +58,29 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 			.eContainer().assertId(1);
 		model.assertFragmentsIndex(0l, 2l);
 		model.assertIdIndex(-1l, -1l);
+	}
+	
+	@Test
+	public void testIncrementalFragmentChange() {
+		object1.getRegularContents().add(object2);
+		object2.getRegularContents().add(object3);
+		model.root().getContents().add(object1);
+		
+		Assertions
+			.root(model).assertId(1).getRegularContents().assertSize(1)
+			.get(0).assertId(2).getRegularContents().assertSize(1)
+			.get(0).assertId(3);
+		
+		Assert.assertEquals(object1.getRegularContents().get(0), object2);
+		Assert.assertEquals(object1.getRegularContents().get(0).getRegularContents().get(0), object3);
+		
+		model.save(null);
+		reinitializeModel();
+		
+		Assertions
+			.root(model).assertId(1).getRegularContents().assertSize(1)
+			.get(0).assertId(2).getRegularContents().assertSize(1)
+			.get(0).assertId(3);
 	}
 
 	@Test

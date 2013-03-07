@@ -81,10 +81,15 @@ public class MongoDBDataStore extends DataStore {
 	synchronized public InputStream openInputStream(byte[] key) {
 		DBObject result = collection.findOne(new BasicDBObject(KEY, new String(key)));
 		if (result != null) {
-			return new ByteArrayInputStream((byte[])result.get(VALUE));
+			byte[] value = (byte[])result.get(VALUE);
+			if (value != null) {
+				return new ByteArrayInputStream(value);
+			} else {
+				return new ByteArrayInputStream(new byte[]{});
+			}
 		} else {
 			return null;
-		}		
+		}
 	}
 
 	@Override
