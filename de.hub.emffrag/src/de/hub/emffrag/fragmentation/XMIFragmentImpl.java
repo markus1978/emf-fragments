@@ -133,4 +133,11 @@ public class XMIFragmentImpl extends XMIResourceImpl implements Fragment {
 			internalObject.trulyUnload();
 		}
 	}
+
+	@Override
+	protected boolean isAttachedDetachedHelperRequired() {
+		return false;
+	}
+	
+	
 }

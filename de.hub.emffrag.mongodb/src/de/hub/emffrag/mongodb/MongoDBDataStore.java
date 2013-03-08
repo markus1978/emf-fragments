@@ -52,16 +52,24 @@ public class MongoDBDataStore extends DataStore {
 			collection.drop();
 			collection = db.getCollection(dataStoreId);	
 		}
-		collection.ensureIndex(new BasicDBObject(KEY, 1).append("unique", "true"));				
+		collection.ensureIndex(new BasicDBObject(KEY, 1), new BasicDBObject("unique", true));		
+	}
+	
+	private byte[] adoptKey(byte[] key) {
+		assert(key.length <= 17);
+		byte[] result = new byte[17];
+		for (int i = 0; i < 17; i++) {
+			result[i] = i < key.length ? key[i] : 0;
+		}
+		return result;
 	}
 
 	@Override
 	synchronized public byte[] ceiling(byte[] key) {
-		String keyString = new String(key);
-		keyString.getBytes();
+		byte[] keyString = adoptKey(key);
 		DBObject result = collection.findOne(new BasicDBObject(KEY, new BasicDBObject("$gte", keyString)), new BasicDBObject(KEY, ""), new BasicDBObject(KEY, 1));
 		if (result != null) {
-			return ((String)result.get(KEY)).getBytes();
+			return (byte[])result.get(KEY);
 		} else {
 			return null;
 		}
@@ -69,9 +77,9 @@ public class MongoDBDataStore extends DataStore {
 
 	@Override
 	synchronized public byte[] floor(byte[] key) {
-		DBObject result = collection.findOne(new BasicDBObject(KEY, new BasicDBObject("$lte", new String(key))), new BasicDBObject(KEY, ""), new BasicDBObject(KEY, -1));
+		DBObject result = collection.findOne(new BasicDBObject(KEY, new BasicDBObject("$lte", adoptKey(key))), new BasicDBObject(KEY, ""), new BasicDBObject(KEY, -1));
 		if (result != null) {
-			return ((String)result.get(KEY)).getBytes();
+			return (byte[])result.get(KEY);
 		} else {
 			return null;
 		}		
@@ -79,7 +87,7 @@ public class MongoDBDataStore extends DataStore {
 
 	@Override
 	synchronized public InputStream openInputStream(byte[] key) {
-		DBObject result = collection.findOne(new BasicDBObject(KEY, new String(key)));
+		DBObject result = collection.findOne(new BasicDBObject(KEY, adoptKey(key)));
 		if (result != null) {
 			byte[] value = (byte[])result.get(VALUE);
 			if (value != null) {
@@ -98,7 +106,7 @@ public class MongoDBDataStore extends DataStore {
 			@Override
 			public void close() throws IOException {
 				super.close();
-				String keyString = new String(key);
+				byte[] keyString = adoptKey(key);
 				collection.update(new BasicDBObject(KEY, keyString), new BasicDBObject(KEY, keyString).append(VALUE, toByteArray()), true, false);
 			}
 		};
@@ -106,7 +114,7 @@ public class MongoDBDataStore extends DataStore {
 
 	@Override
 	synchronized public boolean check(byte[] key) {
-		DBCursor cursor = collection.find(new BasicDBObject(KEY, new String(key)));
+		DBCursor cursor = collection.find(new BasicDBObject(KEY, adoptKey(key)));
 		try {
 			return !cursor.hasNext();
 		} finally {
@@ -116,9 +124,8 @@ public class MongoDBDataStore extends DataStore {
 
 	@Override
 	synchronized public boolean ckeckAndCreate(byte[] key) {				
-		String keyString = new String(key);
 		try {
-			collection.insert(new BasicDBObject(KEY, keyString));
+			collection.insert(new BasicDBObject(KEY, adoptKey(key)));
 		} catch (MongoException e) {
 			return false;
 		}
@@ -127,7 +134,7 @@ public class MongoDBDataStore extends DataStore {
 
 	@Override
 	synchronized public void delete(byte[] key) {
-		collection.findAndRemove(new BasicDBObject(KEY, new String(key)));
+		collection.findAndRemove(new BasicDBObject(KEY, adoptKey(key)));
 	}
 
 	@Override

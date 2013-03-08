@@ -1,10 +1,13 @@
 package de.hub.emffrag.fragmentation;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
@@ -13,9 +16,11 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EStructuralFeature.Setting;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.DynamicEObjectImpl;
+import org.eclipse.emf.ecore.impl.EClassImpl;
 import org.eclipse.emf.ecore.impl.EStructuralFeatureImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.Resource.Internal;
+import org.eclipse.emf.ecore.util.EContentsEList;
 import org.eclipse.emf.ecore.util.EcoreEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
@@ -38,7 +43,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 		super(eClass);
 		onLoad();
 	}
-	
+
 	public boolean isFragmentRoot() {
 		Resource eResource = eResource();
 		return eResource != null && eResource instanceof Fragment
@@ -47,16 +52,16 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 
 	public String getId(boolean issueIfNecessary) {
 		String id = getId();
-		
+
 		if (id != null) {
 			if (EmfFragActivator.instance.idBehaviour == IdBehaviour.defaultModel) {
 				FragmentedModel fragmentedModel = getFragmentation();
 				if (fragmentedModel != null) {
 					fragmentedModel.getIdIndex().updateObjectURI(id, this);
 				}
-			} 
+			}
 			return id;
-		} else {			
+		} else {
 			if (issueIfNecessary) {
 				FragmentedModel fragmentedModel = getFragmentation();
 				if (fragmentedModel != null) {
@@ -74,7 +79,8 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 					setId(id);
 					return id;
 				} else {
-					throw new NotInAFragmentedModelException("Could not issue an ID because the object is not part of a fragmented model.");
+					throw new NotInAFragmentedModelException(
+							"Could not issue an ID because the object is not part of a fragmented model.");
 				}
 			} else if (hasPriliminaryId) {
 				FragmentedModel fragmentedModel = getFragmentation();
@@ -87,7 +93,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 				}
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -150,20 +156,22 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 		updateAfterResourceChange(oldResource);
 		return result;
 	}
-	
+
 	private void updateAfterResourceChange(Resource oldResource) {
 		ensureHasRequiredId();
-		Fragment oldFragment = (Fragment)oldResource;
-		Fragment newFragment = (Fragment)getFragment();
+		Fragment oldFragment = (Fragment) oldResource;
+		Fragment newFragment = (Fragment) getFragment();
 		if (oldFragment == newFragment) {
 			return;
 		}
-		
-		UserObjectsCache oldUOC = oldFragment != null ? oldFragment.getUserObjectsCache() : UserObjectsCache.newUserObjectsCache;
-		UserObjectsCache newUOC = newFragment != null ? newFragment.getUserObjectsCache() : UserObjectsCache.newUserObjectsCache;	
-		
+
+		UserObjectsCache oldUOC = oldFragment != null ? oldFragment.getUserObjectsCache()
+				: UserObjectsCache.newUserObjectsCache;
+		UserObjectsCache newUOC = newFragment != null ? newFragment.getUserObjectsCache()
+				: UserObjectsCache.newUserObjectsCache;
+
 		updateUOCAfterFragmentChange(oldUOC, newUOC, this, newFragment);
-		
+
 		if (newFragment != null && oldFragment == null) {
 			onCreate();
 			EPackage metaModel = eClass().getEPackage();
@@ -172,40 +180,68 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 				fragmentedModel.getInternalResourceSet().getPackageRegistry().put(metaModel.getNsURI(), metaModel);
 			}
 		}
-		
+
 		if (newFragment != null) {
 			updateIdsAfterContainerChange(this, newFragment);
 		} else {
 			// TODO remove objects from the index?
 		}
 	}
-	
-	private void updateUOCAfterFragmentChange(UserObjectsCache oldUOC, UserObjectsCache newUOC, FInternalObjectImpl object, Fragment fragment) {
+
+	private EList<EObject> eContentsWithOutFragments() {
+		EList<EObject> result = eProperties().getEContents();
+		if (result == null) {
+			EStructuralFeature[] eStructuralFeatures = ((EClassImpl.FeatureSubsetSupplier) this.eClass()
+					.getEAllStructuralFeatures()).containments();
+			EStructuralFeature[] eStructuralFeaturesWithOutFragmentsArray = null;
+			if (eStructuralFeatures != null) {
+				List<EStructuralFeature> eStructuralFeaturesWithOutFragments = new ArrayList<EStructuralFeature>(
+						eStructuralFeatures.length);
+				for (EStructuralFeature eStructuralFeature : eStructuralFeatures) {
+					FragmentationType fragmentationType = EMFFragUtil.getFragmentationType(eStructuralFeature);
+					if (fragmentationType == FragmentationType.None || eStructuralFeature instanceof EAttribute) {
+						eStructuralFeaturesWithOutFragments.add(eStructuralFeature);
+					}
+				}
+				eStructuralFeaturesWithOutFragmentsArray = eStructuralFeaturesWithOutFragments
+						.toArray(new EStructuralFeature[eStructuralFeaturesWithOutFragments.size()]);
+			}
+
+			EContentsEList<EObject> eContentsEListWithOutFragments = eStructuralFeaturesWithOutFragmentsArray == null ? EContentsEList
+					.<EObject> emptyContentsEList() : new EContentsEList<EObject>(this,
+					eStructuralFeaturesWithOutFragmentsArray);
+
+			eBasicProperties().setEContents(result = eContentsEListWithOutFragments);
+		}
+
+		return result;
+	}
+
+	private void updateUOCAfterFragmentChange(UserObjectsCache oldUOC, UserObjectsCache newUOC, FInternalObjectImpl object,
+			Fragment fragment) {
 		oldUOC.moveUserObject(object, newUOC);
 
-		for (EObject content: object.eContents()) {
-			if (content.eResource() == fragment) {
-				updateUOCAfterFragmentChange(oldUOC, newUOC, (FInternalObjectImpl)content, fragment);
-			}
+		for (EObject content : object.eContentsWithOutFragments()) {
+			updateUOCAfterFragmentChange(oldUOC, newUOC, (FInternalObjectImpl) content, fragment);
 		}
 	}
-	
+
 	private void updateIdsAfterContainerChange(FInternalObjectImpl object, Fragment fragment) {
 		String id = object.getId();
 		if (id != null) {
 			fragment.getFragmentedModel().getIdIndex().updateObjectURI(id, object);
 		}
-		for (EObject content: object.eContents()) {
-			if (content.eResource() == fragment) {
-				updateIdsAfterContainerChange((FInternalObjectImpl)content, fragment);
-			}
+		for (EObject content : object.eContentsWithOutFragments()) {
+			updateIdsAfterContainerChange((FInternalObjectImpl) content, fragment);
 		}
 	}
-	
+
 	private void updateAfterContainerChange(Fragment oldFragment) {
 		EStructuralFeature eContainingFeature = eContainingFeature();
-		FragmentationType fragmentationType = eContainingFeature != null ? EMFFragUtil.getFragmentationType(eContainingFeature) : FragmentationType.None;
-		boolean isFragmenting = fragmentationType == FragmentationType.FragmentsContainment || fragmentationType == FragmentationType.FragmentsIndexedContainment;
+		FragmentationType fragmentationType = eContainingFeature != null ? EMFFragUtil.getFragmentationType(eContainingFeature)
+				: FragmentationType.None;
+		boolean isFragmenting = fragmentationType == FragmentationType.FragmentsContainment
+				|| fragmentationType == FragmentationType.FragmentsIndexedContainment;
 		FragmentedModel fragmentation = getFragmentation();
 		if (isFragmenting && fragmentation != null) {
 			if (fragmentURIForContainerChange != null) {
@@ -214,18 +250,20 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 				fragmentation.createFragment(null, this);
 			}
 		}
-		
+
 		Fragment newFragment = getFragment();
 		if (eContainer() == null && newFragment != null) {
 			// Object was removed (container set to null.
-			// This will delete the resource (fragment) based on normal emf semantics.
+			// This will delete the resource (fragment) based on normal emf
+			// semantics.
 			newFragment.getContents().remove(this);
-		}		
-		
+		}
+
 		if (oldFragment != eResource()) {
 			updateAfterResourceChange(oldFragment);
 			if (oldFragment != null) {
-				// delete if the old fragment is empty and is not deleted already
+				// delete if the old fragment is empty and is not deleted
+				// already
 				if (oldFragment.getContents().isEmpty() && oldFragment.getResourceSet() != null) {
 					oldFragment.getFragmentedModel().deleteFragment(oldFragment);
 				}
@@ -234,28 +272,29 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 			if (newFragment != null) {
 				updateIdsAfterContainerChange(this, newFragment);
 			}
-		}		
-		
+		}
+
 		fragmentURIForContainerChange = null;
 	}
 
 	/**
-	 * Some objects need to have an IDs. These are objects with
-	 * indexed value sets, or indexed class instances.
+	 * Some objects need to have an IDs. These are objects with indexed value
+	 * sets, or indexed class instances.
 	 */
 	private void ensureHasRequiredId() {
 		if (getFragmentation() != null && getId(false) == null) {
 			boolean idIsRequired = false;
-			idIsRequired |= ReflectiveMetaModelRegistry.instance.getInternalClass(EmfFragPackage.eINSTANCE.getIndexedMap()).isInstance(this);
-			for (EStructuralFeature feature: eClass().getEAllStructuralFeatures()) {
-				if (feature instanceof EReference) { 
+			idIsRequired |= ReflectiveMetaModelRegistry.instance.getInternalClass(EmfFragPackage.eINSTANCE.getIndexedMap())
+					.isInstance(this);
+			for (EStructuralFeature feature : eClass().getEAllStructuralFeatures()) {
+				if (feature instanceof EReference) {
 					FragmentationType fragmentationType = EMFFragUtil.getFragmentationType(feature);
-					idIsRequired |= fragmentationType == FragmentationType.FragmentsIndexedContainment ||
-							fragmentationType == FragmentationType.IndexedReferences;
+					idIsRequired |= fragmentationType == FragmentationType.FragmentsIndexedContainment
+							|| fragmentationType == FragmentationType.IndexedReferences;
 				}
 			}
 			if (idIsRequired) {
-				getId(true);			
+				getId(true);
 			}
 		}
 	}
@@ -265,7 +304,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 	 * that prevent to fully unload the contents of a resource. This method
 	 * breaks the corresponding references.
 	 */
-	void trulyUnload() {		
+	void trulyUnload() {
 		if (eProperties != null) {
 			eProperties.setEContents(null);
 			eProperties.setECrossReferences(null);
@@ -289,7 +328,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 			};
 		}
 	}
-	
+
 	void eBasicSetContainerForIndexClass(FInternalObjectImpl indexClass, URI uri) {
 		if (!eIsProxy()) {
 			// Do not update containment if the object is a proxy. In that case
@@ -302,9 +341,9 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 
 	@Override
 	protected void eBasicSetContainer(InternalEObject newContainer, int newContainerFeatureID) {
-		Fragment oldFragment = getFragment();		
+		Fragment oldFragment = getFragment();
 		super.eBasicSetContainer(newContainer, newContainerFeatureID);
-		
+
 		if (!eIsProxy()) {
 			// Do not update containment if the object is a proxy. In that case
 			// the object is loaded and not modified by a user.
@@ -312,13 +351,12 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 		}
 	}
 
-	
 	private void onLoad() {
 		if (EmfFragActivator.instance.collectStatistics) {
 			setLoaded(getLoaded() + 1);
 		}
 	}
-	
+
 	private void onCreate() {
 		if (EmfFragActivator.instance.collectStatistics) {
 			long loaded = getLoaded();
@@ -327,7 +365,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 			}
 		}
 	}
-	
+
 	void onAccess() {
 		if (EmfFragActivator.instance.collectStatistics) {
 			setAccessed(getAccessed() + 1);
@@ -335,9 +373,9 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 	}
 
 	/**
-	 * The default value of the '{@link #getId() <em>Id</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getId() <em>Id</em>}' attribute. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getId()
 	 * @generated
 	 * @ordered
@@ -345,18 +383,18 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 	protected static final String ID_EDEFAULT = null;
 
 	/**
-	 * The default value of the '{@link #getAccessed() <em>Accessed</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getAccessed() <em>Accessed</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getAccessed()
 	 * @generated
 	 * @ordered
 	 */
 	protected static final long ACCESSED_EDEFAULT = 0L;
 	/**
-	 * The default value of the '{@link #getLoaded() <em>Loaded</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getLoaded() <em>Loaded</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getLoaded()
 	 * @generated
 	 * @ordered
@@ -364,8 +402,8 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 	protected static final long LOADED_EDEFAULT = 0L;
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	protected FInternalObjectImpl() {
@@ -373,8 +411,8 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
@@ -383,18 +421,18 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
-//	@Override
-//	protected EClass eStaticClass() {
-//		return InternalPackage.Literals.FINTERNAL_OBJECT;
-//	}
+	// @Override
+	// protected EClass eStaticClass() {
+	// return InternalPackage.Literals.FINTERNAL_OBJECT;
+	// }
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
@@ -403,17 +441,18 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public String getId() {
-		return (String)eDynamicGet(InternalPackage.FINTERNAL_OBJECT__ID, InternalPackage.Literals.FINTERNAL_OBJECT__ID, true, true);
+		return (String) eDynamicGet(InternalPackage.FINTERNAL_OBJECT__ID, InternalPackage.Literals.FINTERNAL_OBJECT__ID, true,
+				true);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setId(String newId) {
@@ -421,45 +460,49 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@SuppressWarnings("unchecked")
 	public EList<EObject> getExtensions() {
-		return (EList<EObject>)eDynamicGet(InternalPackage.FINTERNAL_OBJECT__EXTENSIONS, InternalPackage.Literals.FINTERNAL_OBJECT__EXTENSIONS, true, true);
+		return (EList<EObject>) eDynamicGet(InternalPackage.FINTERNAL_OBJECT__EXTENSIONS,
+				InternalPackage.Literals.FINTERNAL_OBJECT__EXTENSIONS, true, true);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public long getAccessed() {
-		return (Long)eDynamicGet(InternalPackage.FINTERNAL_OBJECT__ACCESSED, InternalPackage.Literals.FINTERNAL_OBJECT__ACCESSED, true, true);
+		return (Long) eDynamicGet(InternalPackage.FINTERNAL_OBJECT__ACCESSED,
+				InternalPackage.Literals.FINTERNAL_OBJECT__ACCESSED, true, true);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setAccessed(long newAccessed) {
-		eDynamicSet(InternalPackage.FINTERNAL_OBJECT__ACCESSED, InternalPackage.Literals.FINTERNAL_OBJECT__ACCESSED, newAccessed);
+		eDynamicSet(InternalPackage.FINTERNAL_OBJECT__ACCESSED, InternalPackage.Literals.FINTERNAL_OBJECT__ACCESSED,
+				newAccessed);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public long getLoaded() {
-		return (Long)eDynamicGet(InternalPackage.FINTERNAL_OBJECT__LOADED, InternalPackage.Literals.FINTERNAL_OBJECT__LOADED, true, true);
+		return (Long) eDynamicGet(InternalPackage.FINTERNAL_OBJECT__LOADED, InternalPackage.Literals.FINTERNAL_OBJECT__LOADED,
+				true, true);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setLoaded(long newLoaded) {
@@ -467,109 +510,109 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-			case InternalPackage.FINTERNAL_OBJECT__EXTENSIONS:
-				return ((InternalEList<?>)getExtensions()).basicRemove(otherEnd, msgs);
+		case InternalPackage.FINTERNAL_OBJECT__EXTENSIONS:
+			return ((InternalEList<?>) getExtensions()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-			case InternalPackage.FINTERNAL_OBJECT__ID:
-				return getId();
-			case InternalPackage.FINTERNAL_OBJECT__EXTENSIONS:
-				return getExtensions();
-			case InternalPackage.FINTERNAL_OBJECT__ACCESSED:
-				return getAccessed();
-			case InternalPackage.FINTERNAL_OBJECT__LOADED:
-				return getLoaded();
+		case InternalPackage.FINTERNAL_OBJECT__ID:
+			return getId();
+		case InternalPackage.FINTERNAL_OBJECT__EXTENSIONS:
+			return getExtensions();
+		case InternalPackage.FINTERNAL_OBJECT__ACCESSED:
+			return getAccessed();
+		case InternalPackage.FINTERNAL_OBJECT__LOADED:
+			return getLoaded();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-			case InternalPackage.FINTERNAL_OBJECT__ID:
-				setId((String)newValue);
-				return;
-			case InternalPackage.FINTERNAL_OBJECT__EXTENSIONS:
-				getExtensions().clear();
-				getExtensions().addAll((Collection<? extends EObject>)newValue);
-				return;
-			case InternalPackage.FINTERNAL_OBJECT__ACCESSED:
-				setAccessed((Long)newValue);
-				return;
-			case InternalPackage.FINTERNAL_OBJECT__LOADED:
-				setLoaded((Long)newValue);
-				return;
+		case InternalPackage.FINTERNAL_OBJECT__ID:
+			setId((String) newValue);
+			return;
+		case InternalPackage.FINTERNAL_OBJECT__EXTENSIONS:
+			getExtensions().clear();
+			getExtensions().addAll((Collection<? extends EObject>) newValue);
+			return;
+		case InternalPackage.FINTERNAL_OBJECT__ACCESSED:
+			setAccessed((Long) newValue);
+			return;
+		case InternalPackage.FINTERNAL_OBJECT__LOADED:
+			setLoaded((Long) newValue);
+			return;
 		}
 		super.eSet(featureID, newValue);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-			case InternalPackage.FINTERNAL_OBJECT__ID:
-				setId(ID_EDEFAULT);
-				return;
-			case InternalPackage.FINTERNAL_OBJECT__EXTENSIONS:
-				getExtensions().clear();
-				return;
-			case InternalPackage.FINTERNAL_OBJECT__ACCESSED:
-				setAccessed(ACCESSED_EDEFAULT);
-				return;
-			case InternalPackage.FINTERNAL_OBJECT__LOADED:
-				setLoaded(LOADED_EDEFAULT);
-				return;
+		case InternalPackage.FINTERNAL_OBJECT__ID:
+			setId(ID_EDEFAULT);
+			return;
+		case InternalPackage.FINTERNAL_OBJECT__EXTENSIONS:
+			getExtensions().clear();
+			return;
+		case InternalPackage.FINTERNAL_OBJECT__ACCESSED:
+			setAccessed(ACCESSED_EDEFAULT);
+			return;
+		case InternalPackage.FINTERNAL_OBJECT__LOADED:
+			setLoaded(LOADED_EDEFAULT);
+			return;
 		}
 		super.eUnset(featureID);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-			case InternalPackage.FINTERNAL_OBJECT__ID:
-				return ID_EDEFAULT == null ? getId() != null : !ID_EDEFAULT.equals(getId());
-			case InternalPackage.FINTERNAL_OBJECT__EXTENSIONS:
-				return !getExtensions().isEmpty();
-			case InternalPackage.FINTERNAL_OBJECT__ACCESSED:
-				return getAccessed() != ACCESSED_EDEFAULT;
-			case InternalPackage.FINTERNAL_OBJECT__LOADED:
-				return getLoaded() != LOADED_EDEFAULT;
+		case InternalPackage.FINTERNAL_OBJECT__ID:
+			return ID_EDEFAULT == null ? getId() != null : !ID_EDEFAULT.equals(getId());
+		case InternalPackage.FINTERNAL_OBJECT__EXTENSIONS:
+			return !getExtensions().isEmpty();
+		case InternalPackage.FINTERNAL_OBJECT__ACCESSED:
+			return getAccessed() != ACCESSED_EDEFAULT;
+		case InternalPackage.FINTERNAL_OBJECT__LOADED:
+			return getLoaded() != LOADED_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
-	
+
 	private URI fragmentURIForContainerChange = null;
 
 	public void fragmentURIForContainerChange(URI uri) {

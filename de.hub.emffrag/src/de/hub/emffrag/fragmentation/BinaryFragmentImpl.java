@@ -17,6 +17,9 @@ import org.eclipse.emf.ecore.resource.impl.BinaryResourceImpl;
 
 import com.google.common.base.Throwables;
 
+import de.hub.emffrag.util.EMFFragUtil;
+import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
+
 public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 
 	private final UserObjectsCache userObjectsCache;
@@ -37,7 +40,7 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 	public FragmentedModel getFragmentedModel() {
 		return model;
 	}
-	
+
 	@Override
 	public void detached(EObject eObject) {
 		super.detached(eObject);
@@ -58,16 +61,15 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 	 */
 	@Override
 	protected void doUnload() {
-	    Iterator<EObject> allContents = getAllProperContents(unloadingContents); 
-	    
+		Iterator<EObject> allContents = getAllProperContents(unloadingContents);
+
 		super.doUnload();
-		while (allContents.hasNext())
-	    {
+		while (allContents.hasNext()) {
 			FInternalObjectImpl internalObject = (FInternalObjectImpl) allContents.next();
 			internalObject.trulyUnload();
-	    }
+		}
 	}
-	
+
 	@Override
 	protected void doSave(OutputStream outputStream, Map<?, ?> options) throws IOException {
 		// This is a copy of the super method, except for the market pieces
@@ -87,7 +89,8 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 
 			try {
 				// We use our own EObjectOutputStream
-				// EObjectOutputStream eObjectOutputStream = new EObjectOutputStream(outputStream, options);
+				// EObjectOutputStream eObjectOutputStream = new
+				// EObjectOutputStream(outputStream, options);
 				EObjectOutputStream eObjectOutputStream = new MyEObjectOutputStream(outputStream, options);
 				eObjectOutputStream.saveResource(this);
 			} finally {
@@ -97,8 +100,6 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 			}
 		}
 	}
-	
-	
 
 	@Override
 	protected void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
@@ -115,33 +116,47 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 			}
 
 			// We use our own EObjectOutputStream
-			// EObjectInputStream eObjectInputStream = new EObjectInputStream(inputStream, options);
+			// EObjectInputStream eObjectInputStream = new
+			// EObjectInputStream(inputStream, options);
 			EObjectInputStream eObjectInputStream = new MyEObjectInputStream(inputStream, options);
 			eObjectInputStream.loadResource(this);
 		}
 	}
 
 	private class MyEObjectInputStream extends EObjectInputStream {
-		
+
 		public MyEObjectInputStream(InputStream is, Map<?, ?> options) throws IOException {
 			super(is, options);
-		}	
-		
+		}
+
 		@Override
-		 protected EPackageData readEPackage() throws IOException { 
-		 	EPackageData ePackageData = super.readEPackage();
+		protected EPackageData readEPackage() throws IOException {
+			EPackageData ePackageData = super.readEPackage();
 			if (resourceSet != null) {
 				EPackage ePackage = resourceSet.getPackageRegistry().getEPackage(ePackageData.ePackage.getNsURI());
 				if (ePackage != null) {
 					ePackageData.ePackage = ePackage;
 				}
 				if (ePackageData.eClassData.length != ePackage.getEClassifiers().size()) {
-					ePackageData.eClassData = new EClassData [ePackage.getEClassifiers().size()];
+					ePackageData.eClassData = new EClassData[ePackage.getEClassifiers().size()];
 				}
 			}
 			return ePackageData;
 		}
-		    
+
+	}
+
+	public String getURIFragment(EObject eObject) {
+		if (eObject.eIsProxy()) {
+			URI eProxyURI = ((InternalEObject) eObject).eProxyURI();
+			if (eProxyURI.trimFragment().equals(getURI())) {
+				return eProxyURI.fragment();
+			} else {
+				throw new RuntimeException("Unreachable?");
+			}
+		} else {
+			return super.getURIFragment(eObject);
+		}
 	}
 
 	public class MyEObjectOutputStream extends EObjectOutputStream {
@@ -155,13 +170,22 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 		@Override
 		public void saveEObject(InternalEObject internalEObject, Check check) throws IOException {
 			// Ensure that URIs in the id
-			// index are saved, when the object is saved.					
-			FInternalObjectImpl fInternalObject = (FInternalObjectImpl)internalEObject;			
+			// index are saved, when the object is saved.
+			FInternalObjectImpl fInternalObject = (FInternalObjectImpl) internalEObject;
 			fInternalObject.getId(false);
-				
+
 			if (check == Check.RESOURCE) {
 				isWritingCrossReferenceURI = true;
-				currentObject = (FInternalObjectImpl)internalEObject;
+				currentObject = (FInternalObjectImpl) internalEObject;
+				if (internalEObject.eIsProxy()) {
+					// Here I am not sure about what EMF is doing. On
+					// DIRECT_RESOURCE is simply saves the URI of eProxies, on
+					// RESOURCE it tries to determine a proxies resource by
+					// walking up its containers, finding the wrong resources.
+					// But for some reason, EMF chooses RESOURCE for all proxy
+					// resolving non containment lists.
+					check = Check.DIRECT_RESOURCE;
+				}
 			} else {
 				isWritingCrossReferenceURI = false;
 			}
@@ -169,18 +193,28 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 		}
 
 		@Override
+		protected void saveFeatureValue(InternalEObject internalEObject, int featureID,
+				EStructuralFeatureData eStructuralFeatureData) throws IOException {
+			FragmentationType type = EMFFragUtil
+					.getFragmentationType(internalEObject.eClass().getEStructuralFeature(featureID));
+			if (type == FragmentationType.FragmentsContainment || type == FragmentationType.None) {
+				super.saveFeatureValue(internalEObject, featureID, eStructuralFeatureData);
+			}
+		}
+
+		@Override
 		public void writeURI(URI uri, String uriFragment) throws IOException {
 			if (!isWritingCrossReferenceURI) {
 				super.writeURI(uri, uriFragment);
-			} else {			
+			} else {
 				if (currentObject.hasId()) {
-					Fragment fragment = (Fragment)currentObject.eResource();
+					Fragment fragment = (Fragment) currentObject.eResource();
 					String id = currentObject.getId(false);
 					if (FInternalObjectImpl.isPreliminary(id)) {
 						throw new NotInAFragmentedModelException();
 					}
 					uri = fragment.getFragmentedModel().getIdIndex().createIdUri(id);
-					super.writeURI(uri, null);					
+					super.writeURI(uri, null);
 				} else {
 					super.writeURI(uri, uriFragment);
 				}

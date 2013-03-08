@@ -15,6 +15,7 @@ import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 
+import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.LongKeyType;
 
@@ -73,6 +74,10 @@ public class MongodbAPITests {
 		collection.insert(new BasicDBObject("key", new String(keyType.serialize(key))).append("value", value.getBytes()));
 	}
 	
+	private void addBytes(byte[] bytes, String value) {
+		collection.insert(new BasicDBObject("key", new String(bytes)).append("value", value.getBytes()));
+	}
+	
 	@Test
 	public void testCollision() {		
 		addLong(0, "a");
@@ -82,6 +87,17 @@ public class MongodbAPITests {
 			return;
 		}
 		Assert.fail("Mongo added entry with dublicate key.");
+	}
+	
+	@Test
+	public void test136() {
+		DataIndex<Long> dataIndex = new DataIndex<Long>(null, "c", LongKeyType.instance);
+		for (long i = 0; i < 136; i++) {
+			addBytes(dataIndex.getStoreKey(i), "value");	
+		}
+		addBytes(dataIndex.getStoreKey(136l), "value");
+		
+		((String)collection.findOne(new BasicDBObject("key", new BasicDBObject("$lte", new String("f_"))), new BasicDBObject("key", ""), new BasicDBObject("key", -1)).get("key")).getBytes();
 	}
 	
 	private void assertCollection() {

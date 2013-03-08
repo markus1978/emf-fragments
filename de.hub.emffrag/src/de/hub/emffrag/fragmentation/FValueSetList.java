@@ -55,7 +55,11 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 					"Indexed reference owner have to be added to a fragmented model before the indexed reference can be used.");
 		}
 		int featureId = feature.getFeatureID();
-		return FragmentedModel.INDEX_FEATURES_PREFIX + "_" + id + "_" + featureId;
+		if (((EReference)feature).isContainment()) {
+			return FragmentedModel.INDEX_FEATURES_PREFIX + "_" + id + "_" + featureId;
+		} else {
+			return FragmentedModel.INDEX_FEATURES_PREFIX + "-" + id + "_" + featureId;
+		}
 	}
 
 	@Override
@@ -192,7 +196,11 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 
 	@Override
 	public int indexOf(Object o) {
-		throw new UnsupportedOperationException("This method is not supported for indexed value sets.");
+		if (isEmpty()) {
+			return -1;
+		} else {
+			throw new UnsupportedOperationException("This method is not supported for indexed value sets.");
+		}
 	}
 
 	@Override
