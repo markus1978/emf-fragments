@@ -22,6 +22,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.Resource.Internal;
 import org.eclipse.emf.ecore.util.EContentsEList;
 import org.eclipse.emf.ecore.util.EcoreEList;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.util.InternalEList;
 
 import de.hub.emffrag.EmfFragActivator;
@@ -33,6 +34,7 @@ import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
 public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternalObject {
 
 	private boolean hasPriliminaryId = false;
+	private boolean hasDefaultModelId = false;
 	private static String preliminaryID = "PRELIMINARY_ID";
 
 	public static boolean isPreliminary(String id) {
@@ -51,14 +53,19 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 	}
 
 	public String getId(boolean issueIfNecessary) {
+		if (eIsProxy()) {
+			EcoreUtil.resolve(this, getFragmentation());
+		}
+		
 		String id = getId();
 
 		if (id != null) {
-			if (EmfFragActivator.instance.idBehaviour == IdBehaviour.defaultModel) {
+			if (hasDefaultModelId) {
 				FragmentedModel fragmentedModel = getFragmentation();
 				if (fragmentedModel != null) {
 					fragmentedModel.getIdIndex().updateObjectURI(id, this);
 				}
+				hasDefaultModelId = false;
 			}
 			return id;
 		} else {
@@ -76,6 +83,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 					return preliminaryID;
 				} else if (EmfFragActivator.instance.idBehaviour == IdBehaviour.defaultModel) {
 					id = EmfFragActivator.instance.defaultModelForIdBehavior.getIdIndex().issueId(this);
+					hasDefaultModelId = true;
 					setId(id);
 					return id;
 				} else {
@@ -230,6 +238,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 		String id = object.getId();
 		if (id != null) {
 			fragment.getFragmentedModel().getIdIndex().updateObjectURI(id, object);
+			hasDefaultModelId = false;
 		}
 		for (EObject content : object.eContentsWithOutFragments()) {
 			updateIdsAfterContainerChange((FInternalObjectImpl) content, fragment);
