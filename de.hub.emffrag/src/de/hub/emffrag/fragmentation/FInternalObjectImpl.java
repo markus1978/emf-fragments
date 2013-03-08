@@ -11,7 +11,6 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EStructuralFeature.Setting;
 import org.eclipse.emf.ecore.InternalEObject;
@@ -22,24 +21,16 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.Resource.Internal;
 import org.eclipse.emf.ecore.util.EContentsEList;
 import org.eclipse.emf.ecore.util.EcoreEList;
-import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.util.InternalEList;
 
 import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.EmfFragActivator.IdBehaviour;
-import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import de.hub.emffrag.util.EMFFragUtil;
 import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
 
 public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternalObject {
 
-	private boolean hasPriliminaryId = false;
-	private boolean hasDefaultModelId = false;
-	private static String preliminaryID = "PRELIMINARY_ID";
-
-	public static boolean isPreliminary(String id) {
-		return preliminaryID.equals(id);
-	}
+	boolean hasPriliminaryId = false;
+	boolean hasDefaultModelId = false;
 
 	public FInternalObjectImpl(EClass eClass) {
 		super(eClass);
@@ -52,58 +43,6 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 				&& (eContainer() == null || eResource != eContainer().eResource());
 	}
 
-	public String getId(boolean issueIfNecessary) {
-		if (eIsProxy()) {
-			EcoreUtil.resolve(this, getFragmentation());
-		}
-		
-		String id = getId();
-
-		if (id != null) {
-			if (hasDefaultModelId) {
-				FragmentedModel fragmentedModel = getFragmentation();
-				if (fragmentedModel != null) {
-					fragmentedModel.getIdIndex().updateObjectURI(id, this);
-				}
-				hasDefaultModelId = false;
-			}
-			return id;
-		} else {
-			if (issueIfNecessary) {
-				FragmentedModel fragmentedModel = getFragmentation();
-				if (fragmentedModel != null) {
-					id = fragmentedModel.getIdIndex().issueId(this);
-					setId(id);
-					hasPriliminaryId = false;
-					return id;
-				} else if (hasPriliminaryId) {
-					return preliminaryID;
-				} else if (EmfFragActivator.instance.idBehaviour == IdBehaviour.preliminary) {
-					hasPriliminaryId = true;
-					return preliminaryID;
-				} else if (EmfFragActivator.instance.idBehaviour == IdBehaviour.defaultModel) {
-					id = EmfFragActivator.instance.defaultModelForIdBehavior.getIdIndex().issueId(this);
-					hasDefaultModelId = true;
-					setId(id);
-					return id;
-				} else {
-					throw new NotInAFragmentedModelException(
-							"Could not issue an ID because the object is not part of a fragmented model.");
-				}
-			} else if (hasPriliminaryId) {
-				FragmentedModel fragmentedModel = getFragmentation();
-				if (fragmentedModel != null) {
-					id = fragmentedModel.getIdIndex().issueId(this);
-					setId(id);
-					hasPriliminaryId = false;
-				} else {
-					return preliminaryID;
-				}
-			}
-		}
-
-		return null;
-	}
 
 	public EObject getUserObject() {
 		return getUserObjectCache().getUserObject(this);
@@ -153,10 +92,6 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 		}
 	}
 
-	public boolean hasId() {
-		return getId() != null || hasPriliminaryId;
-	}
-
 	@Override
 	public NotificationChain eSetResource(Internal resource, NotificationChain notifications) {
 		Resource oldResource = eResource();
@@ -166,7 +101,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 	}
 
 	private void updateAfterResourceChange(Resource oldResource) {
-		ensureHasRequiredId();
+		EmfFragActivator.instance.idSemantics.onRequiredId(this);
 		Fragment oldFragment = (Fragment) oldResource;
 		Fragment newFragment = (Fragment) getFragment();
 		if (oldFragment == newFragment) {
@@ -235,11 +170,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 	}
 
 	private void updateIdsAfterContainerChange(FInternalObjectImpl object, Fragment fragment) {
-		String id = object.getId();
-		if (id != null) {
-			fragment.getFragmentedModel().getIdIndex().updateObjectURI(id, object);
-			hasDefaultModelId = false;
-		}
+		EmfFragActivator.instance.idSemantics.onContainerChange(object, fragment.getFragmentedModel());	
 		for (EObject content : object.eContentsWithOutFragments()) {
 			updateIdsAfterContainerChange((FInternalObjectImpl) content, fragment);
 		}
@@ -284,28 +215,6 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 		}
 
 		fragmentURIForContainerChange = null;
-	}
-
-	/**
-	 * Some objects need to have an IDs. These are objects with indexed value
-	 * sets, or indexed class instances.
-	 */
-	private void ensureHasRequiredId() {
-		if (getFragmentation() != null && getId(false) == null) {
-			boolean idIsRequired = false;
-			idIsRequired |= ReflectiveMetaModelRegistry.instance.getInternalClass(EmfFragPackage.eINSTANCE.getIndexedMap())
-					.isInstance(this);
-			for (EStructuralFeature feature : eClass().getEAllStructuralFeatures()) {
-				if (feature instanceof EReference) {
-					FragmentationType fragmentationType = EMFFragUtil.getFragmentationType(feature);
-					idIsRequired |= fragmentationType == FragmentationType.FragmentsIndexedContainment
-							|| fragmentationType == FragmentationType.IndexedReferences;
-				}
-			}
-			if (idIsRequired) {
-				getId(true);
-			}
-		}
 	}
 
 	/**

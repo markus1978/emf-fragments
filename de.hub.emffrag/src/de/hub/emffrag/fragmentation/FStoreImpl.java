@@ -14,7 +14,6 @@ import org.eclipse.emf.ecore.impl.DynamicEObjectImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
 import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.EmfFragActivator.IdBehaviour;
 
 public class FStoreImpl implements EStore {
 
@@ -53,8 +52,8 @@ public class FStoreImpl implements EStore {
 			internalObject = UserObjectsCache.newUserObjectsCache.createInternalObject((FObjectImpl)userObject);
 		} else if (internalObject.eIsProxy()) {
 			FragmentedModel model = internalObject.getFragmentation();
-			if (model == null && EmfFragActivator.instance.idBehaviour == IdBehaviour.defaultModel) {
-				model = EmfFragActivator.instance.defaultModelForIdBehavior;
+			if (model == null) {
+				model = EmfFragActivator.instance.defaultModel;
 			}
 			if (model != null) {
 				internalObject = (FInternalObjectImpl)EcoreUtil.resolve(internalObject, model.getInternalResourceSet());
@@ -111,7 +110,7 @@ public class FStoreImpl implements EStore {
 			result = oldValue;
 		}
 		if (feature instanceof EReference && internalValue != null && !((EReference) feature).isContainment()) {
-			((FInternalObjectImpl) internalValue).getId(true);
+			EmfFragActivator.instance.idSemantics.onObjectAsReferenced((FInternalObjectImpl)internalObject);
 		}
 		return result;
 	}
@@ -172,7 +171,7 @@ public class FStoreImpl implements EStore {
 		Object internalValue = getInternalValue(value, feature);
 		((EList) getInternalObject(object).eGet(feature)).add(index, internalValue);
 		if (feature instanceof EReference && !((EReference) feature).isContainment()) {
-			((FInternalObjectImpl) internalValue).getId(true);
+			EmfFragActivator.instance.idSemantics.onObjectAsReferenced((FInternalObjectImpl)internalValue);
 		}
 	}
 

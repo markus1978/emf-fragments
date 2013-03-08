@@ -2,6 +2,7 @@ package de.hub.emffrag.fragmentation;
 
 import org.eclipse.emf.common.util.URI;
 
+import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.datastore.DataIndex;
 
 public class IndexedValueSetSemantics<K> extends AbstractValueSetSemantics<K> {
@@ -15,19 +16,14 @@ public class IndexedValueSetSemantics<K> extends AbstractValueSetSemantics<K> {
 		String value = index.get(key);
 		if (value == null) {
 			return null;
-		}
-		URI objectUri = model.getIdIndex().getObjectUriForIdUri(URI.createURI(value));
-		FInternalObjectImpl internalObject = (FInternalObjectImpl)model.resolveObjectURI(objectUri);
-		return internalObject;
+		}		
+		FInternalObject internalObject = EmfFragActivator.instance.idSemantics.resolveURI(URI.createURI(value), model);
+		return (FInternalObjectImpl)internalObject;
 	}
 	
 	@Override
-	public void setValueForKey(K key, FInternalObjectImpl internalObject) {
-		String id = internalObject.getId(true);
-		if (id == null || FInternalObjectImpl.isPreliminary(id)) {
-			throw new NotInAFragmentedModelException("Indexed value sets can only be used, if the values are already part of a fragmented model.");
-		}
-		URI uri = model.getIdIndex().createIdUri(id);
+	public void setValueForKey(K key, FInternalObjectImpl internalObject) {	
+		URI uri = EmfFragActivator.instance.idSemantics.getURI(internalObject, model, true);
 		index.set(key, uri.toString());
 	}
 	

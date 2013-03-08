@@ -17,6 +17,7 @@ import org.eclipse.emf.ecore.resource.impl.BinaryResourceImpl;
 
 import com.google.common.base.Throwables;
 
+import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.util.EMFFragUtil;
 import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
 
@@ -172,7 +173,7 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 			// Ensure that URIs in the id
 			// index are saved, when the object is saved.
 			FInternalObjectImpl fInternalObject = (FInternalObjectImpl) internalEObject;
-			fInternalObject.getId(false);
+			EmfFragActivator.instance.idSemantics.onObjectSaved(fInternalObject);
 
 			if (check == Check.RESOURCE) {
 				isWritingCrossReferenceURI = true;
@@ -207,14 +208,19 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 			if (!isWritingCrossReferenceURI) {
 				super.writeURI(uri, uriFragment);
 			} else {
-				if (currentObject.hasId()) {
-					Fragment fragment = (Fragment) currentObject.eResource();
-					String id = currentObject.getId(false);
-					if (FInternalObjectImpl.isPreliminary(id)) {
-						throw new NotInAFragmentedModelException();
-					}
-					uri = fragment.getFragmentedModel().getIdIndex().createIdUri(id);
-					super.writeURI(uri, null);
+				URI refURI = null;				
+				Fragment fragment = (Fragment)currentObject.eResource();
+				FragmentedModel model = null;
+				if (fragment != null) {
+					model = fragment.getFragmentedModel();
+				} else {
+					model = EmfFragActivator.instance.defaultModel;
+				}
+				if (model != null) {
+					refURI = EmfFragActivator.instance.idSemantics.getURI(currentObject, model, false);
+				}
+				if (refURI != null) {
+					super.writeURI(refURI, null);
 				} else {
 					super.writeURI(uri, uriFragment);
 				}

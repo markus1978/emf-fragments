@@ -1,23 +1,23 @@
 package de.hub.emffrag.fragmentation;
 
+import junit.framework.Assert;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.EmfFragActivator.IdBehaviour;
 import de.hub.emffrag.EmfFragActivator.IndexedValueSetBahaviour;
+import de.hub.emffrag.fragmentation.IndexBasedIdSemantics.IdBehaviour;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes;
-
-import junit.framework.Assert;
 
 public class ConfigurationTests extends AbstractFragmentationTests {
 	
 	@Before
 	public void ensureDefaultConfiguration() {
 		EmfFragActivator.instance.indexedValueSetBahaviour = IndexedValueSetBahaviour.strict;
-		EmfFragActivator.instance.idBehaviour = IdBehaviour.strict;
-		EmfFragActivator.instance.defaultModelForIdBehavior = null;
+		EmfFragActivator.instance.idSemantics = new IndexBasedIdSemantics(IdBehaviour.strict);
+		EmfFragActivator.instance.defaultModel = null;
 	}
 	
 	@Override
@@ -67,12 +67,13 @@ public class ConfigurationTests extends AbstractFragmentationTests {
 	
 	@Test
 	public void testPreliminaryIdBehavior() {
-		EmfFragActivator.instance.idBehaviour = IdBehaviour.preliminary;
+		EmfFragActivator.instance.idSemantics = new IndexBasedIdSemantics(IdBehaviour.preliminary);
 		
 		model.root().getContents().add(object1);		
 		try {
 			object1.getCrossReferences().add(object2);
-			Assert.assertTrue("Object has not a preliminary id.", FInternalObjectImpl.isPreliminary(((FObjectImpl)object2).fInternalObject().getId(false)));
+			FInternalObjectImpl fInternalObject = ((FObjectImpl)object2).fInternalObject();
+			((IndexBasedIdSemantics)EmfFragActivator.instance.idSemantics).assertHasPreliminary(fInternalObject);
 		} catch (Exception e) {
 			Assert.fail("Exception thrown: " + e.getClass().getCanonicalName());
 		}
@@ -87,15 +88,14 @@ public class ConfigurationTests extends AbstractFragmentationTests {
 	
 	@Test
 	public void testDefaultModelIdBehavior1() {
-		EmfFragActivator.instance.idBehaviour = IdBehaviour.defaultModel;
-		EmfFragActivator.instance.defaultModelForIdBehavior = model;
+		EmfFragActivator.instance.idSemantics = new IndexBasedIdSemantics(IdBehaviour.defaultModel);
+		EmfFragActivator.instance.defaultModel = model;
 		
 		model.root().getContents().add(object1);		
 		try {
 			object1.getCrossReferences().add(object2);
-			boolean preliminaryId = FInternalObjectImpl.isPreliminary(((FObjectImpl)object2).fInternalObject().getId(false));
-			Assert.assertNotNull("Id is null.", preliminaryId);
-			Assert.assertFalse("Object has a preliminary id.", preliminaryId);
+			FInternalObjectImpl fInternalObject = ((FObjectImpl)object2).fInternalObject();
+			((IndexBasedIdSemantics)EmfFragActivator.instance.idSemantics).assertHasNotPreliminary(fInternalObject);
 		} catch (Exception e) {
 			Assert.fail("Exception thrown: " + e.getClass().getCanonicalName());
 		}
@@ -110,15 +110,14 @@ public class ConfigurationTests extends AbstractFragmentationTests {
 	
 	@Test
 	public void testDefaultModelIdBehavior2() {
-		EmfFragActivator.instance.idBehaviour = IdBehaviour.defaultModel;
-		EmfFragActivator.instance.defaultModelForIdBehavior = model;
+		EmfFragActivator.instance.idSemantics = new IndexBasedIdSemantics(IdBehaviour.defaultModel);
+		EmfFragActivator.instance.defaultModel = model;
 		
 		model.root().getContents().add(object1);		
 		try {
 			object1.getCrossReferences().add(object2);
-			boolean preliminaryId = FInternalObjectImpl.isPreliminary(((FObjectImpl)object2).fInternalObject().getId(false));
-			Assert.assertNotNull("Id is null.", preliminaryId);
-			Assert.assertFalse("Object has a preliminary id.", preliminaryId);
+			FInternalObjectImpl fInternalObject = ((FObjectImpl)object2).fInternalObject();
+			((IndexBasedIdSemantics)EmfFragActivator.instance.idSemantics).assertHasNotPreliminary(fInternalObject);
 		} catch (Exception e) {
 			Assert.fail("Exception thrown: " + e.getClass().getCanonicalName());
 		}

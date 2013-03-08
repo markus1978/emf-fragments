@@ -13,17 +13,20 @@ import org.osgi.framework.BundleContext;
 
 import de.hub.emffrag.fragmentation.FragmentedModel;
 import de.hub.emffrag.fragmentation.FragmentedModelFactory;
+import de.hub.emffrag.fragmentation.IdSemantics;
+import de.hub.emffrag.fragmentation.IndexBasedIdSemantics;
+import de.hub.emffrag.fragmentation.IndexBasedIdSemantics.IdBehaviour;
 
 public class EmfFragActivator extends Plugin {
 	
-	public enum IdBehaviour { strict, preliminary, defaultModel };
 	public enum IndexedValueSetBahaviour { strict, neverContains };
-	
-	public IdBehaviour idBehaviour = IdBehaviour.strict;
-	public FragmentedModel defaultModelForIdBehavior = null;
+
+	public FragmentedModel defaultModel = null;
 	public IndexedValueSetBahaviour indexedValueSetBahaviour = IndexedValueSetBahaviour.strict;
 	public boolean useBinaryFragments = false;
 	public boolean collectStatistics = false;
+	
+	public IdSemantics idSemantics = new IndexBasedIdSemantics(IdBehaviour.strict);
 	
 	public static EmfFragActivator instance = null;
 

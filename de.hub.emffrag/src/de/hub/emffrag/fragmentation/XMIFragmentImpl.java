@@ -17,6 +17,7 @@ import org.eclipse.emf.ecore.xmi.impl.XMLHelperImpl;
 
 import com.google.common.base.Throwables;
 
+import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.util.EMFFragUtil;
 import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
 
@@ -75,7 +76,7 @@ public class XMIFragmentImpl extends XMIResourceImpl implements Fragment {
 		public String getID(EObject obj) {
 			// Ensure that URIs in the id
 			// index are saved, when the object is saved.
-			((FInternalObjectImpl)obj).getId(false);			
+			EmfFragActivator.instance.idSemantics.onObjectSaved((FInternalObjectImpl)obj);		
 			return super.getID(obj);
 		}
 
@@ -83,15 +84,13 @@ public class XMIFragmentImpl extends XMIResourceImpl implements Fragment {
 		protected URI getHREF(Resource otherResource, EObject obj) {
 			FInternalObjectImpl internalObject = (FInternalObjectImpl)obj;
 			
-			if (internalObject.hasId() && otherResource instanceof Fragment) {
+			if (otherResource instanceof Fragment) {
 				if (currentFeature instanceof EReference && !((EReference) currentFeature).isContainment()) {
-					String id = ((FInternalObjectImpl) obj).getId(false);
 					FragmentedModel fragmentedModel = ((Fragment) otherResource).getFragmentedModel();
-					if (FInternalObjectImpl.isPreliminary(id) || fragmentedModel == null) {
-						throw new NotInAFragmentedModelException();
-					}
-					URI uri = fragmentedModel.getIdIndex().createIdUri(id);
-					return uri;
+					URI uri = EmfFragActivator.instance.idSemantics.getURI(internalObject, fragmentedModel, false);
+					if (uri != null) {
+						return uri;
+					}					
 				} else if (EMFFragUtil.getFragmentationType(currentFeature) != FragmentationType.None) {
 					return otherResource.getURI().appendFragment("/");
 				}

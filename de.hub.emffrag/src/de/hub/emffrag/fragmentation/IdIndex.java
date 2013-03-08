@@ -3,8 +3,6 @@ package de.hub.emffrag.fragmentation;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 
-import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.EmfFragActivator.IdBehaviour;
 import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.LongKeyType;
@@ -64,31 +62,19 @@ public class IdIndex extends DataIndex<Long> {
 	public void updateObjectURI(String id, FInternalObjectImpl object) {
 		if (id == null) {
 			issueId(object);
+		}
+		
+		Resource resource = object.eResource();
+		if (resource != null) { // TODO check if the object was moved to a different fragmented model
+			URI objectURI = resource.getURI().appendFragment(resource.getURIFragment(object));
+			set(Long.parseLong(id), objectURI.toString());
 		} else {
-			Resource resource = object.eResource();
-			if (resource != null) { // TODO check if the object was moved to a different fragmented model
-				URI objectURI = resource.getURI().appendFragment(resource.getURIFragment(object));
-				set(Long.parseLong(id), objectURI.toString());
-			} else {
-				remove(Long.parseLong(id));
-			}
+			remove(Long.parseLong(id));
 		}
 	}
 	
 	public String issueId(FInternalObjectImpl object) {		
-		String id = Long.toString(add());
-		Resource resource = object.eResource();
-		if (resource == null || !(resource instanceof Fragment)) {
-			if (EmfFragActivator.instance.idBehaviour != IdBehaviour.defaultModel) {
-				throw new NotInAFragmentedModelException("Only objects in a fragmented model can have an id.");
-			} else {
-				set(Long.parseLong(id), "#never added and saved within a fragmented model#");
-			}
-		} else {
-			URI objectURI = resource.getURI().appendFragment(resource.getURIFragment(object));
-			set(Long.parseLong(id), objectURI.toString());
-		}
-		return id;		
+		return Long.toString(add());		
 	}
 
 	/**

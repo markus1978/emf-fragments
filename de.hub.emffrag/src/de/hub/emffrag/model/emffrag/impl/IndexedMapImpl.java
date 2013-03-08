@@ -20,6 +20,7 @@ import java.util.Iterator;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.resource.Resource;
 
+import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.KeyType;
@@ -72,10 +73,7 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 								
 				String prefix = getPrefix();
 				if (prefix == null) {
-					String id = fInternalObject().getId(true);
-					if (FInternalObjectImpl.isPreliminary(id)) {
-						throw new RuntimeException("Inxed classes must be part of a fragmented model before they can be used.");
-					}
+					String id = EmfFragActivator.instance.idSemantics.getPrefixID(fInternalObject());					
 					prefix = FragmentedModel.INDEX_CLASSES_PREFIX + "_" + id;
 					setPrefix(prefix);
 				}

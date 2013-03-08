@@ -11,7 +11,6 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.util.EcoreEList;
 
 import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.EmfFragActivator.IdBehaviour;
 import de.hub.emffrag.EmfFragActivator.IndexedValueSetBahaviour;
 import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
@@ -29,13 +28,12 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 
 		FragmentedModel model = object.getFragmentation();
 		if (model == null) {
-			if (EmfFragActivator.instance.idBehaviour == IdBehaviour.defaultModel) {
-				model = EmfFragActivator.instance.defaultModelForIdBehavior;
-			} else {
-				throw new NotInAFragmentedModelException(
-						"Operation on indexed value sets can only be performed for objects contained in a fragmented model.");
-			}
+			model = EmfFragActivator.instance.defaultModel;
 		}
+		if (model == null) {
+			throw new NotInAFragmentedModelException(
+					"Operation on indexed value sets can only be performed for objects contained in a fragmented model.");
+		}	
 		DataStore dataStore = model.getDataStore();
 
 		index = new DataIndex<Long>(dataStore, createPrefix(object, feature), LongKeyType.instance);
@@ -49,11 +47,8 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 	}
 
 	static String createPrefix(FInternalObjectImpl object, EStructuralFeature feature) {
-		String id = object.getId(true);
-		if (FInternalObjectImpl.isPreliminary(id)) {
-			throw new RuntimeException(
-					"Indexed reference owner have to be added to a fragmented model before the indexed reference can be used.");
-		}
+		String id = EmfFragActivator.instance.idSemantics.getPrefixID(object);
+				
 		int featureId = feature.getFeatureID();
 		if (((EReference)feature).isContainment()) {
 			return FragmentedModel.INDEX_FEATURES_PREFIX + "_" + id + "_" + featureId;

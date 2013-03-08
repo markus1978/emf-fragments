@@ -8,6 +8,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes;
@@ -150,7 +151,7 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 	@Test
 	public void testMandantoryId() {
 		root.getContents().add(testObject);
-		Assert.assertNotNull("Mandantory ID not present.", ((FObjectImpl)testObject).fInternalObject().getId(false));
+		Assert.assertNotNull("Mandantory ID not present.", ((IndexBasedIdSemantics)EmfFragActivator.instance.idSemantics).getId(((FObjectImpl)testObject).fInternalObject(), false));
 	}
 
 	protected void assertIdIndex() {

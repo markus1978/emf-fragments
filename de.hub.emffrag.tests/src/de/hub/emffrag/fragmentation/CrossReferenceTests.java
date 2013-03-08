@@ -4,6 +4,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 
 public class CrossReferenceTests extends AbstractFragmentationTests {
@@ -11,13 +12,13 @@ public class CrossReferenceTests extends AbstractFragmentationTests {
 	@Test
 	public void testIdPersitence() {
 		root.getContents().add(object1);
-		String id = ((FObjectImpl)object1).fInternalObject().getId(true);
+		String id = ((IndexBasedIdSemantics)EmfFragActivator.instance.idSemantics).getId(((FObjectImpl)object1).fInternalObject(), true);
 		
 		model.save(null);
 		reinitializeModel();
 		
 		TestObject value = Assertions.root(model).assertId(1).value();
-		String newId = ((FObjectImpl)value).fInternalObject().getId(false);
+		String newId = ((IndexBasedIdSemantics)EmfFragActivator.instance.idSemantics).getId(((FObjectImpl)value).fInternalObject(), false);
 		Assert.assertNotNull("ID not persisted.", newId);
 		Assert.assertEquals("Wrong ID.", id, newId);
 	}

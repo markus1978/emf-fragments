@@ -22,6 +22,7 @@ import org.junit.Assert;
 
 import com.google.common.base.Throwables;
 
+import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.DataStoreURIHandler;
@@ -220,7 +221,7 @@ public class FragmentedModel extends ResourceImpl {
 			public EObject getEObject(URI uri, boolean loadOnDemand) {
 				if (uri.fragment() == null) {
 					// The URI must be a ID URI
-					EObject result = super.getEObject(idIndex.getObjectUriForIdUri(uri), true);
+					EObject result = EmfFragActivator.instance.idSemantics.resolveURI(uri, FragmentedModel.this);
 					return result;
 				} else {
 					return super.getEObject(uri, loadOnDemand);
