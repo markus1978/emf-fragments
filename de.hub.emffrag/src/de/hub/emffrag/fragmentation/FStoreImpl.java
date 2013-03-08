@@ -13,6 +13,9 @@ import org.eclipse.emf.ecore.InternalEObject.EStore;
 import org.eclipse.emf.ecore.impl.DynamicEObjectImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
+import de.hub.emffrag.EmfFragActivator;
+import de.hub.emffrag.EmfFragActivator.IdBehaviour;
+
 public class FStoreImpl implements EStore {
 
 	private static FStoreImpl instance = new FStoreImpl();
@@ -50,6 +53,9 @@ public class FStoreImpl implements EStore {
 			internalObject = UserObjectsCache.newUserObjectsCache.createInternalObject((FObjectImpl)userObject);
 		} else if (internalObject.eIsProxy()) {
 			FragmentedModel model = internalObject.getFragmentation();
+			if (model == null && EmfFragActivator.instance.idBehaviour == IdBehaviour.defaultModel) {
+				model = EmfFragActivator.instance.defaultModelForIdBehavior;
+			}
 			if (model != null) {
 				internalObject = (FInternalObjectImpl)EcoreUtil.resolve(internalObject, model.getInternalResourceSet());
 				if (internalObject.eIsProxy()) {
@@ -58,7 +64,7 @@ public class FStoreImpl implements EStore {
 				// mark as used ...
 				internalObject.getFragment().getUserObjectsCache().getUserObject(internalObject);
 			} else {
-				throw new RuntimeException("An user object that appreas to be new is a proxy.");
+				throw new NotInAFragmentedModelException("An user object that appreas to be new is a proxy.");
 			}			
 		}
 		return internalObject;
