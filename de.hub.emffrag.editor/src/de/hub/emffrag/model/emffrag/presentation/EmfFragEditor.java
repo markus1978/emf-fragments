@@ -135,8 +135,11 @@ import org.eclipse.ui.views.properties.PropertySheet;
 import org.eclipse.ui.views.properties.PropertySheetPage;
 
 import de.hub.emffrag.EmfFragActivator;
+import de.hub.emffrag.EmfFragActivator.IndexedValueSetBahaviour;
 import de.hub.emffrag.fragmentation.FragmentedModel;
+import de.hub.emffrag.fragmentation.NoReferencesIdSemantics;
 import de.hub.emffrag.fragmentation.ReflectiveMetaModelRegistry;
+import de.hub.emffrag.fragmentation.IndexBasedIdSemantics.IdBehaviour;
 import de.hub.emffrag.model.emffrag.provider.EmfFragItemProviderAdapterFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
@@ -932,6 +935,9 @@ public class EmfFragEditor
 			} else {
 				EmfFragActivator.instance.useBinaryFragments = true;
 			}
+			
+			EmfFragActivator.instance.idSemantics = new NoReferencesIdSemantics(IdBehaviour.strict);
+			EmfFragActivator.instance.indexedValueSetBahaviour = IndexedValueSetBahaviour.neverContains;
 			resourceURI = URI.createURI(uriString);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -943,6 +949,7 @@ public class EmfFragEditor
 		try {
 			// Load the resource through the editing domain.
 			resource = editingDomain.getResourceSet().createResource(resourceURI);			
+			EmfFragActivator.instance.defaultModel = (FragmentedModel)resource;
 			
 			// TODO this should be removed
 			if (resource.getContents().isEmpty()) {
