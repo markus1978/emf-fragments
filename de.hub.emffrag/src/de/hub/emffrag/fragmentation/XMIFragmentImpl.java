@@ -87,7 +87,7 @@ public class XMIFragmentImpl extends XMIResourceImpl implements Fragment {
 			if (otherResource instanceof Fragment) {
 				if (currentFeature instanceof EReference && !((EReference) currentFeature).isContainment()) {
 					FragmentedModel fragmentedModel = ((Fragment) otherResource).getFragmentedModel();
-					URI uri = EmfFragActivator.instance.idSemantics.getURI(internalObject, fragmentedModel, false);
+					URI uri = EmfFragActivator.instance.idSemantics.getURI(internalObject, fragmentedModel, false, null);
 					if (uri != null) {
 						return uri;
 					}					

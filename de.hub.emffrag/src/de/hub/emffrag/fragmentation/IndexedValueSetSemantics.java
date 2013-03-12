@@ -4,9 +4,10 @@ import org.eclipse.emf.common.util.URI;
 
 import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.datastore.DataIndex;
+import de.hub.emffrag.fragmentation.IdSemantics.SaveURI;
 
 public class IndexedValueSetSemantics<K> extends AbstractValueSetSemantics<K> {
-
+		
 	public IndexedValueSetSemantics(FragmentedModel model, DataIndex<K> index) {
 		super(model, index);
 	}
@@ -22,11 +23,17 @@ public class IndexedValueSetSemantics<K> extends AbstractValueSetSemantics<K> {
 	}
 	
 	@Override
-	public void setValueForKey(K key, FInternalObjectImpl internalObject) {	
-		URI uri = EmfFragActivator.instance.idSemantics.getURI(internalObject, model, true);
+	public void setValueForKey(final K key, FInternalObjectImpl internalObject) {	
+		SaveURI save = new SaveURI() {					
+			@Override
+			public void saveURI(URI uri) {
+				index.set(key, uri.toString());
+			}
+		};
+		URI uri = EmfFragActivator.instance.idSemantics.getURI(internalObject, model, true, save);
 		index.set(key, uri.toString());
 	}
-	
+
 	@Override
 	public void removeValueForKey(K key, FInternalObjectImpl value) {
 		index.remove(key);

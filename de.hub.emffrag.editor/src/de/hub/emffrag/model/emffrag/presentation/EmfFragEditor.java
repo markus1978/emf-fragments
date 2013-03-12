@@ -137,6 +137,7 @@ import org.eclipse.ui.views.properties.PropertySheetPage;
 import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.EmfFragActivator.IndexedValueSetBahaviour;
 import de.hub.emffrag.fragmentation.FragmentedModel;
+import de.hub.emffrag.fragmentation.IndexBasedIdSemantics;
 import de.hub.emffrag.fragmentation.NoReferencesIdSemantics;
 import de.hub.emffrag.fragmentation.ReflectiveMetaModelRegistry;
 import de.hub.emffrag.fragmentation.IndexBasedIdSemantics.IdBehaviour;
@@ -927,7 +928,14 @@ public class EmfFragEditor
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()));
 			int read = bufferedReader.read(chars);
 			bufferedReader.close();
-			uriString = new String(chars).substring(0, read);
+			String string = new String(chars).substring(0, read);			
+			String substrings[] = string.split(";");
+			uriString = substrings[0];
+			String idBehaviorString = "index";
+			if (substrings.length == 2) {
+				idBehaviorString = substrings[1];
+			}
+			
 			if (uriString.endsWith(".bin")) {
 				EmfFragActivator.instance.useBinaryFragments = true;
 			} else if (uriString.endsWith(".xmi")) {
@@ -936,7 +944,14 @@ public class EmfFragEditor
 				EmfFragActivator.instance.useBinaryFragments = true;
 			}
 			
-			EmfFragActivator.instance.idSemantics = new NoReferencesIdSemantics(IdBehaviour.strict);
+			if (idBehaviorString.equals("index")) {
+				EmfFragActivator.instance.idSemantics = new IndexBasedIdSemantics(IdBehaviour.strict);	
+			} else if (idBehaviorString.equals("direct")) {
+				EmfFragActivator.instance.idSemantics = new NoReferencesIdSemantics(IdBehaviour.strict);
+			} else {
+				EmfFragActivator.instance.idSemantics = new IndexBasedIdSemantics(IdBehaviour.strict);
+			}
+							
 			EmfFragActivator.instance.indexedValueSetBahaviour = IndexedValueSetBahaviour.neverContains;
 			resourceURI = URI.createURI(uriString);
 		} catch (Exception e) {

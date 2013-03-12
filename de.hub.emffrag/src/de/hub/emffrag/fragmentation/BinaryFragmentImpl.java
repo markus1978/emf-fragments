@@ -217,7 +217,7 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 					model = EmfFragActivator.instance.defaultModel;
 				}
 				if (model != null) {
-					refURI = EmfFragActivator.instance.idSemantics.getURI(currentObject, model, false);
+					refURI = EmfFragActivator.instance.idSemantics.getURI(currentObject, model, false, null);
 				}
 				if (refURI != null) {
 					super.writeURI(refURI, null);

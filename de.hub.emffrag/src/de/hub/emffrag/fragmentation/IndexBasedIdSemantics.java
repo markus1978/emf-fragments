@@ -109,7 +109,8 @@ public class IndexBasedIdSemantics implements IdSemantics {
 		getId(internalObject, true);
 	}
 
-	public URI getURI(FInternalObjectImpl internalObject, FragmentedModel model, boolean forceIssue) {
+	public URI getURI(FInternalObjectImpl internalObject, FragmentedModel model, 
+			boolean forceIssue, SaveURI saveURI) {
 		String id = getId(internalObject, forceIssue);
 		if (id == null || isPreliminary(id)) {
 			return null;
