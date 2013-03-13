@@ -15,26 +15,25 @@ public class Extensions {
 	
 	public static void add(EObject owner, Extension extension) {
 		if (owner instanceof FObjectImpl) {
+			EObject internalExtensionObject = null;
 			if (extension instanceof FObjectImpl) {
-				extension = (Extension)FStoreImpl.getInstance().getInternalObject(extension);
+				internalExtensionObject = FStoreImpl.getInstance().getInternalObject(extension);
 			} else {
 				throw new IllegalArgumentException("Extensions must be FObjects.");
 			}
-			((FObjectImpl) owner).fInternalObject().getExtensions().add(extension);				
+			((FObjectImpl) owner).fInternalObject().getExtensions().add(internalExtensionObject);				
 		} else {
 			throw new IllegalArgumentException("Extension owner is not an FObject.");
 		}
 	}
 	
-	public static <T extends Extension> EObject get(EObject owner, Class<T> extensionClass) {
+	@SuppressWarnings("unchecked")
+	public static <T extends Extension> T get(EObject owner, Class<T> extensionClass) {
 		if (owner instanceof FObjectImpl) {
-			for (EObject extension: ((FObjectImpl) owner).fInternalObject().getExtensions()) {
-				extension = FStoreImpl.getInstance().getUserObject((FInternalObjectImpl)extension);
+			for (EObject internalExtension: ((FObjectImpl) owner).fInternalObject().getExtensions()) {
+				EObject extension = FStoreImpl.getInstance().getUserObject((FInternalObjectImpl)internalExtension);
 				if (extensionClass.isAssignableFrom(extension.getClass())) {
-					if (extension instanceof FInternalObjectImpl) {
-						extension = FStoreImpl.getInstance().getUserObject((FInternalObjectImpl)extension);
-					}
-					return extension;
+					return (T)extension;
 				}
 			}
 			return null;
