@@ -180,6 +180,7 @@ public class FragmentedModel extends ResourceImpl {
 				isPurging = true;
 				int size = cacheContents.size();
 				if (size > 1.5f * cacheSize) {
+					EmfFragActivator.instance.info("Purging unreferenced fragments from memory.");
 					int numberOfFragmentsToRemove = Math.max(0, size - cacheSize);
 					for (int i = 0; i < numberOfFragmentsToRemove; i++) {
 						CacheState cacheStateToRemove = cacheContents.pollFirstEntry().getValue();
@@ -197,6 +198,7 @@ public class FragmentedModel extends ResourceImpl {
 		}
 
 		statistics.unloads++;
+		EmfFragActivator.instance.info("Saving and unloading fragment: " + fragment.getURI().toString());
 		try {
 			fragment.save(options);
 		} catch (IOException e) {
