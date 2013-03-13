@@ -85,6 +85,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 						return null;
 					}
 				}
+				container = container.eContainer();
 			}
 			return null;
 		} else {
