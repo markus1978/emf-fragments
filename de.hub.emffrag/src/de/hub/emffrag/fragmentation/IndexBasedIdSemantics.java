@@ -105,7 +105,6 @@ public class IndexBasedIdSemantics implements IdSemantics {
 	}
 
 	public void onObjectAsReferenced(FInternalObjectImpl internalObject) {
-		System.out.println(internalObject);
 		getId(internalObject, true);
 	}
 

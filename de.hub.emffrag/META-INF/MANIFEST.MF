@@ -20,7 +20,8 @@ Export-Package: com.google.common.base,
 Require-Bundle: org.eclipse.core.runtime;visibility:=reexport,
  org.eclipse.emf.ecore;visibility:=reexport,
  org.eclipse.emf.ecore.xmi;bundle-version="2.7.0";visibility:=reexport,
- org.eclipse.emf.mapping.xsd2ecore;bundle-version="2.5.0";visibility:=reexport
+ org.eclipse.emf.mapping.xsd2ecore;bundle-version="2.5.0";visibility:=reexport,
+ org.junit;bundle-version="4.8.2";visibility:=reexport
 Bundle-ClassPath: ./,
  lib/guice-3.0/guice-3.0.jar,
  lib/commons-collections-3.2.1/commons-collections-3.2.1.jar,

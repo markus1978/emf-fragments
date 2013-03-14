@@ -138,12 +138,9 @@ import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.EmfFragActivator.IndexedValueSetBahaviour;
 import de.hub.emffrag.fragmentation.FragmentedModel;
 import de.hub.emffrag.fragmentation.IndexBasedIdSemantics;
-import de.hub.emffrag.fragmentation.NoReferencesIdSemantics;
-import de.hub.emffrag.fragmentation.ReflectiveMetaModelRegistry;
 import de.hub.emffrag.fragmentation.IndexBasedIdSemantics.IdBehaviour;
+import de.hub.emffrag.fragmentation.NoReferencesIdSemantics;
 import de.hub.emffrag.model.emffrag.provider.EmfFragItemProviderAdapterFactory;
-import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
-import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
 
 
 /**
@@ -968,8 +965,7 @@ public class EmfFragEditor
 			
 			// TODO this should be removed
 			if (resource.getContents().isEmpty()) {
-				ReflectiveMetaModelRegistry.instance.registerUserMetaModel(TestModelPackage.eINSTANCE);
-				((FragmentedModel)resource).root().getContents().add(TestModelFactory.eINSTANCE.createTestObject());
+				((FragmentedModel)resource).root();
 				resource.save(null);
 			}
 		}

@@ -118,10 +118,6 @@ public class FStoreImpl implements EStore {
 	@Override
 	public boolean isSet(InternalEObject object, EStructuralFeature feature) {
 		feature = getInternalFeature(feature);
-		if (!(getInternalObject(object) instanceof DynamicEObjectImpl)) {
-			System.out.println("##");
-		}
-
 		return getInternalObject(object).eIsSet(feature);
 	}
 

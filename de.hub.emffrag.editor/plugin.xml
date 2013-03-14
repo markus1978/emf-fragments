@@ -31,7 +31,6 @@
       <import plugin="org.eclipse.emf.ecore.xmi" export="true"/>
       <import plugin="org.eclipse.emf.edit.ui" export="true"/>
       <import plugin="org.eclipse.ui.ide" export="true"/>
-      <import plugin="de.hub.emffrag.testmodels" version="1.0.0"/>
       <import plugin="de.hub.srcrepo" version="1.0.0"/>
    </requires>
 
