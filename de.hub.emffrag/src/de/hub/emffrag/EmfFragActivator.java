@@ -30,6 +30,9 @@ public class EmfFragActivator extends Plugin {
 	public IdSemantics idSemantics = new IndexBasedIdSemantics(IdBehaviour.strict);
 	
 	public static EmfFragActivator instance = null;
+	
+	public boolean logInStandAlone = false;
+	private boolean isStandAlone = false;
 
 
 	@Override
@@ -61,27 +64,49 @@ public class EmfFragActivator extends Plugin {
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("ecore", new XMIResourceFactoryImpl());
 		
 		instance = new EmfFragActivator();
-		instance.init();
+		instance.init();		
+		
+		try {
+			instance.getLog();
+		} catch (Exception e) {
+			instance.isStandAlone = true;
+		}
+	}
+	
+	private void log(int level, String msg, Exception e) {
+		if (!isStandAlone) {
+			try {
+				getLog().log(new Status(level, getBundle().getSymbolicName(), Status.OK, msg, e));
+			} catch (Exception ex) {
+				isStandAlone = true;
+			}	
+		}
+		if (isStandAlone) {
+			if (logInStandAlone) {
+				System.out.println("LOG(" + level + "): " + (msg != null ? msg : "(null)") + (e != null ? ": " + e.getMessage() : ""));
+			}
+		}
+				
 	}
 
 	public void info(String msg) {
-		getLog().log(new Status(Status.INFO, getBundle().getSymbolicName(), Status.OK, msg, null));
+		log(Status.INFO, msg, null);
 	}
 
 	public void warning(String msg) {
-		getLog().log(new Status(Status.WARNING, getBundle().getSymbolicName(), Status.OK, msg, null));
+		log(Status.WARNING, msg, null);		
 	}
 	
 	public void warning(String msg, Exception e) {
-		getLog().log(new Status(Status.WARNING, getBundle().getSymbolicName(), Status.OK, msg, e));
+		log(Status.WARNING, msg, e);
 	}
 	
 	public void error(String msg) {
-		getLog().log(new Status(Status.ERROR, getBundle().getSymbolicName(), Status.OK, msg, null));
+		log(Status.ERROR, msg, null);
 	}
 	
 	public void error(String msg, Exception e) {
-		getLog().log(new Status(Status.ERROR, getBundle().getSymbolicName(), Status.OK, msg, e));
+		log(Status.ERROR, msg, e);
 	}	
 
 }
