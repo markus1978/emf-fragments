@@ -124,6 +124,11 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 		}
 	}
 
+	@Override
+	protected boolean isAttachedDetachedHelperRequired() {
+		return false;
+	}
+
 	private class MyEObjectInputStream extends EObjectInputStream {
 
 		public MyEObjectInputStream(InputStream is, Map<?, ?> options) throws IOException {

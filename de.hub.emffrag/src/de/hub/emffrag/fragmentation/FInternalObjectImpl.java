@@ -229,6 +229,8 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 			eProperties.setECrossReferences(null);
 		}
 		eSettings = null;
+		eContainer = null;
+		eAdapters = null;
 	}
 
 	@Override

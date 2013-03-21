@@ -28,6 +28,8 @@ public class RamUsageTests extends AbstractFragmentationTests {
 		for (int i = 0; i <= objects; i++) {
 			boolean fragmenting = random.nextBoolean();
 			TestObject object = addObject(container, fragmenting);
+			container.getCrossReferences().add(object); // cross references should not influence unloading
+			object.getCrossReferences().add(container);
 			if (random.nextFloat() < 0.3f) {
 				container = object;
 			}

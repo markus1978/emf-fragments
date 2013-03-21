@@ -50,7 +50,7 @@ public class UserObjectsCache {
 	
 	static class UOCController implements Runnable {	
 		private final ReferenceQueue<FObjectImpl> userObjectsReferenceQueue = new ReferenceQueue<FObjectImpl>();
-		private Future<?> future = null; 
+		private Future<?> future = null;
 		
 		@Override
 		public void run() {
