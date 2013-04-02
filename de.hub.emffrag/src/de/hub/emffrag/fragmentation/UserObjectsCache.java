@@ -1,129 +1,46 @@
 package de.hub.emffrag.fragmentation;
 
-import java.lang.ref.Reference;
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
-
 import junit.framework.Assert;
 
+import org.apache.commons.collections.map.ReferenceMap;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 
-import com.google.common.base.Throwables;
-
+/**
+ * Caches {@link FObjectImpl} instances for {@link FInternalObjectImpl}
+ * instances to avoid unnecessary duplication of user values. Each
+ * {@link Fragment} is associated with {@link UserObjectsCache}, Before a new
+ * user object is created, the corresponding {@link UserObjectsCache} is
+ * consulted.
+ */
 public class UserObjectsCache {
-	
-	public interface UserObjectsCacheListener {
-		public void handleUsed();
-		public void handleReferenced();
-		public void handleUnReferenced();
-	}
-	
-	private final static ExecutorService es = Executors.newSingleThreadExecutor(new ThreadFactory() {				
-	    public Thread newThread(Runnable r) {
-	        Thread t=new Thread(r);
-	        t.setDaemon(true);
-	        return t;
-	    }
-	});
-	
+
 	final static UserObjectsCache newUserObjectsCache = new UserObjectsCache();
-	private static UOCController uocController = new UOCController();
 	
-	private final Map<FInternalObjectImpl, UserObjectReference> cache = new ConcurrentHashMap<FInternalObjectImpl, UserObjectReference>();
-	private UserObjectsCacheListener listener = null;
-	
-	private class UserObjectReference extends WeakReference<FObjectImpl> {
-		private final FInternalObjectImpl internalObject;
-		public UserObjectReference(FObjectImpl referent, ReferenceQueue<? super FObjectImpl> q) {
-			super(referent, q);
-			internalObject = referent.fInternalObject();
-		}		
-	}
-	
-	static class UOCController implements Runnable {	
-		private final ReferenceQueue<FObjectImpl> userObjectsReferenceQueue = new ReferenceQueue<FObjectImpl>();
-		private Future<?> future = null;
-		
-		@Override
-		public void run() {
-			try {
-				Reference<? extends FObjectImpl> reference;
-				while ((reference = userObjectsReferenceQueue.remove()) != null) {
-					FInternalObjectImpl internalObject = ((UserObjectReference)reference).internalObject;
-					UserObjectsCache uoc = internalObject.getUserObjectCache();
-					uoc.handleRemovedReference(internalObject);
-				}
-			} catch (InterruptedException e) {
-				Throwables.propagate(e);
-			}
-		}
-		
-		UOCController() {
-			future = es.submit(this);
-		}
-		
-		void shutdown() {
-			future.cancel(true);
-		}
-	}
-	
-	static void resetUOCController() {
-		uocController.shutdown();
-		uocController = new UOCController();
-	}
-	
-	void setListener(UserObjectsCacheListener listener) {
-		this.listener = listener;
-	}
-	
+	private final ReferenceMap cache = new ReferenceMap();
+
 	void moveUserObject(FInternalObjectImpl internalObject, UserObjectsCache newCache) {
-		UserObjectReference reference = cache.get(internalObject);
-		FObjectImpl userObject = null;
-		if (reference != null) {
-			userObject = reference.get();		
-			cache.remove(internalObject);				
-		}
-		
+		FObjectImpl userObject = (FObjectImpl)cache.get(internalObject);
 		if (userObject != null) {
+			cache.remove(internalObject);
 			newCache.addUserObjectToCache(internalObject, userObject);
-		} 
+		}
 	}
 
 	public FObjectImpl getUserObject(FInternalObjectImpl internalObject) {
-		UserObjectReference reference = cache.get(internalObject);
-		FObjectImpl result = null;
-		if (reference == null) {
-			result = createUserObject(internalObject);			
-		} else {
-			result = reference.get();
-			if (result == null) {
-				cache.remove(internalObject);				
-				result = getUserObject(internalObject);
-			}
-			
-			if (listener != null && result != null) {
-				listener.handleUsed();
-			}
+		FObjectImpl result = (FObjectImpl)cache.get(internalObject);
+		if (result == null) {
+			result = createUserObject(internalObject);
 		}
-	
-		return result;		
-	}
 
-	public boolean hasReferences() {
-		return !cache.isEmpty();
+		return result;
 	}
 
 	private FObjectImpl createUserObject(FInternalObjectImpl internalObject) {
 		EPackage userMetaModel = ReflectiveMetaModelRegistry.instance.getUserMetaModel(internalObject.eClass().getEPackage());
-		FObjectImpl userObject = (FObjectImpl) userMetaModel.getEFactoryInstance().create(ReflectiveMetaModelRegistry.instance.getUserClass(internalObject.eClass()));
+		FObjectImpl userObject = (FObjectImpl) userMetaModel.getEFactoryInstance().create(
+				ReflectiveMetaModelRegistry.instance.getUserClass(internalObject.eClass()));
 		userObject.fSetInternalObject(internalObject);
 		addUserObjectToCache(internalObject, (FObjectImpl) userObject);
 		return userObject;
@@ -137,62 +54,31 @@ public class UserObjectsCache {
 
 		// TODO this seems to have low performance
 		EClass userClass = userObject.eClass();
-		EPackage internalPackage = ReflectiveMetaModelRegistry.instance.registerUserMetaModel(userClass.getEPackage());		
-		FInternalObjectImpl internalObject = new FInternalObjectImpl((EClass)internalPackage.getEClassifier(userClass.getName()));		
-		
-		boolean hasReferences = hasReferences();
+		EPackage internalPackage = ReflectiveMetaModelRegistry.instance.registerUserMetaModel(userClass.getEPackage());
+		FInternalObjectImpl internalObject = new FInternalObjectImpl((EClass) internalPackage.getEClassifier(userClass.getName()));
+
 		userObject.fSetInternalObject(internalObject);
 		addUserObjectToCache(internalObject, (FObjectImpl) userObject);
-		if (listener != null && !hasReferences) {			
-			listener.handleReferenced();
-		}
 		return internalObject;
 	}
 
 	public void addUserObjectToCache(FInternalObjectImpl internalObject, FObjectImpl userObject) {
-		cache.put(internalObject, new UserObjectReference(userObject, uocController.userObjectsReferenceQueue));
-		if (listener != null) {
-			listener.handleUsed();
-		}
+		cache.put(internalObject,userObject);		
 	}
 
 	public void removeCachedUserObject(FInternalObjectImpl internalObject) {
 		cache.remove(internalObject);
 	}
-	
-	private void handleRemovedReference(FInternalObjectImpl internalObject) {
-		removeCachedUserObject(internalObject);
-		if (listener != null && !hasReferences()) {
-			listener.handleUnReferenced();
-		}
+
+	void assertNotCached(EObject object) {
+		Assert.assertNull("Object is cached.", cache.get(((FObjectImpl) object).fInternalObject()));
 	}
 
-	/**
-	 * This method is used for test purposes. It deliberately queues the
-	 * corresponding weak references and therefore simulates the garbage
-	 * collection of the given user object.
-	 */
-	static void deleteReference(FObjectImpl object) {
-		FInternalObjectImpl internalObject = object.fInternalObject();
-		if (internalObject != null) {
-			UserObjectsCache userObjectsCache = newUserObjectsCache;
-			Fragment fragment = internalObject.getFragment();
-			if (fragment != null) {
-				userObjectsCache = fragment.getUserObjectsCache();
-			}
-			
-			UserObjectReference userObjectReference = userObjectsCache.cache.get(internalObject);
-			if (userObjectReference != null) {
-				userObjectReference.enqueue();
-			}
-		}
-	}
-	
-	void assertNotCached(EObject object) {
-		Assert.assertNull("Object is cached.", cache.get(((FObjectImpl)object).fInternalObject()));
-	}
-	
 	void assertCached(EObject object) {
-		Assert.assertNotNull("Object not is cached.", cache.get(((FObjectImpl)object).fInternalObject()));
+		Assert.assertNotNull("Object not is cached.", cache.get(((FObjectImpl) object).fInternalObject()));
+	}
+
+	boolean assertHasReferences() {	
+		return !cache.isEmpty();
 	}
 }

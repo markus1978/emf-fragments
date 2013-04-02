@@ -1,10 +1,8 @@
 package de.hub.emffrag.fragmentation;
 
 import java.io.IOException;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.EList;
@@ -21,6 +19,10 @@ import org.eclipse.emf.ecore.xmi.impl.XMLParserPoolImpl;
 import org.junit.Assert;
 
 import com.google.common.base.Throwables;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 
 import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.datastore.DataIndex;
@@ -28,7 +30,6 @@ import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.DataStoreURIHandler;
 import de.hub.emffrag.datastore.KeyType;
 import de.hub.emffrag.datastore.LongKeyType;
-import de.hub.emffrag.fragmentation.UserObjectsCache.UserObjectsCacheListener;
 import de.hub.emffrag.model.emffrag.EmfFragFactory;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import de.hub.emffrag.model.emffrag.Root;
@@ -52,7 +53,7 @@ public class FragmentedModel extends ResourceImpl {
 	}
 
 	private final ResourceSet resourceSet;
-	private final FragmentCache fragmentCache;
+	private final Cache<URI, Fragment> fragmentCache;
 	private final DataStore dataStore;
 	private final DataIndex<Long> fragmentIndex;
 	private final IdIndex idIndex;
@@ -72,7 +73,15 @@ public class FragmentedModel extends ResourceImpl {
 		if (cacheSize == -1) {
 			cacheSize = 100;
 		}
-		fragmentCache = new FragmentCache(cacheSize);
+		
+		fragmentCache = CacheBuilder.newBuilder()
+			.maximumSize(cacheSize)
+			.removalListener(new RemovalListener<URI, Fragment>() {
+				@Override
+				public void onRemoval(RemovalNotification<URI, Fragment> notification) {
+					unloadFragment(notification.getValue());
+				}				
+			}).build();
 
 		this.fragmentIndex = new DataIndex<Long>(dataStore, FRAGMENTS_INDEX_PREFIX, LongKeyType.instance);
 		this.idIndex = new IdIndex(dataStore);
@@ -87,6 +96,13 @@ public class FragmentedModel extends ResourceImpl {
 			for (EObject object: rootFragment.getContents()) {
 				getContents().add(((FInternalObjectImpl)object).getUserObject());
 			}
+		}
+	}
+	
+	void onAccess(FInternalObjectImpl internalObject) {
+		Fragment fragment = internalObject.getFragment();
+		if (fragment != null) {
+			fragmentCache.getIfPresent(fragment.getURI());
 		}
 	}
 
@@ -108,89 +124,89 @@ public class FragmentedModel extends ResourceImpl {
 		}
 	}
 
-	class FragmentCache {
-		class CacheState implements UserObjectsCacheListener {
-			private final Fragment fragment;
-			private boolean cached = false;
-			private int useKey;
-
-			public CacheState(Fragment fragment) {
-				super();
-				this.fragment = fragment;
-			}
-
-			@Override
-			public void handleUsed() {
-				useKey = currentUseKey++;
-				purgeUnreferencedFragments();
-			}
-
-			@Override
-			public void handleReferenced() {
-				if (cached) {
-					remove(this);
-				}
-			}
-
-			@Override
-			public void handleUnReferenced() {
-				if (!cached) {
-					add(this);
-				}
-				cached = true;
-				markDirty();
-			}
-		}
-
-		private final int cacheSize;
-		private int currentUseKey = 0;
-		private boolean isDirty = false;
-		private boolean isPurging = false;
-		private final TreeMap<CacheState, CacheState> cacheContents = new TreeMap<CacheState, CacheState>(
-				new Comparator<CacheState>() {
-					@Override
-					public int compare(CacheState o1, CacheState o2) {
-						return Integer.valueOf(o2.useKey).compareTo(o1.useKey);
-					}
-				});
-
-		public FragmentCache(int cacheSize) {
-			super();
-			this.cacheSize = cacheSize;
-		}
-
-		synchronized void remove(CacheState state) {
-			cacheContents.remove(state);
-		}
-
-		synchronized void add(CacheState state) {
-			cacheContents.put(state, state);
-		}
-
-		synchronized void registerFragment(Fragment fragment) {
-			fragment.getUserObjectsCache().setListener(new CacheState(fragment));
-		}
-
-		void markDirty() {
-			isDirty = true;
-		}
-
-		synchronized void purgeUnreferencedFragments() {
-			if (isDirty && !isPurging) {
-				isPurging = true;
-				int size = cacheContents.size();
-				if (size > 1.5f * cacheSize) {
-					EmfFragActivator.instance.info("Purging unreferenced fragments from memory.");
-					int numberOfFragmentsToRemove = Math.max(0, size - cacheSize);
-					for (int i = 0; i < numberOfFragmentsToRemove; i++) {
-						CacheState cacheStateToRemove = cacheContents.pollFirstEntry().getValue();
-						unloadFragment(cacheStateToRemove.fragment);
-					}
-				}
-				isPurging = false;
-			}
-		}
-	}
+//	class FragmentCache {
+//		class CacheState implements UserObjectsCacheListener {
+//			private final Fragment fragment;
+//			private boolean cached = false;
+//			private int useKey;
+//
+//			public CacheState(Fragment fragment) {
+//				super();
+//				this.fragment = fragment;
+//			}
+//
+//			@Override
+//			public void handleUsed() {
+//				useKey = currentUseKey++;
+//				purgeUnreferencedFragments();
+//			}
+//
+//			@Override
+//			public void handleReferenced() {
+//				if (cached) {
+//					remove(this);
+//				}
+//			}
+//
+//			@Override
+//			public void handleUnReferenced() {
+//				if (!cached) {
+//					add(this);
+//				}
+//				cached = true;
+//				markDirty();
+//			}
+//		}
+//
+//		private final int cacheSize;
+//		private int currentUseKey = 0;
+//		private boolean isDirty = false;
+//		private boolean isPurging = false;
+//		private final TreeMap<CacheState, CacheState> cacheContents = new TreeMap<CacheState, CacheState>(
+//				new Comparator<CacheState>() {
+//					@Override
+//					public int compare(CacheState o1, CacheState o2) {
+//						return Integer.valueOf(o2.useKey).compareTo(o1.useKey);
+//					}
+//				});
+//
+//		public FragmentCache(int cacheSize) {
+//			super();
+//			this.cacheSize = cacheSize;
+//		}
+//
+//		synchronized void remove(CacheState state) {
+//			cacheContents.remove(state);
+//		}
+//
+//		synchronized void add(CacheState state) {
+//			cacheContents.put(state, state);
+//		}
+//
+//		synchronized void registerFragment(Fragment fragment) {
+//			fragment.getUserObjectsCache().setListener(new CacheState(fragment));
+//		}
+//
+//		void markDirty() {
+//			isDirty = true;
+//		}
+//
+//		synchronized void purgeUnreferencedFragments() {
+//			if (isDirty && !isPurging) {
+//				isPurging = true;
+//				int size = cacheContents.size();
+//				if (size > 1.5f * cacheSize) {
+//					EmfFragActivator.instance.info("Purging unreferenced fragments from memory.");
+//					int numberOfFragmentsToRemove = Math.max(0, size - cacheSize);
+//					for (int i = 0; i < numberOfFragmentsToRemove; i++) {
+//						CacheState cacheStateToRemove = cacheContents.pollFirstEntry().getValue();
+//						unloadFragment(cacheStateToRemove.fragment);
+//					}
+//				}
+//				isPurging = false;
+//			}
+//		}
+//	}
 
 	private void unloadFragment(Fragment fragment) {
 		if (!fragment.isLoaded()) {
@@ -245,7 +261,7 @@ public class FragmentedModel extends ResourceImpl {
 					@Override
 					public Resource createResource(URI uri) {
 						Fragment fragment = newFragment(uri, FragmentedModel.this);
-						fragmentCache.registerFragment(fragment);
+						fragmentCache.put(uri, fragment);
 						return fragment;
 					}
 				});
@@ -410,7 +426,7 @@ public class FragmentedModel extends ResourceImpl {
 	}
 
 	void assertNumberOfLoadedFragments(int min, int max) {
-		fragmentCache.purgeUnreferencedFragments();
+		fragmentCache.cleanUp();
 		assertStatistic("loaded fragments", getInternalResourceSet().getResources().size(), min, max);
 	}
 
@@ -420,7 +436,7 @@ public class FragmentedModel extends ResourceImpl {
 
 	void assertStatistics(int minLoaded, int maxLoaded, int minLoads, int maxLoads, int minUnloads, int maxUnloads,
 			int minCreates, int maxCreates) {
-		fragmentCache.purgeUnreferencedFragments();
+		fragmentCache.cleanUp();
 		assertStatistic("loaded fragments", getInternalResourceSet().getResources().size(), minLoaded, maxLoaded);
 		assertStatistic("loads", statistics.getLoads(), minLoads, maxLoads);
 		assertStatistic("unloads", statistics.getUnloads(), minUnloads, maxUnloads);

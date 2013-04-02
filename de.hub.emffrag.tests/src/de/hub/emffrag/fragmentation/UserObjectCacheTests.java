@@ -17,6 +17,6 @@ public class UserObjectCacheTests extends AbstractTests {
 		cache.addUserObjectToCache(internalObject, (FObjectImpl)object);
 		Assert.assertNotNull(cache.getUserObject(internalObject));
 		cache.removeCachedUserObject(internalObject);
-		Assert.assertFalse(cache.hasReferences());
+		Assert.assertFalse(cache.assertHasReferences());
 	}
 }

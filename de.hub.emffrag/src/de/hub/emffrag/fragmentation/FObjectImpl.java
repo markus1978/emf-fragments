@@ -25,6 +25,8 @@ public class FObjectImpl extends EStoreEObjectImpl {
 		if (internalObject == null) {
 			// This object was not yet added to a model
 			internalObject = UserObjectsCache.newUserObjectsCache.createInternalObject(this);
+		} else if (internalObject.eIsProxy()) {
+			// TODO ?
 		}
 
 		internalObject.onAccess();

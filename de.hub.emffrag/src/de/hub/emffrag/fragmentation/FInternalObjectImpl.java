@@ -291,6 +291,11 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 		if (EmfFragActivator.instance.collectStatistics) {
 			setAccessed(getAccessed() + 1);
 		}
+		
+		FragmentedModel fragmentation = getFragmentation();
+		if (fragmentation != null) {
+			fragmentation.onAccess(this);
+		}
 	}
 
 	/**

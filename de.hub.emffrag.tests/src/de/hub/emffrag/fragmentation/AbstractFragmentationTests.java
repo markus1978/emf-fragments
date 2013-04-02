@@ -23,11 +23,6 @@ public class AbstractFragmentationTests  extends AbstractTests {
 	protected TestObject object2 = null;
 	protected TestObject object3 = null;
 	
-	@Before
-	public void resetUOCController() {
-		UserObjectsCache.resetUOCController();
-	}
-	
 	protected TestModelPackage getMetaModel() {
 		return TestModelPackage.eINSTANCE;
 	}

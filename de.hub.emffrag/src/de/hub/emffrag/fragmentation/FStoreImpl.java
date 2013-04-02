@@ -59,9 +59,7 @@ public class FStoreImpl implements EStore {
 				internalObject = (FInternalObjectImpl)EcoreUtil.resolve(internalObject, model.getInternalResourceSet());
 				if (internalObject.eIsProxy()) {
 					throw new RuntimeException("Could not resolve " + internalObject.eProxyURI());
-				}
-				// mark as used ...
-				internalObject.getFragment().getUserObjectsCache().getUserObject(internalObject);
+				}				
 			} else {
 				throw new NotInAFragmentedModelException("An user object that appreas to be new is a proxy.");
 			}			
