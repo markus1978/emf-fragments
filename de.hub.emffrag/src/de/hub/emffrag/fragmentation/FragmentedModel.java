@@ -71,7 +71,7 @@ public class FragmentedModel extends ResourceImpl {
 		
 		this.dataStore = dataStore;
 		if (cacheSize == -1) {
-			cacheSize = 100;
+			cacheSize = EmfFragActivator.instance.cacheSize;
 		}
 		
 		fragmentCache = CacheBuilder.newBuilder()

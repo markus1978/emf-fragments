@@ -33,6 +33,7 @@ public class EmfFragActivator extends Plugin {
 	
 	public boolean logInStandAlone = false;
 	private boolean isStandAlone = false;
+	public int cacheSize = 100;
 
 
 	@Override
