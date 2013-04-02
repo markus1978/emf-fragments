@@ -10,9 +10,9 @@ import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
 public class RamUsageTests extends AbstractFragmentationTests {
 
 	/**
-	 * TODO
-	 * 
-	 * There is no data store that does not need memory when it grows.
+	 * With the use of the default in-memory data store, the memory usage will
+	 * grow, even if everything works properly. This test only makes sense with
+	 * a different data store.
 	 */
 	@Test
 	public void testConstantRamUsage() throws Exception {
@@ -28,7 +28,9 @@ public class RamUsageTests extends AbstractFragmentationTests {
 		for (int i = 0; i <= objects; i++) {
 			boolean fragmenting = random.nextBoolean();
 			TestObject object = addObject(container, fragmenting);
-			container.getCrossReferences().add(object); // cross references should not influence unloading
+			container.getCrossReferences().add(object); // cross references
+														// should not influence
+														// unloading
 			object.getCrossReferences().add(container);
 			if (random.nextFloat() < 0.3f) {
 				container = object;
@@ -40,10 +42,9 @@ public class RamUsageTests extends AbstractFragmentationTests {
 			if (i % 1000 == 0) {
 				System.gc();
 				System.out.println("tm: " + NumberFormat.getIntegerInstance().format(Runtime.getRuntime().totalMemory())
-						+ " fm: " + NumberFormat.getIntegerInstance().format(Runtime.getRuntime().freeMemory()) 
-						+ " unloads: " + model.getStatistics().getUnloads() 
-						+ " loads: " + model.getStatistics().getLoads() 
-						+ " creates: " + model.getStatistics().getCreates());
+						+ " fm: " + NumberFormat.getIntegerInstance().format(Runtime.getRuntime().freeMemory()) + " unloads: "
+						+ model.getStatistics().getUnloads() + " loads: " + model.getStatistics().getLoads() + " creates: "
+						+ model.getStatistics().getCreates());
 				meassure++;
 				if (meassure > (objects / 1000) / 2) {
 					if (totalMemory == -1) {

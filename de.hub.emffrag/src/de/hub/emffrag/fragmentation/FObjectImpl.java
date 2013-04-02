@@ -9,6 +9,7 @@ import org.eclipse.emf.ecore.resource.Resource.Internal;
 
 public class FObjectImpl extends EStoreEObjectImpl {
 
+	private FragmentedModel fragmentedModel;
 	private FInternalObjectImpl internalObject;
 	private WeakReference<InternalEObject> containerReference = null;
 
@@ -19,19 +20,33 @@ public class FObjectImpl extends EStoreEObjectImpl {
 
 	protected void fSetInternalObject(FInternalObjectImpl internalObject) {
 		this.internalObject = internalObject;
+		if (fragmentedModel == null) {
+			this.fragmentedModel = internalObject.getFragmentation();
+		}
 	}
 
 	public FInternalObjectImpl fInternalObject() {
 		if (internalObject == null) {
 			// This object was not yet added to a model
 			internalObject = UserObjectsCache.newUserObjectsCache.createInternalObject(this);
-		} else if (internalObject.eIsProxy()) {
-			// TODO ?
 		}
 
+		if (fragmentedModel == null) {
+			fragmentedModel = internalObject.getFragmentation();
+		}
 		internalObject.onAccess();
 		
 		return internalObject;
+	}
+	
+	public FragmentedModel fFragmentation() {
+		if (internalObject != null) {
+			FragmentedModel fragmentation = internalObject.getFragmentation();
+			if (fragmentation != null) {
+				this.fragmentedModel = fragmentation;
+			}
+		}
+		return fragmentedModel;
 	}
 
 	/**

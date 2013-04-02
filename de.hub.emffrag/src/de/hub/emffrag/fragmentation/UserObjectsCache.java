@@ -18,13 +18,14 @@ public class UserObjectsCache {
 
 	final static UserObjectsCache newUserObjectsCache = new UserObjectsCache();
 	
-	private final ReferenceMap cache = new ReferenceMap();
+	private final ReferenceMap cache = new ReferenceMap(ReferenceMap.WEAK, ReferenceMap.WEAK);
 
 	void moveUserObject(FInternalObjectImpl internalObject, UserObjectsCache newCache) {
 		FObjectImpl userObject = (FObjectImpl)cache.get(internalObject);
 		if (userObject != null) {
 			cache.remove(internalObject);
 			newCache.addUserObjectToCache(internalObject, userObject);
+			userObject.fSetInternalObject(internalObject);
 		}
 	}
 
@@ -63,11 +64,13 @@ public class UserObjectsCache {
 	}
 
 	public void addUserObjectToCache(FInternalObjectImpl internalObject, FObjectImpl userObject) {
-		cache.put(internalObject,userObject);		
+		cache.put(internalObject,userObject);	
+		userObject.fSetInternalObject(internalObject);
+		userObject.fSetInternalObject(internalObject);
 	}
 
 	public void removeCachedUserObject(FInternalObjectImpl internalObject) {
-		cache.remove(internalObject);
+		cache.remove(internalObject);		
 	}
 
 	void assertNotCached(EObject object) {

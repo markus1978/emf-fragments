@@ -53,6 +53,9 @@ public class FStoreImpl implements EStore {
 		} else if (internalObject.eIsProxy()) {
 			FragmentedModel model = internalObject.getFragmentation();
 			if (model == null) {
+				model = ((FObjectImpl)userObject).fFragmentation();
+			}
+			if (model == null) {
 				model = EmfFragActivator.instance.defaultModel;
 			}
 			if (model != null) {
