@@ -2,10 +2,12 @@ package de.hub.emffrag.fragmentation;
 
 import junit.framework.Assert;
 
+import org.eclipse.emf.common.util.EList;
 import org.junit.Test;
 
 import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
+import de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes;
 
 public class CacheTests extends AbstractFragmentationTests {
 
@@ -21,22 +23,20 @@ public class CacheTests extends AbstractFragmentationTests {
 
 	@Test
 	public void testUnloading() throws Exception {
-		initializeModel(3);
+		initializeModel(4);
 
 		model.root().getContents().add(object1);
 		object1.getFragmentedContents().add(object2);
 		object2.getFragmentedContents().add(object3);
+		object3.getFragmentedContents().add(object4);
 
 		FInternalObjectImpl iObject2 = ((FObjectImpl)object2).fInternalObject();
 		FInternalObjectImpl iObject3 = ((FObjectImpl)object3).fInternalObject();
 		
-		Assert.assertTrue(((FObjectImpl)object1).fInternalObject().getFragment().getUserObjectsCache().assertHasReferences());
 		Assert.assertNotNull(model.getFragment(iObject2.eResource().getURI()));
-		Assert.assertTrue(model.getFragment(iObject2.eResource().getURI()).getUserObjectsCache().assertHasReferences());
 		Assert.assertNotNull(model.getFragment(iObject3.eResource().getURI()));
-		Assert.assertTrue(model.getFragment(iObject3.eResource().getURI()).getUserObjectsCache().assertHasReferences());
 
-		model.assertNumberOfLoadedFragments(3);
+		model.assertNumberOfLoadedFragments(4);
 		
 		Assertions.root(model).assertId(1).getFragmentedContents().assertSize(1).get(0).getFragmentedContents().assertSize(1).get(0).assertId(3);				
 	}
@@ -82,21 +82,19 @@ public class CacheTests extends AbstractFragmentationTests {
 
 	@Test
 	public void testReloadOfUnloadedFragment() throws Exception {
-		initializeModel(3);
+		initializeModel(4);
 
 		model.root().getContents().add(object1);
 		object1.getFragmentedContents().add(object2);
 		object2.getFragmentedContents().add(object3);
+		object3.getFragmentedContents().add(object4);
 
-		Assert.assertTrue(((FObjectImpl)object1).fInternalObject().getFragment().getUserObjectsCache().assertHasReferences());
 		FInternalObjectImpl iObject2 = ((FObjectImpl)object2).fInternalObject();
 		FInternalObjectImpl iObject3 = ((FObjectImpl)object3).fInternalObject();
 		Assert.assertNotNull(model.getFragment(iObject2.eResource().getURI()));
-		Assert.assertTrue(model.getFragment(iObject2.eResource().getURI()).getUserObjectsCache().assertHasReferences());
 		Assert.assertNotNull(model.getFragment(iObject3.eResource().getURI()));
-		Assert.assertTrue(model.getFragment(iObject3.eResource().getURI()).getUserObjectsCache().assertHasReferences());
 
-		model.assertNumberOfLoadedFragments(3);
+		model.assertNumberOfLoadedFragments(4);
 
 		Assertions
 				.root(model).assertId(1)
@@ -105,7 +103,7 @@ public class CacheTests extends AbstractFragmentationTests {
 				.getFragmentedContents().assertSize(1)
 				.get(0).assertId(3).assertDifferentFragmentAsContainer();
 		
-		model.assertStatistics(0, 3, 1, 5, 1, 5, 4, 4);
+		model.assertStatistics(0, 4, 1, 5, 1, 5, 5, 5);
 	}
 
 	@Test
@@ -160,27 +158,46 @@ public class CacheTests extends AbstractFragmentationTests {
 
 	@Test
 	public void testRegularContainmentAfterReload() throws Exception {
-		initializeModel(3);
+		initializeModel(4);
 
 		model.root().getContents().add(object1);
 		object1.getFragmentedContents().add(object2);
 		object2.getFragmentedContents().add(object3);
-		TestObject contents = Assertions.createTestObject(4);
-		object3.getRegularContents().add(contents);
+		object3.getFragmentedContents().add(object4);
+		TestObject contents = Assertions.createTestObject(5);
+		object4.getRegularContents().add(contents);
 
-		model.assertNumberOfLoadedFragments(3);
-
-		object3 = Assertions
+		model.assertNumberOfLoadedFragments(4);
+		
+		object4 = Assertions
 				.root(model).assertId(1)
 				.getFragmentedContents().assertSize(1)
 				.get(0).assertId(2).assertDifferentFragmentAsContainer()
 				.getFragmentedContents().assertSize(1)				
-				.get(0).assertId(3).assertDifferentFragmentAsContainer().value();
+				.get(0).assertId(3).assertDifferentFragmentAsContainer()
+				.getFragmentedContents().assertSize(1)				
+				.get(0).assertId(4).assertDifferentFragmentAsContainer().value();
 		
-		contents = Assertions.context(object3)
+		contents = Assertions.context(object4)
 				.getRegularContents().assertSize(1)
-				.get(0).assertId(4).assertSameFragmentAsContainer().value();
+				.get(0).assertId(5).assertSameFragmentAsContainer().value();
 		
-		model.assertStatistics(0, 3, -1, -1, -1, -1, 4, 4);
+		model.assertStatistics(0, 4, -1, -1, -1, -1, 5, 5);
+	}
+	
+	@Test
+	public void testUnloadingLoadingOfIndexedContainment() {
+		initializeModel(5);
+		TestObjectWithIndexes testObject = (TestObjectWithIndexes)Assertions.createTestObjectWithIndexes(0);		
+		root.getContents().add(testObject);
+		EList<TestObject> valueSet = testObject.getIndexedContents();
+		for (int i = 0; i <= 10; i++) {
+			TestObject innterTestObject = createTestObject(i);
+			valueSet.add(innterTestObject);
+			innterTestObject.getRegularContents().add(createTestObject(0));
+			for (TestObject o: valueSet) {
+				Assertions.context(o).assertTestObject();
+			}
+		}
 	}
 }

@@ -15,4 +15,12 @@ public class BinaryFragmentCacheTests extends CacheTests {
 			}			
 		};
 	}
+
+	@Override
+	public void testRegularContainmentAfterReload() throws Exception {
+		// TODO Auto-generated method stub
+		super.testRegularContainmentAfterReload();
+	}
+	
+	
 }

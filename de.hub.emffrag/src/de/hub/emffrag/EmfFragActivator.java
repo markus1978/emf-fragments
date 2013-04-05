@@ -89,6 +89,10 @@ public class EmfFragActivator extends Plugin {
 		}
 				
 	}
+	
+	public void debug(String msg) {
+		log(Status.OK, msg, null);
+	}
 
 	public void info(String msg) {
 		log(Status.INFO, msg, null);

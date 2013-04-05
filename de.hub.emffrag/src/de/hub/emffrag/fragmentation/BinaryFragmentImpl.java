@@ -23,18 +23,11 @@ import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
 
 public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 
-	private final UserObjectsCache userObjectsCache;
 	private final FragmentedModel model;
 
 	public BinaryFragmentImpl(URI uri, FragmentedModel model) {
 		super(uri);
 		this.model = model;
-		userObjectsCache = new UserObjectsCache();
-	}
-
-	@Override
-	public UserObjectsCache getUserObjectsCache() {
-		return userObjectsCache;
 	}
 
 	@Override
@@ -213,8 +206,8 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 			if (!isWritingCrossReferenceURI) {
 				super.writeURI(uri, uriFragment);
 			} else {
-				URI refURI = null;				
-				Fragment fragment = (Fragment)currentObject.eResource();
+				URI refURI = null;
+				Fragment fragment = (Fragment) currentObject.eResource();
 				FragmentedModel model = null;
 				if (fragment != null) {
 					model = fragment.getFragmentedModel();
@@ -225,7 +218,19 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 					refURI = EmfFragActivator.instance.idSemantics.getURI(currentObject, model, false, null);
 				}
 				if (refURI != null) {
-					super.writeURI(refURI, null);
+					// basically the code from [super.writeURI(refURI, null)]
+					// but without the failing assertion that I do not
+					// understand.
+					Integer id = uriToIDMap.get(refURI);
+					if (id == null) {
+						int idValue = uriToIDMap.size();
+						uriToIDMap.put(refURI, idValue);
+						writeCompressedInt(idValue);
+						writeString(deresolve(refURI).toString());
+					} else {
+						writeCompressedInt(id);
+					}
+					writeString(null);
 				} else {
 					super.writeURI(uri, uriFragment);
 				}

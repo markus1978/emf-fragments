@@ -22,6 +22,7 @@ public class AbstractFragmentationTests  extends AbstractTests {
 	protected TestObject object1 = null;
 	protected TestObject object2 = null;
 	protected TestObject object3 = null;
+	protected TestObject object4 = null;
 	
 	protected TestModelPackage getMetaModel() {
 		return TestModelPackage.eINSTANCE;
@@ -58,6 +59,7 @@ public class AbstractFragmentationTests  extends AbstractTests {
 		object1 = createTestObject(1);
 		object2 = createTestObject(2);
 		object3 = createTestObject(3);
+		object4 = createTestObject(4);
 	}
 	
 	protected TestObject createTestObject(int index) {

@@ -56,9 +56,9 @@ public class MongoDBDataStore extends DataStore {
 	}
 	
 	private byte[] adoptKey(byte[] key) {
-		assert(key.length <= 30);
-		byte[] result = new byte[30];
-		for (int i = 0; i < 17; i++) {
+		assert(key.length <= 60);
+		byte[] result = new byte[60];
+		for (int i = 0; i < 60; i++) {
 			result[i] = i < key.length ? key[i] : 0;
 		}
 		return result;

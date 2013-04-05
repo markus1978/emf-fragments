@@ -73,16 +73,7 @@ public class Assertions {
 		}
 	}
 	
-	public Assertions assertTestObject() {
-		FObjectImpl value = (FObjectImpl)value();
-		Fragment fragment = value.fInternalObject().getFragment();
-		if (fragment != null) {
-			UserObjectsCache.newUserObjectsCache.assertNotCached(value);
-			fragment.getUserObjectsCache().assertCached(value);
-		} else {
-			UserObjectsCache.newUserObjectsCache.assertCached(value);
-		}
-		
+	public Assertions assertTestObject() {		
 		Assert.assertTrue("Not a test object.", value().getName().startsWith(prefix));
 		Assert.assertTrue("Not part of a fragmented model.", ((FObjectImpl)value()).fInternalObject().eResource() instanceof Fragment);
 		return this;

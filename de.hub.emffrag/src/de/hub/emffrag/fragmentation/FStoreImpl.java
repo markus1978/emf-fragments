@@ -35,21 +35,14 @@ public class FStoreImpl implements EStore {
 	}
 	
 	public EObject getUserObject(FInternalObjectImpl internalObject) {
-		Fragment fragment = (Fragment) internalObject.eResource();
-		EObject userObject = null;
-		if (fragment != null) {
-			userObject = fragment.getUserObjectsCache().getUserObject(internalObject);	
-		} else {
-			userObject = UserObjectsCache.newUserObjectsCache.getUserObject(internalObject);				
-		}
-		return userObject;
+		return internalObject.getUserObject();
 	}
 
 	public FInternalObjectImpl getInternalObject(EObject userObject) {
 		FInternalObjectImpl internalObject = ((FObjectImpl) userObject).fInternalObject();
 		if (internalObject == null) {
 			// This object was not yet added to a model
-			internalObject = UserObjectsCache.newUserObjectsCache.createInternalObject((FObjectImpl)userObject);
+			internalObject = UserObjectsCache.instance.createInternalObject((FObjectImpl)userObject);
 		} else if (internalObject.eIsProxy()) {
 			FragmentedModel model = internalObject.getFragmentation();
 			if (model == null) {
@@ -61,7 +54,14 @@ public class FStoreImpl implements EStore {
 			if (model != null) {
 				internalObject = (FInternalObjectImpl)EcoreUtil.resolve(internalObject, model.getInternalResourceSet());
 				if (internalObject.eIsProxy()) {
-					throw new RuntimeException("Could not resolve " + internalObject.eProxyURI());
+					if (internalObject.eProxyURI().equals("mongodb://localhost/emffrag.bin/al8xMTk0XzEwXwAAAAAAAAAF#//@bodyDeclarations.9/@comments.0")) {
+						System.out.println("this is the bad one.");
+					}
+					// try a second time ... no idea why first time fails from time to time
+					internalObject = (FInternalObjectImpl)EcoreUtil.resolve(internalObject, model.getInternalResourceSet());
+					if (internalObject.eIsProxy()) {
+						throw new RuntimeException("Could not resolve " + internalObject.eProxyURI());
+					}
 				}				
 			} else {
 				throw new NotInAFragmentedModelException("An user object that appreas to be new is a proxy.");

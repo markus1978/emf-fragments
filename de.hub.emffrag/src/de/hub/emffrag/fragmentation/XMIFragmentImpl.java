@@ -23,18 +23,11 @@ import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
 
 public class XMIFragmentImpl extends XMIResourceImpl implements Fragment {
 
-	private final UserObjectsCache userObjectsCache;
 	private final FragmentedModel model;
 
 	public XMIFragmentImpl(URI uri, FragmentedModel model) {
 		super(uri);
 		this.model = model;
-		userObjectsCache = new UserObjectsCache();
-	}
-
-	@Override
-	public UserObjectsCache getUserObjectsCache() {
-		return userObjectsCache;
 	}
 
 	@Override

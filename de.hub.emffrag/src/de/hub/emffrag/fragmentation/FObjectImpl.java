@@ -28,7 +28,7 @@ public class FObjectImpl extends EStoreEObjectImpl {
 	public FInternalObjectImpl fInternalObject() {
 		if (internalObject == null) {
 			// This object was not yet added to a model
-			internalObject = UserObjectsCache.newUserObjectsCache.createInternalObject(this);
+			internalObject = UserObjectsCache.instance.createInternalObject(this);
 		}
 
 		if (fragmentedModel == null) {
@@ -139,5 +139,5 @@ public class FObjectImpl extends EStoreEObjectImpl {
 		// disables superclass implementation to avoid instant remove through
 		// double realization of containment
 		return msgs;
-	}
+	}	
 }

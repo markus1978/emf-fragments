@@ -51,6 +51,7 @@ public class NoReferencesIdSemantics extends IndexBasedIdSemantics {
 	@Override
 	public FInternalObject resolveURI(URI uri, FragmentedModel model) {
 		return (FInternalObject) model.getInternalResourceSet().getEObject(uri, true);
+//		return (FInternalObject)model.getInternalResourceSet().getEObject(model.getIdIndex().getObjectUriForIdUri(uri), true);
 	}
 
 }

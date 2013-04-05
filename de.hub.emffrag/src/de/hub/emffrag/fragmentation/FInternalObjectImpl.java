@@ -11,6 +11,7 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EStructuralFeature.Setting;
 import org.eclipse.emf.ecore.InternalEObject;
@@ -43,18 +44,8 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 				&& (eContainer() == null || eResource != eContainer().eResource());
 	}
 
-
 	public EObject getUserObject() {
-		return getUserObjectCache().getUserObject(this);
-	}
-
-	public UserObjectsCache getUserObjectCache() {
-		Fragment fragment = getFragment();
-		if (fragment != null) {
-			return fragment.getUserObjectsCache();
-		} else {
-			return UserObjectsCache.newUserObjectsCache;
-		}
+		return UserObjectsCache.instance.getUserObject(this);
 	}
 
 	public FragmentedModel getFragmentation() {
@@ -92,6 +83,29 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 			return null;
 		}
 	}
+	
+	private EList<EObject> eContentsWithOutFragments() {
+		EStructuralFeature[] eStructuralFeatures = ((EClassImpl.FeatureSubsetSupplier) this.eClass().getEAllStructuralFeatures()).containments();
+		EStructuralFeature[] eStructuralFeaturesWithOutFragmentsArray = null;
+		if (eStructuralFeatures != null) {
+			List<EStructuralFeature> eStructuralFeaturesWithOutFragments = new ArrayList<EStructuralFeature>(
+					eStructuralFeatures.length);
+			for (EStructuralFeature eStructuralFeature : eStructuralFeatures) {
+				FragmentationType fragmentationType = EMFFragUtil.getFragmentationType(eStructuralFeature);
+				if (fragmentationType == FragmentationType.None || eStructuralFeature instanceof EAttribute) {
+					eStructuralFeaturesWithOutFragments.add(eStructuralFeature);
+				}
+			}
+			eStructuralFeaturesWithOutFragmentsArray = eStructuralFeaturesWithOutFragments
+					.toArray(new EStructuralFeature[eStructuralFeaturesWithOutFragments.size()]);
+		}
+
+		EContentsEList<EObject> eContentsEListWithOutFragments = eStructuralFeaturesWithOutFragmentsArray == null ? EContentsEList
+				.<EObject> emptyContentsEList() : new EContentsEList<EObject>(this,
+				eStructuralFeaturesWithOutFragmentsArray);
+
+		return eContentsEListWithOutFragments;
+	}
 
 	@Override
 	public NotificationChain eSetResource(Internal resource, NotificationChain notifications) {
@@ -109,13 +123,6 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 			return;
 		}
 
-		UserObjectsCache oldUOC = oldFragment != null ? oldFragment.getUserObjectsCache()
-				: UserObjectsCache.newUserObjectsCache;
-		UserObjectsCache newUOC = newFragment != null ? newFragment.getUserObjectsCache()
-				: UserObjectsCache.newUserObjectsCache;
-
-		updateUOCAfterFragmentChange(oldUOC, newUOC, this, newFragment);
-
 		if (newFragment != null && oldFragment == null) {
 			onCreate();
 			EPackage metaModel = eClass().getEPackage();
@@ -132,52 +139,57 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 		}
 	}
 
-	private EList<EObject> eContentsWithOutFragments() {
-		EList<EObject> result = eProperties().getEContents();
-		if (result == null) {
-			EStructuralFeature[] eStructuralFeatures = ((EClassImpl.FeatureSubsetSupplier) this.eClass()
-					.getEAllStructuralFeatures()).containments();
-			EStructuralFeature[] eStructuralFeaturesWithOutFragmentsArray = null;
-			if (eStructuralFeatures != null) {
-				List<EStructuralFeature> eStructuralFeaturesWithOutFragments = new ArrayList<EStructuralFeature>(
-						eStructuralFeatures.length);
-				for (EStructuralFeature eStructuralFeature : eStructuralFeatures) {
-					FragmentationType fragmentationType = EMFFragUtil.getFragmentationType(eStructuralFeature);
-					if (fragmentationType == FragmentationType.None || eStructuralFeature instanceof EAttribute) {
-						eStructuralFeaturesWithOutFragments.add(eStructuralFeature);
-					}
-				}
-				eStructuralFeaturesWithOutFragmentsArray = eStructuralFeaturesWithOutFragments
-						.toArray(new EStructuralFeature[eStructuralFeaturesWithOutFragments.size()]);
-			}
-
-			EContentsEList<EObject> eContentsEListWithOutFragments = eStructuralFeaturesWithOutFragmentsArray == null ? EContentsEList
-					.<EObject> emptyContentsEList() : new EContentsEList<EObject>(this,
-					eStructuralFeaturesWithOutFragmentsArray);
-
-			eBasicProperties().setEContents(result = eContentsEListWithOutFragments);
-		}
-
-		return result;
-	}
-
-	private void updateUOCAfterFragmentChange(UserObjectsCache oldUOC, UserObjectsCache newUOC, FInternalObjectImpl object,
-			Fragment fragment) {
-		oldUOC.moveUserObject(object, newUOC);
-
-		for (EObject content : object.eContentsWithOutFragments()) {
-			updateUOCAfterFragmentChange(oldUOC, newUOC, (FInternalObjectImpl) content, fragment);
-		}
-	}
-
 	private void updateIdsAfterContainerChange(FInternalObjectImpl object, Fragment fragment) {
 		EmfFragActivator.instance.idSemantics.onContainerChange(object, fragment.getFragmentedModel());	
 		for (EObject content : object.eContentsWithOutFragments()) {
 			updateIdsAfterContainerChange((FInternalObjectImpl) content, fragment);
 		}
 	}
+	
+	private void updateFragmentationAfterCreatingAFragment(FInternalObjectImpl object, Fragment newFragment) {
+		EReference eContainmentFeature = object.eContainmentFeature();
+		if (eContainmentFeature != null) {
+			FragmentationType fragmentationType = EMFFragUtil.getFragmentationType(eContainmentFeature);
+			boolean isFragmenting = fragmentationType == FragmentationType.FragmentsContainment || fragmentationType == FragmentationType.FragmentsIndexedContainment;
+			if (isFragmenting) {
+				if (!object.isFragmentRoot()) {
+					object.updateAfterContainerChange(newFragment);
+					if (newFragment != object.getFragment()) {
+						return;
+					}
+				}
+			}			
+		}
+		
+		for (EObject content: object.eContents()) {
+			if (((FInternalObjectImpl)content).getFragment() == newFragment) {
+				updateFragmentationAfterCreatingAFragment((FInternalObjectImpl)content, newFragment);
+			}
+		}
+	}
+	
+	private void protect(Fragment fragment) {
+		if (fragment != null) {
+			FragmentedModel fragmentedModel = fragment.getFragmentedModel();
+			if (fragmentedModel != null) {
+				fragmentedModel.protect(fragment);
+			}
+		}
+	}
+	
+	private void unprotect(Fragment fragment) {
+		if (fragment != null) {
+			FragmentedModel fragmentedModel = fragment.getFragmentedModel();
+			if (fragmentedModel != null) {
+				fragmentedModel.unprotect(fragment);
+			}
+		}
+	}
 
 	private void updateAfterContainerChange(Fragment oldFragment) {
+		Fragment currentFragment = getFragment();
+		protect(currentFragment);
+		protect(oldFragment);
 		EStructuralFeature eContainingFeature = eContainingFeature();
 		FragmentationType fragmentationType = eContainingFeature != null ? EMFFragUtil.getFragmentationType(eContainingFeature)
 				: FragmentationType.None;
@@ -185,19 +197,25 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 				|| fragmentationType == FragmentationType.FragmentsIndexedContainment;
 		FragmentedModel fragmentation = getFragmentation();
 		if (isFragmenting && fragmentation != null) {
-			if (fragmentURIForContainerChange != null) {
-				fragmentation.createFragment(fragmentURIForContainerChange, this);
+			Fragment newFragment = null;
+			if (fragmentURIForContainerChange != null) {				
+				newFragment = fragmentation.createFragment(fragmentURIForContainerChange, this);
 			} else if (!isFragmentRoot()) {
-				fragmentation.createFragment(null, this);
+				newFragment = fragmentation.createFragment(null, this);
+			}
+			
+			if (newFragment != null) {
+				protect(newFragment);
+				updateFragmentationAfterCreatingAFragment(this, newFragment);
+				unprotect(newFragment);
 			}
 		}
-
-		Fragment newFragment = getFragment();
-		if (eContainer() == null && newFragment != null) {
+		
+		if (eContainer() == null && currentFragment != null) {
 			// Object was removed (container set to null.
 			// This will delete the resource (fragment) based on normal emf
 			// semantics.
-			newFragment.getContents().remove(this);
+			currentFragment.getContents().remove(this);
 		}
 
 		if (oldFragment != eResource()) {
@@ -210,10 +228,13 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 				}
 			}
 		} else {
-			if (newFragment != null) {
-				updateIdsAfterContainerChange(this, newFragment);
+			if (currentFragment != null) {
+				updateIdsAfterContainerChange(this, currentFragment);
 			}
 		}
+		
+		unprotect(currentFragment);
+		unprotect(oldFragment);
 
 		fragmentURIForContainerChange = null;
 	}
@@ -251,12 +272,13 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 	}
 
 	void eBasicSetContainerForIndexClass(FInternalObjectImpl indexClass, URI uri) {
+		Resource eResource = eResource();
+		
 		if (!eIsProxy()) {
 			// Do not update containment if the object is a proxy. In that case
 			// the object is loaded and not modified by a user.
-			Resource oldResource = eResource();
 			indexClass.getFragmentation().createFragment(uri, this);
-			updateAfterResourceChange(oldResource);
+			updateAfterResourceChange(eResource);
 		}
 	}
 
@@ -264,7 +286,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 	protected void eBasicSetContainer(InternalEObject newContainer, int newContainerFeatureID) {
 		Fragment oldFragment = getFragment();
 		super.eBasicSetContainer(newContainer, newContainerFeatureID);
-
+		
 		if (!eIsProxy()) {
 			// Do not update containment if the object is a proxy. In that case
 			// the object is loaded and not modified by a user.
@@ -292,9 +314,9 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 			setAccessed(getAccessed() + 1);
 		}
 		
-		FragmentedModel fragmentation = getFragmentation();
-		if (fragmentation != null) {
-			fragmentation.onAccess(this);
+		Fragment fragment = getFragment();
+		if (fragment != null) {
+			fragment.getFragmentedModel().touch(fragment);
 		}
 	}
 
@@ -542,6 +564,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 	private URI fragmentURIForContainerChange = null;
 
 	public void fragmentURIForContainerChange(URI uri) {
+		assert (fragmentURIForContainerChange == null);		
 		fragmentURIForContainerChange = uri;
 	}
 }

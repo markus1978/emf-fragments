@@ -82,6 +82,57 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 			.get(0).assertId(2).getRegularContents().assertSize(1)
 			.get(0).assertId(3);
 	}
+	
+	@Test
+	public void testRecursiveFragmentation1() {
+		object2.getFragmentedContents().add(object3);
+		
+		Assert.assertTrue(((FObjectImpl)object2).fInternalObject().eContents().size() == 1);
+		
+		model.root().getContents().add(object1);
+		object1.getFragmentedContents().add(object2);
+		
+		performRecursiveFragmentationTest();
+	}
+	
+	@Test
+	public void testRecursiveFragmentation2() {
+		object2.getFragmentedContents().add(object3);
+		object1.getFragmentedContents().add(object2);
+		model.root().getContents().add(object1);
+		
+		performRecursiveFragmentationTest();
+	}
+	
+	@Test
+	public void testRecursiveFragmentation3() {
+		object1.getFragmentedContents().add(object2);
+		object2.getFragmentedContents().add(object3);	
+		model.root().getContents().add(object1);
+		
+		performRecursiveFragmentationTest();
+	}
+	
+	
+	private void performRecursiveFragmentationTest() {
+		Assertions
+			.root(model).assertId(1).getFragmentedContents().assertSize(1)
+			.get(0).assertId(2).getFragmentedContents().assertSize(1)
+			.get(0).assertId(3);
+	
+		Assert.assertEquals(object1.getFragmentedContents().get(0), object2);
+		Assert.assertEquals(object1.getFragmentedContents().get(0).getFragmentedContents().get(0), object3);
+		
+		model.assertFragmentsIndex(0, 3);
+	
+		model.save(null);
+		reinitializeModel();
+	
+		Assertions
+			.root(model).assertId(1).getFragmentedContents().assertSize(1)
+			.get(0).assertId(2).getFragmentedContents().assertSize(1)
+			.get(0).assertId(3);
+	}
 
 	@Test
 	public void testRemoveObject() {
