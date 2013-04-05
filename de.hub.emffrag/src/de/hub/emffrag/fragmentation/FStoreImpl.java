@@ -54,9 +54,6 @@ public class FStoreImpl implements EStore {
 			if (model != null) {
 				internalObject = (FInternalObjectImpl)EcoreUtil.resolve(internalObject, model.getInternalResourceSet());
 				if (internalObject.eIsProxy()) {
-					if (internalObject.eProxyURI().equals("mongodb://localhost/emffrag.bin/al8xMTk0XzEwXwAAAAAAAAAF#//@bodyDeclarations.9/@comments.0")) {
-						System.out.println("this is the bad one.");
-					}
 					// try a second time ... no idea why first time fails from time to time
 					internalObject = (FInternalObjectImpl)EcoreUtil.resolve(internalObject, model.getInternalResourceSet());
 					if (internalObject.eIsProxy()) {

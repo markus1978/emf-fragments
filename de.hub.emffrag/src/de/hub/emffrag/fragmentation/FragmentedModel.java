@@ -164,11 +164,7 @@ public class FragmentedModel extends ResourceImpl {
 			}
 
 			@Override
-			protected void demandLoad(Resource resource) throws IOException {
-				if (resource.getURI().toString().endsWith("al8xMTk0XzEwXwAAAAAAAAAA")) {
-					System.out.println("this is the bad one.");
-				}
-				
+			protected void demandLoad(Resource resource) throws IOException {				
 				EmfFragActivator.instance.debug("Demand loaded fragment: " + resource.getURI().toString());
 				super.demandLoad(resource);
 				statistics.loads++;
