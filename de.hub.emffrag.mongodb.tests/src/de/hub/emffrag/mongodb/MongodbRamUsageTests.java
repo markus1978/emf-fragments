@@ -18,5 +18,19 @@ public class MongodbRamUsageTests extends RamUsageTests {
 		EmfFragMongoDBActivator.standalone();
 		return new MongoDBDataStore("localhost", "testmodel", true);
 	}
+
+	@Override
+	@Test
+	public void testRamUsageWithIndexedContainment() {
+		super.testRamUsageWithIndexedContainment();
+	}
+
+	@Override
+	@Test
+	public void testRamUsageWithIndexedReferences() {
+		super.testRamUsageWithIndexedReferences();
+	}
+	
+	
 	
 }

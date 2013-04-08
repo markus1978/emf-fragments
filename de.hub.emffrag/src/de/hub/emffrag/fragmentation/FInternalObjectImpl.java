@@ -2,6 +2,7 @@ package de.hub.emffrag.fragmentation;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.emf.common.notify.NotificationChain;
@@ -252,6 +253,32 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 		eSettings = null;
 		eContainer = null;
 		eAdapters = null;
+	}
+	
+	private Collection<EStructuralFeature> featuresWithIndexWarning = new HashSet<EStructuralFeature>();
+	
+	private void checkForReasonableNonIndexedValueSet(EStructuralFeature feature, EList<?> valueSet) {
+		FragmentationType fragmentationType = EMFFragUtil.getFragmentationType(feature);
+		if (fragmentationType == FragmentationType.None || fragmentationType == FragmentationType.FragmentsContainment) {
+			if (valueSet.size() > 500) {
+				if (!featuresWithIndexWarning.contains(feature)) {
+					EmfFragActivator.instance.warning("A value set of feature " + feature.getName() + " of class "
+							+ feature.getEType().getName()
+							+ " has now more than 1000 values. Consider to make this feature indexed.");
+					featuresWithIndexWarning.add(feature);
+				}				
+			}
+		}
+	}	
+
+	@Override
+	protected NotificationChain eDynamicInverseAdd(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
+	    EReference feature = (EReference)eClass().getEStructuralFeature(featureID);
+	    EStructuralFeature opposite = feature.getEOpposite();
+	    if (opposite != null && opposite.isMany()) {
+	    	checkForReasonableNonIndexedValueSet(opposite, (EList<?>)otherEnd.eGet(opposite));
+	    }
+	    return super.eDynamicInverseAdd(otherEnd, featureID, msgs);
 	}
 
 	@Override
