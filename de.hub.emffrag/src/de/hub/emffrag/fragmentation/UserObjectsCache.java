@@ -15,7 +15,7 @@ public class UserObjectsCache {
 
 	final static UserObjectsCache instance = new UserObjectsCache();
 	
-	private final ReferenceMap cache = new ReferenceMap(ReferenceMap.HARD, ReferenceMap.WEAK);
+	private final ReferenceMap cache = new ReferenceMap(ReferenceMap.HARD, ReferenceMap.WEAK, true);
 
 	public FObjectImpl getUserObject(FInternalObjectImpl internalObject) {
 		FObjectImpl result = (FObjectImpl)cache.get(internalObject);
@@ -31,7 +31,7 @@ public class UserObjectsCache {
 		FObjectImpl userObject = (FObjectImpl) userMetaModel.getEFactoryInstance().create(
 				ReflectiveMetaModelRegistry.instance.getUserClass(internalObject.eClass()));
 		userObject.fSetInternalObject(internalObject);
-		cache.put(internalObject,userObject);	
+		cache.put(internalObject, userObject);	
 		userObject.fSetInternalObject(internalObject);
 		return userObject;
 	}

@@ -106,13 +106,22 @@ public interface InternalPackage extends EPackage {
 	int FINTERNAL_OBJECT__LOADED = 3;
 
 	/**
+	 * The feature id for the '<em><b>Indexes</b></em>' attribute list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FINTERNAL_OBJECT__INDEXES = 4;
+
+	/**
 	 * The number of structural features of the '<em>FInternal Object</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int FINTERNAL_OBJECT_FEATURE_COUNT = 4;
+	int FINTERNAL_OBJECT_FEATURE_COUNT = 5;
 
 
 	/**
@@ -168,6 +177,17 @@ public interface InternalPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getFInternalObject_Loaded();
+
+	/**
+	 * Returns the meta object for the attribute list '{@link de.hub.emffrag.fragmentation.FInternalObject#getIndexes <em>Indexes</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute list '<em>Indexes</em>'.
+	 * @see de.hub.emffrag.fragmentation.FInternalObject#getIndexes()
+	 * @see #getFInternalObject()
+	 * @generated
+	 */
+	EAttribute getFInternalObject_Indexes();
 
 	/**
 	 * Returns the factory that creates the instances of the model.
@@ -232,6 +252,14 @@ public interface InternalPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute FINTERNAL_OBJECT__LOADED = eINSTANCE.getFInternalObject_Loaded();
+
+		/**
+		 * The meta object literal for the '<em><b>Indexes</b></em>' attribute list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute FINTERNAL_OBJECT__INDEXES = eINSTANCE.getFInternalObject_Indexes();
 
 	}
 

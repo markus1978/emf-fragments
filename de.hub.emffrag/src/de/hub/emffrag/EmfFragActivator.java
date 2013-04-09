@@ -2,6 +2,8 @@ package de.hub.emffrag;
 
 import java.util.Map;
 
+import junit.framework.Assert;
+
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
@@ -20,10 +22,7 @@ import de.hub.emffrag.fragmentation.IndexBasedIdSemantics.IdBehaviour;
 
 public class EmfFragActivator extends Plugin {
 	
-	public enum IndexedValueSetBahaviour { strict, neverContains };
-
 	public FragmentedModel defaultModel = null;
-	public IndexedValueSetBahaviour indexedValueSetBahaviour = IndexedValueSetBahaviour.strict;
 	public boolean useBinaryFragments = false;
 	public boolean collectStatistics = false;
 	
@@ -34,6 +33,8 @@ public class EmfFragActivator extends Plugin {
 	public boolean logInStandAlone = false;
 	private boolean isStandAlone = false;
 	public int cacheSize = 100;
+	
+	private int warningsAndErrors = 0;
 
 
 	@Override
@@ -99,19 +100,31 @@ public class EmfFragActivator extends Plugin {
 	}
 
 	public void warning(String msg) {
+		warningsAndErrors++;
 		log(Status.WARNING, msg, null);		
 	}
 	
 	public void warning(String msg, Exception e) {
+		warningsAndErrors++;
 		log(Status.WARNING, msg, e);
 	}
 	
 	public void error(String msg) {
+		warningsAndErrors++;
 		log(Status.ERROR, msg, null);
 	}
 	
 	public void error(String msg, Exception e) {
+		warningsAndErrors++;
 		log(Status.ERROR, msg, e);
 	}	
+	
+	public void assertWarningsAndErrors(boolean value) {
+		Assert.assertEquals(value, warningsAndErrors == 0);
+	}
+	
+	public void resetWarningsAndErrors() {
+		warningsAndErrors = 0;
+	}
 
 }

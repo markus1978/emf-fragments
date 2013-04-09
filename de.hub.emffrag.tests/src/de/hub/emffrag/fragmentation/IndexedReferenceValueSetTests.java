@@ -16,10 +16,12 @@ import de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes;
 public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 	
 	protected TestObject testObject;
+	protected TestObject testObject2;
 	
 	@Before
 	public void indexInitialization() {
 		testObject = Assertions.createTestObjectWithIndexes(0);
+		testObject2 = Assertions.createTestObjectWithIndexes(0);
 	}
 	
 	@Test
@@ -60,6 +62,104 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 		assertFragmentsIndex();
 		assertIdIndex();
 		model.assertValueSetIndex(testObject, testFeature(), 0l, 2l);
+	}
+	
+	@Test
+	public void indexOfTest() {
+		root.getContents().add(testObject);
+		root.getContents().add(object1);
+		object1.getFragmentedContents().add(object2);
+		object1.getRegularContents().add(object3);
+		valueSet().add(object1);
+		valueSet().add(object2);
+		valueSet().add(object3);
+							
+		Assert.assertEquals(0, valueSet().indexOf(object1));
+		Assert.assertEquals(1, valueSet().indexOf(object2));
+		Assert.assertEquals(2, valueSet().indexOf(object3));
+	}
+	
+	@Test
+	public void removeValueTest() {
+		root.getContents().add(testObject);
+		root.getContents().add(object1);
+		object1.getFragmentedContents().add(object2);
+		object1.getRegularContents().add(object3);
+		valueSet().add(object1);
+		valueSet().add(object2);
+		valueSet().add(object3);
+							
+		Assert.assertTrue(valueSet().remove(object1));
+		Assert.assertTrue(valueSet().remove(object3));
+		Assert.assertFalse(valueSet().remove(object1));
+		Assert.assertFalse(valueSet().remove(object3));
+		Assert.assertEquals(-1, valueSet().indexOf(object1));
+		Assert.assertEquals(1, valueSet().indexOf(object2));
+		Assert.assertEquals(-1, valueSet().indexOf(object3));
+	}
+	
+	@Test
+	public void containsTest() {
+		root.getContents().add(testObject);
+		root.getContents().add(object1);
+		object1.getFragmentedContents().add(object2);
+		object1.getRegularContents().add(object3);
+		valueSet().add(object1);
+		valueSet().add(object2);
+		valueSet().add(object3);
+							
+		Assert.assertTrue(valueSet().contains(object1));
+		Assert.assertTrue(valueSet().contains(object2));
+		Assert.assertTrue(valueSet().contains(object3));
+		
+		valueSet().remove(object2);
+		Assert.assertFalse(valueSet().contains(object2));
+		
+		valueSet().add(object2);
+		Assert.assertTrue(valueSet().contains(object2));
+	}
+	
+	@Test
+	public void moveValueTest1() {
+		root.getContents().add(testObject);
+		root.getContents().add(object1);
+		object1.getFragmentedContents().add(object2);
+		object1.getRegularContents().add(object3);
+		valueSet().add(object1);
+		valueSet().add(object2);
+		valueSet().add(object3);
+		valueSet().add(object2);
+									
+		Assert.assertEquals(0, valueSet().indexOf(object1));
+		Assert.assertEquals(3, valueSet().indexOf(object2));
+		Assert.assertEquals(2, valueSet().indexOf(object3));
+		Assert.assertEquals(object2, valueSet().get(1));
+		EmfFragActivator.instance.assertWarningsAndErrors(true);
+	}
+	
+	@Test
+	public void moveValueTest2() {
+		root.getContents().add(testObject);
+		root.getContents().add(object1);
+		object1.getFragmentedContents().add(object2);
+		object1.getRegularContents().add(object3);
+		valueSet().add(object1);
+		valueSet().add(object2);
+		valueSet().add(object3);
+		valueSet().remove(object2);
+		valueSet().add(object2);
+									
+		Assert.assertEquals(0, valueSet().indexOf(object1));
+		Assert.assertEquals(3, valueSet().indexOf(object2));
+		Assert.assertEquals(2, valueSet().indexOf(object3));
+		boolean exceptionThrown = false;
+		try {
+			Assert.assertNull(valueSet().get(1));
+		} catch (IndexOutOfBoundsException e) {
+			exceptionThrown = true;
+		}
+		Assert.assertTrue(exceptionThrown);
+		EmfFragActivator.instance.assertWarningsAndErrors(true);
 	}
 	
 	protected EList<TestObject> valueSet() {

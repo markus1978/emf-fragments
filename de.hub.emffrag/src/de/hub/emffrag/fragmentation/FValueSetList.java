@@ -5,13 +5,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.util.EcoreEList;
 
 import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.EmfFragActivator.IndexedValueSetBahaviour;
 import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.LongKeyType;
@@ -33,7 +33,7 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 		if (model == null) {
 			throw new NotInAFragmentedModelException(
 					"Operation on indexed value sets can only be performed for objects contained in a fragmented model.");
-		}	
+		}
 		DataStore dataStore = model.getDataStore();
 
 		index = new DataIndex<Long>(dataStore, createPrefix(object, feature), LongKeyType.instance);
@@ -48,9 +48,9 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 
 	static String createPrefix(FInternalObjectImpl object, EStructuralFeature feature) {
 		String id = EmfFragActivator.instance.idSemantics.getPrefixID(object);
-				
+
 		int featureId = feature.getFeatureID();
-		if (((EReference)feature).isContainment()) {
+		if (((EReference) feature).isContainment()) {
 			return FragmentedModel.INDEX_FEATURES_PREFIX + "_" + id + "_" + featureId;
 		} else {
 			return FragmentedModel.INDEX_FEATURES_PREFIX + "-" + id + "_" + featureId;
@@ -94,8 +94,15 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 	}
 
 	@Override
-	public void addUnique(int index, FInternalObjectImpl object) {
+	public void addUnique(int index, FInternalObjectImpl object) {		
+		int indexIndex = ReflectiveMetaModelRegistry.instance.getInverseReferenceIndex((EReference)eStructuralFeature);
+		EList<Long> indexes = object.getIndexes();
+		if (indexes.size() > indexIndex) {
+			Long beforeIndex = indexes.get(indexIndex);
+			object.indexBeforeAdd = beforeIndex == null ? -1 : beforeIndex;	
+		}
 		super.addUnique(index, object);
+		object.indexBeforeAdd = -1;
 	}
 
 	@Override
@@ -135,7 +142,8 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 
 	@Override
 	public boolean add(FInternalObjectImpl e) {
-		semantics.setValueForKey(index.add(), e);
+		Long key = index.add();
+		performAdd(key, e);		
 		return true;
 	}
 
@@ -143,8 +151,27 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 	public void doAddUnique(int index, FInternalObjectImpl element) {
 		Long last = this.index.last();
 		if ((last == null && index == 0) || (last + 1 == index)) {
-			semantics.setValueForKey((long) index, element);
+			performAdd((long) index, element);
+		} else {
+			throw new UnsupportedOperationException("Can only add to the back of a indexed value set.");
 		}
+	}
+	
+	private void performAdd(long key, FInternalObjectImpl object) {
+		semantics.setValueForKey(key, object);
+		EReference reference = (EReference) eStructuralFeature;
+		int index = ReflectiveMetaModelRegistry.instance.getInverseReferenceIndex(reference);
+		EList<Long> indexes = object.getIndexes();
+		if (indexes.size() > index && indexes.get(index) != null && indexes.get(index).intValue() != -1 && object.indexBeforeAdd == -1) {
+			EmfFragActivator.instance
+					.warning("An object was added to an indexed value set, but seems to be already part of another indexed value set for the same feature." +
+							 "This is not really supported. Some operations of the original value set will not work properly." +
+							 "The effected feature is " + eStructuralFeature.getName() + " of class " + eStructuralFeature.getEContainingClass().getName() + ".");
+		}
+		for (int i = indexes.size(); i <= index; i++) {
+			indexes.add(Long.valueOf(-1));
+		}
+		indexes.set(index, key);
 	}
 
 	@Override
@@ -168,33 +195,62 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 
 	@Override
 	public boolean contains(Object o) {
-		if (EmfFragActivator.instance.indexedValueSetBahaviour == IndexedValueSetBahaviour.neverContains) {
-			return false;
+		int indexIndex = ReflectiveMetaModelRegistry.instance.getInverseReferenceIndex((EReference) eStructuralFeature);
+		if (o instanceof FInternalObject) {			
+			Long index = ((FInternalObject) o).getIndexes().get(indexIndex);
+			if (index != null) {
+				return o == performGet(index.longValue());
+			} else {
+				return false;
+			}
 		} else {
-			throw new UnsupportedOperationException("This method is not supported for indexed value sets.");
+			return false;
 		}
 	}
 
 	@Override
 	public boolean containsAll(Collection<?> c) {
-		throw new UnsupportedOperationException("This method is not supported for indexed value sets.");
-	}
-
-	@Override
-	public FInternalObjectImpl get(int index) {
-		FInternalObjectImpl result = semantics.getValueForExactKey((long) index);
-		if (result == null) {
-			throw new IndexOutOfBoundsException();
+		boolean result = true;
+		for (Object o : c) {
+			result &= contains(o);
 		}
 		return result;
 	}
 
 	@Override
-	public int indexOf(Object o) {
-		if (isEmpty()) {
-			return -1;
+	public FInternalObjectImpl get(int index) {
+		FInternalObjectImpl result = performGet((long) index);
+		if (result == null) {
+			throw new IndexOutOfBoundsException();
+		}
+		return result;
+	}
+	
+	private FInternalObjectImpl performGet(long index) {
+		return semantics.getValueForExactKey((long) index);
+	}
+
+	@Override
+	public int indexOf(Object o) {				
+		if (o instanceof FInternalObjectImpl) {			
+			FInternalObjectImpl fInternalObject = (FInternalObjectImpl) o;
+			if (fInternalObject.indexBeforeAdd != -1) {
+				return (int)fInternalObject.indexBeforeAdd;
+			} else {
+				int indexIndex = ReflectiveMetaModelRegistry.instance.getInverseReferenceIndex((EReference) eStructuralFeature);			
+				Long index = fInternalObject.getIndexes().get(indexIndex);
+				if (index == null) {
+					return -1;
+				} else {
+					if (performGet(index.longValue()) == o) {
+						return index.intValue();
+					} else {
+						return -1;
+					}
+				}
+			}
 		} else {
-			throw new UnsupportedOperationException("This method is not supported for indexed value sets.");
+			return -1;
 		}
 	}
 
@@ -210,7 +266,7 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 
 	@Override
 	public int lastIndexOf(Object o) {
-		throw new UnsupportedOperationException("This method is not supported for indexed value sets.");
+		return indexOf(o);
 	}
 
 	@Override
@@ -225,23 +281,43 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 
 	@Override
 	public FInternalObjectImpl doRemove(int index) {
-		if ((long) index == this.index.last()) {
-			FInternalObjectImpl value = get(index);
-			semantics.removeValueForKey((long) index, value);
-			return value;
-		} else {
-			throw new IllegalArgumentException("You can only remove the last entry of an indexed value set.");
+		FInternalObjectImpl value = get(index);
+		semantics.removeValueForKey((long) index, value);
+		if (value.indexBeforeAdd == -1) {
+			int indexIndex = ReflectiveMetaModelRegistry.instance.getInverseReferenceIndex((EReference) eStructuralFeature);
+			EList<Long> indexes = value.getIndexes();		
+			indexes.set(indexIndex, Long.valueOf(-1));
 		}
+		return value;		
 	}
 
 	@Override
 	public boolean remove(Object o) {
-		throw new UnsupportedOperationException("This method is not supported for indexed value sets.");
+		if (o instanceof FInternalObjectImpl) {
+			int indexIndex = ReflectiveMetaModelRegistry.instance.getInverseReferenceIndex((EReference) eStructuralFeature);
+			EList<Long> indexes = ((FInternalObject) o).getIndexes();
+			if (indexes.size() <= indexIndex) {
+				return false;
+			} else {
+				Long index = indexes.get(indexIndex);
+				if (index == null) {
+					return false;
+				} else {
+					return remove(index.intValue()) != null;
+				}
+			}
+		} else {
+			return false;
+		}
 	}
 
 	@Override
 	public boolean removeAll(Collection<?> c) {
-		throw new UnsupportedOperationException("This method is not supported for indexed value sets.");
+		boolean result = true;
+		for (Object o : c) {
+			result &= remove(o);
+		}
+		return result;
 	}
 
 	@Override

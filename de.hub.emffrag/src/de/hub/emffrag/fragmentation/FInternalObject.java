@@ -21,6 +21,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link de.hub.emffrag.fragmentation.FInternalObject#getExtensions <em>Extensions</em>}</li>
  *   <li>{@link de.hub.emffrag.fragmentation.FInternalObject#getAccessed <em>Accessed</em>}</li>
  *   <li>{@link de.hub.emffrag.fragmentation.FInternalObject#getLoaded <em>Loaded</em>}</li>
+ *   <li>{@link de.hub.emffrag.fragmentation.FInternalObject#getIndexes <em>Indexes</em>}</li>
  * </ul>
  * </p>
  *
@@ -122,5 +123,21 @@ public interface FInternalObject extends EObject {
 	 * @generated
 	 */
 	void setLoaded(long value);
+
+	/**
+	 * Returns the value of the '<em><b>Indexes</b></em>' attribute list.
+	 * The list contents are of type {@link java.lang.Long}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Indexes</em>' attribute list isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Indexes</em>' attribute list.
+	 * @see de.hub.emffrag.fragmentation.InternalPackage#getFInternalObject_Indexes()
+	 * @model unique="false"
+	 * @generated
+	 */
+	EList<Long> getIndexes();
 
 } // FInternalObject

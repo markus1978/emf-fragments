@@ -137,6 +137,15 @@ public class InternalPackageImpl extends EPackageImpl implements InternalPackage
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getFInternalObject_Indexes() {
+		return (EAttribute)fInternalObjectEClass.getEStructuralFeatures().get(4);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public InternalFactory getInternalFactory() {
 		return (InternalFactory)getEFactoryInstance();
 	}
@@ -165,6 +174,7 @@ public class InternalPackageImpl extends EPackageImpl implements InternalPackage
 		createEReference(fInternalObjectEClass, FINTERNAL_OBJECT__EXTENSIONS);
 		createEAttribute(fInternalObjectEClass, FINTERNAL_OBJECT__ACCESSED);
 		createEAttribute(fInternalObjectEClass, FINTERNAL_OBJECT__LOADED);
+		createEAttribute(fInternalObjectEClass, FINTERNAL_OBJECT__INDEXES);
 	}
 
 	/**
@@ -202,6 +212,7 @@ public class InternalPackageImpl extends EPackageImpl implements InternalPackage
 		initEReference(getFInternalObject_Extensions(), ecorePackage.getEObject(), null, "extensions", null, 0, -1, FInternalObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getFInternalObject_Accessed(), ecorePackage.getELong(), "accessed", null, 0, 1, FInternalObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getFInternalObject_Loaded(), ecorePackage.getELong(), "loaded", null, 0, 1, FInternalObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFInternalObject_Indexes(), ecorePackage.getELong(), "indexes", null, 0, -1, FInternalObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		// Create resource
 		createResource(eNS_URI);

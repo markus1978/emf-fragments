@@ -33,7 +33,8 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 
 	boolean hasPriliminaryId = false;
 	boolean hasDefaultModelId = false;
-
+	long indexBeforeAdd = -1;
+	
 	public FInternalObjectImpl(EClass eClass) {
 		super(eClass);
 		onLoad();
@@ -255,7 +256,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 		eAdapters = null;
 	}
 	
-	private Collection<EStructuralFeature> featuresWithIndexWarning = new HashSet<EStructuralFeature>();
+	private static Collection<EStructuralFeature> featuresWithIndexWarning = new HashSet<EStructuralFeature>();
 	
 	private void checkForReasonableNonIndexedValueSet(EStructuralFeature feature, EList<?> valueSet) {
 		FragmentationType fragmentationType = EMFFragUtil.getFragmentationType(feature);
@@ -263,7 +264,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 			if (valueSet.size() > 500) {
 				if (!featuresWithIndexWarning.contains(feature)) {
 					EmfFragActivator.instance.warning("A value set of feature " + feature.getName() + " of class "
-							+ feature.getEType().getName()
+							+ feature.getEContainingClass().getName()
 							+ " has now more than 1000 values. Consider to make this feature indexed.");
 					featuresWithIndexWarning.add(feature);
 				}				
@@ -358,18 +359,16 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 	protected static final String ID_EDEFAULT = null;
 
 	/**
-	 * The default value of the '{@link #getAccessed() <em>Accessed</em>}'
-	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * The default value of the '{@link #getAccessed() <em>Accessed</em>}' attribute.
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getAccessed()
 	 * @generated
 	 * @ordered
 	 */
 	protected static final long ACCESSED_EDEFAULT = 0L;
 	/**
-	 * The default value of the '{@link #getLoaded() <em>Loaded</em>}'
-	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * The default value of the '{@link #getLoaded() <em>Loaded</em>}' attribute.
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getLoaded()
 	 * @generated
 	 * @ordered
@@ -378,7 +377,6 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	protected FInternalObjectImpl() {
@@ -387,7 +385,6 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
@@ -407,7 +404,6 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
@@ -417,17 +413,14 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public String getId() {
-		return (String) eDynamicGet(InternalPackage.FINTERNAL_OBJECT__ID, InternalPackage.Literals.FINTERNAL_OBJECT__ID, true,
-				true);
+		return (String)eDynamicGet(InternalPackage.FINTERNAL_OBJECT__ID, InternalPackage.Literals.FINTERNAL_OBJECT__ID, true, true);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public void setId(String newId) {
@@ -436,48 +429,39 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@SuppressWarnings("unchecked")
 	public EList<EObject> getExtensions() {
-		return (EList<EObject>) eDynamicGet(InternalPackage.FINTERNAL_OBJECT__EXTENSIONS,
-				InternalPackage.Literals.FINTERNAL_OBJECT__EXTENSIONS, true, true);
+		return (EList<EObject>)eDynamicGet(InternalPackage.FINTERNAL_OBJECT__EXTENSIONS, InternalPackage.Literals.FINTERNAL_OBJECT__EXTENSIONS, true, true);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public long getAccessed() {
-		return (Long) eDynamicGet(InternalPackage.FINTERNAL_OBJECT__ACCESSED,
-				InternalPackage.Literals.FINTERNAL_OBJECT__ACCESSED, true, true);
+		return (Long)eDynamicGet(InternalPackage.FINTERNAL_OBJECT__ACCESSED, InternalPackage.Literals.FINTERNAL_OBJECT__ACCESSED, true, true);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public void setAccessed(long newAccessed) {
-		eDynamicSet(InternalPackage.FINTERNAL_OBJECT__ACCESSED, InternalPackage.Literals.FINTERNAL_OBJECT__ACCESSED,
-				newAccessed);
+		eDynamicSet(InternalPackage.FINTERNAL_OBJECT__ACCESSED, InternalPackage.Literals.FINTERNAL_OBJECT__ACCESSED, newAccessed);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public long getLoaded() {
-		return (Long) eDynamicGet(InternalPackage.FINTERNAL_OBJECT__LOADED, InternalPackage.Literals.FINTERNAL_OBJECT__LOADED,
-				true, true);
+		return (Long)eDynamicGet(InternalPackage.FINTERNAL_OBJECT__LOADED, InternalPackage.Literals.FINTERNAL_OBJECT__LOADED, true, true);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public void setLoaded(long newLoaded) {
@@ -485,105 +469,121 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 	}
 
 	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@SuppressWarnings("unchecked")
+	public EList<Long> getIndexes() {
+		return (EList<Long>)eDynamicGet(InternalPackage.FINTERNAL_OBJECT__INDEXES, InternalPackage.Literals.FINTERNAL_OBJECT__INDEXES, true, true);
+	}
+
+	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-		case InternalPackage.FINTERNAL_OBJECT__EXTENSIONS:
-			return ((InternalEList<?>) getExtensions()).basicRemove(otherEnd, msgs);
+			case InternalPackage.FINTERNAL_OBJECT__EXTENSIONS:
+				return ((InternalEList<?>)getExtensions()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-		case InternalPackage.FINTERNAL_OBJECT__ID:
-			return getId();
-		case InternalPackage.FINTERNAL_OBJECT__EXTENSIONS:
-			return getExtensions();
-		case InternalPackage.FINTERNAL_OBJECT__ACCESSED:
-			return getAccessed();
-		case InternalPackage.FINTERNAL_OBJECT__LOADED:
-			return getLoaded();
+			case InternalPackage.FINTERNAL_OBJECT__ID:
+				return getId();
+			case InternalPackage.FINTERNAL_OBJECT__EXTENSIONS:
+				return getExtensions();
+			case InternalPackage.FINTERNAL_OBJECT__ACCESSED:
+				return getAccessed();
+			case InternalPackage.FINTERNAL_OBJECT__LOADED:
+				return getLoaded();
+			case InternalPackage.FINTERNAL_OBJECT__INDEXES:
+				return getIndexes();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-		case InternalPackage.FINTERNAL_OBJECT__ID:
-			setId((String) newValue);
-			return;
-		case InternalPackage.FINTERNAL_OBJECT__EXTENSIONS:
-			getExtensions().clear();
-			getExtensions().addAll((Collection<? extends EObject>) newValue);
-			return;
-		case InternalPackage.FINTERNAL_OBJECT__ACCESSED:
-			setAccessed((Long) newValue);
-			return;
-		case InternalPackage.FINTERNAL_OBJECT__LOADED:
-			setLoaded((Long) newValue);
-			return;
+			case InternalPackage.FINTERNAL_OBJECT__ID:
+				setId((String)newValue);
+				return;
+			case InternalPackage.FINTERNAL_OBJECT__EXTENSIONS:
+				getExtensions().clear();
+				getExtensions().addAll((Collection<? extends EObject>)newValue);
+				return;
+			case InternalPackage.FINTERNAL_OBJECT__ACCESSED:
+				setAccessed((Long)newValue);
+				return;
+			case InternalPackage.FINTERNAL_OBJECT__LOADED:
+				setLoaded((Long)newValue);
+				return;
+			case InternalPackage.FINTERNAL_OBJECT__INDEXES:
+				getIndexes().clear();
+				getIndexes().addAll((Collection<? extends Long>)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-		case InternalPackage.FINTERNAL_OBJECT__ID:
-			setId(ID_EDEFAULT);
-			return;
-		case InternalPackage.FINTERNAL_OBJECT__EXTENSIONS:
-			getExtensions().clear();
-			return;
-		case InternalPackage.FINTERNAL_OBJECT__ACCESSED:
-			setAccessed(ACCESSED_EDEFAULT);
-			return;
-		case InternalPackage.FINTERNAL_OBJECT__LOADED:
-			setLoaded(LOADED_EDEFAULT);
-			return;
+			case InternalPackage.FINTERNAL_OBJECT__ID:
+				setId(ID_EDEFAULT);
+				return;
+			case InternalPackage.FINTERNAL_OBJECT__EXTENSIONS:
+				getExtensions().clear();
+				return;
+			case InternalPackage.FINTERNAL_OBJECT__ACCESSED:
+				setAccessed(ACCESSED_EDEFAULT);
+				return;
+			case InternalPackage.FINTERNAL_OBJECT__LOADED:
+				setLoaded(LOADED_EDEFAULT);
+				return;
+			case InternalPackage.FINTERNAL_OBJECT__INDEXES:
+				getIndexes().clear();
+				return;
 		}
 		super.eUnset(featureID);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-		case InternalPackage.FINTERNAL_OBJECT__ID:
-			return ID_EDEFAULT == null ? getId() != null : !ID_EDEFAULT.equals(getId());
-		case InternalPackage.FINTERNAL_OBJECT__EXTENSIONS:
-			return !getExtensions().isEmpty();
-		case InternalPackage.FINTERNAL_OBJECT__ACCESSED:
-			return getAccessed() != ACCESSED_EDEFAULT;
-		case InternalPackage.FINTERNAL_OBJECT__LOADED:
-			return getLoaded() != LOADED_EDEFAULT;
+			case InternalPackage.FINTERNAL_OBJECT__ID:
+				return ID_EDEFAULT == null ? getId() != null : !ID_EDEFAULT.equals(getId());
+			case InternalPackage.FINTERNAL_OBJECT__EXTENSIONS:
+				return !getExtensions().isEmpty();
+			case InternalPackage.FINTERNAL_OBJECT__ACCESSED:
+				return getAccessed() != ACCESSED_EDEFAULT;
+			case InternalPackage.FINTERNAL_OBJECT__LOADED:
+				return getLoaded() != LOADED_EDEFAULT;
+			case InternalPackage.FINTERNAL_OBJECT__INDEXES:
+				return !getIndexes().isEmpty();
 		}
 		return super.eIsSet(featureID);
 	}

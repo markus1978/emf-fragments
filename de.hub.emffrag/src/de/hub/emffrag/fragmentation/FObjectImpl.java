@@ -3,9 +3,16 @@ package de.hub.emffrag.fragmentation;
 import java.lang.ref.WeakReference;
 
 import org.eclipse.emf.common.notify.NotificationChain;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.EStoreEObjectImpl;
 import org.eclipse.emf.ecore.resource.Resource.Internal;
+
+import de.hub.emffrag.util.EMFFragUtil;
+import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
 
 public class FObjectImpl extends EStoreEObjectImpl {
 
@@ -139,5 +146,48 @@ public class FObjectImpl extends EStoreEObjectImpl {
 		// disables superclass implementation to avoid instant remove through
 		// double realization of containment
 		return msgs;
-	}	
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	protected EList<?> createList(EStructuralFeature eStructuralFeature) {
+		final EClassifier eType = eStructuralFeature.getEType();
+	    if (eType.getInstanceClassName() == "java.util.Map$Entry") {
+	    	return super.createList(eStructuralFeature);	
+	    } else {
+	    	FragmentationType fragmentationType = EMFFragUtil.getFragmentationType(eStructuralFeature);
+			if (fragmentationType == FragmentationType.IndexedReferences || fragmentationType == FragmentationType.FragmentsIndexedContainment) {
+				return new BasicEStoreEList(this, eStructuralFeature) {				
+					@Override
+					public int indexOf(Object object) {
+						if (object instanceof EObject) {
+							object = resolveProxy((EObject)object);
+						}
+						return delegateIndexOf(object);
+					}
+					
+					@Override
+					public int lastIndexOf(Object object) {
+						if (object instanceof EObject) {
+							object = resolveProxy((EObject)object);
+						}
+						return delegateLastIndexOf(object);
+					}
+					
+					@Override
+					public boolean contains(Object object) {
+						if (object instanceof EObject) {
+							object = resolveProxy((EObject)object);
+						}
+						return delegateContains(object);
+					}
+		    	};	
+			} else {
+				return super.createList(eStructuralFeature);
+			}	    	
+	    }
+		
+	}
+	
+	
 }

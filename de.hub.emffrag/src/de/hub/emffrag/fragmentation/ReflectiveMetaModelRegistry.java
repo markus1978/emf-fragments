@@ -1,6 +1,9 @@
 package de.hub.emffrag.fragmentation;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +22,9 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.impl.EClassImpl;
 import org.eclipse.emf.ecore.impl.EFactoryImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
 import de.hub.emffrag.util.EMFFragUtil;
 import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
@@ -44,6 +50,8 @@ public class ReflectiveMetaModelRegistry extends HashMap<String, Object> impleme
 	}
 
 	private final Map<String, EPackage> userMetaModelRegistry = new HashMap<String, EPackage>();
+	private final Multimap<EClass, EReference> incomingIndexedReferences = HashMultimap.create();
+	private final Map<EReference, Integer> inverseReferenceIds = new HashMap<EReference, Integer>();
 
 	public EPackage registerUserMetaModel(EPackage source) {
 		String nsURI = source.getNsURI();
@@ -109,28 +117,9 @@ public class ReflectiveMetaModelRegistry extends HashMap<String, Object> impleme
 		return getOtherClass(userMetaModelRegistry, theClass);
 	}
 
-//	@SuppressWarnings("unchecked")
 	private EPackage generateReflectiveMetaModel(final EPackage source) {
 		EPackage target = EcoreUtil.copy(source);
 		
-		
-//		EFactory regularFactory = source.getEFactoryInstance();
-//		T target = null;
-//		try {
-//			Constructor<? extends EPackage> declaredConstructor = source.getClass().getDeclaredConstructor(new Class[] {});
-//			declaredConstructor.setAccessible(true);
-//			target = (T) declaredConstructor.newInstance(new Object[] {});
-//			declaredConstructor.setAccessible(false);
-//			target.getClass().getMethod("createPackageContents", new Class<?>[] {}).invoke(target, new Object[] {});
-//			target.getClass().getMethod("initializePackageContents", new Class<?>[] {}).invoke(target, new Object[] {});
-//			target.getClass().getMethod("freeze", new Class<?>[] {}).invoke(target, new Object[] {});
-//		} catch (Exception e) {
-//			throw new RuntimeException("Exception during reflective meta-model generation, probably EMF internals have changed.", e);
-//		}
-		// EMF uses its notification process to clear a packages factory, if a
-		// new package instance is created. Weird.
-//		source.setEFactoryInstance(regularFactory);
-//		
 		put(source.getNsURI(), target);
 		userMetaModelRegistry.put(source.getNsURI(), source);
 
@@ -168,6 +157,7 @@ public class ReflectiveMetaModelRegistry extends HashMap<String, Object> impleme
 					} else if (fragmentationType == FragmentationType.FragmentsIndexedContainment || fragmentationType == FragmentationType.IndexedReferences) {
 						reference.setUnique(false);
 						reference.setTransient(true);
+						incomingIndexedReferences.put((EClass)reference.getEType(), reference);
 					}
 					EClassifier type = reference.getEType();
 					if (type instanceof EClass) {
@@ -220,6 +210,26 @@ public class ReflectiveMetaModelRegistry extends HashMap<String, Object> impleme
 				return super.createFromString(eDataType, stringValue);
 			}			
 		}		
+	}
+	
+	public int getInverseReferenceIndex(EReference reference) {
+		Integer index = inverseReferenceIds.get(reference);
+		if (index == null) {
+			Collection<EReference> collection = incomingIndexedReferences.get((EClass)reference.getEType());
+			ArrayList<EReference> sortedIncomingReferences = new ArrayList<EReference>(collection);
+			Collections.sort(sortedIncomingReferences, new Comparator<EReference>() {				
+				private String getQualifier(EReference reference) {
+					return reference.getEContainingClass().getName() + "." + reference.getName(); 
+				}
+				@Override
+				public int compare(EReference o1, EReference o2) {
+					return getQualifier(o1).compareTo(getQualifier(o2));
+				}				
+			});
+			index = sortedIncomingReferences.indexOf(reference);
+			inverseReferenceIds.put(reference, index);
+		}
+		return index;
 	}
 
 	@Override

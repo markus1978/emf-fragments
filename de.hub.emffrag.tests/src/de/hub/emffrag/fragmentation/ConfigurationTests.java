@@ -6,16 +6,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.EmfFragActivator.IndexedValueSetBahaviour;
 import de.hub.emffrag.fragmentation.IndexBasedIdSemantics.IdBehaviour;
 import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
-import de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes;
 
 public class ConfigurationTests extends AbstractFragmentationTests {
 	
 	@Before
 	public void ensureDefaultConfiguration() {
-		EmfFragActivator.instance.indexedValueSetBahaviour = IndexedValueSetBahaviour.strict;
 		EmfFragActivator.instance.idSemantics = new IndexBasedIdSemantics(IdBehaviour.strict);
 		EmfFragActivator.instance.defaultModel = null;
 	}
@@ -25,32 +22,6 @@ public class ConfigurationTests extends AbstractFragmentationTests {
 		return Assertions.createTestObjectWithIndexes(id);
 	}
 
-	@Test
-	public void testNeverContainsBehavior() {
-		EmfFragActivator.instance.indexedValueSetBahaviour = IndexedValueSetBahaviour.neverContains;
-		model.root().getContents().add(object1);
-		try {
-			Assert.assertFalse("Wrong result.", ((TestObjectWithIndexes)object1).getIndexedReferences().contains("something"));
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail("Exception thrown: " + e.getClass().getCanonicalName());
-		}
-	}
-	
-	@Test
-	public void testStrictContainsBehavior() {
-		model.root().getContents().add(object1);
-		try {
-			 ((TestObjectWithIndexes)object1).getIndexedReferences().contains("something");
-		} catch (UnsupportedOperationException e) {
-			return;
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail("Wrong exception thrown: " + e.getClass().getCanonicalName());
-		}
-		Assert.fail("Exception not thrown");
-	}
-	
 	@Test
 	public void testStrictIdBehavior() {
 		model.root().getContents().add(object1);		

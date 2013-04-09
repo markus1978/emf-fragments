@@ -135,7 +135,6 @@ import org.eclipse.ui.views.properties.PropertySheet;
 import org.eclipse.ui.views.properties.PropertySheetPage;
 
 import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.EmfFragActivator.IndexedValueSetBahaviour;
 import de.hub.emffrag.fragmentation.FragmentedModel;
 import de.hub.emffrag.fragmentation.IndexBasedIdSemantics;
 import de.hub.emffrag.fragmentation.IndexBasedIdSemantics.IdBehaviour;
@@ -949,7 +948,6 @@ public class EmfFragEditor
 				EmfFragActivator.instance.idSemantics = new IndexBasedIdSemantics(IdBehaviour.strict);
 			}
 							
-			EmfFragActivator.instance.indexedValueSetBahaviour = IndexedValueSetBahaviour.neverContains;
 			resourceURI = URI.createURI(uriString);
 		} catch (Exception e) {
 			e.printStackTrace();

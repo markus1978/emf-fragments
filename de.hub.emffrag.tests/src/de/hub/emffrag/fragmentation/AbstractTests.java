@@ -2,6 +2,7 @@ package de.hub.emffrag.fragmentation;
 
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.junit.Before;
 import org.junit.BeforeClass;
 
 import de.hub.emffrag.EmfFragActivator;
@@ -24,6 +25,11 @@ public class AbstractTests {
 		EmfFragActivator.standalone();
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("ecore", new XMIResourceFactoryImpl());
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
+	}
+	
+	@Before
+	public void resetErrorsAndWarnings() {
+		EmfFragActivator.instance.resetWarningsAndErrors();
 	}
 
 	protected DataStore createTestDataStore() {
