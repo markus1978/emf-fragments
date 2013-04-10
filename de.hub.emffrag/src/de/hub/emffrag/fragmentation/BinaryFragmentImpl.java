@@ -5,7 +5,9 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
@@ -56,10 +58,14 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 	@Override
 	protected void doUnload() {
 		Iterator<EObject> allContents = getAllProperContents(unloadingContents);
+		List<EObject> contents = new ArrayList<EObject>();
+		while(allContents.hasNext()) {
+			contents.add(allContents.next());
+		}
 
 		super.doUnload();
-		while (allContents.hasNext()) {
-			FInternalObjectImpl internalObject = (FInternalObjectImpl) allContents.next();
+		for (EObject eObject: contents) {
+			FInternalObjectImpl internalObject = (FInternalObjectImpl) eObject;
 			internalObject.trulyUnload();
 		}
 	}
