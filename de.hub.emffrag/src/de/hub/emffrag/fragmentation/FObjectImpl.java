@@ -157,36 +157,44 @@ public class FObjectImpl extends EStoreEObjectImpl {
 	    } else {
 	    	FragmentationType fragmentationType = EMFFragUtil.getFragmentationType(eStructuralFeature);
 			if (fragmentationType == FragmentationType.IndexedReferences || fragmentationType == FragmentationType.FragmentsIndexedContainment) {
-				return new BasicEStoreEList(this, eStructuralFeature) {				
-					@Override
-					public int indexOf(Object object) {
-						if (object instanceof EObject) {
-							object = resolveProxy((EObject)object);
-						}
-						return delegateIndexOf(object);
-					}
-					
-					@Override
-					public int lastIndexOf(Object object) {
-						if (object instanceof EObject) {
-							object = resolveProxy((EObject)object);
-						}
-						return delegateLastIndexOf(object);
-					}
-					
-					@Override
-					public boolean contains(Object object) {
-						if (object instanceof EObject) {
-							object = resolveProxy((EObject)object);
-						}
-						return delegateContains(object);
-					}
-		    	};	
+				return new MyBasicEStoreEList(this, eStructuralFeature);	
 			} else {
 				return super.createList(eStructuralFeature);
 			}	    	
 	    }
+	}
+	
+	private static class MyBasicEStoreEList<T> extends BasicEStoreEList<T> {
+
+		private static final long serialVersionUID = -2460474979751814503L;
+
+		public MyBasicEStoreEList(InternalEObject arg0, EStructuralFeature arg1) {
+			super(arg0, arg1);
+		}
 		
+		@Override
+		public int indexOf(Object object) {
+			if (object instanceof EObject) {
+				object = resolveProxy((EObject)object);
+			}
+			return delegateIndexOf(object);
+		}
+		
+		@Override
+		public int lastIndexOf(Object object) {
+			if (object instanceof EObject) {
+				object = resolveProxy((EObject)object);
+			}
+			return delegateLastIndexOf(object);
+		}
+		
+		@Override
+		public boolean contains(Object object) {
+			if (object instanceof EObject) {
+				object = resolveProxy((EObject)object);
+			}
+			return delegateContains(object);
+		}
 	}
 	
 	

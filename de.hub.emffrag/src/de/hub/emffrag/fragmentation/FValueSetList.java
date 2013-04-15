@@ -21,6 +21,7 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 	private static final long serialVersionUID = 1L;
 	private final DataIndex<Long> index;
 	private final AbstractValueSetSemantics<Long> semantics;
+	private final String id;
 
 	public FValueSetList(int kind, Class<?> dataClass, InternalEObject owner, EStructuralFeature feature) {
 		super(kind, dataClass, owner, feature);
@@ -36,7 +37,8 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 		}
 		DataStore dataStore = model.getDataStore();
 
-		index = new DataIndex<Long>(dataStore, createPrefix(object, feature), LongKeyType.instance);
+		this.id = createPrefix(object, feature);
+		index = new DataIndex<Long>(dataStore, id, LongKeyType.instance);
 
 		if (((EReference) feature).isContainment()) {
 			semantics = new IndexedContainmentValueSetSemantics<Long>(model, index, object, feature);
@@ -99,10 +101,12 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 		EList<Long> indexes = object.getIndexes();
 		if (indexes.size() > indexIndex) {
 			Long beforeIndex = indexes.get(indexIndex);
-			object.indexBeforeAdd = beforeIndex == null ? -1 : beforeIndex;	
+			object.indexBeforeAdd = beforeIndex == null ? -1 : beforeIndex;
+			object.addValueSetId = id;
 		}
 		super.addUnique(index, object);
 		object.indexBeforeAdd = -1;
+		object.addValueSetId = null;
 	}
 
 	@Override
@@ -132,7 +136,7 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 
 	@Override
 	public void grow(int minimumCapacity) {
-		throw new UnsupportedOperationException();
+//		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -153,7 +157,8 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 		if ((last == null && index == 0) || (last + 1 == index)) {
 			performAdd((long) index, element);
 		} else {
-			throw new UnsupportedOperationException("Can only add to the back of a indexed value set.");
+			EmfFragActivator.instance.warning("Can only add to the bad of an indexed value set. Add the value to the end instead.");
+			add(element);
 		}
 	}
 	
@@ -234,7 +239,7 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 	public int indexOf(Object o) {				
 		if (o instanceof FInternalObjectImpl) {			
 			FInternalObjectImpl fInternalObject = (FInternalObjectImpl) o;
-			if (fInternalObject.indexBeforeAdd != -1) {
+			if (fInternalObject.indexBeforeAdd != -1 && id.equals(fInternalObject.addValueSetId)) {
 				return (int)fInternalObject.indexBeforeAdd;
 			} else {
 				int indexIndex = ReflectiveMetaModelRegistry.instance.getInverseReferenceIndex((EReference) eStructuralFeature);			
@@ -283,7 +288,7 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 	public FInternalObjectImpl doRemove(int index) {
 		FInternalObjectImpl value = get(index);
 		semantics.removeValueForKey((long) index, value);
-		if (value.indexBeforeAdd == -1) {
+		if (id.equals(value.addValueSetId)) {
 			int indexIndex = ReflectiveMetaModelRegistry.instance.getInverseReferenceIndex((EReference) eStructuralFeature);
 			EList<Long> indexes = value.getIndexes();		
 			indexes.set(indexIndex, Long.valueOf(-1));

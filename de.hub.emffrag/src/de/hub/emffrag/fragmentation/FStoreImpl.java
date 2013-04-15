@@ -96,10 +96,15 @@ public class FStoreImpl implements EStore {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Object set(InternalEObject object, EStructuralFeature feature, int index, Object value) {
-		EObject internalObject = getInternalObject(object);
+		FInternalObjectImpl internalObject = getInternalObject(object);
 		feature = getInternalFeature(feature);
 		Object internalValue = getInternalValue(value, feature);		
 		Object result = null;
+		boolean valueIsProtected = false;
+		if (internalValue instanceof FInternalObjectImpl) {
+			valueIsProtected = protect((FInternalObjectImpl)internalValue);
+		}
+		protect(internalObject);
 		if (feature.isMany()) {
 			result = getUserValue(((EList) internalObject.eGet(feature)).set(index, internalValue), feature);
 		} else {
@@ -109,6 +114,10 @@ public class FStoreImpl implements EStore {
 		}
 		if (feature instanceof EReference && internalValue != null && !((EReference) feature).isContainment()) {
 			EmfFragActivator.instance.idSemantics.onObjectAsReferenced((FInternalObjectImpl)internalObject);
+		}
+		unprotect(internalObject);
+		if (valueIsProtected) {
+			unprotect((FInternalObjectImpl)internalValue);
 		}
 		return result;
 	}
@@ -122,7 +131,10 @@ public class FStoreImpl implements EStore {
 	@Override
 	public void unset(InternalEObject object, EStructuralFeature feature) {
 		feature = getInternalFeature(feature);
-		getInternalObject(object).eUnset(feature);
+		FInternalObjectImpl internalObject = getInternalObject(object);
+		protect(internalObject);
+		internalObject.eUnset(feature);
+		unprotect(internalObject);
 	}
 
 	@Override
@@ -163,28 +175,49 @@ public class FStoreImpl implements EStore {
 	public void add(InternalEObject object, EStructuralFeature feature, int index, Object value) {
 		feature = getInternalFeature(feature);
 		Object internalValue = getInternalValue(value, feature);
-		((EList) getInternalObject(object).eGet(feature)).add(index, internalValue);
+		FInternalObjectImpl internalObject = getInternalObject(object);
+		boolean valueIsProtected = false;
+		if (internalValue instanceof FInternalObjectImpl) {
+			valueIsProtected = protect((FInternalObjectImpl)internalValue);
+		}
+		protect(internalObject);
+		((EList) internalObject.eGet(feature)).add(index, internalValue);
 		if (feature instanceof EReference && !((EReference) feature).isContainment()) {
 			EmfFragActivator.instance.idSemantics.onObjectAsReferenced((FInternalObjectImpl)internalValue);
+		}
+		unprotect(internalObject);
+		if (valueIsProtected) {
+			unprotect((FInternalObjectImpl)internalValue);
 		}
 	}
 
 	@Override
 	public Object remove(InternalEObject object, EStructuralFeature feature, int index) {
 		feature = getInternalFeature(feature);
-		return getUserValue(((EList<?>) getInternalObject(object).eGet(feature)).remove(index), feature);
+		FInternalObjectImpl internalObject = getInternalObject(object);
+		protect(internalObject);
+		Object result = getUserValue(((EList<?>) internalObject.eGet(feature)).remove(index), feature);
+		unprotect(internalObject);
+		return result;
 	}
 
 	@Override
 	public Object move(InternalEObject object, EStructuralFeature feature, int targetIndex, int sourceIndex) {
 		feature = getInternalFeature(feature);
-		return getUserValue(((EList<?>) getInternalObject(object).eGet(feature)).move(targetIndex, sourceIndex), feature);
+		FInternalObjectImpl internalObject = getInternalObject(object);
+		protect(internalObject);
+		Object result = getUserValue(((EList<?>) internalObject.eGet(feature)).move(targetIndex, sourceIndex), feature);
+		unprotect(internalObject);
+		return result;
 	}
 
 	@Override
 	public void clear(InternalEObject object, EStructuralFeature feature) {
 		feature = getInternalFeature(feature);
-		((EList<?>) getInternalObject(object).eGet(feature)).clear();
+		FInternalObjectImpl internalObject = getInternalObject(object);
+		protect(internalObject);
+		((EList<?>) internalObject.eGet(feature)).clear();
+		unprotect(internalObject);
 
 	}
 
@@ -231,6 +264,26 @@ public class FStoreImpl implements EStore {
 	@Override
 	public EObject create(EClass eClass) {
 		throw new UnsupportedOperationException();
+	}
+	
+	private boolean protect(FInternalObjectImpl object) {
+		if (object != null) {
+			Fragment fragment = object.getFragment();
+			if (fragment != null) {
+				fragment.getFragmentedModel().protect(object.getFragment());
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void unprotect(FInternalObjectImpl object) {
+		if (object != null) {
+			Fragment fragment = object.getFragment();
+			if (fragment != null) {
+				fragment.getFragmentedModel().unprotect(object.getFragment());
+			}
+		}
 	}
 
 }

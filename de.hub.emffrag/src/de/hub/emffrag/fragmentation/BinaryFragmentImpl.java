@@ -6,14 +6,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.InternalEObject;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.URIConverter;
 import org.eclipse.emf.ecore.resource.impl.BinaryResourceImpl;
 
@@ -57,17 +59,26 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 	 */
 	@Override
 	protected void doUnload() {
-		Iterator<EObject> allContents = getAllProperContents(unloadingContents);
-		List<EObject> contents = new ArrayList<EObject>();
-		while(allContents.hasNext()) {
-			contents.add(allContents.next());
+		Collection<FInternalObject> nonFragmentingContents = new ArrayList<FInternalObject>();
+		for (EObject topLevel : unloadingContents) {
+			EMFFragUtil.collectAllNonFragmentingContents((FInternalObject) topLevel, nonFragmentingContents);
 		}
 
 		super.doUnload();
-		for (EObject eObject: contents) {
+		for (EObject eObject : nonFragmentingContents) {
 			FInternalObjectImpl internalObject = (FInternalObjectImpl) eObject;
 			internalObject.trulyUnload();
 		}
+	}
+
+	@Override
+	protected TreeIterator<EObject> getAllProperContents(EObject eObject) {
+		return EMFFragUtil.getAllNonFragmentingContentsIterator(eObject);
+	}
+
+	@Override
+	protected TreeIterator<EObject> getAllProperContents(List<EObject> contents) {
+		return EMFFragUtil.getAllNonFragmentingContentsIterator(contents);
 	}
 
 	@Override
@@ -198,10 +209,8 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 		}
 
 		@Override
-		protected void saveFeatureValue(InternalEObject internalEObject, int featureID,
-				EStructuralFeatureData eStructuralFeatureData) throws IOException {
-			FragmentationType type = EMFFragUtil
-					.getFragmentationType(internalEObject.eClass().getEStructuralFeature(featureID));
+		protected void saveFeatureValue(InternalEObject internalEObject, int featureID, EStructuralFeatureData eStructuralFeatureData) throws IOException {
+			FragmentationType type = EMFFragUtil.getFragmentationType(internalEObject.eClass().getEStructuralFeature(featureID));
 			if (type == FragmentationType.FragmentsContainment || type == FragmentationType.None) {
 				super.saveFeatureValue(internalEObject, featureID, eStructuralFeatureData);
 			}

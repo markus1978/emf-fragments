@@ -34,6 +34,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 	boolean hasPriliminaryId = false;
 	boolean hasDefaultModelId = false;
 	long indexBeforeAdd = -1;
+	String addValueSetId = null;
 	
 	public FInternalObjectImpl(EClass eClass) {
 		super(eClass);
@@ -90,8 +91,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 		EStructuralFeature[] eStructuralFeatures = ((EClassImpl.FeatureSubsetSupplier) this.eClass().getEAllStructuralFeatures()).containments();
 		EStructuralFeature[] eStructuralFeaturesWithOutFragmentsArray = null;
 		if (eStructuralFeatures != null) {
-			List<EStructuralFeature> eStructuralFeaturesWithOutFragments = new ArrayList<EStructuralFeature>(
-					eStructuralFeatures.length);
+			List<EStructuralFeature> eStructuralFeaturesWithOutFragments = new ArrayList<EStructuralFeature>(eStructuralFeatures.length);
 			for (EStructuralFeature eStructuralFeature : eStructuralFeatures) {
 				FragmentationType fragmentationType = EMFFragUtil.getFragmentationType(eStructuralFeature);
 				if (fragmentationType == FragmentationType.None || eStructuralFeature instanceof EAttribute) {
@@ -103,8 +103,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 		}
 
 		EContentsEList<EObject> eContentsEListWithOutFragments = eStructuralFeaturesWithOutFragmentsArray == null ? EContentsEList
-				.<EObject> emptyContentsEList() : new EContentsEList<EObject>(this,
-				eStructuralFeaturesWithOutFragmentsArray);
+				.<EObject> emptyContentsEList() : new EContentsEList<EObject>(this, eStructuralFeaturesWithOutFragmentsArray);
 
 		return eContentsEListWithOutFragments;
 	}
@@ -170,28 +169,28 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 		}
 	}
 	
-	private void protect(Fragment fragment) {
-		if (fragment != null) {
-			FragmentedModel fragmentedModel = fragment.getFragmentedModel();
-			if (fragmentedModel != null) {
-				fragmentedModel.protect(fragment);
-			}
-		}
-	}
-	
-	private void unprotect(Fragment fragment) {
-		if (fragment != null) {
-			FragmentedModel fragmentedModel = fragment.getFragmentedModel();
-			if (fragmentedModel != null) {
-				fragmentedModel.unprotect(fragment);
-			}
-		}
-	}
+//	private void protect(Fragment fragment) {
+//		if (fragment != null) {
+//			FragmentedModel fragmentedModel = fragment.getFragmentedModel();
+//			if (fragmentedModel != null) {
+//				fragmentedModel.protect(fragment);
+//			}
+//		}
+//	}
+//	
+//	private void unprotect(Fragment fragment) {
+//		if (fragment != null) {
+//			FragmentedModel fragmentedModel = fragment.getFragmentedModel();
+//			if (fragmentedModel != null) {
+//				fragmentedModel.unprotect(fragment);
+//			}
+//		}
+//	}
 
 	private void updateAfterContainerChange(Fragment oldFragment) {
 		Fragment currentFragment = getFragment();
-		protect(currentFragment);
-		protect(oldFragment);
+//		protect(currentFragment);
+//		protect(oldFragment);
 		EStructuralFeature eContainingFeature = eContainingFeature();
 		FragmentationType fragmentationType = eContainingFeature != null ? EMFFragUtil.getFragmentationType(eContainingFeature)
 				: FragmentationType.None;
@@ -207,9 +206,9 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 			}
 			
 			if (newFragment != null) {
-				protect(newFragment);
+//				protect(newFragment);
 				updateFragmentationAfterCreatingAFragment(this, newFragment);
-				unprotect(newFragment);
+//				unprotect(newFragment);
 			}
 		}
 		
@@ -235,8 +234,8 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 			}
 		}
 		
-		unprotect(currentFragment);
-		unprotect(oldFragment);
+//		unprotect(currentFragment);
+//		unprotect(oldFragment);
 
 		fragmentURIForContainerChange = null;
 	}
@@ -288,8 +287,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 		if (type == FragmentationType.None || type == FragmentationType.FragmentsContainment) {
 			return ((EStructuralFeature.Internal) eFeature).getSettingDelegate();
 		} else {
-			return new EStructuralFeatureImpl.InternalSettingDelegateMany(
-					EStructuralFeatureImpl.InternalSettingDelegateMany.DATA_DYNAMIC, eFeature) {
+			return new EStructuralFeatureImpl.InternalSettingDelegateMany(EStructuralFeatureImpl.InternalSettingDelegateMany.DATA_DYNAMIC, eFeature) {
 				@Override
 				protected Setting createDynamicSetting(InternalEObject owner) {
 					int kind = EcoreEList.Generic.kind(eFeature);
@@ -299,14 +297,16 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 		}
 	}
 
-	void eBasicSetContainerForIndexClass(FInternalObjectImpl indexClass, URI uri) {
+	void eBasicSetContainerForIndexClass(FInternalObjectImpl indexClass, URI uri) {	
 		Resource eResource = eResource();
 		
 		if (!eIsProxy()) {
 			// Do not update containment if the object is a proxy. In that case
 			// the object is loaded and not modified by a user.
+//			protect(getFragment());
 			indexClass.getFragmentation().createFragment(uri, this);
 			updateAfterResourceChange(eResource);
+//			unprotect(getFragment());
 		}
 	}
 

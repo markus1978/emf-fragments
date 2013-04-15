@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections.map.LRUMap;
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -30,13 +29,16 @@ import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.model.emffrag.EmfFragFactory;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import de.hub.emffrag.model.emffrag.Root;
+import de.hub.emffrag.util.EMFFragUtil;
 
 public class FragmentedModel extends ResourceImpl {
-
+	
 	public static final String FRAGMENTS_INDEX_PREFIX = "f";
 	public static final String ID_INDEX_PREFIX = "c";
 	public static final String INDEX_CLASSES_PREFIX = "i";
 	public static final String INDEX_FEATURES_PREFIX = "j";
+	
+	private int protect = 0;
 
 	private final static XMLParserPoolImpl xmlParserPool = new XMLParserPoolImpl(true);
 	private final static Map<Object, Object> options = new HashMap<Object, Object>();
@@ -50,7 +52,10 @@ public class FragmentedModel extends ResourceImpl {
 	}
 
 	private final ResourceSet resourceSet;
-	private final LRUMap fragmentCache;
+	
+//	private final LRUMap fragmentCache;
+	private final FragmentsCache fragmentCache;
+	
 	private final DataStore dataStore;
 	private final DataIndex<Long> fragmentIndex;
 	private final IdIndex idIndex;
@@ -71,13 +76,20 @@ public class FragmentedModel extends ResourceImpl {
 			cacheSize = EmfFragActivator.instance.cacheSize;
 		}
 		
-		fragmentCache = new LRUMap(cacheSize) {
+//		fragmentCache = new LRUMap(cacheSize) {
+//			@Override
+//			protected boolean removeLRU(LinkEntry entry) {
+//				unloadFragment((Fragment)entry.getValue());
+//				return true;
+//			}			
+//		};
+		
+		fragmentCache = new FragmentsCache(cacheSize) {	
 			@Override
-			protected boolean removeLRU(LinkEntry entry) {
-				unloadFragment((Fragment)entry.getValue());
-				return true;
-			}			
-		};
+			protected void onEvict(Fragment fragment) {
+				unloadFragment(fragment);
+			}
+		};				
 
 		this.fragmentIndex = new DataIndex<Long>(dataStore, FRAGMENTS_INDEX_PREFIX, LongKeyType.instance);
 		this.idIndex = new IdIndex(dataStore);
@@ -96,15 +108,17 @@ public class FragmentedModel extends ResourceImpl {
 	}
 	
 	void touch(Fragment fragment) {	
-		fragmentCache.get(fragment.getURI());
+		fragmentCache.touch(fragment);
 	}
 	
 	void protect(Fragment fragment) {
-		fragmentCache.remove(fragment.getURI());
+		protect++;
+		fragmentCache.protect(fragment);
 	}
 	
 	void unprotect(Fragment fragment) {
-		fragmentCache.put(fragment.getURI(), fragment);
+		protect--;
+		fragmentCache.unprotect(fragment);
 	}
 
 	public class Statistics {
@@ -126,18 +140,16 @@ public class FragmentedModel extends ResourceImpl {
 	}
 
 	private void unloadFragment(Fragment fragment) {	
-		if (!fragment.isLoaded()) {
-			return;
-		}
-
-		statistics.unloads++;
-		EmfFragActivator.instance.debug("Saving and unloading fragment: " + fragment.getURI().toString());
-		try {
-			fragment.save(options);
-		} catch (IOException e) {
-			Throwables.propagate(e);
-		}
-		fragment.unload();
+		if (fragment.isLoaded()) {
+			statistics.unloads++;
+			EmfFragActivator.instance.debug("Saving and unloading fragment: " + fragment.getURI().toString());
+			try {
+				fragment.save(options);
+			} catch (IOException e) {
+				Throwables.propagate(e);
+			}
+			fragment.unload();
+		} 
 		resourceSet.getResources().remove(fragment);
 	}
 
@@ -326,6 +338,34 @@ public class FragmentedModel extends ResourceImpl {
 
 	IdIndex getIdIndex() {
 		return idIndex;
+	}
+	
+	public void printTelemetry() {
+		int loadedObjects = 0;
+		for (Resource resource: resourceSet.getResources()) {
+			if (resource.isLoaded()) {
+				loadedObjects += EMFFragUtil.getAllNonFragmentingContents((Fragment)resource).size();
+			}
+		}
+		
+		int loadedResources = 0;
+		for (Resource resource: resourceSet.getResources()) {
+			if (resource.isLoaded()) {
+				loadedResources++;
+			}
+		}
+		
+		StringBuffer info = new StringBuffer();
+		info.append("-- FragmentedModel telemetry ----------------------------------\n");
+		info.append("Resources in ResourceSet: " + resourceSet.getResources().size() + "\n");
+		info.append("Resources in Fragments Cache: " + fragmentCache.size() + "\n");
+		info.append("Loaded Resources: " + loadedResources + "\n");
+		info.append("Loaded objects: " + loadedObjects + "\n");
+		info.append("UserObjectCache size: " + UserObjectsCache.instance.size() + "\n");
+		info.append("Protect difference: " + protect + "\n");
+		info.append("-- END --------------------------------------------------------" + "\n");
+		
+		System.out.println(info.toString());
 	}
 
 	/**

@@ -1,8 +1,13 @@
 package de.hub.emffrag.fragmentation;
 
-import org.apache.commons.collections.map.ReferenceMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 /**
  * Caches {@link FObjectImpl} instances for {@link FInternalObjectImpl}
@@ -15,15 +20,25 @@ public class UserObjectsCache {
 
 	final static UserObjectsCache instance = new UserObjectsCache();
 	
-	private final ReferenceMap cache = new ReferenceMap(ReferenceMap.HARD, ReferenceMap.WEAK, true);
+//	private final ReferenceMap cache = new ReferenceMap(ReferenceMap.HARD, ReferenceMap.WEAK, true);
+	
+	private final Cache<FInternalObjectImpl, FObjectImpl> cache;
+	
+	public UserObjectsCache() {
+		cache = CacheBuilder.newBuilder().weakValues().build();
+	}
 
-	public FObjectImpl getUserObject(FInternalObjectImpl internalObject) {
-		FObjectImpl result = (FObjectImpl)cache.get(internalObject);
-		if (result == null) {
-			result = createUserObject(internalObject);
+	public FObjectImpl getUserObject(final FInternalObjectImpl internalObject) {
+		try {
+			return cache.get(internalObject, new Callable<FObjectImpl>() {
+				@Override
+				public FObjectImpl call() throws Exception {
+					return createUserObject(internalObject);
+				}
+			});
+		} catch (ExecutionException e) {
+			throw new RuntimeException();
 		}
-
-		return result;
 	}
 
 	private FObjectImpl createUserObject(FInternalObjectImpl internalObject) {
@@ -49,5 +64,10 @@ public class UserObjectsCache {
 		cache.put(internalObject,userObject);	
 		userObject.fSetInternalObject(internalObject);
 		return internalObject;
+	}
+
+	public int size() {
+		cache.cleanUp();
+		return (int)cache.size();
 	}
 }

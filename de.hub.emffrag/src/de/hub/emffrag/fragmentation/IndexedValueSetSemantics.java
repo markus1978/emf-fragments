@@ -26,7 +26,7 @@ public class IndexedValueSetSemantics<K> extends AbstractValueSetSemantics<K> {
 	public void setValueForKey(final K key, FInternalObjectImpl internalObject) {	
 		SaveURI save = new SaveURI() {					
 			@Override
-			public void saveURI(URI uri) {
+			public void saveURI(URI uri) {		
 				index.set(key, uri.toString());
 			}
 		};
