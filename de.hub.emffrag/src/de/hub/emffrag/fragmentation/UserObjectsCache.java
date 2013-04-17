@@ -70,4 +70,8 @@ public class UserObjectsCache {
 		cache.cleanUp();
 		return (int)cache.size();
 	}
+
+	public boolean hasUserObject(FInternalObjectImpl instance) {
+		return cache.getIfPresent(instance) != null;
+	}
 }

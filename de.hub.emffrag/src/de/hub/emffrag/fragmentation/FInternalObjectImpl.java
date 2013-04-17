@@ -25,6 +25,11 @@ import org.eclipse.emf.ecore.util.EContentsEList;
 import org.eclipse.emf.ecore.util.EcoreEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+
 import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.util.EMFFragUtil;
 import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
@@ -38,6 +43,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 	
 	public FInternalObjectImpl(EClass eClass) {
 		super(eClass);
+		add(this);
 		onLoad();
 	}
 
@@ -110,6 +116,7 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 
 	@Override
 	public NotificationChain eSetResource(Internal resource, NotificationChain notifications) {
+		wasInAResource = wasInAResource || resource != null;
 		Resource oldResource = eResource();
 		NotificationChain result = super.eSetResource(resource, notifications);
 		updateAfterResourceChange(oldResource);
@@ -593,5 +600,91 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 	public void fragmentURIForContainerChange(URI uri) {
 		assert (fragmentURIForContainerChange == null);		
 		fragmentURIForContainerChange = uri;
+	}
+	
+	// only for test and mem-leak finding purposes
+	private final static Cache<FInternalObjectImpl, FInternalObjectImpl> allInstances = CacheBuilder.newBuilder().weakKeys().weakValues().build();
+	private final static void add(FInternalObjectImpl instance) {
+		allInstances.put(instance, instance);
+	}
+	
+	private boolean wasInAResource = false;
+	
+	public static void printTelemetry() {
+		try {
+			System.gc();
+			Thread.sleep(200);
+			allInstances.cleanUp();
+			allInstances.size();
+			System.gc();
+			Thread.sleep(200);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+		Multimap<String, Resource> resources = HashMultimap.create();		
+		
+		long proxies = 0;
+		long withResource = 0;
+		long total = 0;
+		long withUserObject = 0;
+		long withOutResourceButProxy = 0;
+		long withOutResourceAndWithoutProxy = 0;
+		long withOutResourceProxyAndUserObject = 0;
+		long withOutResourceProxyUserObjectAnWasInAResource = 0;
+		
+		for (FInternalObjectImpl instance: allInstances.asMap().keySet()) {
+			if (instance.eIsProxy()) proxies++;				
+			Resource eResource = instance.eResource();
+			boolean isWithOutResourceAndProxy = false;
+			if (eResource != null) {
+				withResource++;
+				resources.put(eResource.getURI().toString(), eResource);
+			} else {
+				if (instance.eIsProxy()) {
+					withOutResourceButProxy++;
+				} else {
+					withOutResourceAndWithoutProxy++;
+					isWithOutResourceAndProxy = true;
+				}
+			}
+			if (UserObjectsCache.instance.hasUserObject(instance)) {
+				withUserObject++;				
+			} else {
+				if (isWithOutResourceAndProxy) {
+					withOutResourceProxyAndUserObject++;
+					if (instance.wasInAResource) {
+						withOutResourceProxyUserObjectAnWasInAResource++;
+					}
+					instance.trulyUnload();
+				}
+			}
+			total++;
+		}
+		
+		long totalNumberOfURIs = 0;
+		long maxResourcesWithSameURI = 0;
+		long totalNumberOfResources = 0;
+		
+		for (String uri: resources.keySet()) {
+			totalNumberOfURIs++;
+			int numberOfResources = resources.get(uri).size();
+			maxResourcesWithSameURI = Math.max(maxResourcesWithSameURI, numberOfResources);
+			totalNumberOfResources += numberOfResources;
+		}
+		
+		System.out.println("------- FInternalObjectImpl instance set telemetry ----------------- ");
+		System.out.println("total: " + total);
+		System.out.println("proxies: " + proxies);
+		System.out.println("withResource: " + withResource);
+		System.out.println("withOutResourceButProxy: " + withOutResourceButProxy);
+		System.out.println("withOutResourceAndWithoutProxy: " + withOutResourceAndWithoutProxy);
+		System.out.println("withOutResourceProxyAndUserObject (i.e. definetely dead): " + withOutResourceProxyAndUserObject);
+		System.out.println("withOutResourceProxyUserObjectAndNeverWasInAResource (i.e. never alive dead): " + (withOutResourceProxyAndUserObject-withOutResourceProxyUserObjectAnWasInAResource));
+		System.out.println("withUserObject: " + withUserObject);	
+		System.out.println("totalNumberOfURIs: " + totalNumberOfURIs);	
+		System.out.println("maxResourcesWithSameURI: " + maxResourcesWithSameURI);	
+		System.out.println("totalNumberOfResources: " + totalNumberOfResources);
+		System.out.println("------- END telemetry ---------------------------------------------- ");
 	}
 }
