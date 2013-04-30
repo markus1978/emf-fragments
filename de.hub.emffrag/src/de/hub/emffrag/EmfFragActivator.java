@@ -14,6 +14,7 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
+import de.hub.emffrag.fragmentation.FGlobalEventListener;
 import de.hub.emffrag.fragmentation.FragmentedModel;
 import de.hub.emffrag.fragmentation.FragmentedModelFactory;
 import de.hub.emffrag.fragmentation.IdSemantics;
@@ -25,6 +26,7 @@ public class EmfFragActivator extends Plugin {
 	public FragmentedModel defaultModel = null;
 	public boolean useBinaryFragments = false;
 	public boolean collectStatistics = false;
+	public FGlobalEventListener globalEventListener = FGlobalEventListener.emptyInstance;
 	
 	public IdSemantics idSemantics = new IndexBasedIdSemantics(IdBehaviour.strict);
 	

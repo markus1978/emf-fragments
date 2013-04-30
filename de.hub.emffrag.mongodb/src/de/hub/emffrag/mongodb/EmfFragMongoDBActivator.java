@@ -19,6 +19,7 @@ import de.hub.emffrag.fragmentation.FragmentedModelFactory;
 public class EmfFragMongoDBActivator extends Plugin {
 
 	public static EmfFragMongoDBActivator instance = null;
+	public boolean tryToScan = false;
 	
 	private Map<String, DB> dataBases = new HashMap<String, DB>();
 

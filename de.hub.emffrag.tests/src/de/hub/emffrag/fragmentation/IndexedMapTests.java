@@ -8,8 +8,8 @@ import org.junit.Test;
 
 import de.hub.emffrag.datastore.StringKeyType;
 import de.hub.emffrag.model.emffrag.IndexedMap;
-import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
-import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
+import de.hub.emffrag.testmodels.testmodel.TestObject;
+import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelFactory;
 
 public class IndexedMapTests extends AbstractFragmentationTests {
 	

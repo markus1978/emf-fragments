@@ -29,7 +29,6 @@ import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.model.emffrag.EmfFragFactory;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import de.hub.emffrag.model.emffrag.Root;
-import de.hub.emffrag.util.EMFFragUtil;
 
 public class FragmentedModel extends ResourceImpl {
 	
@@ -37,8 +36,6 @@ public class FragmentedModel extends ResourceImpl {
 	public static final String ID_INDEX_PREFIX = "c";
 	public static final String INDEX_CLASSES_PREFIX = "i";
 	public static final String INDEX_FEATURES_PREFIX = "j";
-	
-	private int protect = 0;
 
 	private final static XMLParserPoolImpl xmlParserPool = new XMLParserPoolImpl(true);
 	private final static Map<Object, Object> options = new HashMap<Object, Object>();
@@ -53,7 +50,6 @@ public class FragmentedModel extends ResourceImpl {
 
 	private final ResourceSet resourceSet;
 	
-//	private final LRUMap fragmentCache;
 	private final FragmentsCache fragmentCache;
 	
 	private final DataStore dataStore;
@@ -66,7 +62,7 @@ public class FragmentedModel extends ResourceImpl {
 		this(dataStore, -1);
 	}
 
-	FragmentedModel(DataStore dataStore, int cacheSize) {
+	public FragmentedModel(DataStore dataStore, int cacheSize) {
 		super(URI.createURI(dataStore.getURIString()));
 		
 		ReflectiveMetaModelRegistry.instance.registerUserMetaModel(EmfFragPackage.eINSTANCE);
@@ -75,14 +71,6 @@ public class FragmentedModel extends ResourceImpl {
 		if (cacheSize == -1) {
 			cacheSize = EmfFragActivator.instance.cacheSize;
 		}
-		
-//		fragmentCache = new LRUMap(cacheSize) {
-//			@Override
-//			protected boolean removeLRU(LinkEntry entry) {
-//				unloadFragment((Fragment)entry.getValue());
-//				return true;
-//			}			
-//		};
 		
 		fragmentCache = new FragmentsCache(cacheSize) {	
 			@Override
@@ -112,12 +100,10 @@ public class FragmentedModel extends ResourceImpl {
 	}
 	
 	void protect(Fragment fragment) {
-		protect++;
 		fragmentCache.protect(fragment);
 	}
 	
 	void unprotect(Fragment fragment) {
-		protect--;
 		fragmentCache.unprotect(fragment);
 	}
 
@@ -192,11 +178,13 @@ public class FragmentedModel extends ResourceImpl {
 					public Resource createResource(URI uri) {
 						EmfFragActivator.instance.debug("Created fragment: " + uri.toString());
 						Fragment fragment = newFragment(uri, FragmentedModel.this);
+						((ResourceImpl)fragment).setIntrinsicIDToEObjectMap(new HashMap<String, EObject>());
 						fragmentCache.put(uri, fragment);
 						return fragment;
 					}
 				});
 		resourceSet.setPackageRegistry(ReflectiveMetaModelRegistry.instance);
+		((ResourceSetImpl)resourceSet).setURIResourceMap(new HashMap<URI, Resource>());
 
 		return resourceSet;
 	}
@@ -338,34 +326,6 @@ public class FragmentedModel extends ResourceImpl {
 
 	IdIndex getIdIndex() {
 		return idIndex;
-	}
-	
-	public void printTelemetry() {
-		int loadedObjects = 0;
-		for (Resource resource: resourceSet.getResources()) {
-			if (resource.isLoaded()) {
-				loadedObjects += EMFFragUtil.getAllNonFragmentingContents((Fragment)resource).size();
-			}
-		}
-		
-		int loadedResources = 0;
-		for (Resource resource: resourceSet.getResources()) {
-			if (resource.isLoaded()) {
-				loadedResources++;
-			}
-		}
-		
-		StringBuffer info = new StringBuffer();
-		info.append("-- FragmentedModel telemetry ----------------------------------\n");
-		info.append("Resources in ResourceSet: " + resourceSet.getResources().size() + "\n");
-		info.append("Resources in Fragments Cache: " + fragmentCache.size() + "\n");
-		info.append("Loaded Resources: " + loadedResources + "\n");
-		info.append("Loaded objects: " + loadedObjects + "\n");
-		info.append("UserObjectCache size: " + UserObjectsCache.instance.size() + "\n");
-		info.append("Protect difference: " + protect + "\n");
-		info.append("-- END --------------------------------------------------------" + "\n");
-		
-		System.out.println(info.toString());
 	}
 
 	/**

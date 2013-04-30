@@ -8,9 +8,9 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.junit.Assert;
 
-import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
-import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
-import de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes;
+import de.hub.emffrag.testmodels.testmodel.TestObject;
+import de.hub.emffrag.testmodels.testmodel.TestObjectWithIndexes;
+import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelFactory;
 
 public class Assertions {
 

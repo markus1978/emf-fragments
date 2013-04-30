@@ -3,7 +3,7 @@ package de.hub.emffrag.fragmentation;
 import org.eclipse.emf.ecore.EReference;
 import org.junit.Test;
 
-import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
+import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage;
 
 public class OppositeIndexedContentsTests extends OppositeFragmentedContentsTests {
 

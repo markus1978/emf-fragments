@@ -4,7 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
-import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
+import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage;
 
 public class ReflectiveMetaModelRegistryTests extends AbstractTests {
 	

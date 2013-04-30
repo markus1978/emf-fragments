@@ -13,8 +13,8 @@
         <details key="fragments" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="crossReferences" upperBound="-1"
-        eType="#//TestObject"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="crossReferences" unique="false"
+        upperBound="-1" eType="#//TestObject"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="enumAttribute" eType="#//TestEnum"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="TestObjectIndex">
@@ -34,8 +34,8 @@
     <eLiterals name="literal2"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="TestObjectWithIndexes" eSuperTypes="#//TestObject">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="indexedReferences" upperBound="-1"
-        eType="#//TestObject">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="indexedReferences" unique="false"
+        upperBound="-1" eType="#//TestObject">
       <eAnnotations source="de.hub.emffrag">
         <details key="indexes" value="true"/>
       </eAnnotations>

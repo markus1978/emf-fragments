@@ -4,8 +4,8 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EReference;
 import org.junit.Test;
 
-import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
-import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
+import de.hub.emffrag.testmodels.testmodel.TestObject;
+import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage;
 
 public class OppositeFragmentedContentsTests extends AbstractFragmentationTests {
 

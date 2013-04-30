@@ -9,9 +9,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
-import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
-import de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes;
+import de.hub.emffrag.testmodels.testmodel.TestObject;
+import de.hub.emffrag.testmodels.testmodel.TestObjectWithIndexes;
+import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage;
 
 public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 	

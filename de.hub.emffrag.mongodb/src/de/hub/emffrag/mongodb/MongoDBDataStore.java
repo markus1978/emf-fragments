@@ -84,10 +84,46 @@ public class MongoDBDataStore extends DataStore {
 			return null;
 		}		
 	}
+	
+	DBCursor lastCursor = null;
 
 	@Override
 	synchronized public InputStream openInputStream(byte[] key) {
-		DBObject result = collection.findOne(new BasicDBObject(KEY, adoptKey(key)));
+		byte[] adoptedKey = adoptKey(key);
+		if (EmfFragMongoDBActivator.instance.tryToScan) {
+			if (lastCursor != null && lastCursor.hasNext()) {
+				DBObject result = lastCursor.next();
+				byte[] cursorKey = (byte[])result.get(KEY);
+				boolean equals = true;
+				loop: for (int i = 0; i < cursorKey.length; i++) {
+					if (cursorKey[i] != adoptedKey[i]) {
+						equals = false;
+						break loop;
+					}
+				}
+				if (equals) {
+					return inputStreamFromDBObject(result);
+				} else {
+					lastCursor.close();
+					lastCursor = null;
+				}
+			}
+			DBCursor cursor = collection.find(new BasicDBObject(KEY, new BasicDBObject("$gte", adoptedKey)));
+			cursor.sort(new BasicDBObject(KEY, 1));
+			if (cursor.hasNext()) {
+				DBObject result = cursor.next();
+				lastCursor = cursor;
+				return inputStreamFromDBObject(result);
+			} else {
+				return null;
+			}			
+		} else {
+			DBObject result = collection.findOne(new BasicDBObject(KEY, adoptedKey));
+			return inputStreamFromDBObject(result);
+		}
+	}
+	
+	private InputStream inputStreamFromDBObject(DBObject result) {
 		if (result != null) {
 			byte[] value = (byte[])result.get(VALUE);
 			if (value != null) {

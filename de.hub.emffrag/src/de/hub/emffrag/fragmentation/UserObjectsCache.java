@@ -18,7 +18,7 @@ import com.google.common.cache.CacheBuilder;
  */
 public class UserObjectsCache {
 
-	final static UserObjectsCache instance = new UserObjectsCache();
+	public final static UserObjectsCache instance = new UserObjectsCache();
 	
 //	private final ReferenceMap cache = new ReferenceMap(ReferenceMap.HARD, ReferenceMap.WEAK, true);
 	

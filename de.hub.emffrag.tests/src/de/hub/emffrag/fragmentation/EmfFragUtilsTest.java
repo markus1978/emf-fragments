@@ -2,15 +2,12 @@ package de.hub.emffrag.fragmentation;
 
 import junit.framework.Assert;
 
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.impl.DynamicEObjectImpl;
-import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.junit.Test;
 
 import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.fragmentation.IndexBasedIdSemantics.IdBehaviour;
-import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
-import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
+import de.hub.emffrag.testmodels.testmodel.TestObject;
+import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelFactory;
 import de.hub.emffrag.util.EMFFragUtil;
 
 public class EmfFragUtilsTest extends AbstractFragmentationTests {

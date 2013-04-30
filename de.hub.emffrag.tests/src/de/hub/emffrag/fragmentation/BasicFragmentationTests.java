@@ -6,8 +6,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import de.hub.emffrag.model.emffrag.Root;
-import de.hub.emffrag.testmodels.frag.testmodel.TestEnum;
-import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
+import de.hub.emffrag.testmodels.testmodel.TestEnum;
+import de.hub.emffrag.testmodels.testmodel.TestObject;
 
 public class BasicFragmentationTests extends AbstractFragmentationTests {
 	

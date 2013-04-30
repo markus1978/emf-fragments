@@ -108,7 +108,7 @@ public class EMFFragUtil {
 	@SuppressWarnings("unchecked")
 	private static Collection<EObject> prepareChildrenList(EObject object) {
 		Collection<EObject> children = new ArrayList<EObject>();
-		for (EStructuralFeature feature: object.eClass().getEStructuralFeatures()) {
+		for (EStructuralFeature feature: object.eClass().getEAllStructuralFeatures()) {
 			if (feature instanceof EReference &&
 					((EReference)feature).isContainment() &&
 					EMFFragUtil.getFragmentationType((EReference)feature) == FragmentationType.None) {

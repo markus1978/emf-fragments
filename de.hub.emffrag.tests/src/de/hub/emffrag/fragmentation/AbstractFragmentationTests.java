@@ -10,8 +10,8 @@ import org.junit.Before;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import de.hub.emffrag.model.emffrag.Root;
-import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
-import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
+import de.hub.emffrag.testmodels.testmodel.TestObject;
+import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage;
 
 public class AbstractFragmentationTests  extends AbstractTests {
 

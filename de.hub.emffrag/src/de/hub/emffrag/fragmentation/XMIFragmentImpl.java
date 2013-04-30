@@ -7,6 +7,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.XMLHelper;
 import org.eclipse.emf.ecore.xmi.XMLResource;
@@ -45,6 +46,12 @@ public class XMIFragmentImpl extends XMIResourceImpl implements Fragment {
 				Throwables.propagate(e);
 			}
 		}
+	}
+	
+	@Override
+	protected void unloaded(InternalEObject internalEObject) {
+		super.unloaded(internalEObject);
+		EmfFragActivator.instance.globalEventListener.onUnloadInternalObject((FInternalObjectImpl)internalEObject);
 	}
 
 	/**

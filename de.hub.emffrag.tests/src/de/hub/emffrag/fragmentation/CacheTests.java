@@ -5,9 +5,9 @@ import junit.framework.Assert;
 import org.eclipse.emf.common.util.EList;
 import org.junit.Test;
 
-import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
-import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
-import de.hub.emffrag.testmodels.frag.testmodel.TestObjectWithIndexes;
+import de.hub.emffrag.testmodels.testmodel.TestObject;
+import de.hub.emffrag.testmodels.testmodel.TestObjectWithIndexes;
+import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelFactory;
 
 public class CacheTests extends AbstractFragmentationTests {
 

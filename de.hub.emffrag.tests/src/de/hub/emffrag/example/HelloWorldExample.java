@@ -8,9 +8,9 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 
 import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.fragmentation.FragmentedModel;
-import de.hub.emffrag.testmodels.frag.testmodel.TestModelFactory;
-import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
-import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
+import de.hub.emffrag.testmodels.testmodel.TestObject;
+import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelFactory;
+import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage;
 
 public class HelloWorldExample {
 

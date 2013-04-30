@@ -55,6 +55,9 @@ public class FStoreImpl implements EStore {
 				internalObject = (FInternalObjectImpl)EcoreUtil.resolve(internalObject, model.getInternalResourceSet());
 				if (internalObject.eIsProxy()) {
 					// try a second time ... no idea why first time fails from time to time
+					if (internalObject.eProxyURI().toString().endsWith("10000")) {
+						internalObject = (FInternalObjectImpl)EcoreUtil.resolve(internalObject, model.getInternalResourceSet());	
+					}
 					internalObject = (FInternalObjectImpl)EcoreUtil.resolve(internalObject, model.getInternalResourceSet());
 					if (internalObject.eIsProxy()) {
 						throw new RuntimeException("Could not resolve " + internalObject.eProxyURI());

@@ -11,6 +11,7 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.EStoreEObjectImpl;
 import org.eclipse.emf.ecore.resource.Resource.Internal;
 
+import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.util.EMFFragUtil;
 import de.hub.emffrag.util.EMFFragUtil.FragmentationType;
 
@@ -30,6 +31,7 @@ public class FObjectImpl extends EStoreEObjectImpl {
 		if (fragmentedModel == null) {
 			this.fragmentedModel = internalObject.getFragmentation();
 		}
+		EmfFragActivator.instance.globalEventListener.onUserObjectCreated(internalObject, this);
 	}
 
 	public FInternalObjectImpl fInternalObject() {

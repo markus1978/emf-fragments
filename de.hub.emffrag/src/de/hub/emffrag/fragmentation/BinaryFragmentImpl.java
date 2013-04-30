@@ -134,6 +134,12 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 	}
 
 	@Override
+	protected void unloaded(InternalEObject internalEObject) {
+		super.unloaded(internalEObject);
+		EmfFragActivator.instance.globalEventListener.onUnloadInternalObject((FInternalObjectImpl)internalEObject);
+	}
+
+	@Override
 	protected boolean isAttachedDetachedHelperRequired() {
 		return false;
 	}
@@ -159,6 +165,17 @@ public class BinaryFragmentImpl extends BinaryResourceImpl implements Fragment {
 			return ePackageData;
 		}
 
+		@Override
+		public InternalEObject loadEObject() throws IOException {
+			InternalEObject loadEObject = super.loadEObject();
+			FInternalObjectImpl fInternalObject = (FInternalObjectImpl)loadEObject;
+			String id = fInternalObject.getId();
+			if (id != null) {
+				// pre-populate the ID map on load
+				getIntrinsicIDToEObjectMap().put(id, loadEObject);
+			}
+			return loadEObject;
+		}		
 	}
 
 	public String getURIFragment(EObject eObject) {

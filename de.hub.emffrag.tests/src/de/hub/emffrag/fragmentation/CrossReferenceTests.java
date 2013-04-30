@@ -5,7 +5,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
+import de.hub.emffrag.testmodels.testmodel.TestObject;
 
 public class CrossReferenceTests extends AbstractFragmentationTests {
 	

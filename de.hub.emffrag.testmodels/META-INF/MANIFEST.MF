@@ -7,13 +7,12 @@ Bundle-ClassPath: .
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: de.hub.emffrag.testmodels.frag.testmodel,
- de.hub.emffrag.testmodels.frag.testmodel.impl,
- de.hub.emffrag.testmodels.frag.testmodel.util,
- de.hub.emffrag.testmodels.frag.testmodel.util.builder,
- de.hub.emffrag.testmodels.reflective.testmodel,
- de.hub.emffrag.testmodels.reflective.testmodel.impl,
- de.hub.emffrag.testmodels.reflective.testmodel.util
+Export-Package: de.hub.emffrag.testmodels.testmodel,
+ de.hub.emffrag.testmodels.testmodel.frag.impl,
+ de.hub.emffrag.testmodels.testmodel.frag.meta,
+ de.hub.emffrag.testmodels.testmodel.frag.util,
+ de.hub.emffrag.testmodels.testmodel.regular.impl,
+ de.hub.emffrag.testmodels.testmodel.regular.util
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.ecore;visibility:=reexport,
  de.hub.emffrag;bundle-version="1.0.0"

@@ -21,8 +21,15 @@
 
    <extension point="org.eclipse.emf.ecore.generated_package">
       <package
-            uri="http://hu-berlin.de/sam/emfhbase/testmodel"
-            class="de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage"
+            uri="http://hu-berlin.de/sam/emfhbase/testmodel/frag"
+            class="de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage"
+            genModel="metamodels/TestMM.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <package
+            uri="http://hu-berlin.de/sam/emfhbase/testmodel/regular"
+            class="de.hub.emffrag.testmodels.testmodel.TestModelPackage"
             genModel="metamodels/TestMM.genmodel"/>
    </extension>
 

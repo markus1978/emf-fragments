@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.fragmentation.IndexBasedIdSemantics.IdBehaviour;
-import de.hub.emffrag.testmodels.frag.testmodel.TestObject;
+import de.hub.emffrag.testmodels.testmodel.TestObject;
 
 public class ConfigurationTests extends AbstractFragmentationTests {
 	

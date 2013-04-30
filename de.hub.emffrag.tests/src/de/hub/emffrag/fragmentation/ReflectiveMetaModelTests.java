@@ -11,7 +11,7 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.junit.Test;
 
-import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
+import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage;
 
 /**
  * EMF-Fragments needs a customized version of the used client meta-models as

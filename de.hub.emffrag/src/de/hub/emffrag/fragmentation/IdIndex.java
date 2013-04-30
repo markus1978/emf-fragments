@@ -74,7 +74,8 @@ public class IdIndex extends DataIndex<Long> {
 	}
 	
 	public String issueId(FInternalObjectImpl object) {		
-		return Long.toString(add());		
+		Long id = add();
+		return Long.toString(id);		
 	}
 
 	/**

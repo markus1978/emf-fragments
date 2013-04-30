@@ -21,7 +21,7 @@ import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.DataStoreURIHandler;
 import de.hub.emffrag.datastore.LongKeyType;
-import de.hub.emffrag.testmodels.frag.testmodel.TestModelPackage;
+import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage;
 
 public class AbstractReflectiveModelTests extends AbstractTests {
 	
