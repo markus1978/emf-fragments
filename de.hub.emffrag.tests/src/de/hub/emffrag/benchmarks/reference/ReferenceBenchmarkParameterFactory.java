@@ -1,10 +1,10 @@
-package de.hub.emffrag.benchmarks.reference2;
+package de.hub.emffrag.benchmarks.reference;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import de.hub.emffrag.benchmarks.reference2.ReferenceBenchmark.Command;
-import de.hub.emffrag.benchmarks.reference2.ReferenceBenchmark.Parameters;
+import de.hub.emffrag.benchmarks.reference.ReferenceBenchmark.Command;
+import de.hub.emffrag.benchmarks.reference.ReferenceBenchmark.Parameters;
 
 public class ReferenceBenchmarkParameterFactory implements IParameterFactory<Parameters> {
 	@Override

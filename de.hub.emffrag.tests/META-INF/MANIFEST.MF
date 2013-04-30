@@ -3,8 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Tests
 Bundle-SymbolicName: de.hub.emffrag.tests
 Bundle-Version: 1.0.0.qualifier
-Export-Package: de.hub.emffrag.benchmarks.reference1,
- de.hub.emffrag.benchmarks.reference2,
+Export-Package: de.hub.emffrag.benchmarks.reference,
+ de.hub.emffrag.example,
  de.hub.emffrag.fragmentation
 Require-Bundle: de.hub.emffrag;bundle-version="1.0.0",
  de.hub.emffrag.testmodels;bundle-version="1.0.0",

@@ -1,4 +1,4 @@
-package de.hub.emffrag.benchmarks.reference2;
+package de.hub.emffrag.benchmarks.reference;
 
 public interface IBenchmark<Parameters extends IParameters> {
 

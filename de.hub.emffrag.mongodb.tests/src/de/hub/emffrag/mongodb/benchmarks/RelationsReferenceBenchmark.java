@@ -1,9 +1,9 @@
 package de.hub.emffrag.mongodb.benchmarks;
 
-import de.hub.emffrag.benchmarks.reference2.BenchmarkRunner;
-import de.hub.emffrag.benchmarks.reference2.IBenchmark;
-import de.hub.emffrag.benchmarks.reference2.IBenchmarkFactory;
-import de.hub.emffrag.benchmarks.reference2.ReferenceBenchmark;
+import de.hub.emffrag.benchmarks.reference.BenchmarkRunner;
+import de.hub.emffrag.benchmarks.reference.IBenchmark;
+import de.hub.emffrag.benchmarks.reference.IBenchmarkFactory;
+import de.hub.emffrag.benchmarks.reference.ReferenceBenchmark;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.mongodb.EmfFragMongoDBActivator;
 import de.hub.emffrag.mongodb.MongoDBDataStore;

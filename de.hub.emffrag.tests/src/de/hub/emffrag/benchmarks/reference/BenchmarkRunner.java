@@ -1,4 +1,4 @@
-package de.hub.emffrag.benchmarks.reference2;
+package de.hub.emffrag.benchmarks.reference;
 
 import java.util.List;
 
