@@ -2,14 +2,14 @@ package de.hub.emffrag.fragmentation;
 
 import org.eclipse.emf.ecore.EStructuralFeature;
 
-import de.hub.emffrag.datastore.DataIndex;
+import de.hub.emffrag.datastore.IDataIndex;
 
 public class IndexedContainmentValueSetSemantics<K> extends IndexedValueSetSemantics<K> {
 	
 	private final FInternalObjectImpl container;
 	private final EStructuralFeature feature;
 
-	public IndexedContainmentValueSetSemantics(FragmentedModel model, DataIndex<K> index, FInternalObjectImpl container, EStructuralFeature feature) {
+	public IndexedContainmentValueSetSemantics(FragmentedModel model, IDataIndex<K> index, FInternalObjectImpl container, EStructuralFeature feature) {
 		super(model, index);
 		this.container = container;
 		this.feature = feature;

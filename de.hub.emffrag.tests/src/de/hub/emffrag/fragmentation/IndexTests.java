@@ -7,8 +7,8 @@ import junit.framework.Assert;
 import org.eclipse.emf.common.util.URI;
 import org.junit.Test;
 
-import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
+import de.hub.emffrag.datastore.IDataIndex;
 import de.hub.emffrag.datastore.InMemoryDataStore;
 import de.hub.emffrag.datastore.KeyType;
 import de.hub.emffrag.datastore.LongKeyType;
@@ -19,7 +19,7 @@ public class IndexTests extends AbstractTests {
 	@Test
 	public void testAddEmpty() {
 		DataStore dataStore = createTestDataStore();
-		DataIndex<Long> index = createIndex("f", dataStore);
+		IDataIndex<Long> index = createIndex("f", dataStore);
 		Long add = index.add();
 		Assert.assertNotNull(add);
 		Assert.assertEquals(0l, (long)add);
@@ -28,7 +28,7 @@ public class IndexTests extends AbstractTests {
 	
 	@Test
 	public void testAddNonEmpty() {
-		DataIndex<Long> index = createIndex("f", createTestDataStore());
+		IDataIndex<Long> index = createIndex("f", createTestDataStore());
 		index.add();
 		for (int i = 1; i < 1000; i++) {
 			Long add = index.add();
@@ -40,7 +40,7 @@ public class IndexTests extends AbstractTests {
 	
 	@Test
 	public void testSetAndGet() {
-		DataIndex<Long> index = createIndex("f", createTestDataStore());
+		IDataIndex<Long> index = createIndex("f", createTestDataStore());
 		index.set(3l, "Test");
 		Assert.assertEquals("Test", index.get(3l));
 		index.set(3l, "Test2");
@@ -49,7 +49,7 @@ public class IndexTests extends AbstractTests {
 	
 	@Test
 	public void testFirstLast() {
-		DataIndex<Long> index = createIndex("f", createTestDataStore());
+		IDataIndex<Long> index = createIndex("f", createTestDataStore());
 		Assert.assertNull(index.first());
 		Assert.assertNull(index.last());
 		
@@ -112,7 +112,7 @@ public class IndexTests extends AbstractTests {
 	@Test
 	public void testLargeKeyURIs() {
 		DataStore dataStore = createTestDataStore();
-		DataIndex<Long> index = createIndex("f", dataStore);
+		IDataIndex<Long> index = createIndex("f", dataStore);
 		for (long i = 0; i < 10000; i++) {
 			URI uri = index.getURI(i);
 			long key = index.getKeyFromURI(uri);

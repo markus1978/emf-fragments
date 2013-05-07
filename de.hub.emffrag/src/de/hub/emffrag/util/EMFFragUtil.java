@@ -17,8 +17,10 @@ package de.hub.emffrag.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.emf.common.util.AbstractTreeIterator;
 import org.eclipse.emf.common.util.EList;
@@ -37,28 +39,35 @@ public class EMFFragUtil {
 	
 	public enum FragmentationType { None, FragmentsContainment, FragmentsIndexedContainment, IndexedReferences };
 	
+	private static final Map<EStructuralFeature, FragmentationType> fragmentatinoTypeCache = new HashMap<EStructuralFeature, EMFFragUtil.FragmentationType>();
+	
 	public static FragmentationType getFragmentationType(EStructuralFeature feature) {
-		EAnnotation annotation = feature.getEAnnotation("de.hub.emffrag");
-		if (!(feature instanceof EReference) || annotation == null) {
-			return FragmentationType.None;
-		} else { 
-			EMap<String, String> details = annotation.getDetails();
-			if (((EReference)feature).isContainment()) {			
-				if (details.get("indexes") != null) {
-					return FragmentationType.FragmentsIndexedContainment;
-				} else if (details.get("fragments") != null) {
-					return FragmentationType.FragmentsContainment;
+		FragmentationType result = fragmentatinoTypeCache.get(feature);
+		if (result == null) {
+			EAnnotation annotation = feature.getEAnnotation("de.hub.emffrag");
+			if (!(feature instanceof EReference) || annotation == null) {
+				result = FragmentationType.None;
+			} else { 
+				EMap<String, String> details = annotation.getDetails();
+				if (((EReference)feature).isContainment()) {			
+					if (details.get("indexes") != null) {
+						result = FragmentationType.FragmentsIndexedContainment;
+					} else if (details.get("fragments") != null) {
+						result = FragmentationType.FragmentsContainment;
+					} else {
+						result = FragmentationType.None;
+					}
 				} else {
-					return FragmentationType.None;
-				}
-			} else {
-				if (details.get("indexes") != null) {
-					return FragmentationType.IndexedReferences;
-				} else {
-					return FragmentationType.None;
+					if (details.get("indexes") != null) {
+						result = FragmentationType.IndexedReferences;
+					} else {
+						result = FragmentationType.None;
+					}
 				}
 			}
+			fragmentatinoTypeCache.put(feature, result);
 		}
+		return result;
 	}
 	
 	@SuppressWarnings("unchecked")

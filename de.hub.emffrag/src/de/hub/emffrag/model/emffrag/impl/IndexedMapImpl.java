@@ -23,6 +23,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
+import de.hub.emffrag.datastore.IDataIndex;
 import de.hub.emffrag.datastore.KeyType;
 import de.hub.emffrag.fragmentation.AbstractValueSetSemantics;
 import de.hub.emffrag.fragmentation.FInternalObjectImpl;
@@ -51,7 +52,7 @@ import de.hub.emffrag.model.emffrag.IndexedMap;
  */
 public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V> {
 	
-	protected DataIndex<K> index = null;	
+	protected IDataIndex<K> index = null;	
 	private AbstractValueSetSemantics<K> semantics;
 	
 	/**
@@ -85,7 +86,7 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 		}
 	}
 	
-	protected AbstractValueSetSemantics<K> createValueSet(FragmentedModel model, DataIndex<K> index) {
+	protected AbstractValueSetSemantics<K> createValueSet(FragmentedModel model, IDataIndex<K> index) {
 		return new IndexedValueSetSemantics<K>(model, index){};
 	}
 

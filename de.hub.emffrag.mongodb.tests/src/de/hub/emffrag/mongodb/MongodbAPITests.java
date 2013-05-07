@@ -17,6 +17,7 @@ import com.mongodb.MongoException;
 
 import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
+import de.hub.emffrag.datastore.IDataIndex;
 import de.hub.emffrag.datastore.LongKeyType;
 
 public class MongodbAPITests {
@@ -91,7 +92,7 @@ public class MongodbAPITests {
 	
 	@Test
 	public void test136() {
-		DataIndex<Long> dataIndex = new DataIndex<Long>(null, "c", LongKeyType.instance);
+		IDataIndex<Long> dataIndex = new DataIndex<Long>(null, "c", LongKeyType.instance);
 		for (long i = 0; i < 136; i++) {
 			addBytes(dataIndex.getStoreKey(i), "value");	
 		}

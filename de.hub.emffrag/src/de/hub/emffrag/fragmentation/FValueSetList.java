@@ -13,13 +13,15 @@ import org.eclipse.emf.ecore.util.EcoreEList;
 
 import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.datastore.DataIndex;
+import de.hub.emffrag.datastore.DataIndexCache;
 import de.hub.emffrag.datastore.DataStore;
+import de.hub.emffrag.datastore.IDataIndex;
 import de.hub.emffrag.datastore.LongKeyType;
 
 public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 
 	private static final long serialVersionUID = 1L;
-	private final DataIndex<Long> index;
+	private final IDataIndex<Long> index;
 	private final AbstractValueSetSemantics<Long> semantics;
 	private final String id;
 
@@ -38,7 +40,7 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 		DataStore dataStore = model.getDataStore();
 
 		this.id = createPrefix(object, feature);
-		index = new DataIndex<Long>(dataStore, id, LongKeyType.instance);
+		index = new DataIndexCache<Long>(new DataIndex<Long>(dataStore, id, LongKeyType.instance));
 
 		if (((EReference) feature).isContainment()) {
 			semantics = new IndexedContainmentValueSetSemantics<Long>(model, index, object, feature);

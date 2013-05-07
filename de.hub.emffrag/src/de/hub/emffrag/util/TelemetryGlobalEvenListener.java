@@ -16,6 +16,10 @@ public class TelemetryGlobalEvenListener implements FGlobalEventListener {
 
 	private final Cache<FInternalObjectImpl, Entry> allInstances = CacheBuilder.newBuilder().weakKeys().build();
 	
+	public TelemetryGlobalEvenListener() { 
+		
+	}
+	
 	private class Entry {
 		private boolean onceHadBeenInAResource = false;
 		private boolean onceHadAUserObject = false;

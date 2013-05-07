@@ -1,4 +1,4 @@
-package de.hub.emffrag.datastore;
+package de.hub.emffrag.datastore2;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,19 +11,24 @@ import java.nio.ByteBuffer;
 
 import org.eclipse.emf.common.util.URI;
 
-public class DataIndex<KT> implements IDataIndex<KT> {
+import de.hub.emffrag.datastore.KeyType;
+import de.hub.emffrag.datastore.URIUtils;
 
-	private final DataStore store;
+public class DataMap<KT> implements IDataSortedMap<KT> {
+
+	protected final IDataStore store;
 	private final byte[] fullPrefix;
 	private final byte[] fullPrefixNext;
-	private final KeyType<KT> keyType;
+	protected final KeyType<KT> keyType;
+	private final URI dataStoreUri;
 
-	public DataIndex(DataStore store, String prefix, KeyType<KT> keyType) {
+	public DataMap(IDataStore store, URI dataStoreURI, byte[] prefix, KeyType<KT> keyType) {
 		super();
 		this.store = store;
-		this.fullPrefix = (prefix + "_").getBytes();
-		this.fullPrefixNext = (prefix + (char) ('_' + 1)).getBytes();
+		this.fullPrefix = (new String(prefix) + "_").getBytes();
+		this.fullPrefixNext = (new String(prefix) + (char) ('_' + 1)).getBytes();
 		this.keyType = keyType;
+		this.dataStoreUri = dataStoreURI;
 	}
 
 	@Override
@@ -34,7 +39,7 @@ public class DataIndex<KT> implements IDataIndex<KT> {
 
 	@Override
 	public URI getURI(KT key) {
-		return URI.createURI(store.getURIString()).appendSegment(URIUtils.encode(getStoreKey(key)));
+		return dataStoreUri.appendSegment(URIUtils.encode(getStoreKey(key)));
 	}
 
 	@Override
@@ -177,4 +182,10 @@ public class DataIndex<KT> implements IDataIndex<KT> {
 		byte[] key = URIUtils.decode(crossReferenceURI.segment(1));
 		return keyType.deserialize(key, fullPrefix.length);
 	}
+
+	@Override
+	public void close() {
+		
+	}
+	
 }

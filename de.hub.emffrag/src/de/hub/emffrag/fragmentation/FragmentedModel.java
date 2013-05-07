@@ -24,6 +24,7 @@ import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.DataStoreURIHandler;
+import de.hub.emffrag.datastore.IDataIndex;
 import de.hub.emffrag.datastore.KeyType;
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.model.emffrag.EmfFragFactory;
@@ -53,7 +54,7 @@ public class FragmentedModel extends ResourceImpl {
 	private final FragmentsCache fragmentCache;
 	
 	private final DataStore dataStore;
-	private final DataIndex<Long> fragmentIndex;
+	private final IDataIndex<Long> fragmentIndex;
 	private final IdIndex idIndex;
 	private final Statistics statistics = new Statistics();
 	private final Fragment rootFragment;
@@ -360,7 +361,7 @@ public class FragmentedModel extends ResourceImpl {
 		assertStatistic("creates", statistics.getCreates(), minCreates, maxCreates);
 	}
 
-	private void assertIndex(DataIndex<Long> index, String name, long first, long last) {
+	private void assertIndex(IDataIndex<Long> index, String name, long first, long last) {
 		if (first == -1) {
 			Assert.assertEquals("Wrong first key for " + name + ".", null, index.first());
 		} else {

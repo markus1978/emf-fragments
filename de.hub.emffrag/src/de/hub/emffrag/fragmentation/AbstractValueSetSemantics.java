@@ -3,14 +3,14 @@ package de.hub.emffrag.fragmentation;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
-import de.hub.emffrag.datastore.DataIndex;
+import de.hub.emffrag.datastore.IDataIndex;
 
 public abstract class AbstractValueSetSemantics<K> {
 
 	protected final FragmentedModel model;
-	protected final DataIndex<K> index;
+	protected final IDataIndex<K> index;
 	
-	public AbstractValueSetSemantics(FragmentedModel model, DataIndex<K> index) {
+	public AbstractValueSetSemantics(FragmentedModel model, IDataIndex<K> index) {
 		super();
 		this.model = model;
 		this.index = index;

@@ -20,6 +20,7 @@ import org.junit.Before;
 import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.DataStoreURIHandler;
+import de.hub.emffrag.datastore.IDataIndex;
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage;
 
@@ -92,7 +93,7 @@ public class AbstractReflectiveModelTests extends AbstractTests {
 	}
 
 	protected Resource[] createResourceSet(DataStore dataStore, EPackage metaModel, int numberOfResources, boolean loadResources) {
-		DataIndex<Long> index = new DataIndex<Long>(dataStore, "f_", LongKeyType.instance);
+		IDataIndex<Long> index = new DataIndex<Long>(dataStore, "f_", LongKeyType.instance);
 		ResourceSet resourceSet = createAndConfigureAResourceSet(dataStore, metaModel);
 
 		Resource[] resources = new Resource[numberOfResources];

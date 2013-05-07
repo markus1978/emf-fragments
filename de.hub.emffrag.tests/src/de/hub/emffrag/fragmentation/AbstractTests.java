@@ -8,6 +8,7 @@ import org.junit.BeforeClass;
 import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.datastore.DataIndex;
 import de.hub.emffrag.datastore.DataStore;
+import de.hub.emffrag.datastore.IDataIndex;
 import de.hub.emffrag.datastore.InMemoryDataStore;
 import de.hub.emffrag.datastore.LongKeyType;
 
@@ -36,7 +37,7 @@ public class AbstractTests {
 		return new InMemoryDataStore("memory", "localhost", "testmodel", false);
 	}
 
-	protected DataIndex<Long> createIndex(String prefix, DataStore store) {
+	protected IDataIndex<Long> createIndex(String prefix, DataStore store) {
 		return new DataIndex<Long>(store, prefix, LongKeyType.instance);
 	}
 }

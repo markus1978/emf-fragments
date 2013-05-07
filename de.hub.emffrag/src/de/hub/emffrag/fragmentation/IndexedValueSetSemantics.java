@@ -3,12 +3,12 @@ package de.hub.emffrag.fragmentation;
 import org.eclipse.emf.common.util.URI;
 
 import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.datastore.DataIndex;
+import de.hub.emffrag.datastore.IDataIndex;
 import de.hub.emffrag.fragmentation.IdSemantics.SaveURI;
 
 public class IndexedValueSetSemantics<K> extends AbstractValueSetSemantics<K> {
 		
-	public IndexedValueSetSemantics(FragmentedModel model, DataIndex<K> index) {
+	public IndexedValueSetSemantics(FragmentedModel model, IDataIndex<K> index) {
 		super(model, index);
 	}
 

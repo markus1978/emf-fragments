@@ -12,5 +12,6 @@ public interface KeyType<KT> {
 	 * @return The null elements of this key type and order, i.e. the smallest possible key.
 	 */
 	public KT nullKey();
-	
+
+	public int compare(KT o1, KT o2);
 }
