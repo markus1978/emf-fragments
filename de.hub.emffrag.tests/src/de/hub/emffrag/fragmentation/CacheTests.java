@@ -191,10 +191,10 @@ public class CacheTests extends AbstractFragmentationTests {
 		TestObjectWithIndexes testObject = (TestObjectWithIndexes)Assertions.createTestObjectWithIndexes(0);		
 		root.getContents().add(testObject);
 		EList<TestObject> valueSet = testObject.getIndexedContents();
-		for (int i = 0; i <= 10; i++) {
-			TestObject innterTestObject = createTestObject(i);
-			valueSet.add(innterTestObject);
-			innterTestObject.getRegularContents().add(createTestObject(0));
+		for (int i = 0; i <= 4; i++) {
+			TestObject innerTestObject = createTestObject(i);
+			valueSet.add(innerTestObject); // causes it
+			innerTestObject.getRegularContents().add(createTestObject(0));
 			for (TestObject o: valueSet) {
 				Assertions.context(o).assertTestObject();
 			}

@@ -14,23 +14,25 @@ import org.apache.commons.codec.binary.Base32;
 import com.google.common.base.Throwables;
 
 /**
- * A file system based implementation of {@link DataStore}. It stores all
+ * A file system based implementation of {@link IDataStore}. It stores all
  * fragments in a given directory.
  * 
  * It has one major flaw: to provide features based on key order, this
  * implementation maintains a {@link TreeMap} and does not rely on (non
  * existing) file system features. Thus this implementation will consume main
  * memory proportionally to number of fragments.
+ * 
+ * TODO this implementation is broken. It definitely does not work in linux and
+ * may also not work on other systems.
  */
-public class FileSystemDataStore extends DataStore {
+public class FileSystemDataStore implements IBaseDataStore {
 
 	private static final Base32 base32url = new Base32(Integer.MAX_VALUE, new byte[] {});
-	
+
 	private final File directory;
-	private final TreeMap<byte[], File> fileTree = new TreeMap<byte[], File>(byteComparator);
+	private final TreeMap<byte[], File> fileTree = new TreeMap<byte[], File>(InMemoryDataStore.byteComparator);
 
 	public FileSystemDataStore(String name, File directory, boolean clear) {
-		super("file", "localhost", name);
 		this.directory = directory;
 
 		if (clear) {
@@ -42,6 +44,11 @@ public class FileSystemDataStore extends DataStore {
 				fileTree.put(base32url.decode(file.getName()), file);
 			}
 		}
+	}
+
+	@Override
+	public void close() {
+		// do nothing
 	}
 
 	@Override
@@ -97,7 +104,7 @@ public class FileSystemDataStore extends DataStore {
 	}
 
 	@Override
-	public boolean ckeckAndCreate(byte[] key) {
+	public boolean checkAndCreate(byte[] key) {
 		String fileName = new String(base32url.encode(key));
 		File file = new File(directory, fileName);
 		if (!file.exists()) {
@@ -128,6 +135,5 @@ public class FileSystemDataStore extends DataStore {
 	public void drop() {
 		throw new UnsupportedOperationException("Not implemented.");
 	}
-	
-	
+
 }

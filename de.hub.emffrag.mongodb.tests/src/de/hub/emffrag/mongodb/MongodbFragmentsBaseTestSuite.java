@@ -6,7 +6,7 @@ import org.junit.runners.Suite;
 import de.hub.emffrag.fragmentation.FragmentsBaseTestSuite;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ 
+@Suite.SuiteClasses({
 		// fragmentation tests based on XMI-fragments
 		MongodbFragmentationTests.class, 
 		MongodbCrossReferenceTests.class, 

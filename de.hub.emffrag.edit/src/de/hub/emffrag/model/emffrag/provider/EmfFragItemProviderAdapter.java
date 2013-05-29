@@ -138,6 +138,4 @@ public class EmfFragItemProviderAdapter extends ItemProviderAdapter implements I
 		// TODO Auto-generated method stub [task27]
 		return super.factorRemoveCommand(domain, commandParameter);
 	}
-	
-	
 }

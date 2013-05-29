@@ -7,17 +7,20 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 
 import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.datastore.DataStore;
+import de.hub.emffrag.datastore.DataStoreImpl;
+import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.InMemoryDataStore;
+import de.hub.emffrag.datastore.ScanningDataStore;
+import de.hub.emffrag.datastore.WriteCachingDataStore;
 
 public class FragmentedModelFactory implements Resource.Factory {
 	
-	public Map<String, DataStore> stores = new HashMap<String, DataStore>();
+	public Map<String, IDataStore> stores = new HashMap<String, IDataStore>();
 	
 	@Override
 	public Resource createResource(URI uri) {											
 		String id = uri.authority() + uri.path();
-		DataStore dataStore = stores.get(id);
+		IDataStore dataStore = stores.get(id);
 		if (dataStore == null) {
 			dataStore = createDataStore(uri);
 			stores.put(id, dataStore);
@@ -35,7 +38,8 @@ public class FragmentedModelFactory implements Resource.Factory {
 		};
 	}		
 	
-	protected DataStore createDataStore(URI uri) {
-		return new InMemoryDataStore(uri.scheme(), uri.authority(), uri.path().substring(1), false);
+	protected IDataStore createDataStore(URI uri) {
+		InMemoryDataStore baseDataStore = new InMemoryDataStore(false);
+		return new DataStoreImpl(new WriteCachingDataStore(new ScanningDataStore(baseDataStore, baseDataStore.createScanningScanExtension()), baseDataStore), uri);
 	}
 }

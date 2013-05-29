@@ -72,12 +72,12 @@ public abstract class FragmentsCache {
 	}
 	
 	private void evictIfNecessary() {
-		if (size > maxSize) {
+		while (size > maxSize) {
 			E r = end.prev;
 			r.remove();
 			size--;
 			uriMap.remove(r.entry.getURI());
-			onEvict(r.entry);			
+			onEvict(r.entry);
 		}
 	}
 	

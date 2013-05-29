@@ -13,13 +13,15 @@ import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.ReadPreference;
 
-import de.hub.emffrag.datastore.DataStore;
+import de.hub.emffrag.datastore.DataStoreImpl;
+import de.hub.emffrag.datastore.IDataStore;
+import de.hub.emffrag.datastore.ScanningDataStore;
+import de.hub.emffrag.datastore.WriteCachingDataStore;
 import de.hub.emffrag.fragmentation.FragmentedModelFactory;
 
 public class EmfFragMongoDBActivator extends Plugin {
 
 	public static EmfFragMongoDBActivator instance = null;
-	public boolean tryToScan = false;
 	
 	private Map<String, DB> dataBases = new HashMap<String, DB>();
 
@@ -54,8 +56,10 @@ public class EmfFragMongoDBActivator extends Plugin {
 		Map<String, Object> protocolToFactoryMap = Resource.Factory.Registry.INSTANCE.getProtocolToFactoryMap();
 		protocolToFactoryMap.put("mongodb", new FragmentedModelFactory() {
 			@Override
-			protected DataStore createDataStore(URI uri) {
-				return new MongoDBDataStore(uri.authority(), uri.path().substring(1));
+			protected IDataStore createDataStore(URI uri) {
+				MongoDBDataStore baseDataStore = new MongoDBDataStore(uri.authority(), uri.path().substring(1));
+//				return new DataStoreImpl(baseDataStore, uri);		
+				return new DataStoreImpl(new ScanningDataStore(baseDataStore, baseDataStore), uri);	
 			}			
 		});
 	}

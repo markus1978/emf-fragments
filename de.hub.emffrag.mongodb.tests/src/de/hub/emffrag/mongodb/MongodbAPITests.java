@@ -15,9 +15,9 @@ import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 
-import de.hub.emffrag.datastore.DataIndex;
-import de.hub.emffrag.datastore.DataStore;
-import de.hub.emffrag.datastore.IDataIndex;
+import de.hub.emffrag.datastore.DataMap;
+import de.hub.emffrag.datastore.IDataMap;
+import de.hub.emffrag.datastore.InMemoryDataStore;
 import de.hub.emffrag.datastore.LongKeyType;
 
 public class MongodbAPITests {
@@ -92,7 +92,7 @@ public class MongodbAPITests {
 	
 	@Test
 	public void test136() {
-		IDataIndex<Long> dataIndex = new DataIndex<Long>(null, "c", LongKeyType.instance);
+		IDataMap<Long> dataIndex = new DataMap<Long>(null, null, "c".getBytes(), LongKeyType.instance);
 		for (long i = 0; i < 136; i++) {
 			addBytes(dataIndex.getStoreKey(i), "value");	
 		}
@@ -108,7 +108,7 @@ public class MongodbAPITests {
 			while (cursor.hasNext()) {
 				DBObject next = cursor.next();
 				byte[] current = (byte[])((String)next.get("key")).getBytes();
-				Assert.assertTrue("Wrong key order.", DataStore.compareBytes(last, current) < 0);
+				Assert.assertTrue("Wrong key order.", InMemoryDataStore.compareBytes(last, current) < 0);
 				Assert.assertTrue("Wrong value.", new String((byte[])next.get("value")).startsWith("HelloWorld"));				
 			}
 		} finally {

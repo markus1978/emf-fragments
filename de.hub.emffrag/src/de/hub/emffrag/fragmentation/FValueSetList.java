@@ -12,16 +12,14 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.util.EcoreEList;
 
 import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.datastore.DataIndex;
-import de.hub.emffrag.datastore.DataIndexCache;
-import de.hub.emffrag.datastore.DataStore;
-import de.hub.emffrag.datastore.IDataIndex;
+import de.hub.emffrag.datastore.IDataMap;
+import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.LongKeyType;
 
 public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 
 	private static final long serialVersionUID = 1L;
-	private final IDataIndex<Long> index;
+	private final IDataMap<Long> index;
 	private final AbstractValueSetSemantics<Long> semantics;
 	private final String id;
 
@@ -37,10 +35,10 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 			throw new NotInAFragmentedModelException(
 					"Operation on indexed value sets can only be performed for objects contained in a fragmented model.");
 		}
-		DataStore dataStore = model.getDataStore();
+		IDataStore dataStore = model.getDataStore();
 
 		this.id = createPrefix(object, feature);
-		index = new DataIndexCache<Long>(new DataIndex<Long>(dataStore, id, LongKeyType.instance));
+		index = dataStore.getMap(id.getBytes(), LongKeyType.instance);
 
 		if (((EReference) feature).isContainment()) {
 			semantics = new IndexedContainmentValueSetSemantics<Long>(model, index, object, feature);
@@ -159,7 +157,7 @@ public class FValueSetList extends EcoreEList.Dynamic<FInternalObjectImpl> {
 		if ((last == null && index == 0) || (last + 1 == index)) {
 			performAdd((long) index, element);
 		} else {
-			EmfFragActivator.instance.warning("Can only add to the bad of an indexed value set. Add the value to the end instead.");
+			EmfFragActivator.instance.warning("Can only add to the end of an indexed value set. Add the value to the end instead.");
 			add(element);
 		}
 	}

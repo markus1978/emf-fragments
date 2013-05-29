@@ -5,9 +5,8 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
 
-import de.hub.emffrag.datastore.DataStore;
+import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.fragmentation.RamUsageTests;
-import de.hub.emffrag.hbase.HBaseDataStore;
 
 public class HBaseRamUsageTests extends RamUsageTests {
 	@BeforeClass
@@ -18,7 +17,7 @@ public class HBaseRamUsageTests extends RamUsageTests {
 	}
 
 	@Override
-	protected DataStore createTestDataStore() {
-		return new HBaseDataStore("testmodel", true);
+	protected IDataStore createTestDataStore() {
+		return HBaseDataStoreFactory.createDataStore();
 	}
 }

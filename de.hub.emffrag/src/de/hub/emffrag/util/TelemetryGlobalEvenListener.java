@@ -22,7 +22,9 @@ public class TelemetryGlobalEvenListener implements FGlobalEventListener {
 	
 	private class Entry {
 		private boolean onceHadBeenInAResource = false;
+		@SuppressWarnings("unused")
 		private boolean onceHadAUserObject = false;
+		@SuppressWarnings("unused")
 		private boolean onceHadBeenUnloaded = false;
 	}
 	

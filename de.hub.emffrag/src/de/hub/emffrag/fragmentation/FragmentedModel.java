@@ -21,10 +21,9 @@ import org.junit.Assert;
 import com.google.common.base.Throwables;
 
 import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.datastore.DataIndex;
-import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.DataStoreURIHandler;
-import de.hub.emffrag.datastore.IDataIndex;
+import de.hub.emffrag.datastore.IDataMap;
+import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.KeyType;
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.model.emffrag.EmfFragFactory;
@@ -53,18 +52,18 @@ public class FragmentedModel extends ResourceImpl {
 	
 	private final FragmentsCache fragmentCache;
 	
-	private final DataStore dataStore;
-	private final IDataIndex<Long> fragmentIndex;
+	private final IDataStore dataStore;
+	private final IDataMap<Long> fragmentIndex;
 	private final IdIndex idIndex;
 	private final Statistics statistics = new Statistics();
 	private final Fragment rootFragment;
 
-	public FragmentedModel(DataStore dataStore) {
+	public FragmentedModel(IDataStore dataStore) {
 		this(dataStore, -1);
 	}
 
-	public FragmentedModel(DataStore dataStore, int cacheSize) {
-		super(URI.createURI(dataStore.getURIString()));
+	public FragmentedModel(IDataStore dataStore, int cacheSize) {
+		super(dataStore.getURI());
 		
 		ReflectiveMetaModelRegistry.instance.registerUserMetaModel(EmfFragPackage.eINSTANCE);
 		
@@ -80,8 +79,8 @@ public class FragmentedModel extends ResourceImpl {
 			}
 		};				
 
-		this.fragmentIndex = new DataIndex<Long>(dataStore, FRAGMENTS_INDEX_PREFIX, LongKeyType.instance);
-		this.idIndex = new IdIndex(dataStore);
+		this.fragmentIndex = dataStore.getMap((FRAGMENTS_INDEX_PREFIX + "_").getBytes(), LongKeyType.instance) ;
+		this.idIndex = new IdIndex(dataStore.getMap((ID_INDEX_PREFIX + "_").getBytes(), LongKeyType.instance));
 
 		resourceSet = createAndConfigureAResourceSet(dataStore);
 
@@ -149,7 +148,7 @@ public class FragmentedModel extends ResourceImpl {
 	 * configuration loading and saving models. This methods creates a
 	 * {@link ResourceSet} with the listed characteristics.
 	 */
-	private ResourceSet createAndConfigureAResourceSet(DataStore dataStore) {
+	private ResourceSet createAndConfigureAResourceSet(IDataStore dataStore) {
 		ResourceSet resourceSet = new ResourceSetImpl() {
 			@Override
 			public EObject getEObject(URI uri, boolean loadOnDemand) {
@@ -174,7 +173,7 @@ public class FragmentedModel extends ResourceImpl {
 		resourceSet.getURIConverter().getURIHandlers().add(0, new DataStoreURIHandler(dataStore));
 		resourceSet.getLoadOptions().putAll(options);
 		resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap()
-				.put(dataStore.getProtocol(), new XMIResourceFactoryImpl() {
+				.put(dataStore.getURI().scheme(), new XMIResourceFactoryImpl() {
 					@Override
 					public Resource createResource(URI uri) {
 						EmfFragActivator.instance.debug("Created fragment: " + uri.toString());
@@ -257,7 +256,8 @@ public class FragmentedModel extends ResourceImpl {
 	
 	Fragment createFragment(URI fragmentURI, FInternalObjectImpl root) {
 		if (fragmentURI == null) {
-			fragmentURI = fragmentIndex.getURI(fragmentIndex.add());
+			Long key = fragmentIndex.add();
+			fragmentURI = fragmentIndex.getURI(key);
 		}
 		Fragment newFragment = (Fragment) resourceSet.createResource(fragmentURI);		
 		if (root != null) {
@@ -321,7 +321,7 @@ public class FragmentedModel extends ResourceImpl {
 		return statistics;
 	}
 
-	public DataStore getDataStore() {
+	public IDataStore getDataStore() {
 		return dataStore;
 	}
 
@@ -361,7 +361,7 @@ public class FragmentedModel extends ResourceImpl {
 		assertStatistic("creates", statistics.getCreates(), minCreates, maxCreates);
 	}
 
-	private void assertIndex(IDataIndex<Long> index, String name, long first, long last) {
+	private void assertIndex(IDataMap<Long> index, String name, long first, long last) {
 		if (first == -1) {
 			Assert.assertEquals("Wrong first key for " + name + ".", null, index.first());
 		} else {
@@ -387,7 +387,7 @@ public class FragmentedModel extends ResourceImpl {
 	}
 
 	void assertValueSetIndex(EObject owner, EStructuralFeature feature, long min, long max) {
-		new DataIndex<Long>(dataStore, FValueSetList.createPrefix(((FObjectImpl) owner).fInternalObject(), feature),
+		dataStore.getMap(FValueSetList.createPrefix(((FObjectImpl) owner).fInternalObject(), feature).getBytes(),
 				LongKeyType.instance);
 	}
 

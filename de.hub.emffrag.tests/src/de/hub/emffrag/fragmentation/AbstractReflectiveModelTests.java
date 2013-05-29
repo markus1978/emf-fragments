@@ -17,10 +17,9 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.junit.After;
 import org.junit.Before;
 
-import de.hub.emffrag.datastore.DataIndex;
-import de.hub.emffrag.datastore.DataStore;
 import de.hub.emffrag.datastore.DataStoreURIHandler;
-import de.hub.emffrag.datastore.IDataIndex;
+import de.hub.emffrag.datastore.IDataMap;
+import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage;
 
@@ -30,7 +29,7 @@ public class AbstractReflectiveModelTests extends AbstractTests {
 	protected FInternalObjectImpl object1 = null;
 	protected FInternalObjectImpl object2 = null;
 	protected FInternalObjectImpl object3 = null;
-	protected DataStore dataStore = null;
+	protected IDataStore dataStore = null;
 	
 	private EFactory originalFactories[];
 	private EPackage metaModels[];
@@ -56,7 +55,7 @@ public class AbstractReflectiveModelTests extends AbstractTests {
 		};
 	}
 	
-	protected ResourceSet createAndConfigureAResourceSet(DataStore dataStore, EPackage... metaModels) {
+	protected ResourceSet createAndConfigureAResourceSet(IDataStore dataStore, EPackage... metaModels) {
 		ResourceSet resourceSet = new ResourceSetImpl();
 		boolean saveOriginalFactories = false;
 		if (this.originalFactories == null) {
@@ -78,7 +77,7 @@ public class AbstractReflectiveModelTests extends AbstractTests {
 			});
 		}
 		resourceSet.getURIConverter().getURIHandlers().add(0, new DataStoreURIHandler(dataStore));
-		resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put(dataStore.getProtocol(), createResourceFactoryImpl()); 
+		resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put(dataStore.getURI().scheme(), createResourceFactoryImpl()); 
 		return resourceSet;
 	}
 	
@@ -92,8 +91,8 @@ public class AbstractReflectiveModelTests extends AbstractTests {
 		}
 	}
 
-	protected Resource[] createResourceSet(DataStore dataStore, EPackage metaModel, int numberOfResources, boolean loadResources) {
-		IDataIndex<Long> index = new DataIndex<Long>(dataStore, "f_", LongKeyType.instance);
+	protected Resource[] createResourceSet(IDataStore dataStore, EPackage metaModel, int numberOfResources, boolean loadResources) {
+		IDataMap<Long> index = dataStore.getMap("f_".getBytes(), LongKeyType.instance);
 		ResourceSet resourceSet = createAndConfigureAResourceSet(dataStore, metaModel);
 
 		Resource[] resources = new Resource[numberOfResources];

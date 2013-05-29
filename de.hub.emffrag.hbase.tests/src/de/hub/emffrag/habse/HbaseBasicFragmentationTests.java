@@ -5,9 +5,8 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
 
-import de.hub.emffrag.datastore.DataStore;
+import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.fragmentation.BasicFragmentationTests;
-import de.hub.emffrag.hbase.HBaseDataStore;
 
 public class HbaseBasicFragmentationTests extends BasicFragmentationTests {
 	
@@ -19,7 +18,7 @@ public class HbaseBasicFragmentationTests extends BasicFragmentationTests {
 	}
 
 	@Override
-	protected DataStore createTestDataStore() {
-		return new HBaseDataStore("testmodel", true);
+	protected IDataStore createTestDataStore() {
+		return HBaseDataStoreFactory.createDataStore();
 	}
 }

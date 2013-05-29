@@ -89,8 +89,7 @@ public class EmfFragActivator extends Plugin {
 			if (logInStandAlone) {
 				System.out.println("LOG(" + level + "): " + (msg != null ? msg : "(null)") + (e != null ? ": " + e.getMessage() : ""));
 			}
-		}
-				
+		}		
 	}
 	
 	public void debug(String msg) {

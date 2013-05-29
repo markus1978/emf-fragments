@@ -3,9 +3,8 @@ package de.hub.emffrag.fragmentation;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 
-import de.hub.emffrag.datastore.DataIndex;
-import de.hub.emffrag.datastore.DataStore;
-import de.hub.emffrag.datastore.LongKeyType;
+import de.hub.emffrag.datastore.DelegatedDataMap;
+import de.hub.emffrag.datastore.IDataMap;
 
 /**
  * Each {@link FragmentedModel} holds an {@link IdIndex}. This index
@@ -27,10 +26,10 @@ import de.hub.emffrag.datastore.LongKeyType;
  * The index uses the prefix "c_" for historic reasons. It once was only
  * designed to manage IDs for (c)ross references objects.
  */
-public class IdIndex extends DataIndex<Long> {
+public class IdIndex extends DelegatedDataMap<Long> {
 
-	public IdIndex(DataStore store) {
-		super(store, FragmentedModel.ID_INDEX_PREFIX, LongKeyType.instance);
+	public IdIndex(IDataMap<Long> delegate) {
+		super(delegate);
 	}
 
 	/**
@@ -84,5 +83,4 @@ public class IdIndex extends DataIndex<Long> {
 	public URI getObjectUriForIdUri(URI uri) {
 		return URI.createURI(get(getKeyFromURI(uri)));
 	}
-
 }

@@ -7,7 +7,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.junit.Before;
 
-import de.hub.emffrag.datastore.DataStore;
+import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import de.hub.emffrag.model.emffrag.Root;
 import de.hub.emffrag.testmodels.testmodel.TestObject;
@@ -15,7 +15,7 @@ import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage;
 
 public class AbstractFragmentationTests  extends AbstractTests {
 
-	protected DataStore dataStore = null;
+	protected IDataStore dataStore = null;
 	protected FragmentedModel model = null;
 	protected TestModelPackage metaModel = null;
 	protected Root root = null;
@@ -66,11 +66,11 @@ public class AbstractFragmentationTests  extends AbstractTests {
 		return Assertions.createTestObject(index);
 	}
 	
-	protected final FragmentedModel createFragmentedModel(DataStore dataStore, EPackage metaModel) {
+	protected final FragmentedModel createFragmentedModel(IDataStore dataStore, EPackage metaModel) {
 		return createFragmentedModel(dataStore, -1, metaModel);
 	}
 	
-	protected FragmentedModel createFragmentedModel(DataStore dataStore, int cacheSize, EPackage metaModel) {
+	protected FragmentedModel createFragmentedModel(IDataStore dataStore, int cacheSize, EPackage metaModel) {
 		return new FragmentedModel(dataStore, cacheSize);
 	}
 	

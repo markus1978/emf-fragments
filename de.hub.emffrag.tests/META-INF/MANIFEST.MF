@@ -7,6 +7,6 @@ Export-Package: de.hub.emffrag.benchmarks.reference,
  de.hub.emffrag.example,
  de.hub.emffrag.fragmentation
 Require-Bundle: de.hub.emffrag;bundle-version="1.0.0",
- de.hub.emffrag.testmodels;bundle-version="1.0.0",
+ de.hub.emffrag.testmodels;bundle-version="1.0.0";visibility:=reexport,
  de.hub.emffrag.hbase;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

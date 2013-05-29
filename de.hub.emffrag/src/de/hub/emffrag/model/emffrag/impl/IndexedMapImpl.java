@@ -21,9 +21,8 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.resource.Resource;
 
 import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.datastore.DataIndex;
-import de.hub.emffrag.datastore.DataStore;
-import de.hub.emffrag.datastore.IDataIndex;
+import de.hub.emffrag.datastore.IDataMap;
+import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.KeyType;
 import de.hub.emffrag.fragmentation.AbstractValueSetSemantics;
 import de.hub.emffrag.fragmentation.FInternalObjectImpl;
@@ -52,7 +51,7 @@ import de.hub.emffrag.model.emffrag.IndexedMap;
  */
 public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V> {
 	
-	protected IDataIndex<K> index = null;	
+	protected IDataMap<K> index = null;	
 	private AbstractValueSetSemantics<K> semantics;
 	
 	/**
@@ -70,7 +69,7 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 			if (eResource instanceof Fragment) {
 				Fragment fragment = (Fragment)eResource;
 				FragmentedModel model = fragment.getFragmentedModel();
-				DataStore dataStore = model.getDataStore();
+				IDataStore dataStore = model.getDataStore();
 								
 				String prefix = getPrefix();
 				if (prefix == null) {
@@ -78,7 +77,7 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 					prefix = FragmentedModel.INDEX_CLASSES_PREFIX + "_" + id;
 					setPrefix(prefix);
 				}
-				index = new DataIndex<K>(dataStore, prefix, getKeytype());
+				index = dataStore.getMap(prefix.getBytes(), getKeytype());
 				semantics = createValueSet(model, index);
 			} else {
 				throw new IllegalStateException("Map operations can only be used, if the map is part of a fragmented model.");
@@ -86,7 +85,7 @@ public class IndexedMapImpl<K, V> extends FObjectImpl implements IndexedMap<K, V
 		}
 	}
 	
-	protected AbstractValueSetSemantics<K> createValueSet(FragmentedModel model, IDataIndex<K> index) {
+	protected AbstractValueSetSemantics<K> createValueSet(FragmentedModel model, IDataMap<K> index) {
 		return new IndexedValueSetSemantics<K>(model, index){};
 	}
 

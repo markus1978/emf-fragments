@@ -1,16 +1,19 @@
 package de.hub.emffrag.fragmentation;
 
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
 import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.datastore.DataIndex;
-import de.hub.emffrag.datastore.DataStore;
-import de.hub.emffrag.datastore.IDataIndex;
+import de.hub.emffrag.datastore.IDataMap;
+import de.hub.emffrag.datastore.DataStoreImpl;
+import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.InMemoryDataStore;
 import de.hub.emffrag.datastore.LongKeyType;
+import de.hub.emffrag.datastore.ScanningDataStore;
+import de.hub.emffrag.datastore.WriteCachingDataStore;
 
 /**
  * Abstract base class for all tests. It registers the proper resource
@@ -33,11 +36,14 @@ public class AbstractTests {
 		EmfFragActivator.instance.resetWarningsAndErrors();
 	}
 
-	protected DataStore createTestDataStore() {
-		return new InMemoryDataStore("memory", "localhost", "testmodel", false);
+	protected IDataStore createTestDataStore() {
+		URI uri = URI.createURI("memory://localhost/testmodel");
+		InMemoryDataStore baseDataStore = new InMemoryDataStore(false);
+		// Full implementation of all features used. InMemoryStore can deal with writes while scanning.
+		return new DataStoreImpl(new WriteCachingDataStore(new ScanningDataStore(baseDataStore, baseDataStore.createScanningScanExtension()), baseDataStore), uri);
 	}
 
-	protected IDataIndex<Long> createIndex(String prefix, DataStore store) {
-		return new DataIndex<Long>(store, prefix, LongKeyType.instance);
+	protected IDataMap<Long> createIndex(String prefix, IDataStore store) {
+		return store.getMap(prefix.getBytes(), LongKeyType.instance);
 	}
 }

@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -13,9 +14,10 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoException;
 
-import de.hub.emffrag.datastore.DataStore;
+import de.hub.emffrag.datastore.IBaseDataStore;
+import de.hub.emffrag.datastore.IScanExtension;
 
-public class MongoDBDataStore extends DataStore {
+public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 
 	private static final String VALUE = "value";
 	private static final String KEY = "key";
@@ -27,7 +29,6 @@ public class MongoDBDataStore extends DataStore {
 	}
 
 	public MongoDBDataStore(String host, String dataStoreId, boolean dropFirst) {
-		super("mongodb", host, dataStoreId);
 		String hostName = null;
 		int hostPort = -1;
 		
@@ -85,43 +86,59 @@ public class MongoDBDataStore extends DataStore {
 		}		
 	}
 	
-	DBCursor lastCursor = null;
 
+	
 	@Override
 	synchronized public InputStream openInputStream(byte[] key) {
-		byte[] adoptedKey = adoptKey(key);
-		if (EmfFragMongoDBActivator.instance.tryToScan) {
-			if (lastCursor != null && lastCursor.hasNext()) {
-				DBObject result = lastCursor.next();
-				byte[] cursorKey = (byte[])result.get(KEY);
-				boolean equals = true;
-				loop: for (int i = 0; i < cursorKey.length; i++) {
-					if (cursorKey[i] != adoptedKey[i]) {
-						equals = false;
-						break loop;
-					}
-				}
-				if (equals) {
-					return inputStreamFromDBObject(result);
-				} else {
-					lastCursor.close();
-					lastCursor = null;
-				}
-			}
-			DBCursor cursor = collection.find(new BasicDBObject(KEY, new BasicDBObject("$gte", adoptedKey)));
-			cursor.sort(new BasicDBObject(KEY, 1));
-			if (cursor.hasNext()) {
-				DBObject result = cursor.next();
-				lastCursor = cursor;
-				return inputStreamFromDBObject(result);
+		DBObject result = collection.findOne(new BasicDBObject(KEY, adoptKey(key)));
+		if (result != null) {
+			byte[] value = (byte[])result.get(VALUE);
+			if (value != null) {
+				return new ByteArrayInputStream(value);
 			} else {
-				return null;
-			}			
+				return new ByteArrayInputStream(new byte[]{});
+			}
 		} else {
-			DBObject result = collection.findOne(new BasicDBObject(KEY, adoptedKey));
-			return inputStreamFromDBObject(result);
+			return null;
 		}
 	}
+
+//	DBCursor lastCursor = null;
+//	@Override
+//	synchronized public InputStream openInputStream(byte[] key) {
+//		byte[] adoptedKey = adoptKey(key);
+//		if (EmfFragMongoDBActivator.instance.tryToScan) {
+//			if (lastCursor != null && lastCursor.hasNext()) {
+//				DBObject result = lastCursor.next();
+//				byte[] cursorKey = (byte[])result.get(KEY);
+//				boolean equals = true;
+//				loop: for (int i = 0; i < cursorKey.length; i++) {
+//					if (cursorKey[i] != adoptedKey[i]) {
+//						equals = false;
+//						break loop;
+//					}
+//				}
+//				if (equals) {
+//					return inputStreamFromDBObject(result);
+//				} else {
+//					lastCursor.close();
+//					lastCursor = null;
+//				}
+//			}
+//			DBCursor cursor = collection.find(new BasicDBObject(KEY, new BasicDBObject("$gte", adoptedKey)));
+//			cursor.sort(new BasicDBObject(KEY, 1));
+//			if (cursor.hasNext()) {
+//				DBObject result = cursor.next();
+//				lastCursor = cursor;
+//				return inputStreamFromDBObject(result);
+//			} else {
+//				return null;
+//			}			
+//		} else {
+//			DBObject result = collection.findOne(new BasicDBObject(KEY, adoptedKey));
+//			return inputStreamFromDBObject(result);
+//		}
+//	}
 	
 	private InputStream inputStreamFromDBObject(DBObject result) {
 		if (result != null) {
@@ -159,7 +176,7 @@ public class MongoDBDataStore extends DataStore {
 	}
 
 	@Override
-	synchronized public boolean ckeckAndCreate(byte[] key) {				
+	synchronized public boolean checkAndCreate(byte[] key) {				
 		try {
 			collection.insert(new BasicDBObject(KEY, adoptKey(key)));
 		} catch (MongoException e) {
@@ -178,5 +195,54 @@ public class MongoDBDataStore extends DataStore {
 		collection.drop();
 	}
 
+	@Override
+	public void close() {
+		db.cleanCursors(true);
+	}
+	
+	private class Cursor implements ICursor {
+		final DBCursor dbCursor;
+		
+		public Cursor(DBCursor dbCursor) {
+			super();
+			this.dbCursor = dbCursor;
+		}
+
+		@Override
+		public boolean hasNext() {
+			return dbCursor.hasNext();
+		}
+
+		@Override
+		public byte[] next() {
+			DBObject next = dbCursor.next();
+			if (next == null) {
+				throw new IndexOutOfBoundsException();
+			}
+			return (byte[])next.get(KEY);
+		}
+
+		@Override
+		public InputStream openNextInputStream() {
+			DBObject next = dbCursor.curr();
+			if (next == null) {
+				throw new IndexOutOfBoundsException();
+			}
+			return inputStreamFromDBObject(next);
+		}
+
+		@Override
+		public void close() {
+			dbCursor.close();
+		}	
+		
+	}
+
+	@Override
+	public ICursor cursor(byte[] key) {
+		DBCursor cursor = collection.find(new BasicDBObject(KEY, new BasicDBObject("$gte", adoptKey(key))));
+		cursor.sort(new BasicDBObject(KEY, 1));
+		return new Cursor(cursor);		
+	}	
 	
 }

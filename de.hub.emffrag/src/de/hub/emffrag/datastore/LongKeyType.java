@@ -40,7 +40,7 @@ public class LongKeyType implements KeyType<Long> {
 
 	@Override
 	public int compare(Long o1, Long o2) {
-		return o1 == o2 ? 0 : (o1 < 02 ? -1 : 1); 
+		return o1 == o2 ? 0 : (o1 < o2 ? -1 : 1); 
 	}
 
 	

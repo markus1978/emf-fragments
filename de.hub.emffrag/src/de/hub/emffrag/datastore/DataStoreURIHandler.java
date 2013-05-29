@@ -23,11 +23,12 @@ import java.util.Map;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.impl.URIHandlerImpl;
 
+
 public class DataStoreURIHandler extends URIHandlerImpl {
     
-    private final DataStore store;
+    private final de.hub.emffrag.datastore.IDataStore store;
 
-    public DataStoreURIHandler(DataStore store) {
+    public DataStoreURIHandler(de.hub.emffrag.datastore.IDataStore store) {
 		super();
 		this.store = store;
 	}
@@ -35,7 +36,7 @@ public class DataStoreURIHandler extends URIHandlerImpl {
 	@Override
     public boolean canHandle(URI uri) {
         String scheme = uri.scheme();
-        return scheme != null && scheme.equals(store.getProtocol());
+        return scheme != null && scheme.equals(store.getURI().scheme());
     }
 
     @Override
