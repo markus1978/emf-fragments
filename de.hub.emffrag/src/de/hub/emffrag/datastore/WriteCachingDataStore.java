@@ -7,15 +7,25 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.TreeMap;
 
+import de.hub.emffrag.EmfFragActivator;
+
 
 public class WriteCachingDataStore extends AbstractDelegatingDataStore {
 	
 	private final TreeMap<byte[], byte[]> cache = new TreeMap<byte[], byte[]>(InMemoryDataStore.byteComparator);
 	private final IBulkInsertExtension bulkInsertExtension;
+	private int bulkInsertSize = 1000;
+
+	public void setBulkInsertSize(int bulkInsertSize) {
+		this.bulkInsertSize = bulkInsertSize;
+	}
 
 	public WriteCachingDataStore(IBaseDataStore baseDataStore, IBulkInsertExtension bulkInsertExtension) {
 		super(baseDataStore);
 		this.bulkInsertExtension = bulkInsertExtension;
+		if (EmfFragActivator.instance != null) {
+			this.bulkInsertSize = EmfFragActivator.instance.bulkInsertSize;
+		}
 	}
 
 	private void performBulkInsert() {	
@@ -40,7 +50,7 @@ public class WriteCachingDataStore extends AbstractDelegatingDataStore {
 			public void close() throws IOException {
 				super.close();
 				cache.put(key, toByteArray());
-				if (cache.size() > 100) {
+				if (cache.size() > bulkInsertSize) {
 					performBulkInsert();
 				}
 			}	

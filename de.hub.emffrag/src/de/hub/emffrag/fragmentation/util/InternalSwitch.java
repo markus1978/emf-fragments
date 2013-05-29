@@ -6,12 +6,12 @@
  */
 package de.hub.emffrag.fragmentation.util;
 
-import de.hub.emffrag.fragmentation.*;
-
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-
 import org.eclipse.emf.ecore.util.Switch;
+
+import de.hub.emffrag.fragmentation.FInternalObject;
+import de.hub.emffrag.fragmentation.InternalPackage;
 
 /**
  * <!-- begin-user-doc -->

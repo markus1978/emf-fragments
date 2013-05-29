@@ -6,14 +6,13 @@
  */
 package de.hub.emffrag.fragmentation.util;
 
-import de.hub.emffrag.fragmentation.*;
-
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notifier;
-
 import org.eclipse.emf.common.notify.impl.AdapterFactoryImpl;
-
 import org.eclipse.emf.ecore.EObject;
+
+import de.hub.emffrag.fragmentation.FInternalObject;
+import de.hub.emffrag.fragmentation.InternalPackage;
 
 /**
  * <!-- begin-user-doc -->

@@ -15,16 +15,14 @@
  */
 package de.hub.emffrag.testmodels.testmodel.frag.impl;
 
+import org.eclipse.emf.ecore.EClass;
+
 import de.hub.emffrag.datastore.KeyType;
 import de.hub.emffrag.datastore.StringKeyType;
 import de.hub.emffrag.model.emffrag.impl.IndexedMapImpl;
-
 import de.hub.emffrag.testmodels.testmodel.TestObject;
 import de.hub.emffrag.testmodels.testmodel.TestObjectIndex;
-
 import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage;
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

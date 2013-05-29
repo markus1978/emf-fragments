@@ -15,14 +15,12 @@
  */
 package de.hub.emffrag.testmodels.testmodel.regular.impl;
 
-import de.hub.emffrag.model.emffrag.impl.IndexedMapImpl;
+import org.eclipse.emf.ecore.EClass;
 
+import de.hub.emffrag.model.emffrag.impl.IndexedMapImpl;
 import de.hub.emffrag.testmodels.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.testmodel.TestObject;
 import de.hub.emffrag.testmodels.testmodel.TestObjectIndex;
-
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

@@ -15,25 +15,22 @@
  */
 package de.hub.emffrag.testmodels.testmodel.frag.impl;
 
-import de.hub.emffrag.model.emffrag.EmfFragPackage;
-
-import de.hub.emffrag.testmodels.testmodel.TestContainmentIndex;
-import de.hub.emffrag.testmodels.testmodel.TestEnum;
-import de.hub.emffrag.testmodels.testmodel.TestObject;
-import de.hub.emffrag.testmodels.testmodel.TestObjectIndex;
-import de.hub.emffrag.testmodels.testmodel.TestObjectWithIndexes;
-
-import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelFactory;
-import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage;
-
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EGenericType;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
-
 import org.eclipse.emf.ecore.impl.EPackageImpl;
+
+import de.hub.emffrag.model.emffrag.EmfFragPackage;
+import de.hub.emffrag.testmodels.testmodel.TestContainmentIndex;
+import de.hub.emffrag.testmodels.testmodel.TestEnum;
+import de.hub.emffrag.testmodels.testmodel.TestObject;
+import de.hub.emffrag.testmodels.testmodel.TestObjectIndex;
+import de.hub.emffrag.testmodels.testmodel.TestObjectWithIndexes;
+import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelFactory;
+import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage;
 
 /**
  * <!-- begin-user-doc -->

@@ -40,6 +40,9 @@ public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, ISc
 
 	private Configuration config = null;
 	private HBaseAdmin admin = null;
+	
+	private int bulkInsertSize = 1000;
+	private int scanCacheSize = 1000;
 
 	private final String dataStoreId;
 	private final boolean deleteExistingTable;
@@ -324,7 +327,7 @@ public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, ISc
 		ResultScanner scanner = null;
 		try {
 			Scan scan = new Scan(key);
-			scan.setCaching(1);
+			scan.setCaching(scanCacheSize);
 			scanner = hTable.getScanner(scan);
 		} catch (IOException e) {
 			Throwables.propagate(e);
@@ -350,6 +353,14 @@ public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, ISc
 		}
 		
 		return true;
+	}
+
+	public void setBulkInsertSize(int bulkInsertSize) {
+		this.bulkInsertSize = bulkInsertSize;
+	}
+
+	public void setScanCacheSize(int scanCacheSize) {
+		this.scanCacheSize = scanCacheSize;
 	}
 
 }

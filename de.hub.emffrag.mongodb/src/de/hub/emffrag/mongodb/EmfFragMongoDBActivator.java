@@ -16,12 +16,12 @@ import com.mongodb.ReadPreference;
 import de.hub.emffrag.datastore.DataStoreImpl;
 import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.ScanningDataStore;
-import de.hub.emffrag.datastore.WriteCachingDataStore;
 import de.hub.emffrag.fragmentation.FragmentedModelFactory;
 
 public class EmfFragMongoDBActivator extends Plugin {
 
 	public static EmfFragMongoDBActivator instance = null;
+	public boolean useScanning = false;
 	
 	private Map<String, DB> dataBases = new HashMap<String, DB>();
 
@@ -58,8 +58,11 @@ public class EmfFragMongoDBActivator extends Plugin {
 			@Override
 			protected IDataStore createDataStore(URI uri) {
 				MongoDBDataStore baseDataStore = new MongoDBDataStore(uri.authority(), uri.path().substring(1));
-//				return new DataStoreImpl(baseDataStore, uri);		
-				return new DataStoreImpl(new ScanningDataStore(baseDataStore, baseDataStore), uri);	
+				if (useScanning) {
+					return new DataStoreImpl(new ScanningDataStore(baseDataStore, baseDataStore), uri);
+				} else {
+					return new DataStoreImpl(baseDataStore, uri);
+				}				
 			}			
 		});
 	}

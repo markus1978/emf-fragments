@@ -7,8 +7,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.datastore.IDataMap;
 import de.hub.emffrag.datastore.DataStoreImpl;
+import de.hub.emffrag.datastore.IDataMap;
 import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.InMemoryDataStore;
 import de.hub.emffrag.datastore.LongKeyType;

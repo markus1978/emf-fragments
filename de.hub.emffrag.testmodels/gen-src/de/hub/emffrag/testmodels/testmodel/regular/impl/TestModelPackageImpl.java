@@ -15,8 +15,15 @@
  */
 package de.hub.emffrag.testmodels.testmodel.regular.impl;
 
-import de.hub.emffrag.model.emffrag.EmfFragPackage;
+import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EEnum;
+import org.eclipse.emf.ecore.EGenericType;
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.impl.EPackageImpl;
 
+import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import de.hub.emffrag.testmodels.testmodel.TestContainmentIndex;
 import de.hub.emffrag.testmodels.testmodel.TestEnum;
 import de.hub.emffrag.testmodels.testmodel.TestModelFactory;
@@ -24,16 +31,6 @@ import de.hub.emffrag.testmodels.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.testmodel.TestObject;
 import de.hub.emffrag.testmodels.testmodel.TestObjectIndex;
 import de.hub.emffrag.testmodels.testmodel.TestObjectWithIndexes;
-
-
-import org.eclipse.emf.ecore.EAttribute;
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EEnum;
-import org.eclipse.emf.ecore.EGenericType;
-import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.EReference;
-
-import org.eclipse.emf.ecore.impl.EPackageImpl;
 
 /**
  * <!-- begin-user-doc -->

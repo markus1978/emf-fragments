@@ -15,14 +15,12 @@
  */
 package de.hub.emffrag.testmodels.testmodel.regular.impl;
 
-import de.hub.emffrag.model.emffrag.impl.ContainmentIndexedMapImpl;
+import org.eclipse.emf.ecore.EClass;
 
+import de.hub.emffrag.model.emffrag.impl.ContainmentIndexedMapImpl;
 import de.hub.emffrag.testmodels.testmodel.TestContainmentIndex;
 import de.hub.emffrag.testmodels.testmodel.TestModelPackage;
 import de.hub.emffrag.testmodels.testmodel.TestObject;
-
-
-import org.eclipse.emf.ecore.EClass;
 
 /**
  * <!-- begin-user-doc -->

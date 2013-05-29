@@ -15,12 +15,17 @@
  */
 package de.hub.emffrag.model.emffrag.util;
 
-import de.hub.emffrag.model.emffrag.*;
-
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-
 import org.eclipse.emf.ecore.util.Switch;
+
+import de.hub.emffrag.model.emffrag.ContainmentIndexedMap;
+import de.hub.emffrag.model.emffrag.EmfFragPackage;
+import de.hub.emffrag.model.emffrag.Extension;
+import de.hub.emffrag.model.emffrag.IndexedList;
+import de.hub.emffrag.model.emffrag.IndexedMap;
+import de.hub.emffrag.model.emffrag.Root;
+import de.hub.emffrag.model.emffrag.Statistics;
 
 /**
  * <!-- begin-user-doc -->

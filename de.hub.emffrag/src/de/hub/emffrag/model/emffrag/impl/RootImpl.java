@@ -15,6 +15,7 @@
  */
 package de.hub.emffrag.model.emffrag.impl;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 
@@ -23,7 +24,6 @@ import de.hub.emffrag.fragmentation.FObjectImpl;
 import de.hub.emffrag.fragmentation.FragmentedModel;
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
 import de.hub.emffrag.model.emffrag.Root;
-import org.eclipse.emf.common.util.EList;
 
 /**
  * <!-- begin-user-doc -->

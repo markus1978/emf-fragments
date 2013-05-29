@@ -15,14 +15,18 @@
  */
 package de.hub.emffrag.model.emffrag.util;
 
-import de.hub.emffrag.model.emffrag.*;
-
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notifier;
-
 import org.eclipse.emf.common.notify.impl.AdapterFactoryImpl;
-
 import org.eclipse.emf.ecore.EObject;
+
+import de.hub.emffrag.model.emffrag.ContainmentIndexedMap;
+import de.hub.emffrag.model.emffrag.EmfFragPackage;
+import de.hub.emffrag.model.emffrag.Extension;
+import de.hub.emffrag.model.emffrag.IndexedList;
+import de.hub.emffrag.model.emffrag.IndexedMap;
+import de.hub.emffrag.model.emffrag.Root;
+import de.hub.emffrag.model.emffrag.Statistics;
 
 /**
  * <!-- begin-user-doc -->

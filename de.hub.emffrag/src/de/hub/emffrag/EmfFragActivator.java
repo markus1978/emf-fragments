@@ -35,6 +35,7 @@ public class EmfFragActivator extends Plugin {
 	public boolean logInStandAlone = false;
 	private boolean isStandAlone = false;
 	public int cacheSize = 100;
+	public int bulkInsertSize = 1000;
 	
 	private int warningsAndErrors = 0;
 

@@ -15,16 +15,17 @@
  */
 package de.hub.emffrag.testmodels.testmodel.regular.util;
 
-import de.hub.emffrag.model.emffrag.ContainmentIndexedMap;
-import de.hub.emffrag.model.emffrag.IndexedMap;
-
-import de.hub.emffrag.testmodels.testmodel.*;
-
-
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-
 import org.eclipse.emf.ecore.util.Switch;
+
+import de.hub.emffrag.model.emffrag.ContainmentIndexedMap;
+import de.hub.emffrag.model.emffrag.IndexedMap;
+import de.hub.emffrag.testmodels.testmodel.TestContainmentIndex;
+import de.hub.emffrag.testmodels.testmodel.TestModelPackage;
+import de.hub.emffrag.testmodels.testmodel.TestObject;
+import de.hub.emffrag.testmodels.testmodel.TestObjectIndex;
+import de.hub.emffrag.testmodels.testmodel.TestObjectWithIndexes;
 
 /**
  * <!-- begin-user-doc -->
