@@ -95,7 +95,7 @@ public class NoReferencesIdSemantics extends IndexBasedIdSemantics {
 		if (uri.scheme().equals("save")) {
 			String saveKey = uri.device();
 			return saveKeyToSavedObject.get(saveKey);
-		} else if (uri.scheme().equals("mongodb")) {
+		} else if (uri.scheme().equals("mongodb") || uri.scheme().equals("hbase")) { // TODO this looks not right
 			return (FInternalObject) model.getInternalResourceSet().getEObject(uri, true);
 		} else {
 			throw new RuntimeException("Discovered an unknown URI.");

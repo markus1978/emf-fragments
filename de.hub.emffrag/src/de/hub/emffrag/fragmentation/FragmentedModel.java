@@ -303,6 +303,7 @@ public class FragmentedModel extends ResourceImpl {
 				Throwables.propagate(e);
 			}
 		}
+		dataStore.close();
 	}
 
 	/**

@@ -31,7 +31,7 @@ public class EmfFragHBaseActivator extends Plugin {
 		protocolToFactoryMap.put("hbase", new FragmentedModelFactory() {
 			@Override
 			protected IDataStore createDataStore(URI uri) {
-				HBaseDataStore baseDataStore = new HBaseDataStore(uri.path().substring(1));
+				HBaseDataStore baseDataStore = new HBaseDataStore(uri.path().substring(1), true);
 				baseDataStore.setScanCacheSize(scanCacheSize);
 				if (useScanning) {
 					return new DataStoreImpl(new ScanningDataStore(new WriteCachingDataStore(baseDataStore, baseDataStore), baseDataStore), uri);

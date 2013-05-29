@@ -271,6 +271,7 @@ public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, ISc
 	public void close() {
 		try {
 			hTable.close();
+			hTable = null;
 		} catch (IOException e) {
 			Throwables.propagate(e);
 		}
