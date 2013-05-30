@@ -1,5 +1,8 @@
 package de.hub.emffrag.hbase;
 
+import static de.hub.emffrag.hbase.HBaseUtil.col;
+import static de.hub.emffrag.hbase.HBaseUtil.colFamily;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,20 +14,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 
 import de.hub.emffrag.EmfFragActivator;
@@ -38,17 +35,12 @@ import de.hub.emffrag.datastore.IScanExtension;
  */
 public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, IScanExtension {
 
-	private Configuration config = null;
-	private HBaseAdmin admin = null;
 	
 	private int scanCacheSize = 1000;
 
 	private final String dataStoreId;
 	private final boolean deleteExistingTable;
 	private HTable hTable;
-
-	private static final byte[] colFamily = "value".getBytes();
-	private static final byte[] col = "value".getBytes();
 
 	/**
 	 * @param dataStoreId
@@ -73,66 +65,15 @@ public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, ISc
 
 	private void initialize() {
 		try {
-			if (admin == null) {
-				if (config == null) {
-					getHBaseConfig(null);
-				}
-				admin = new HBaseAdmin(config);
-			}
 			if (hTable == null) {
-				hTable = getHBaseTable(dataStoreId, deleteExistingTable);
+				hTable = HBaseUtil.getHBaseTable(dataStoreId, deleteExistingTable);
 			}
 		} catch (Exception e) {
 			Throwables.propagate(e);
 		}
 	}
 
-	private Configuration getHBaseConfig(String hbaseRootDir) {
-		if (config == null) {
-			config = HBaseConfiguration.create();
-			config.set("hbase.zookeeper.quorum", "localhost");
-
-			if (!(hbaseRootDir == null || hbaseRootDir.equals(""))) {
-				String hbaseSite = "" + "<?xml version='1.0'?>" + "<?xml-stylesheet type='text/xsl' href='configuration.xsl'?>" + "<configuration>"
-						+ "  <property>" + "    <name>hbase.zookeeper.quorum</name>" + "    <value>" + hbaseRootDir + "</value>" + "  </property>"
-						+ "</configuration>                                                ";
-
-				ByteArrayInputStream baos = new ByteArrayInputStream(hbaseSite.getBytes());
-				config.addResource(baos);
-				try {
-					baos.close();
-				} catch (IOException e) {
-					Throwables.propagate(e);
-				}
-			}
-		}
-		return config;
-	}
-
-	private HTable getHBaseTable(String tableName, boolean deleteExistingTable) {
-		Preconditions.checkArgument(tableName != null);
-		HTable table = null;
-		try {
-			boolean tableExists = admin.tableExists(tableName);
-
-			if (tableExists && deleteExistingTable) {
-				admin.disableTable(tableName);
-				admin.deleteTable(tableName);
-				tableExists = false;
-			}
-
-			if (!tableExists) {
-				HTableDescriptor tableDescr = new HTableDescriptor(tableName);
-				tableDescr.addFamily(new HColumnDescriptor(colFamily));
-				admin.createTable(tableDescr);
-			}
-
-			table = new HTable(config, tableName);
-		} catch (Exception e) {
-			Throwables.propagate(e);
-		}
-		return table;
-	}
+	
 
 	@Override
 	public byte[] ceiling(byte[] key) {
@@ -258,12 +199,7 @@ public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, ISc
 
 	@Override
 	public void drop() {
-		initialize();
-		try {
-			admin.deleteTable(dataStoreId);
-		} catch (IOException e) {
-			Throwables.propagate(e);
-		}
+		HBaseUtil.dropTable(dataStoreId);
 	}
 
 	@Override
