@@ -8,3 +8,5 @@ Require-Bundle: de.hub.emffrag;bundle-version="1.0.0",
  de.hub.emffrag.tests;bundle-version="1.0.0",
  de.hub.emffrag.mongodb;bundle-version="1.0.0",
  de.hub.emffrag.testmodels;bundle-version="1.0.0"
+Export-Package: de.hub.emffrag.mongodb,
+ de.hub.emffrag.mongodb.benchmarks

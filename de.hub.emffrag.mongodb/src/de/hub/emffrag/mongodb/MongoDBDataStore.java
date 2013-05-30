@@ -196,6 +196,11 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 
 	@Override
 	public void close() {
+		
+	}
+	
+	@Override
+	public void flush() {
 		db.cleanCursors(true);
 	}
 	

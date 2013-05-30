@@ -45,6 +45,11 @@ public class AbstractDelegatingDataStore implements IBaseDataStore {
 		delegate.delete(bytes);
 	}
 
+	@Override
+	public void flush() {
+		delegate.flush();
+	}
+
 	public void close() {
 		delegate.close();
 	}

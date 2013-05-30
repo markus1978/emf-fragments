@@ -41,7 +41,6 @@ public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, ISc
 	private Configuration config = null;
 	private HBaseAdmin admin = null;
 	
-	private int bulkInsertSize = 1000;
 	private int scanCacheSize = 1000;
 
 	private final String dataStoreId;
@@ -276,6 +275,11 @@ public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, ISc
 			Throwables.propagate(e);
 		}
 	}
+	
+	@Override
+	public void flush() {
+	
+	}
 
 	private class Cursor implements ICursor {
 		final ResultScanner scanner;
@@ -354,10 +358,6 @@ public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, ISc
 		}
 		
 		return true;
-	}
-
-	public void setBulkInsertSize(int bulkInsertSize) {
-		this.bulkInsertSize = bulkInsertSize;
 	}
 
 	public void setScanCacheSize(int scanCacheSize) {

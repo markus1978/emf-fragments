@@ -50,6 +50,11 @@ public class FileSystemDataStore implements IBaseDataStore {
 	public void close() {
 		// do nothing
 	}
+	
+	@Override
+	public void flush() {
+		// do nothing	
+	}
 
 	@Override
 	public byte[] ceiling(byte[] key) {

@@ -118,8 +118,8 @@ public class WriteCachingDataStore extends AbstractDelegatingDataStore {
 	}
 
 	@Override
-	public void close() {
+	public void flush() {
 		performBulkInsert();
-		super.close();
+		super.flush();
 	}
 }

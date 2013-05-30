@@ -58,7 +58,12 @@ public class InMemoryDataStore implements IBaseDataStore, IBulkInsertExtension {
 					byte[] currentKey = null;
 					@Override
 					public InputStream openNextInputStream() {
-						return new ByteArrayInputStream(store.get(currentKey));
+						byte[] value = store.get(currentKey);
+						if (value != null) {
+							return new ByteArrayInputStream(value);
+						} else  {
+							return null;
+						}
 					}
 					
 					@Override
@@ -148,6 +153,11 @@ public class InMemoryDataStore implements IBaseDataStore, IBulkInsertExtension {
 	@Override
 	public void close() {
 
+	}
+
+	@Override
+	public void flush() {
+		
 	}
 
 	@Override

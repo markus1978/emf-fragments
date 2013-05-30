@@ -39,5 +39,13 @@ public interface IBaseDataStore {
 
 	void delete(byte[] bytes);
 
+	/**
+	 * Called to flush all caches.
+	 */
+	void flush();
+	
+	/**
+	 * Closes the datastore (not called by EMF-Fragments).
+	 */
 	void close();
 }
