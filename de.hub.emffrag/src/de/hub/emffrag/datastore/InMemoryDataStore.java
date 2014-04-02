@@ -28,10 +28,10 @@ public class InMemoryDataStore implements IBaseDataStore, IBulkInsertExtension {
 			int a = (left[i] & 0xff);
 			int b = (right[j] & 0xff);
 			if (a != b) {
-				return Integer.compare(a, b);
+				return Integer.valueOf(a).compareTo(Integer.valueOf(b)); // Integer.compare is not present in java 1.6
 			}
 		}
-		return Integer.compare(left.length, right.length);
+		return Integer.valueOf(left.length).compareTo(Integer.valueOf(right.length)); // Integer.compare is not present in java 1.6
 	}
 
 	private static final byte[] EMTPY = new byte[] { 0 };
