@@ -2,6 +2,8 @@ package de.hub.emffrag.fragmentation;
 
 import junit.framework.Assert;
 
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EObject;
 import org.junit.Test;
 
 import de.hub.emffrag.EmfFragActivator;
@@ -20,6 +22,23 @@ public class EmfFragUtilsTest extends AbstractFragmentationTests {
 		object1.getCrossReferences().add(object3);
 		
 		Assert.assertEquals(2, EMFFragUtil.getAllNonFragmentingContents(((FObjectImpl)object1).fInternalObject()).size());
+	}
+	
+	@Test
+	public void testToURI() {
+		model.root().getContents().add(object1);
+		object1.getRegularContents().add(object2);
+		object2.getFragmentedContents().add(object3);
+		object1.getCrossReferences().add(object3);
+		
+		URI uri = EMFFragUtil.getURI(object1);
+		Assert.assertEquals(2, uri.segmentCount());
+		Assert.assertEquals("/", uri.fragment());
+		
+		EObject resolvedObject = EMFFragUtil.resolveURI(uri, model);
+		Assert.assertTrue(resolvedObject instanceof TestObject);
+		Assert.assertEquals(object1.getName(), ((TestObject)resolvedObject).getName());
+		
 	}
 
 //	@Test

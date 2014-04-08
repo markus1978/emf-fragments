@@ -123,6 +123,10 @@ public class FragmentedModel extends ResourceImpl {
 		public int getUnloads() {
 			return unloads;
 		}
+		
+		public int getCacheSize() {
+			return fragmentCache.size();
+		}
 	}
 
 	private void unloadFragment(Fragment fragment) {	
@@ -394,5 +398,5 @@ public class FragmentedModel extends ResourceImpl {
 
 	<KT> void assertIndexClassIndex(EObject owner, KT min, KT max, KeyType<KT> keyType) {
 
-	}
+	}	
 }

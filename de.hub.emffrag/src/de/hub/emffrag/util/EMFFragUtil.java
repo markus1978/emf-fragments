@@ -26,14 +26,20 @@ import org.eclipse.emf.common.util.AbstractTreeIterator;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.EMap;
 import org.eclipse.emf.common.util.TreeIterator;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EAnnotation;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 
 import de.hub.emffrag.fragmentation.FInternalObject;
+import de.hub.emffrag.fragmentation.FInternalObjectImpl;
+import de.hub.emffrag.fragmentation.FObjectImpl;
+import de.hub.emffrag.fragmentation.FStoreImpl;
 import de.hub.emffrag.fragmentation.Fragment;
+import de.hub.emffrag.fragmentation.FragmentedModel;
 
 public class EMFFragUtil {
 	
@@ -160,5 +166,13 @@ public class EMFFragUtil {
 		} else {
 			return false;
 		}
+	}
+	
+	public static URI getURI(EObject eObject) {
+		return EcoreUtil.getURI(((FObjectImpl)eObject).fInternalObject());
+	}
+	
+	public static EObject resolveURI(URI uri, FragmentedModel fragmentation) {
+		return FStoreImpl.getInstance().getUserObject((FInternalObjectImpl)fragmentation.resolveObjectURI(uri));
 	}
 }

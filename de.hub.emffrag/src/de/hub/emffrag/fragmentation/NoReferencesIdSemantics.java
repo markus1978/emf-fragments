@@ -13,8 +13,8 @@ public class NoReferencesIdSemantics extends IndexBasedIdSemantics {
 
 	private final MultiMap saves = new MultiValueMap();
 
-	// Sometimes a references and not yet contained (thus no actual fragmented
-	// model URI) elements are references by objects that can unloaded. When
+	// Sometimes a reference is not yet contained (thus no actual fragmented
+	// model URI exists) elements are references by objects that can unloaded. When
 	// their are loaded, also their references are resolved. We use special
 	// save://<id> URIs for these elements.
 	private final Map<String, FInternalObjectImpl> saveKeyToSavedObject = new HashMap<String, FInternalObjectImpl>();
@@ -38,12 +38,12 @@ public class NoReferencesIdSemantics extends IndexBasedIdSemantics {
 		} else if (internalObject.getFragment() == null) {
 			Collection<?> saves = (Collection<?>) this.saves.get(internalObject);
 			if (save == null) {
-				throw new RuntimeException("No save given for an object that is not contained in a fragment. Cannot create a URI for this object.");
+				throw new RuntimeException("No save given for an object that is not contained in a fragment. Cannot create a URI for this object: [x:" + internalObject.eClass().getName() + "]");
 			} else {
 				if (saves == null || !saves.contains(save)) {
 					// The save is later used to save the real URI, once we can
-					// assign it. This is usually done, when the resource the
-					// the not yet contained element is added to is saved.
+					// assign it. This is usually done, when the resource of
+					// the not yet contained element is added and then saved.
 					this.saves.put(internalObject, save);
 
 					// The save URI is used, as long no real URI could be saved.
