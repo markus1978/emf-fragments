@@ -12,16 +12,28 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoException;
+import com.mongodb.gridfs.GridFS;
+import com.mongodb.gridfs.GridFSDBFile;
+import com.mongodb.gridfs.GridFSInputFile;
 
 import de.hub.emffrag.datastore.IBaseDataStore;
 import de.hub.emffrag.datastore.IScanExtension;
+import de.hub.emffrag.datastore.URIUtils;
 
 public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 
+	private static final int MAX_BSON_SIZE = 1024*1024*16 - 256;
+	
+	private static final String TYPE = "type";
+	private static final int TYPE_BSON = 1;
+	private static final int TYPE_GRID_FS = 2;
+	
 	private static final String VALUE = "value";
 	private static final String KEY = "key";
+	private static final String FILE_NAME = "file";
 	private DBCollection collection;
 	private DB db;
+	private GridFS gridFs;
 	
 	public MongoDBDataStore(String host, String dataStoreId) {
 		this(host, dataStoreId, false);
@@ -52,7 +64,8 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 			collection.drop();
 			collection = db.getCollection(dataStoreId);	
 		}
-		collection.ensureIndex(new BasicDBObject(KEY, 1), new BasicDBObject("unique", true));		
+		collection.ensureIndex(new BasicDBObject(KEY, 1), new BasicDBObject("unique", true));
+		gridFs = new GridFS(db);
 	}
 	
 	private byte[] adoptKey(byte[] key) {
@@ -85,67 +98,38 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 		}		
 	}
 	
-
-	
 	@Override
 	synchronized public InputStream openInputStream(byte[] key) {
 		DBObject result = collection.findOne(new BasicDBObject(KEY, adoptKey(key)));
-		if (result != null) {
-			byte[] value = (byte[])result.get(VALUE);
-			if (value != null) {
-				return new ByteArrayInputStream(value);
-			} else {
-				return new ByteArrayInputStream(new byte[]{});
-			}
-		} else {
-			return null;
-		}
+		return inputStreamFromDBObject(result);
 	}
-
-//	DBCursor lastCursor = null;
-//	@Override
-//	synchronized public InputStream openInputStream(byte[] key) {
-//		byte[] adoptedKey = adoptKey(key);
-//		if (EmfFragMongoDBActivator.instance.tryToScan) {
-//			if (lastCursor != null && lastCursor.hasNext()) {
-//				DBObject result = lastCursor.next();
-//				byte[] cursorKey = (byte[])result.get(KEY);
-//				boolean equals = true;
-//				loop: for (int i = 0; i < cursorKey.length; i++) {
-//					if (cursorKey[i] != adoptedKey[i]) {
-//						equals = false;
-//						break loop;
-//					}
-//				}
-//				if (equals) {
-//					return inputStreamFromDBObject(result);
-//				} else {
-//					lastCursor.close();
-//					lastCursor = null;
-//				}
-//			}
-//			DBCursor cursor = collection.find(new BasicDBObject(KEY, new BasicDBObject("$gte", adoptedKey)));
-//			cursor.sort(new BasicDBObject(KEY, 1));
-//			if (cursor.hasNext()) {
-//				DBObject result = cursor.next();
-//				lastCursor = cursor;
-//				return inputStreamFromDBObject(result);
-//			} else {
-//				return null;
-//			}			
-//		} else {
-//			DBObject result = collection.findOne(new BasicDBObject(KEY, adoptedKey));
-//			return inputStreamFromDBObject(result);
-//		}
-//	}
 	
 	private InputStream inputStreamFromDBObject(DBObject result) {
-		if (result != null) {
-			byte[] value = (byte[])result.get(VALUE);
-			if (value != null) {
-				return new ByteArrayInputStream(value);
+		if (result != null) {			
+			Integer typeAsInteger = (Integer)result.get(TYPE);
+			if (typeAsInteger == null) {
+				return null;				
+			}
+			int type = typeAsInteger;
+			if (type == TYPE_BSON) {
+				byte[] value = (byte[])result.get(VALUE);
+				if (value != null) {
+					return new ByteArrayInputStream(value);
+				} else {
+					return new ByteArrayInputStream(new byte[]{});
+				}
+			} else if (type == TYPE_GRID_FS) {
+				String fileName = (String)result.get(FILE_NAME);
+				if (fileName == null) {
+					throw new IllegalStateException("There is no file name.");
+				}
+				GridFSDBFile gridFsFile = gridFs.findOne(fileName);
+				if (gridFsFile == null) {
+					throw new IllegalStateException("There is no grid fs file for the given key.");	
+				}
+				return gridFsFile.getInputStream();
 			} else {
-				return new ByteArrayInputStream(new byte[]{});
+				throw new IllegalStateException("Unknown mongo-db value storage type.");
 			}
 		} else {
 			return null;
@@ -159,7 +143,17 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 			public void close() throws IOException {
 				super.close();
 				byte[] keyString = adoptKey(key);
-				collection.update(new BasicDBObject(KEY, keyString), new BasicDBObject(KEY, keyString).append(VALUE, toByteArray()), true, false);
+				byte[] byteArray = toByteArray();
+				if (byteArray.length < MAX_BSON_SIZE) {
+					collection.update(new BasicDBObject(KEY, keyString), new BasicDBObject(KEY, keyString).append(TYPE, TYPE_BSON).append(VALUE, byteArray), true, false);
+				} else {
+					// do grid fs
+					GridFSInputFile gridFsFile = gridFs.createFile(byteArray);
+					String fileName = URIUtils.encode(key);
+					gridFsFile.setFilename(fileName);
+					gridFsFile.save();
+					collection.update(new BasicDBObject(KEY, keyString), new BasicDBObject(KEY, keyString).append(TYPE, TYPE_GRID_FS).append(FILE_NAME, fileName), true, false);
+				}
 			}
 		};
 	}

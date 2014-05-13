@@ -7,6 +7,8 @@ import de.hub.emffrag.fragmentation.FragmentsBaseTestSuite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+		// preliminaries
+		MongodbGridFsTest.class,
 		// fragmentation tests based on XMI-fragments
 		MongodbFragmentationTests.class, 
 		MongodbCrossReferenceTests.class, 
