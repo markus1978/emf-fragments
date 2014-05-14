@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="EMF-Fragments"
+            id="de.hub.emffrag.ui">
+      </category>
+      <view
+            name="EMF-Fragments View"
+            icon="icons/sample.gif"
+            category="de.hub.emffrag.ui"
+            class="de.hub.emffrag.ui.views.EmfFragView"
+            id="de.hub.emffrag.ui.views.EmfFragView">
+      </view>
+   </extension>
+    <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="EMF-Fragments"
+            id="de.hub.emffrag.ui">
+      </category>
+      <view
+            name="EMF-Fragments View with EMF providers"
+            icon="icons/sample.gif"
+            category="de.hub.emffrag.ui"
+            class="de.hub.emffrag.ui.views.EmfFragViewBasedOnEMF"
+            id="de.hub.emffrag.ui.views.EmfFragViewBasedOnEMF">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+
+</plugin>
