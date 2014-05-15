@@ -2,6 +2,7 @@ package de.hub.emffrag.fragmentation;
 
 import java.util.Random;
 
+import org.eclipse.emf.ecore.EObject;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -34,7 +35,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		model.save(null);
 		reinitializeModel();		
 		
-		Assertions.root(model).assertId(1).getFragmentedContents().assertSize(0);		
+		Assertions.root(model, true).assertId(1).getFragmentedContents().assertSize(0);		
 		model.assertFragmentsIndex(0l, 1l);
 		model.assertIdIndex(-1l, -1l);
 	}
@@ -52,12 +53,29 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		reinitializeModel();
 
 		Assertions
-			.root(model).assertId(1)
+			.root(model, true).assertId(1)
 			.getFragmentedContents().assertSize(1)
 			.get(0).assertId(2).assertDifferentFragmentAsContainer()
 			.eContainer().assertId(1);
 		model.assertFragmentsIndex(0l, 2l);
 		model.assertIdIndex(-1l, -1l);
+	}
+	
+	@Test
+	public void testEContainer() {
+		model.root().getContents().add(object1);
+		object1.getFragmentedContents().add(object2);
+	
+		model.save(null);
+
+		reinitializeModel();
+
+		EObject eContainer = Assertions
+			.root(model, true).assertId(1)
+			.getFragmentedContents().assertSize(1)
+			.get(0).value().eContainer();
+		Assert.assertNotNull(eContainer);
+		Assert.assertEquals(Assertions.root(model).value(), eContainer);
 	}
 	
 	@Test
@@ -78,7 +96,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		reinitializeModel();
 		
 		Assertions
-			.root(model).assertId(1).getRegularContents().assertSize(1)
+			.root(model, true).assertId(1).getRegularContents().assertSize(1)
 			.get(0).assertId(2).getRegularContents().assertSize(1)
 			.get(0).assertId(3);
 	}
@@ -116,7 +134,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 	
 	private void performRecursiveFragmentationTest() {
 		Assertions
-			.root(model).assertId(1).getFragmentedContents().assertSize(1)
+			.root(model, true).assertId(1).getFragmentedContents().assertSize(1)
 			.get(0).assertId(2).getFragmentedContents().assertSize(1)
 			.get(0).assertId(3);
 	
@@ -129,7 +147,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		reinitializeModel();
 	
 		Assertions
-			.root(model).assertId(1).getFragmentedContents().assertSize(1)
+			.root(model, true).assertId(1).getFragmentedContents().assertSize(1)
 			.get(0).assertId(2).getFragmentedContents().assertSize(1)
 			.get(0).assertId(3);
 	}
@@ -144,7 +162,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		reinitializeModel();
 		model.assertFragmentsIndex(0l, 1l);
 		object1 = Assertions
-				.root(model).assertId(1)
+				.root(model, true).assertId(1)
 				.getRegularContents().assertSize(1)
 				.get(0).assertId(2).assertSameFragmentAsContainer()
 				.eContainer().assertId(1).value();	
@@ -154,7 +172,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 
 		reinitializeModel();
 		Assertions
-				.root(model).assertId(1)
+				.root(model, true).assertId(1)
 				.getRegularContents().assertSize(0)
 				.getFragmentedContents().assertSize(0)
 				.eContents().assertSize(0);
@@ -183,7 +201,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 
 		reinitializeModel();
 		Assertions
-				.root(model).assertId(1)
+				.root(model, true).assertId(1)
 				.eContents().assertSize(0)
 				.getFragmentedContents().assertSize(0);
 			
@@ -237,8 +255,10 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 
 		reinitializeModel();
 		reinitializeModel();
-		Assertions.root(model).eContents().assertSize(0);
+		Assertions.root(model, true).eContents().assertSize(0);
 		model.assertIdIndex(-1l, -1l);
+		
+		
 	}
 	
 	@SuppressWarnings("unused")
@@ -262,7 +282,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		model.save(null);
 		reinitializeModel();
 		Assertions
-				.root(model).assertId(1)
+				.root(model, true).assertId(1)
 				.getFragmentedContents().assertSize(0)
 				.getRegularContents().assertSize(1)
 				.get(0).assertId(2).assertSameFragmentAsContainer();
@@ -281,7 +301,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		
 		reinitializeModel();
 		Assertions
-				.root(model).assertId(1).getFragmentedContents().assertSize(2)
+				.root(model, true).assertId(1).getFragmentedContents().assertSize(2)
 				.get(0).assertId(2).assertDifferentFragmentAsContainer().getFragmentedContents().assertSize(0);
 		Assertions
 				.root(model).getFragmentedContents()
@@ -301,7 +321,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		
 		reinitializeModel();
 		Assertions
-				.root(model).assertId(1).getRegularContents().assertSize(0)
+				.root(model, true).assertId(1).getRegularContents().assertSize(0)
 				.getFragmentedContents().assertSize(1).get(0).assertId(2).assertDifferentFragmentAsContainer()
 				.eContainer().assertId(1);
 		
@@ -319,7 +339,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		
 		reinitializeModel();
 		Assertions
-				.root(model).assertId(1)
+				.root(model, true).assertId(1)
 				.getRegularContents().assertSize(0)
 				.getFragmentedContents().assertSize(1)
 				.get(0).assertId(2).assertDifferentFragmentAsContainer()

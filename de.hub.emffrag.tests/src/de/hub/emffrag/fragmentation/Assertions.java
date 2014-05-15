@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.junit.Assert;
@@ -39,14 +40,32 @@ public class Assertions {
 		return testObject;
 	}
 	
-	public static Assertions root(FragmentedModel model, int size, int i) {
+	public static Assertions root(FragmentedModel model, int size, int i, boolean analyze) {
 		Assert.assertEquals(size, model.root().getContents().size());
 		Assert.assertTrue(model.root().getContents().get(0) instanceof TestObject);
-		return context((TestObject) model.root().getContents().get(i)).assertTestObject();
+		Assertions assertion = context((TestObject) model.root().getContents().get(i)).assertTestObject();
+		if (analyze) {
+			assertion.analyse();
+		}
+		return assertion;
 	}
 	
 	public static Assertions root(FragmentedModel model) {
-		return root(model, 1, 0);
+		return root(model, false);
+	}
+	
+	public static Assertions root(FragmentedModel model, boolean analyze) {
+		return root(model, 1, 0, analyze);
+	}
+	
+	public Assertions analyse() {
+		TreeIterator<EObject> eAllContents = value().eAllContents();
+		while(eAllContents.hasNext()) {
+			EObject next = eAllContents.next();
+			EObject eContainer = next.eContainer();
+			Assert.assertTrue(eContainer != null || eContainer == value());
+		}
+		return this;
 	}
 
 	public TestObject value() {

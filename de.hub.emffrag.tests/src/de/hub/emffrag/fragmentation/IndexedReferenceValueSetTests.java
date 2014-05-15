@@ -285,6 +285,6 @@ public class IndexedReferenceValueSetTests extends AbstractFragmentationTests {
 	}
 	
 	protected TestObject assertTestObject() {
-		return Assertions.root(model, 2, 0).assertId(0).value();
+		return Assertions.root(model, 2, 0, false).assertId(0).value();
 	}
 }
