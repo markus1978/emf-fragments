@@ -90,7 +90,8 @@ public class FragmentedModel extends ResourceImpl {
 		} else {
 			rootFragment = (Fragment) resourceSet.getResource(fragmentIndex.getURI(first), true);
 			for (EObject object: rootFragment.getContents()) {
-				getContents().add(((FInternalObjectImpl)object).getUserObject());
+				// add via doAddUnique to prevent inserve add which is for users and would produce duplication of the internal object
+				((ContentsList)getContents()).doAddUnique(((FInternalObjectImpl)object).getUserObject());
 			}
 		}
 	}
@@ -200,6 +201,40 @@ public class FragmentedModel extends ResourceImpl {
 	protected Fragment newFragment(URI uri, FragmentedModel model) {
 		return new XMIFragmentImpl(uri, model);
 	}
+	
+	private class ContentsList extends ContentsEList<EObject> {
+		private static final long serialVersionUID = 1L;
+		
+		@Override
+		public void doAddUnique(EObject object) {
+			super.doAddUnique(object);
+		}
+
+		@Override
+		public NotificationChain inverseAdd(EObject object, NotificationChain notifications) {	
+			if (object instanceof FObjectImpl) {
+				FInternalObjectImpl internalObject = ((FObjectImpl)object).fInternalObject();
+				rootFragment.getContents().add(internalObject);
+			} else {
+				throw new IllegalArgumentException("Only FObjects can be added to fragmented models, generate you model code accordingly.");
+			}
+			FragmentedModel.this.attached(object);
+			return notifications;
+		}
+
+		@Override
+		public NotificationChain inverseRemove(EObject object, NotificationChain notifications) {
+			if (FragmentedModel.this.isLoaded) {
+		        FragmentedModel.this.detached(object);
+		    }
+			if (object instanceof FObjectImpl) {
+				FInternalObjectImpl internalObject = ((FObjectImpl)object).fInternalObject();
+				return internalObject.eSetResource(null, notifications);
+			} else {
+				throw new RuntimeException("Supposed unreachable.");
+			}
+		}
+	}
 
 	/**
 	 * We use a version of {@link ContentsEList} that handles inverses differently, because
@@ -209,34 +244,7 @@ public class FragmentedModel extends ResourceImpl {
 	@Override
 	public EList<EObject> getContents() {
 		if (contents == null) {
-			contents = new ContentsEList<EObject>() {
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public NotificationChain inverseAdd(EObject object, NotificationChain notifications) {										
-					if (object instanceof FObjectImpl) {
-						FInternalObjectImpl internalObject = ((FObjectImpl)object).fInternalObject();
-						rootFragment.getContents().add(internalObject);
-					} else {
-						throw new IllegalArgumentException("Only FObjects can be added to fragmented models, generate you model code accordingly.");
-					}
-					FragmentedModel.this.attached(object);
-					return notifications;
-				}
-
-				@Override
-				public NotificationChain inverseRemove(EObject object, NotificationChain notifications) {
-					if (FragmentedModel.this.isLoaded) {
-				        FragmentedModel.this.detached(object);
-				    }
-					if (object instanceof FObjectImpl) {
-						FInternalObjectImpl internalObject = ((FObjectImpl)object).fInternalObject();
-						return internalObject.eSetResource(null, notifications);
-					} else {
-						throw new RuntimeException("Supposed unreachable.");
-					}
-				}																
-			};
+			contents = new ContentsList();
 		}
 		return contents;
 	}

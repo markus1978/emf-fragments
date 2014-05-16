@@ -113,6 +113,8 @@ public class EMFFragUtil {
 	
 	public static TreeIterator<EObject> getAllNonFragmentingContentsIterator(EObject eObject) {
 		return new AbstractTreeIterator<EObject>(eObject) {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected Iterator<? extends EObject> getChildren(Object o) {
 				return prepareChildrenList((EObject)o).iterator();
@@ -142,6 +144,8 @@ public class EMFFragUtil {
 
 	public static TreeIterator<EObject> getAllNonFragmentingContentsIterator(List<EObject> contents) {
 		return new AbstractTreeIterator<EObject>(contents, false) {
+			private static final long serialVersionUID = 1L;
+
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			@Override
 			protected Iterator<? extends EObject> getChildren(Object o) {

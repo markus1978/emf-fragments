@@ -223,6 +223,8 @@ public class FInternalObjectImpl extends DynamicEObjectImpl implements FInternal
 	 * breaks the corresponding references.
 	 */
 	public void trulyUnload() {
+		UserObjectsCache.instance.unload(this);
+		
 		if (eProperties != null) {
 			eProperties.setEContents(null);
 			eProperties.setECrossReferences(null);

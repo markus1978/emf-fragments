@@ -26,12 +26,14 @@ public class FObjectImpl extends EStoreEObjectImpl {
 		eContainerFeatureID = Integer.MAX_VALUE;
 	}
 
-	protected void fSetInternalObject(FInternalObjectImpl internalObject) {
+	protected void fSetInternalObject(FInternalObjectImpl internalObject, boolean load) {
 		this.internalObject = internalObject;
 		if (fragmentedModel == null) {
 			this.fragmentedModel = internalObject.getFragmentation();
 		}
-		EmfFragActivator.instance.globalEventListener.onUserObjectCreated(internalObject, this);
+		if (!load) {
+			EmfFragActivator.instance.globalEventListener.onUserObjectCreated(internalObject, this);
+		}
 	}
 
 	public FInternalObjectImpl fInternalObject() {
