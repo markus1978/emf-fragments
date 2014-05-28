@@ -83,8 +83,12 @@ public class Fragmentation extends ResourceSetImpl {
 		resource.getContents().add(fObject);
 	}
 
-	public void registerUserObject(Fragment fragment, Integer id, FObjectImpl fObject) {
+	public void registerUserObject(Fragment fragment, int id, FObjectImpl fObject) {
 		userObjectCache.put(new UserObjectID(fragment.fFragmentId(), id), fObject);
+	}
+
+	public FObjectImpl getUserObject(Fragment fragment, int id) {
+		return userObjectCache.getIfPresent(new UserObjectID(fragment.fFragmentId(), id));
 	}
 	
 	
