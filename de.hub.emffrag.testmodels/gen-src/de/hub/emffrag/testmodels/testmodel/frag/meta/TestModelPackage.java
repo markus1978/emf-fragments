@@ -18,6 +18,7 @@ package de.hub.emffrag.testmodels.testmodel.frag.meta;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EEnum;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 
 import de.hub.emffrag.model.emffrag.EmfFragPackage;
@@ -37,7 +38,7 @@ import de.hub.emffrag.model.emffrag.EmfFragPackage;
  * @model kind="package"
  * @generated
  */
-public interface TestModelPackage extends de.hub.emffrag.testmodels.testmodel.TestModelPackage {
+public interface TestModelPackage extends EPackage {
 	/**
 	 * The package name.
 	 * <!-- begin-user-doc -->
@@ -52,7 +53,7 @@ public interface TestModelPackage extends de.hub.emffrag.testmodels.testmodel.Te
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	String eNS_URI = "http://hu-berlin.de/sam/emfhbase/testmodel/frag";
+	String eNS_URI = "http://hu-berlin.de/sam/emfhbase/testmodel";
 
 	/**
 	 * The package namespace name.
@@ -60,7 +61,7 @@ public interface TestModelPackage extends de.hub.emffrag.testmodels.testmodel.Te
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	String eNS_PREFIX = "tmf";
+	String eNS_PREFIX = "tm";
 
 	/**
 	 * The singleton instance of the package.

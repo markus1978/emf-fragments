@@ -15,6 +15,7 @@
  */
 package de.hub.emffrag.testmodels.testmodel.frag.impl;
 
+import de.hub.emffrag.testmodels.testmodel.*;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
@@ -45,7 +46,7 @@ public class TestModelFactoryImpl extends EFactoryImpl implements TestModelFacto
 	 */
 	public static TestModelFactory init() {
 		try {
-			TestModelFactory theTestModelFactory = (TestModelFactory)EPackage.Registry.INSTANCE.getEFactory("http://hu-berlin.de/sam/emfhbase/testmodel"); 
+			TestModelFactory theTestModelFactory = (TestModelFactory)EPackage.Registry.INSTANCE.getEFactory(TestModelPackage.eNS_URI);
 			if (theTestModelFactory != null) {
 				return theTestModelFactory;
 			}

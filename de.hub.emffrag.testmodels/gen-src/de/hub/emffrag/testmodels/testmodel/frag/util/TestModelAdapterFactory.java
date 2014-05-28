@@ -22,6 +22,7 @@ import org.eclipse.emf.ecore.EObject;
 
 import de.hub.emffrag.model.emffrag.ContainmentIndexedMap;
 import de.hub.emffrag.model.emffrag.IndexedMap;
+import de.hub.emffrag.testmodels.testmodel.*;
 import de.hub.emffrag.testmodels.testmodel.TestContainmentIndex;
 import de.hub.emffrag.testmodels.testmodel.TestObject;
 import de.hub.emffrag.testmodels.testmodel.TestObjectIndex;

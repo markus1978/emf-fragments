@@ -40,7 +40,7 @@ import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage;
  *
  * @generated
  */
-public class TestObjectImpl extends FObjectImpl implements TestObject {
+public class TestObjectImpl extends de.hub.emffrag2.FObjectImpl implements TestObject {
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->

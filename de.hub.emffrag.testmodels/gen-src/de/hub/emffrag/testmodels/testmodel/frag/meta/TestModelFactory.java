@@ -19,6 +19,7 @@ import de.hub.emffrag.testmodels.testmodel.TestContainmentIndex;
 import de.hub.emffrag.testmodels.testmodel.TestObject;
 import de.hub.emffrag.testmodels.testmodel.TestObjectIndex;
 import de.hub.emffrag.testmodels.testmodel.TestObjectWithIndexes;
+import org.eclipse.emf.ecore.EFactory;
 
 /**
  * <!-- begin-user-doc -->
@@ -28,7 +29,7 @@ import de.hub.emffrag.testmodels.testmodel.TestObjectWithIndexes;
  * @see de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage
  * @generated
  */
-public interface TestModelFactory extends de.hub.emffrag.testmodels.testmodel.TestModelFactory {
+public interface TestModelFactory extends EFactory {
 	/**
 	 * The singleton instance of the factory.
 	 * <!-- begin-user-doc -->
