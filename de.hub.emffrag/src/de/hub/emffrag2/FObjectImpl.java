@@ -1,15 +1,18 @@
 package de.hub.emffrag2;
 
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
-public class FObjectImpl extends MinimalEObjectImpl.Container {
-	
+public class FObjectImpl extends MinimalEObjectImpl.Container implements FObject {
+
 	private Fragmentation fragmentation = null;
-	
+
+	/**
+	 * Overridden to check if the object is still loaded, and resolves it, if
+	 * necessary.
+	 */
 	@Override
 	public Object eGet(EStructuralFeature eFeature, boolean resolve) {
 		if (eIsProxy() && resolve) {
@@ -24,51 +27,11 @@ public class FObjectImpl extends MinimalEObjectImpl.Container {
 		}
 		return value;
 	}
-	
-	private void fEnsureFragmentation(Fragmentation newFragmentation, boolean fragments) {
-		Fragmentation oldFragmentation = fFragmentation();
-		
-		if (newFragmentation == null && oldFragmentation == null) {
-			return;
-		} else if (newFragmentation == null || oldFragmentation == null) {
-			if (newFragmentation == null) {
-				// TODO remove
-			} else {
-				if (fragments) {
-					newFragmentation.doFragment(this);
-				} 
-				// TODO ensure children				
-			} 
-		} else if (newFragmentation == oldFragmentation) {
-			if (!fragments && fIsRoot()) {
-				// TODO remove fragment
-			}
-		} else {
-			if (fIsRoot()) {
-				// TODO remove
-			}
-			// TODO remove children
-			
-			if (fragments) {
-				// TODO create
-			}
-			// TODO ensure children
-		}
-	}
-	
 
-	@Override
-	protected void eBasicSetContainer(InternalEObject newContainer, int newContainerFeatureID) {
-		Fragmentation newFragmentation = null;
-		if (newContainer instanceof FObjectImpl) {
-			newFragmentation = ((FObjectImpl)newContainer).fFragmentation();
-		}
-		
-		fEnsureFragmentation(newFragmentation, fIsFragmenting(newContainer, newContainerFeatureID));
-		
-		super.eBasicSetContainer(newContainer, newContainerFeatureID);	
-	}
-	
+	/**
+	 * @return true iff the object is at the top of the containment hierarchy
+	 *         within the resource that contains it.
+	 */
 	public boolean fIsRoot() {
 		Resource eResource = eResource();
 		if (eResource != null) {
@@ -77,35 +40,41 @@ public class FObjectImpl extends MinimalEObjectImpl.Container {
 		return false;
 	}
 
+	/**
+	 * @return the fragmentation this object belongs to or null, if the object
+	 *         was not added to a fragmentation yet.
+	 */
 	public Fragmentation fFragmentation() {
 		if (fragmentation == null) {
 			Resource eResource = eResource();
 			if (eResource != null && eResource instanceof Fragment) {
-				fragmentation = ((Fragment)eResource).getFragmentation();
+				fragmentation = ((Fragment) eResource).getFragmentation();
 			}
 		}
 		return fragmentation;
 	}
 
-	private boolean fIsFragmenting(InternalEObject newContainer, int newContainerFeatureID) {
-		int containingFeatureID = InternalEObject.EOPPOSITE_FEATURE_BASE - newContainerFeatureID;
-		EStructuralFeature containingFeature = newContainer.eClass().getEStructuralFeature(containingFeatureID);
-		return !containingFeature.getEAnnotations().isEmpty(); // TODO look for the right annotation
-	}
-
-
-
 	/**
 	 * In EMF termionology "unload" only clears all references to/from the
 	 * resource, but not within the object graph. This method does the rest.
 	 * Namingly clears contents, cross references, container, and all feature
-	 * values (settings). This renders the object unusable for clients.
+	 * values (settings). This renders the object unusable for clients, but
+	 * clients can still hold references to it. When clients attempt to use it,
+	 * {@link #eGet(EStructuralFeature, boolean)} will trigger a reload of its
+	 * fragment, which will re-instantiate this object.
 	 */
 	public void fTrueUnload(Fragmentation fromFragmentation) {
 		this.fragmentation = fromFragmentation;
-		
-		// if this becomes something not MinimalEObjectImpl, eBasicProperties has to be cleaned as well
+
+		// if this becomes something not MinimalEObjectImpl, eBasicProperties
+		// has to be cleaned as well
 		eBasicSetSettings(new Object[] {});
 		eBasicSetContainer(null);
+
+		// re-create empty eSettings for further use of the object
+		int size = eClass().getFeatureCount() - eStaticFeatureCount();
+		if (size != 0) {
+			eBasicSetSettings(new Object[size]);
+		}
 	}
 }

@@ -16,6 +16,7 @@
 package de.hub.emffrag.testmodels.testmodel;
 
 import de.hub.emffrag.model.emffrag.ContainmentIndexedMap;
+import de.hub.emffrag2.FObject;
 
 /**
  * <!-- begin-user-doc -->
@@ -25,7 +26,8 @@ import de.hub.emffrag.model.emffrag.ContainmentIndexedMap;
  *
  * @see de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage#getTestContainmentIndex()
  * @model superTypes="de.hub.emffrag.model.emffrag.ContainmentIndexedMap<org.eclipse.emf.ecore.EString, de.hub.emffrag.testmodels.testmodel.TestObject>"
+ * @extends FObject
  * @generated
  */
-public interface TestContainmentIndex extends ContainmentIndexedMap<String, TestObject> {
+public interface TestContainmentIndex extends FObject, ContainmentIndexedMap<String, TestObject> {
 } // TestContainmentIndex

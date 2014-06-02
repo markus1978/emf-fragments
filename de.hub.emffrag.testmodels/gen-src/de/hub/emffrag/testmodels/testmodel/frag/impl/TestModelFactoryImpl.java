@@ -75,10 +75,10 @@ public class TestModelFactoryImpl extends EFactoryImpl implements TestModelFacto
 	@Override
 	public EObject create(EClass eClass) {
 		switch (eClass.getClassifierID()) {
-			case TestModelPackage.TEST_OBJECT: return createTestObject();
+			case TestModelPackage.TEST_OBJECT: return (EObject)createTestObject();
 			case TestModelPackage.TEST_OBJECT_INDEX: return createTestObjectIndex();
 			case TestModelPackage.TEST_CONTAINMENT_INDEX: return createTestContainmentIndex();
-			case TestModelPackage.TEST_OBJECT_WITH_INDEXES: return createTestObjectWithIndexes();
+			case TestModelPackage.TEST_OBJECT_WITH_INDEXES: return (EObject)createTestObjectWithIndexes();
 			default:
 				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
 		}

@@ -191,21 +191,21 @@ public class InMemoryDataStore implements IBaseDataStore, IBulkInsertExtension {
 		store.remove(key);
 	}
 
-//	@Override
-//	public String toString() {
-//		StringBuffer buffer = new StringBuffer();
-//		buffer.append(uri + "\n");
-//		for (byte[] key: store.keySet()) {
-//			buffer.append("key: ");
-//			for (byte b: key) {
-//				buffer.append(b + " ");
-//			}
-//			buffer.append(", URI: " + uri + "/" + URIUtils.encode(key) + "\n");
-//			buffer.append("value: ");
-//			buffer.append(new String(store.get(key)) + "\n");
-//		}
-//		return buffer.toString();
-//	}
+	@Override
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("\n");
+		for (byte[] key: store.keySet()) {
+			buffer.append("key: ");
+			for (byte b: key) {
+				buffer.append(b + " ");
+			}
+			buffer.append(", URI: " + "/" + URIUtils.encode(key) + "\n");
+			buffer.append("value: ");
+			buffer.append(new String(store.get(key)) + "\n");
+		}
+		return buffer.toString();
+	}
 
 	@Override
 	public void drop() {

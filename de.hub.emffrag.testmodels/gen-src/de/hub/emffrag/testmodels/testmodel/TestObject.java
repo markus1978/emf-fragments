@@ -15,6 +15,7 @@
  */
 package de.hub.emffrag.testmodels.testmodel;
 
+import de.hub.emffrag2.FObject;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
@@ -36,9 +37,10 @@ import org.eclipse.emf.ecore.EObject;
  *
  * @see de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage#getTestObject()
  * @model
+ * @extends FObject
  * @generated
  */
-public interface TestObject extends EObject {
+public interface TestObject extends FObject {
 	/**
 	 * Returns the value of the '<em><b>Name</b></em>' attribute.
 	 * <!-- begin-user-doc -->

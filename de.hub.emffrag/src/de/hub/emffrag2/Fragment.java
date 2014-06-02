@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
+import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.URI;
@@ -23,37 +24,35 @@ public class Fragment extends BinaryResourceImpl {
 	private Fragmentation fragmentation = null;
 	private final String id;
 
+	protected boolean fragmentIsLoaded = false;
+
 	public Fragment(URI uri) {
 		super(uri);
 		id = uri.segment(uri.segmentCount() - 1);
+		fragmentIsLoaded = true;
+	}
+
+	@Override
+	protected Notification setLoaded(boolean isLoaded) {
+		fragmentIsLoaded = isLoaded;
+		return super.setLoaded(isLoaded);
 	}
 
 	public String fFragmentId() {
 		return id;
 	}
 
-	@Override
-	public NotificationChain basicSetResourceSet(ResourceSet resourceSet, NotificationChain notifications) {
-		if (resourceSet instanceof Fragmentation) {
-			fragmentation = (Fragmentation) resourceSet;
-		} else {
-			throw new IllegalStateException("Fragments can only be used within Fragmentations, not other resource sets.");
-		}
-
-		return super.basicSetResourceSet(resourceSet, notifications);
-	}
-
 	/**
-	 * Save before regular EMF {@link #doUnload()}.
+	 * Overridden to cache the resource set as fragmentation.
 	 */
 	@Override
-	protected void doUnload() {
-		try {
-			save(resourceSet.getLoadOptions());
-		} catch (IOException e) {
-			// TODO
+	public NotificationChain basicSetResourceSet(ResourceSet resourceSet, NotificationChain notifications) {
+		if (resourceSet != null && !(resourceSet instanceof Fragmentation)) {
+			throw new IllegalStateException("Fragments can only be used within Fragmentations, not other resource sets.");
 		}
-		super.doUnload();
+		fragmentation = (Fragmentation) resourceSet;
+
+		return super.basicSetResourceSet(resourceSet, notifications);
 	}
 
 	/**
@@ -66,6 +65,9 @@ public class Fragment extends BinaryResourceImpl {
 		super.unloaded(internalEObject);
 	}
 
+	/**
+	 * @return the fragmentation that this fragment belongs to.
+	 */
 	public Fragmentation getFragmentation() {
 		if (fragmentation == null) {
 			ResourceSet resourceSet = getResourceSet();
@@ -80,6 +82,10 @@ public class Fragment extends BinaryResourceImpl {
 		return fragmentation;
 	}
 
+	/**
+	 * Overridden to use a the custom object output stream
+	 * {@link MyEObjectOutputStream}.
+	 */
 	@Override
 	protected void doSave(OutputStream outputStream, Map<?, ?> options) throws IOException {
 		// This is a copy of the super method, except for the market pieces
@@ -111,6 +117,10 @@ public class Fragment extends BinaryResourceImpl {
 		}
 	}
 
+	/**
+	 * Overridden to use the custom object input stream
+	 * {@link MyEObjectInputStream}.
+	 */
 	@Override
 	protected void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
 		// This is a copy of the super method, except for the market pieces
@@ -158,6 +168,12 @@ public class Fragment extends BinaryResourceImpl {
 		}
 	}
 
+	/**
+	 * Special {@link EObjectInputStream} that tries to retrieve a loaded object
+	 * from a fragmentation user object cache before it creates a new object.
+	 * Thus allowing to reuse still existing user object and preventing multiple
+	 * EObject instances for the same logical object.
+	 */
 	private class MyEObjectInputStream extends EObjectInputStream {
 		// This is a copy from BinaryResourceImpl. It is only used in
 		// #loadEObject()
@@ -176,11 +192,13 @@ public class Fragment extends BinaryResourceImpl {
 			} else {
 				if (internalInternalEObjectList.size() <= id) {
 					EClassData eClassData = readEClass();
-
+					
 					// We try to reuse former objects that are still on the heap
-					InternalEObject internalEObject = getFragmentation().getUserObject(Fragment.this, id);
+					InternalEObject internalEObject = getFragmentation().getRegisteredUserObject(Fragment.this, id);
 					if (internalEObject == null) {
 						internalEObject = (InternalEObject) eClassData.eFactory.create(eClassData.eClass);
+					} else {
+						internalEObject.eSetProxyURI(null);
 					}
 					InternalEObject result = internalEObject;
 
@@ -225,6 +243,12 @@ public class Fragment extends BinaryResourceImpl {
 		}
 	}
 
+	/**
+	 * Special {@link EObjectOutputStream} that registers the saved objects to
+	 * the user object cache. We do this as part of the save, because only here
+	 * it is ensured that each object already has an id. These ids are necessary
+	 * as keys for the user object cache.
+	 */
 	public class MyEObjectOutputStream extends EObjectOutputStream {
 		boolean isWritingCrossReferenceURI = false;
 		FInternalObjectImpl currentObject = null;
@@ -241,5 +265,14 @@ public class Fragment extends BinaryResourceImpl {
 				getFragmentation().registerUserObject(Fragment.this, id, (FObjectImpl) internalEObject);
 			}
 		}
+	}
+
+	/**
+	 * @return true if the fragment is new or (re-)loaded. False if the fragment
+	 *         is not loaded. This is different to EMF's {@link #isLoaded()},
+	 *         which is false if the resource is new.
+	 */
+	public boolean fragmentIsLoaded() {
+		return fragmentIsLoaded;
 	}
 }

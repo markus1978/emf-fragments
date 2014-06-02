@@ -22,16 +22,20 @@ public class TryOut {
 		fragmentation = new Fragmentation();
 		Resource resource = fragmentation.createResource(URI.createURI("test.frag"));
 		
-		TestObject container = TestModelFactory.eINSTANCE.createTestObject();
-		resource.getContents().add(container);
+		TestObject one = TestModelFactory.eINSTANCE.createTestObject();
+		one.setName("1");
+		resource.getContents().add(one);
 		
-		TestObject contents = TestModelFactory.eINSTANCE.createTestObject();
-		container.getFragmentedContents().add(contents);
+		TestObject two = TestModelFactory.eINSTANCE.createTestObject();
+		two.setName("2");
+		one.getFragmentedContents().add(two);
 		
-//		resource.getContents().add(container);
-//		resource.save(null);
-//		
-//		resource.unload();
-//		container.getFragmentedContents().get(0);		
+		TestObject three = TestModelFactory.eINSTANCE.createTestObject();
+		three.setName("3");
+		two.getFragmentedContents().add(three);
+		
+		System.out.println(one.getName());
+		System.out.println(one.getFragmentedContents().get(0).getName());
+		System.out.println(one.getFragmentedContents().get(0).getFragmentedContents().get(0).getName());
 	}
 }

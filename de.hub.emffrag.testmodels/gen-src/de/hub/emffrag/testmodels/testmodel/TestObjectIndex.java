@@ -16,6 +16,7 @@
 package de.hub.emffrag.testmodels.testmodel;
 
 import de.hub.emffrag.model.emffrag.IndexedMap;
+import de.hub.emffrag2.FObject;
 
 /**
  * <!-- begin-user-doc -->
@@ -25,7 +26,8 @@ import de.hub.emffrag.model.emffrag.IndexedMap;
  *
  * @see de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage#getTestObjectIndex()
  * @model superTypes="de.hub.emffrag.model.emffrag.IndexedMap<org.eclipse.emf.ecore.EString, de.hub.emffrag.testmodels.testmodel.TestObject>"
+ * @extends FObject
  * @generated
  */
-public interface TestObjectIndex extends IndexedMap<String, TestObject> {
+public interface TestObjectIndex extends FObject, IndexedMap<String, TestObject> {
 } // TestObjectIndex
