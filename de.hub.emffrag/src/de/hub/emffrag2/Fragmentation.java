@@ -78,15 +78,12 @@ public class Fragmentation extends ResourceSetImpl {
 		}
 	}
 
-	private final URI uri;
 	private final IDataMap<Long> fragmentDataStoreIndex;
 	private final Adapter adapter = new Adapter();
 	private final Cache<Fragment, Fragment> resourceCache;
 	private final Cache<UserObjectID, FObjectImpl> userObjectCache;
 
-	public Fragmentation(URI uri, IDataStore dataStore, int fragmentsCacheSize) {
-		this.uri = uri;
-
+	public Fragmentation(IDataStore dataStore, int fragmentsCacheSize) {
 		getURIConverter().getURIHandlers().add(0, new DataStoreURIHandler(dataStore));
 		fragmentDataStoreIndex = dataStore.getMap(("f_").getBytes(), LongKeyType.instance);
 

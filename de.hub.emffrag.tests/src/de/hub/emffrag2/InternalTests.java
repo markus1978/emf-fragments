@@ -57,10 +57,9 @@ public class InternalTests {
 	}
 	
 	public void initializeFragmentation(int fragmentsCacheSize) {
-		URI uri = testFragmentationURI;
 		InMemoryDataStore baseDataStore = new InMemoryDataStore(false);		
-		dataStore = new DataStoreImpl(baseDataStore, uri);
-		fragmentation = new Fragmentation(uri, dataStore, fragmentsCacheSize);
+		dataStore = new DataStoreImpl(baseDataStore, testFragmentationURI);
+		fragmentation = new Fragmentation(dataStore, fragmentsCacheSize);
 	}
 	
 	@Before
