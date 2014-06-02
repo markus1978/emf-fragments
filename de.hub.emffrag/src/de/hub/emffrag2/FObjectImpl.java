@@ -1,5 +1,6 @@
 package de.hub.emffrag2;
 
+import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -8,6 +9,22 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 public class FObjectImpl extends MinimalEObjectImpl.Container implements FObject {
 
 	private Fragmentation fragmentation = null;
+	
+	@Override
+	public boolean eNotificationRequired() {	
+		return true;
+	}
+
+	@Override
+	public void eNotify(Notification notification) {
+		Fragmentation fFragmentation = fFragmentation();
+		if (fFragmentation != null) {
+			fFragmentation.onChange(notification);
+		}
+		if (eBasicHasAdapters() && eDeliver()) {
+			super.eNotify(notification);
+		}
+	}
 
 	/**
 	 * Overridden to check if the object is still loaded, and resolves it, if
