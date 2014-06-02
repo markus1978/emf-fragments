@@ -24,12 +24,7 @@ import de.hub.emffrag.testmodels.testmodel.TestObject;
 import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelFactory;
 import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage;
 
-/**
- * EMF-Fragments makes some assumption about how EMF internally works. These
- * tests work on the hidden internal functionality of EMF-fragments that
- * directly depends on these assumptions. This is not a client API-based test.
- */
-public class InternalTests {
+public class BasicFragmentationTests {
 	
 	public static final URI testFragmentationURI = URI.createURI("test");
 	
@@ -39,6 +34,10 @@ public class InternalTests {
 	protected TestModelPackage tmPackage;
 	
 	protected Map<String, TestObject> savedTestObject = new HashMap<String, TestObject>();
+	
+	protected URI getTestFragmentationURI() {
+		return testFragmentationURI;
+	}
 	
 	@Before
 	public void initializeEMF() {
@@ -56,10 +55,14 @@ public class InternalTests {
 		tmPackage = TestModelPackage.eINSTANCE;
 	}
 	
-	public void initializeFragmentation(int fragmentsCacheSize) {
-		InMemoryDataStore baseDataStore = new InMemoryDataStore(false);		
-		dataStore = new DataStoreImpl(baseDataStore, testFragmentationURI);
+	protected void initializeFragmentation(int fragmentsCacheSize) {
+		createDataStore();
 		fragmentation = new Fragmentation(dataStore, fragmentsCacheSize);
+	}
+	
+	protected void createDataStore() {
+		InMemoryDataStore baseDataStore = new InMemoryDataStore(false);		
+		dataStore = new DataStoreImpl(baseDataStore, getTestFragmentationURI());
 	}
 	
 	@Before
@@ -89,9 +92,11 @@ public class InternalTests {
 		contents.add(testObject);		
 		
 		Assert.assertEquals(fragmentation.createURI(0l), fragmentation.getRootFragment().getURI());
-		Assert.assertEquals(1, contents.size());
+		Assert.assertEquals(1, contents.size());		
 		Assert.assertEquals(1, fragmentation.getContents().size());
 		Assert.assertEquals(contents, fragmentation.getContents());
+		Assert.assertEquals(1, fragmentation.getNumberOfAllFragments());
+		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
 	}
 
 	@Test
@@ -104,11 +109,13 @@ public class InternalTests {
 		} catch (IOException e) {
 			Assert.fail(e.getMessage());
 		}
-		rootFragment.unload();
+		fragmentation.unloadFragment(rootFragment);
 		
 		Assert.assertTrue(testObject.eIsProxy());;
 		Assert.assertEquals(fragmentation.createURI(0l, ""), ((InternalEObject)testObject).eProxyURI());
 		Assert.assertFalse(rootFragment.fragmentIsLoaded());
+		Assert.assertEquals(1, fragmentation.getNumberOfAllFragments());
+		Assert.assertEquals(0, fragmentation.getNumberOfLoadedFragments());
 		
 		savedTestObject.put("TestObject", testObject);
 	}
@@ -121,6 +128,8 @@ public class InternalTests {
 		TestObject testObject = (TestObject)fragmentation.getContents().get(0);
 		Assert.assertEquals("TestObject", testObject.getName());
 		Assert.assertEquals(savedTestObject.get("TestObject"), testObject);
+		Assert.assertEquals(1, fragmentation.getNumberOfAllFragments());
+		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
 	}
 	
 	@Test
@@ -133,7 +142,8 @@ public class InternalTests {
 		
 		Assert.assertTrue(container.fIsRoot());
 		Assert.assertTrue(contents.fIsRoot());
-		Assert.assertEquals(2, fragmentation.getResources().size());		
+		Assert.assertEquals(2, fragmentation.getNumberOfAllFragments());
+		Assert.assertEquals(2, fragmentation.getNumberOfLoadedFragments());
 	}
 	
 	@Test
@@ -142,7 +152,9 @@ public class InternalTests {
 		fragmentation.getContents().add(container);
 		createTO("2", container, tmPackage.getTestObject_FragmentedContents());
 		
-		Assert.assertEquals(1, fragmentation.getResources().size());				
+		Assert.assertEquals(1, fragmentation.getResources().size());
+		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
+		Assert.assertEquals(2, fragmentation.getNumberOfAllFragments());
 	}
 	
 	@Test
@@ -156,10 +168,13 @@ public class InternalTests {
 		Assert.assertTrue(container.eIsProxy());
 		Assert.assertEquals(fragmentation.createURI(0l, ""), ((InternalEObject)container).eProxyURI());
 		Assert.assertFalse(rootFragment.fragmentIsLoaded());
+		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
+		Assert.assertEquals(2, fragmentation.getNumberOfAllFragments());
 		
-		IDataMap<Long> fragments = dataStore.getMap("f_".getBytes(), LongKeyType.instance);
-		Assert.assertEquals((Long)1l, fragments.last());		
 		Assert.assertEquals("1", container.getName());
 		Assert.assertFalse(container.eIsProxy());
+		
+		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
+		Assert.assertEquals(2, fragmentation.getNumberOfAllFragments());
 	}
 }

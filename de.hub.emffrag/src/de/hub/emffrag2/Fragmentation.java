@@ -88,7 +88,7 @@ public class Fragmentation extends ResourceSetImpl {
 				.removalListener(new RemovalListener<Fragment, Fragment>() {
 					@Override
 					public void onRemoval(RemovalNotification<Fragment, Fragment> notification) {
-						removeResource(notification.getValue());
+						unloadFragment(notification.getValue());
 					}
 				}).build();
 
@@ -112,6 +112,10 @@ public class Fragmentation extends ResourceSetImpl {
 		return uriConverter;
 	}
 
+	/**
+	 * @return The root fragment of this fragmentation. It is created if it does
+	 *         not yet exists.
+	 */
 	public Fragment getRootFragment() {
 		EList<Resource> resources = getResources();
 		if (resources.isEmpty()) {
@@ -138,6 +142,9 @@ public class Fragmentation extends ResourceSetImpl {
 		return rootFragment.getContents();
 	}
 
+	/**
+	 * Saves all loaded fragments and flushes the data store.
+	 */
 	public void save(Map<?, ?> options) throws IOException {
 		for (Resource resource : getResources()) {
 			resource.save(options);
@@ -145,6 +152,10 @@ public class Fragmentation extends ResourceSetImpl {
 		dataStore.flush();
 	}
 
+	/**
+	 * Saves everything still loaded and closes the data store. Do not use this
+	 * instance afterwards.
+	 */
 	public void close() {
 		try {
 			save(getLoadOptions());
@@ -176,7 +187,7 @@ public class Fragmentation extends ResourceSetImpl {
 	 * This saves, unloads, and removes the given resource from this resource
 	 * set. It does not delete the resource or its contents.
 	 */
-	protected void removeResource(Resource resource) {
+	protected void unloadFragment(Resource resource) {
 		if (resource.isLoaded()) {
 			beforeUnLoadFragment((Fragment) resource);
 			try {
@@ -189,11 +200,11 @@ public class Fragmentation extends ResourceSetImpl {
 		this.resources.remove(resource);
 	}
 
-	public void registerUserObject(Fragment fragment, int id, FObjectImpl fObject) {
+	protected void registerUserObject(Fragment fragment, int id, FObjectImpl fObject) {
 		userObjectCache.put(new UserObjectID(fragment.fFragmentId(), id), fObject);
 	}
 
-	public FObjectImpl getRegisteredUserObject(Fragment fragment, int id) {
+	protected FObjectImpl getRegisteredUserObject(Fragment fragment, int id) {
 		return userObjectCache.getIfPresent(new UserObjectID(fragment.fFragmentId(), id));
 	}
 
@@ -317,11 +328,28 @@ public class Fragmentation extends ResourceSetImpl {
 		eResource.getContents().remove(fObject);
 		fragmentDataStoreIndex.remove(fragmentDataStoreIndex.getKeyFromURI(eResource.getURI()));
 		eResource.unload();
-		resourceCache.invalidate(eResource); // will also remove this from
-												// ResourceSet#getResources()
+		
+		// this will also remove this from ResourceSet#getResources()
+		resourceCache.invalidate(eResource); 
 	}
 
 	private boolean isFragmenting(EStructuralFeature reference) {
 		return !reference.getEAnnotations().isEmpty(); // TODO
+	}
+
+	/**
+	 * @return An upper bound for the number of fragments that are in this
+	 *         fragmentation. An upper bound because removed fragments might
+	 *         also be counted.
+	 */
+	public long getNumberOfAllFragments() {
+		return fragmentDataStoreIndex.last() + 1;
+	}
+
+	/**
+	 * @return Number of fragments currently loaded.
+	 */
+	public int getNumberOfLoadedFragments() {
+		return getResources().size();
 	}
 }

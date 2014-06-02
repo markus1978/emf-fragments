@@ -18,7 +18,7 @@ public class FObjectImpl extends MinimalEObjectImpl.Container implements FObject
 	@Override
 	public void eNotify(Notification notification) {
 		Fragmentation fFragmentation = fFragmentation();
-		if (fFragmentation != null) {
+		if (fFragmentation != null && !((Fragment)eResource()).isLoading()) {
 			fFragmentation.onChange(notification);
 		}
 		if (eBasicHasAdapters() && eDeliver()) {
