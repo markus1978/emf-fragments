@@ -1,10 +1,13 @@
 package de.hub.emffrag2;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.notify.impl.AdapterImpl;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -13,8 +16,10 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.datastore.DataStoreImpl;
 import de.hub.emffrag.datastore.IDataMap;
 import de.hub.emffrag.datastore.IDataStore;
@@ -30,8 +35,9 @@ public class BasicFragmentationTests {
 	
 	protected Fragmentation fragmentation;
 	protected IDataStore dataStore;
-	protected TestModelFactory tmFactory;
-	protected TestModelPackage tmPackage;
+	protected static TestModelFactory tmFactory;
+	protected static TestModelPackage tmPackage;
+	protected List<Object> modifiedTester = new ArrayList<Object>();
 	
 	protected Map<String, TestObject> savedTestObject = new HashMap<String, TestObject>();
 	
@@ -51,8 +57,16 @@ public class BasicFragmentationTests {
 	
 	@Before
 	public void initializeTestModel() {
+		savedTestObject.clear();
+		modifiedTester.clear();		
+	}
+	
+	@BeforeClass
+	public static void initializeEMFFragments() {
 		tmFactory = TestModelFactory.eINSTANCE;
 		tmPackage = TestModelPackage.eINSTANCE;
+		EmfFragActivator.standalone(tmPackage);
+		EmfFragActivator.instance.logInStandAlone = true;
 	}
 	
 	protected void initializeFragmentation(int fragmentsCacheSize) {
@@ -97,6 +111,8 @@ public class BasicFragmentationTests {
 		Assert.assertEquals(contents, fragmentation.getContents());
 		Assert.assertEquals(1, fragmentation.getNumberOfAllFragments());
 		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
+		
+		savedTestObject.put("TestObject", testObject);
 	}
 
 	@Test
@@ -122,7 +138,6 @@ public class BasicFragmentationTests {
 	
 	@Test
 	public void reloadTest() {
-		savedTestObject.clear();
 		unloadTest();
 		
 		TestObject testObject = (TestObject)fragmentation.getContents().get(0);
@@ -142,6 +157,8 @@ public class BasicFragmentationTests {
 		
 		Assert.assertTrue(container.fIsRoot());
 		Assert.assertTrue(contents.fIsRoot());
+		Assert.assertEquals("1", container.getName());
+		Assert.assertEquals("2", contents.getName());
 		Assert.assertEquals(2, fragmentation.getNumberOfAllFragments());
 		Assert.assertEquals(2, fragmentation.getNumberOfLoadedFragments());
 	}
@@ -150,7 +167,11 @@ public class BasicFragmentationTests {
 	public void basicAutoUnloadTest() {
 		TestObject container = createTO("1");
 		fragmentation.getContents().add(container);
-		createTO("2", container, tmPackage.getTestObject_FragmentedContents());
+		TestObject contents = createTO("2", container, tmPackage.getTestObject_FragmentedContents());
+		
+		Assert.assertTrue(container.eIsProxy());
+		Assert.assertFalse(contents.eIsProxy());
+		Assert.assertEquals("2", contents.getName());
 		
 		Assert.assertEquals(1, fragmentation.getResources().size());
 		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
@@ -162,7 +183,7 @@ public class BasicFragmentationTests {
 		TestObject container = createTO("1");
 		fragmentation.getContents().add(container);
 		Fragment rootFragment = fragmentation.getRootFragment();		
-		createTO("2", container, tmPackage.getTestObject_FragmentedContents());
+		TestObject contents = createTO("2", container, tmPackage.getTestObject_FragmentedContents());
 		
 		Assert.assertEquals(1, fragmentation.getResources().size());
 		Assert.assertTrue(container.eIsProxy());
@@ -173,8 +194,54 @@ public class BasicFragmentationTests {
 		
 		Assert.assertEquals("1", container.getName());
 		Assert.assertFalse(container.eIsProxy());
+		Assert.assertTrue(contents.fIsRoot());
+		Assert.assertEquals("2", contents.getName());
 		
 		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
 		Assert.assertEquals(2, fragmentation.getNumberOfAllFragments());
+	}
+	
+	@Test
+	public void adapterNotificationTest() {		
+		addContentsTest();
+		TestObject testObject = savedTestObject.get("TestObject");
+		testObject.eAdapters().add(new AdapterImpl() {
+			@Override
+			public void notifyChanged(Notification msg) {
+				modifiedTester.add(msg);
+			}			
+		});
+		
+		Assert.assertTrue(modifiedTester.isEmpty());
+		testObject.setName("AnotherName");
+		Assert.assertEquals(1, modifiedTester.size());
+	}
+	
+	@Test
+	public void adapterReloadTest() {
+		adapterNotificationTest();
+		TestObject testObject = savedTestObject.get("TestObject");
+		fragmentation.unloadFragment((Fragment)testObject.eResource());
+		Assert.assertEquals(1, modifiedTester.size());
+		testObject.setName("YetAnotherName");
+		Assert.assertEquals(1, testObject.eAdapters().size());
+		Assert.assertEquals(2, modifiedTester.size());		
+	}
+	
+	@Test
+	public void isRootTest() {
+		addContentsTest();
+		TestObject parent = savedTestObject.get("TestObject");		
+		TestObject nonFragmentingChild = createTO("2", parent, tmPackage.getTestObject_RegularContents());
+		TestObject fragmentingChild = createTO("3", parent, tmPackage.getTestObject_FragmentedContents());
+		
+		Assert.assertTrue(parent.eIsProxy());
+		Assert.assertTrue(nonFragmentingChild.eIsProxy());
+		Assert.assertFalse(fragmentingChild.eIsProxy());
+		Assert.assertEquals("3", fragmentingChild.getName());
+		
+		Assert.assertTrue(parent.fIsRoot());
+		Assert.assertFalse(nonFragmentingChild.fIsRoot());
+		Assert.assertTrue(fragmentingChild.fIsRoot());
 	}
 }

@@ -56,13 +56,16 @@ public class Fragment extends BinaryResourceImpl {
 	}
 
 	/**
-	 * Perform a true unload after regular EMF
-	 * {@link #unloaded(InternalEObject)}.
+	 * Perform a true unload before regular EMF unload. Does not clear the
+	 * adaptors like {@link #unloaded(InternalEObject)}. This is to make clients
+	 * unaware of automatic background unloaded/loading.
 	 */
 	@Override
 	protected void unloaded(InternalEObject internalEObject) {
 		((FObjectImpl) internalEObject).fTrueUnload(getFragmentation());
-		super.unloaded(internalEObject);
+		if (!internalEObject.eIsProxy()) {
+			internalEObject.eSetProxyURI(uri.appendFragment(getURIFragment(internalEObject)));
+		}
 	}
 
 	/**
@@ -192,7 +195,7 @@ public class Fragment extends BinaryResourceImpl {
 			} else {
 				if (internalInternalEObjectList.size() <= id) {
 					EClassData eClassData = readEClass();
-					
+
 					// We try to reuse former objects that are still on the heap
 					InternalEObject internalEObject = getFragmentation().getRegisteredUserObject(Fragment.this, id);
 					if (internalEObject == null) {

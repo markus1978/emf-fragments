@@ -18,8 +18,10 @@ public class FObjectImpl extends MinimalEObjectImpl.Container implements FObject
 	@Override
 	public void eNotify(Notification notification) {
 		Fragmentation fFragmentation = fFragmentation();
-		if (fFragmentation != null && !((Fragment)eResource()).isLoading()) {
-			fFragmentation.onChange(notification);
+		if (fFragmentation != null) {
+			if (eResource() != null) {
+				fFragmentation.onChange(notification);
+			} // eResource() is null when this object is re-loaded
 		}
 		if (eBasicHasAdapters() && eDeliver()) {
 			super.eNotify(notification);
@@ -32,17 +34,17 @@ public class FObjectImpl extends MinimalEObjectImpl.Container implements FObject
 	 */
 	@Override
 	public Object eGet(EStructuralFeature eFeature, boolean resolve) {
+		ensureIsLoaded(resolve);
+		return super.eGet(eFeature, resolve);		
+	}
+	
+	private void ensureIsLoaded(boolean resolve) {
 		if (eIsProxy() && resolve) {
 			if (fragmentation == null) { // assertion
 				throw new IllegalStateException("Unloaded FObject without fragmentation.");
 			}
 			EcoreUtil.resolve(this, fragmentation);
 		}
-		Object value = super.eGet(eFeature, resolve);
-		if (eIsProxy()) { // assertion
-			throw new IllegalStateException("FObject unloaded immediately after eGet.");
-		}
-		return value;
 	}
 
 	/**
@@ -50,11 +52,13 @@ public class FObjectImpl extends MinimalEObjectImpl.Container implements FObject
 	 *         within the resource that contains it.
 	 */
 	public boolean fIsRoot() {
-		Resource eResource = eResource();
-		if (eResource != null) {
-			return eResource.getContents().contains(this); // TODO performance
-		}
-		return false;
+		ensureIsLoaded(true);
+		return eDirectResource() != null;
+//		Resource eResource = eResource();
+//		if (eResource != null) {
+//			return eResource.getContents().contains(this); // TODO performance
+//		}
+//		return false;
 	}
 
 	/**
@@ -63,12 +67,17 @@ public class FObjectImpl extends MinimalEObjectImpl.Container implements FObject
 	 */
 	public Fragmentation fFragmentation() {
 		if (fragmentation == null) {
-			Resource eResource = eResource();
-			if (eResource != null && eResource instanceof Fragment) {
-				fragmentation = ((Fragment) eResource).getFragmentation();
+			Fragment fragment = fFragment();
+			if (fragment != null) {
+				fragmentation = fragment.getFragmentation();
 			}
 		}
 		return fragmentation;
+	}	
+
+	@Override
+	public Fragment fFragment() {	
+		return (Fragment)eResource();
 	}
 
 	/**
@@ -94,4 +103,6 @@ public class FObjectImpl extends MinimalEObjectImpl.Container implements FObject
 			eBasicSetSettings(new Object[size]);
 		}
 	}
+	
+	
 }

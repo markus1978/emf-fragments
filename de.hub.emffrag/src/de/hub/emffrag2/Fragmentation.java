@@ -1,8 +1,10 @@
 package de.hub.emffrag2;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.common.notify.Notification;
@@ -23,6 +25,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 
+import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.datastore.DataStoreURIHandler;
 import de.hub.emffrag.datastore.IDataMap;
 import de.hub.emffrag.datastore.IDataStore;
@@ -74,24 +77,79 @@ public class Fragmentation extends ResourceSetImpl {
 		}
 	}
 
+	/**
+	 * This is a wrapper around a size-based google Guava cache. It provides an additional
+	 * lock mechanism that temporarily prevents eviction even if the cache size
+	 * is exceeded. All "overhanging" entries are removed when the lock is removed. This
+	 * allows us to change the fragmentation without accidently unloading operation critical 
+	 * fragments.
+	 */
+	private class FragmentsCache implements RemovalListener<Fragment, Fragment> {
+		private Cache<Fragment, Fragment> backend;
+		private List<Fragment> lockedFragments = new ArrayList<Fragment>();
+		private boolean isLocked = false;
+		private int size;
+
+		FragmentsCache(int size) {
+			backend = CacheBuilder.newBuilder().maximumSize(size).removalListener(this).build();
+			this.size = size;
+		}
+
+		@Override
+		public void onRemoval(RemovalNotification<Fragment, Fragment> notification) {
+			Fragment fragment = notification.getValue();
+			if (isLocked) {
+				lockedFragments.add(fragment);
+			} else {
+				unloadFragment(fragment);
+			}
+		}
+
+		public void lock() {
+			if (isLocked) {
+				throw new IllegalStateException("Can only lock the fragments cache once.");
+			}
+			isLocked = true;
+		}
+
+		public void unlock() {
+			if (!isLocked) {
+				throw new IllegalStateException("Cannot unlock a not locked fragments cache.");
+			}
+			isLocked = false;
+			int space = size - (int) backend.size();
+			if (space > lockedFragments.size()) {
+				space = lockedFragments.size();
+			}
+			for (int i = 0; i < space; i++) {
+				Fragment lastLockedFragment = lockedFragments.remove(lockedFragments.size() - 1);
+				backend.put(lastLockedFragment, lastLockedFragment);
+			}
+			for (Fragment leftOverFragment : lockedFragments) {
+				unloadFragment(leftOverFragment);
+			}
+			lockedFragments.clear();
+		}
+
+		public void add(Fragment fragment) {
+			backend.put(fragment, fragment);
+		}
+
+		public void remove(Fragment eResource) {
+			backend.invalidate(eResource);
+		}
+	}
+
 	private final IDataStore dataStore;
 	private final IDataMap<Long> fragmentDataStoreIndex;
-	private final Cache<Fragment, Fragment> resourceCache;
+	private final FragmentsCache fragmentsCache;
 	private final Cache<UserObjectID, FObjectImpl> userObjectCache;
 
 	public Fragmentation(IDataStore dataStore, int fragmentsCacheSize) {
 		this.dataStore = dataStore;
 		getURIConverter().getURIHandlers().add(0, new DataStoreURIHandler(dataStore));
 		fragmentDataStoreIndex = dataStore.getMap(("f_").getBytes(), LongKeyType.instance);
-
-		resourceCache = CacheBuilder.newBuilder().maximumSize(fragmentsCacheSize)
-				.removalListener(new RemovalListener<Fragment, Fragment>() {
-					@Override
-					public void onRemoval(RemovalNotification<Fragment, Fragment> notification) {
-						unloadFragment(notification.getValue());
-					}
-				}).build();
-
+		fragmentsCache = new FragmentsCache(fragmentsCacheSize);
 		userObjectCache = CacheBuilder.newBuilder().weakValues().build();
 	}
 
@@ -127,7 +185,7 @@ public class Fragmentation extends ResourceSetImpl {
 				afterLoadFragment((Fragment) resource);
 			}
 		}
-		return (Fragment) resources.get(0);
+		return (Fragment)resources.get(0);
 	}
 
 	public EList<EObject> getContents() {
@@ -187,17 +245,17 @@ public class Fragmentation extends ResourceSetImpl {
 	 * This saves, unloads, and removes the given resource from this resource
 	 * set. It does not delete the resource or its contents.
 	 */
-	protected void unloadFragment(Resource resource) {
-		if (resource.isLoaded()) {
-			beforeUnLoadFragment((Fragment) resource);
+	protected void unloadFragment(Fragment fragment) {
+		if (fragment.isLoaded()) {
+			beforeUnLoadFragment(fragment);
 			try {
-				resource.save(getLoadOptions());
+				fragment.save(getLoadOptions());
 			} catch (IOException e) {
 				// TODO
 			}
-			resource.unload();
+			fragment.unload();
 		}
-		this.resources.remove(resource);
+		this.resources.remove(fragment);
 	}
 
 	protected void registerUserObject(Fragment fragment, int id, FObjectImpl fObject) {
@@ -209,15 +267,16 @@ public class Fragmentation extends ResourceSetImpl {
 	}
 
 	private void afterInstantiateFragment(Fragment fragment) {
-		resourceCache.put(fragment, fragment);
+		fragmentsCache.add(fragment);
+		EmfFragActivator.instance.debug("instantiated fragment " + fragmentDataStoreIndex.getKeyFromURI(fragment.getURI()));
 	}
 
 	private void afterLoadFragment(Fragment fragment) {
-
+		EmfFragActivator.instance.debug("loaded fragment " + fragmentDataStoreIndex.getKeyFromURI(fragment.getURI()));
 	}
 
 	private void beforeUnLoadFragment(Fragment fragment) {
-
+		EmfFragActivator.instance.debug("unloading fragment " + fragmentDataStoreIndex.getKeyFromURI(fragment.getURI()));
 	}
 
 	private URI nextAvailableFragmentURI() {
@@ -244,25 +303,30 @@ public class Fragmentation extends ResourceSetImpl {
 	 * fragmentation (incl. deleting fragments)
 	 */
 	protected void onChange(Notification notification) {
-		Object feature = notification.getFeature();
-		if (feature != null && feature instanceof EReference && isFragmenting((EReference) feature)) {
-			int type = notification.getEventType();
-			if (type == Notification.ADD || type == Notification.SET) {
-				addContent((EObject) notification.getNewValue());
-				if (notification.getOldValue() != null) {
+		fragmentsCache.lock();
+		try {
+			Object feature = notification.getFeature();
+			if (feature != null && feature instanceof EReference && isFragmenting((EReference) feature)) {
+				int type = notification.getEventType();
+				if (type == Notification.ADD || type == Notification.SET) {
+					addContent((EObject) notification.getNewValue());
+					if (notification.getOldValue() != null) {
+						removeContent((EObject) notification.getOldValue());
+					}
+				} else if (type == Notification.REMOVE || type == Notification.UNSET) {
 					removeContent((EObject) notification.getOldValue());
-				}
-			} else if (type == Notification.REMOVE || type == Notification.UNSET) {
-				removeContent((EObject) notification.getOldValue());
-			} else if (type == Notification.ADD_MANY) {
-				for (Object added : (Collection<?>) notification.getNewValue()) {
-					addContent((EObject) added);
-				}
-			} else if (type == Notification.REMOVE_MANY) {
-				for (Object removed : (Collection<?>) notification.getOldValue()) {
-					removeContent((EObject) removed);
+				} else if (type == Notification.ADD_MANY) {
+					for (Object added : (Collection<?>) notification.getNewValue()) {
+						addContent((EObject) added);
+					}
+				} else if (type == Notification.REMOVE_MANY) {
+					for (Object removed : (Collection<?>) notification.getOldValue()) {
+						removeContent((EObject) removed);
+					}
 				}
 			}
+		} finally {
+			fragmentsCache.unlock();
 		}
 	}
 
@@ -324,13 +388,13 @@ public class Fragmentation extends ResourceSetImpl {
 	}
 
 	private void deleteFragment(FObjectImpl fObject) {
-		Resource eResource = fObject.eResource();
-		eResource.getContents().remove(fObject);
-		fragmentDataStoreIndex.remove(fragmentDataStoreIndex.getKeyFromURI(eResource.getURI()));
-		eResource.unload();
-		
+		Fragment fragment = fObject.fFragment();
+		fragment.getContents().remove(fObject);
+		fragmentDataStoreIndex.remove(fragmentDataStoreIndex.getKeyFromURI(fragment.getURI()));
+		fragment.unload();
+
 		// this will also remove this from ResourceSet#getResources()
-		resourceCache.invalidate(eResource); 
+		fragmentsCache.remove(fragment);
 	}
 
 	private boolean isFragmenting(EStructuralFeature reference) {

@@ -11,6 +11,12 @@ public interface FObject extends EObject {
 	public boolean fIsRoot();
 
 	/**
+	 * @return The {@link Fragment} that this object belongs to. Null if it is
+	 *         not part of a fragmentation yet.
+	 */
+	public Fragment fFragment();
+
+	/**
 	 * @return the fragmentation this object belongs to or null, if the object
 	 *         was not added to a fragmentation yet.
 	 */
