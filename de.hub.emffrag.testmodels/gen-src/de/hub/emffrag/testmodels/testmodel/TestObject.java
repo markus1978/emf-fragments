@@ -32,6 +32,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link de.hub.emffrag.testmodels.testmodel.TestObject#getFragmentedContents <em>Fragmented Contents</em>}</li>
  *   <li>{@link de.hub.emffrag.testmodels.testmodel.TestObject#getCrossReferences <em>Cross References</em>}</li>
  *   <li>{@link de.hub.emffrag.testmodels.testmodel.TestObject#getEnumAttribute <em>Enum Attribute</em>}</li>
+ *   <li>{@link de.hub.emffrag.testmodels.testmodel.TestObject#getArbitraryContents <em>Arbitrary Contents</em>}</li>
  * </ul>
  * </p>
  *
@@ -144,5 +145,21 @@ public interface TestObject extends FObject {
 	 * @generated
 	 */
 	void setEnumAttribute(TestEnum value);
+
+	/**
+	 * Returns the value of the '<em><b>Arbitrary Contents</b></em>' containment reference list.
+	 * The list contents are of type {@link org.eclipse.emf.ecore.EObject}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Arbitrary Contents</em>' reference list isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Arbitrary Contents</em>' containment reference list.
+	 * @see de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage#getTestObject_ArbitraryContents()
+	 * @model containment="true" resolveProxies="true"
+	 * @generated
+	 */
+	EList<EObject> getArbitraryContents();
 
 } // TestObject

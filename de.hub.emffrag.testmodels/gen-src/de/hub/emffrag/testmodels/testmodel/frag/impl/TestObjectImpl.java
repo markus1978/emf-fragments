@@ -18,6 +18,7 @@ package de.hub.emffrag.testmodels.testmodel.frag.impl;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 
+import org.eclipse.emf.ecore.EObject;
 import de.hub.emffrag.fragmentation.FObjectImpl;
 import de.hub.emffrag.testmodels.testmodel.TestEnum;
 import de.hub.emffrag.testmodels.testmodel.TestObject;
@@ -35,6 +36,7 @@ import de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage;
  *   <li>{@link de.hub.emffrag.testmodels.testmodel.frag.impl.TestObjectImpl#getFragmentedContents <em>Fragmented Contents</em>}</li>
  *   <li>{@link de.hub.emffrag.testmodels.testmodel.frag.impl.TestObjectImpl#getCrossReferences <em>Cross References</em>}</li>
  *   <li>{@link de.hub.emffrag.testmodels.testmodel.frag.impl.TestObjectImpl#getEnumAttribute <em>Enum Attribute</em>}</li>
+ *   <li>{@link de.hub.emffrag.testmodels.testmodel.frag.impl.TestObjectImpl#getArbitraryContents <em>Arbitrary Contents</em>}</li>
  * </ul>
  * </p>
  *
@@ -134,6 +136,16 @@ public class TestObjectImpl extends de.hub.emffrag2.FObjectImpl implements TestO
 	 */
 	public void setEnumAttribute(TestEnum newEnumAttribute) {
 		eSet(TestModelPackage.Literals.TEST_OBJECT__ENUM_ATTRIBUTE, newEnumAttribute);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@SuppressWarnings("unchecked")
+	public EList<EObject> getArbitraryContents() {
+		return (EList<EObject>)eGet(TestModelPackage.Literals.TEST_OBJECT__ARBITRARY_CONTENTS, true);
 	}
 
 } //TestObjectImpl

@@ -90,26 +90,6 @@ public class TestModelAdapterFactory extends AdapterFactoryImpl {
 				return createTestObjectAdapter();
 			}
 			@Override
-			public Adapter caseTestObjectIndex(TestObjectIndex object) {
-				return createTestObjectIndexAdapter();
-			}
-			@Override
-			public Adapter caseTestContainmentIndex(TestContainmentIndex object) {
-				return createTestContainmentIndexAdapter();
-			}
-			@Override
-			public Adapter caseTestObjectWithIndexes(TestObjectWithIndexes object) {
-				return createTestObjectWithIndexesAdapter();
-			}
-			@Override
-			public <K, V> Adapter caseIndexedMap(IndexedMap<K, V> object) {
-				return createIndexedMapAdapter();
-			}
-			@Override
-			public <K, V> Adapter caseContainmentIndexedMap(ContainmentIndexedMap<K, V> object) {
-				return createContainmentIndexedMapAdapter();
-			}
-			@Override
 			public Adapter defaultCase(EObject object) {
 				return createEObjectAdapter();
 			}
@@ -140,76 +120,6 @@ public class TestModelAdapterFactory extends AdapterFactoryImpl {
 	 * @generated
 	 */
 	public Adapter createTestObjectAdapter() {
-		return null;
-	}
-
-	/**
-	 * Creates a new adapter for an object of class '{@link de.hub.emffrag.testmodels.testmodel.TestObjectIndex <em>Test Object Index</em>}'.
-	 * <!-- begin-user-doc -->
-	 * This default implementation returns null so that we can easily ignore cases;
-	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
-	 * <!-- end-user-doc -->
-	 * @return the new adapter.
-	 * @see de.hub.emffrag.testmodels.testmodel.TestObjectIndex
-	 * @generated
-	 */
-	public Adapter createTestObjectIndexAdapter() {
-		return null;
-	}
-
-	/**
-	 * Creates a new adapter for an object of class '{@link de.hub.emffrag.testmodels.testmodel.TestContainmentIndex <em>Test Containment Index</em>}'.
-	 * <!-- begin-user-doc -->
-	 * This default implementation returns null so that we can easily ignore cases;
-	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
-	 * <!-- end-user-doc -->
-	 * @return the new adapter.
-	 * @see de.hub.emffrag.testmodels.testmodel.TestContainmentIndex
-	 * @generated
-	 */
-	public Adapter createTestContainmentIndexAdapter() {
-		return null;
-	}
-
-	/**
-	 * Creates a new adapter for an object of class '{@link de.hub.emffrag.testmodels.testmodel.TestObjectWithIndexes <em>Test Object With Indexes</em>}'.
-	 * <!-- begin-user-doc -->
-	 * This default implementation returns null so that we can easily ignore cases;
-	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
-	 * <!-- end-user-doc -->
-	 * @return the new adapter.
-	 * @see de.hub.emffrag.testmodels.testmodel.TestObjectWithIndexes
-	 * @generated
-	 */
-	public Adapter createTestObjectWithIndexesAdapter() {
-		return null;
-	}
-
-	/**
-	 * Creates a new adapter for an object of class '{@link de.hub.emffrag.model.emffrag.IndexedMap <em>Indexed Map</em>}'.
-	 * <!-- begin-user-doc -->
-	 * This default implementation returns null so that we can easily ignore cases;
-	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
-	 * <!-- end-user-doc -->
-	 * @return the new adapter.
-	 * @see de.hub.emffrag.model.emffrag.IndexedMap
-	 * @generated
-	 */
-	public Adapter createIndexedMapAdapter() {
-		return null;
-	}
-
-	/**
-	 * Creates a new adapter for an object of class '{@link de.hub.emffrag.model.emffrag.ContainmentIndexedMap <em>Containment Indexed Map</em>}'.
-	 * <!-- begin-user-doc -->
-	 * This default implementation returns null so that we can easily ignore cases;
-	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
-	 * <!-- end-user-doc -->
-	 * @return the new adapter.
-	 * @see de.hub.emffrag.model.emffrag.ContainmentIndexedMap
-	 * @generated
-	 */
-	public Adapter createContainmentIndexedMapAdapter() {
 		return null;
 	}
 

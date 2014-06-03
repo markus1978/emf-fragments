@@ -91,28 +91,6 @@ public class TestModelSwitch<T> extends Switch<T> {
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
-			case TestModelPackage.TEST_OBJECT_INDEX: {
-				TestObjectIndex testObjectIndex = (TestObjectIndex)theEObject;
-				T result = caseTestObjectIndex(testObjectIndex);
-				if (result == null) result = caseIndexedMap(testObjectIndex);
-				if (result == null) result = defaultCase(theEObject);
-				return result;
-			}
-			case TestModelPackage.TEST_CONTAINMENT_INDEX: {
-				TestContainmentIndex testContainmentIndex = (TestContainmentIndex)theEObject;
-				T result = caseTestContainmentIndex(testContainmentIndex);
-				if (result == null) result = caseContainmentIndexedMap(testContainmentIndex);
-				if (result == null) result = caseIndexedMap(testContainmentIndex);
-				if (result == null) result = defaultCase(theEObject);
-				return result;
-			}
-			case TestModelPackage.TEST_OBJECT_WITH_INDEXES: {
-				TestObjectWithIndexes testObjectWithIndexes = (TestObjectWithIndexes)theEObject;
-				T result = caseTestObjectWithIndexes(testObjectWithIndexes);
-				if (result == null) result = caseTestObject(testObjectWithIndexes);
-				if (result == null) result = defaultCase(theEObject);
-				return result;
-			}
 			default: return defaultCase(theEObject);
 		}
 	}
@@ -129,81 +107,6 @@ public class TestModelSwitch<T> extends Switch<T> {
 	 * @generated
 	 */
 	public T caseTestObject(TestObject object) {
-		return null;
-	}
-
-	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Test Object Index</em>'.
-	 * <!-- begin-user-doc -->
-	 * This implementation returns null;
-	 * returning a non-null result will terminate the switch.
-	 * <!-- end-user-doc -->
-	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Test Object Index</em>'.
-	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
-	 * @generated
-	 */
-	public T caseTestObjectIndex(TestObjectIndex object) {
-		return null;
-	}
-
-	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Test Containment Index</em>'.
-	 * <!-- begin-user-doc -->
-	 * This implementation returns null;
-	 * returning a non-null result will terminate the switch.
-	 * <!-- end-user-doc -->
-	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Test Containment Index</em>'.
-	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
-	 * @generated
-	 */
-	public T caseTestContainmentIndex(TestContainmentIndex object) {
-		return null;
-	}
-
-	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Test Object With Indexes</em>'.
-	 * <!-- begin-user-doc -->
-	 * This implementation returns null;
-	 * returning a non-null result will terminate the switch.
-	 * <!-- end-user-doc -->
-	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Test Object With Indexes</em>'.
-	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
-	 * @generated
-	 */
-	public T caseTestObjectWithIndexes(TestObjectWithIndexes object) {
-		return null;
-	}
-
-	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Indexed Map</em>'.
-	 * <!-- begin-user-doc -->
-	 * This implementation returns null;
-	 * returning a non-null result will terminate the switch.
-	 * <!-- end-user-doc -->
-	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Indexed Map</em>'.
-	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
-	 * @generated
-	 */
-	public <K, V> T caseIndexedMap(IndexedMap<K, V> object) {
-		return null;
-	}
-
-	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Containment Indexed Map</em>'.
-	 * <!-- begin-user-doc -->
-	 * This implementation returns null;
-	 * returning a non-null result will terminate the switch.
-	 * <!-- end-user-doc -->
-	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Containment Indexed Map</em>'.
-	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
-	 * @generated
-	 */
-	public <K, V> T caseContainmentIndexedMap(ContainmentIndexedMap<K, V> object) {
 		return null;
 	}
 

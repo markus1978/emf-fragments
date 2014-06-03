@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ecore:EPackage xmi:version="2.0"
-    xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="testmodel"
-    nsURI="http://hu-berlin.de/sam/emfhbase/testmodel" nsPrefix="tm">
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="testmodel" nsURI="http://hu-berlin.de/sam/emfhbase/testmodel"
+    nsPrefix="tm">
   <eClassifiers xsi:type="ecore:EClass" name="TestObject">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="regularContents" upperBound="-1"
@@ -16,35 +15,11 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="crossReferences" unique="false"
         upperBound="-1" eType="#//TestObject"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="enumAttribute" eType="#//TestEnum"/>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="TestObjectIndex">
-    <eGenericSuperTypes eClassifier="ecore:EClass ../../de.hub.emffrag/metamodels/emffrag.ecore#//IndexedMap">
-      <eTypeArguments eClassifier="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-      <eTypeArguments eClassifier="#//TestObject"/>
-    </eGenericSuperTypes>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="TestContainmentIndex">
-    <eGenericSuperTypes eClassifier="ecore:EClass ../../de.hub.emffrag/metamodels/emffrag.ecore#//ContainmentIndexedMap">
-      <eTypeArguments eClassifier="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-      <eTypeArguments eClassifier="#//TestObject"/>
-    </eGenericSuperTypes>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="arbitraryContents" upperBound="-1"
+        eType="ecore:EClass http://www.eclipse.org/emf/2002/Ecore#//EObject" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="TestEnum">
     <eLiterals name="literal1"/>
     <eLiterals name="literal2"/>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="TestObjectWithIndexes" eSuperTypes="#//TestObject">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="indexedReferences" unique="false"
-        upperBound="-1" eType="#//TestObject">
-      <eAnnotations source="de.hub.emffrag">
-        <details key="indexes" value="true"/>
-      </eAnnotations>
-    </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="indexedContents" upperBound="-1"
-        eType="#//TestObject" containment="true">
-      <eAnnotations source="de.hub.emffrag">
-        <details key="indexes" value="true"/>
-      </eAnnotations>
-    </eStructuralFeatures>
   </eClassifiers>
 </ecore:EPackage>

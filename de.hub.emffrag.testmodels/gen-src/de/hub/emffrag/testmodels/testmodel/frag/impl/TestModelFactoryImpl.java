@@ -76,9 +76,6 @@ public class TestModelFactoryImpl extends EFactoryImpl implements TestModelFacto
 	public EObject create(EClass eClass) {
 		switch (eClass.getClassifierID()) {
 			case TestModelPackage.TEST_OBJECT: return (EObject)createTestObject();
-			case TestModelPackage.TEST_OBJECT_INDEX: return createTestObjectIndex();
-			case TestModelPackage.TEST_CONTAINMENT_INDEX: return createTestContainmentIndex();
-			case TestModelPackage.TEST_OBJECT_WITH_INDEXES: return (EObject)createTestObjectWithIndexes();
 			default:
 				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
 		}
@@ -122,36 +119,6 @@ public class TestModelFactoryImpl extends EFactoryImpl implements TestModelFacto
 	public TestObject createTestObject() {
 		TestObjectImpl testObject = new TestObjectImpl();
 		return testObject;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public TestObjectIndex createTestObjectIndex() {
-		TestObjectIndexImpl testObjectIndex = new TestObjectIndexImpl();
-		return testObjectIndex;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public TestContainmentIndex createTestContainmentIndex() {
-		TestContainmentIndexImpl testContainmentIndex = new TestContainmentIndexImpl();
-		return testContainmentIndex;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public TestObjectWithIndexes createTestObjectWithIndexes() {
-		TestObjectWithIndexesImpl testObjectWithIndexes = new TestObjectWithIndexesImpl();
-		return testObjectWithIndexes;
 	}
 
 	/**

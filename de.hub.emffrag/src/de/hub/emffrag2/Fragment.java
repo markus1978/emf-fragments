@@ -5,12 +5,15 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.BasicEList;
+import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.URIConverter;
@@ -21,38 +24,64 @@ import de.hub.emffrag.fragmentation.FInternalObjectImpl;
 
 public class Fragment extends BinaryResourceImpl {
 
-	private Fragmentation fragmentation = null;
-	private final String id;
+	private final long id;
 
-	protected boolean fragmentIsLoaded = false;
-
-	public Fragment(URI uri) {
+	public Fragment(URI uri, long id) {
 		super(uri);
-		id = uri.segment(uri.segmentCount() - 1);
-		fragmentIsLoaded = true;
+		this.id = id;
 	}
 
-	@Override
-	protected Notification setLoaded(boolean isLoaded) {
-		fragmentIsLoaded = isLoaded;
-		return super.setLoaded(isLoaded);
-	}
-
-	public String fFragmentId() {
+	public long fFragmentId() {
 		return id;
 	}
 
+	public boolean fIsRoot() {
+		return id == 0l;
+	}
+
+	@Override
+	public void eNotify(Notification notification) {
+		Fragmentation fragmentation = getFragmentation();
+		if (fragmentation != null) {
+			fragmentation.onRootFragmentChange(notification);
+		}
+	}
+
+	@Override
+	public boolean eNotificationRequired() {
+		return fIsRoot() || super.eNotificationRequired();
+	}
+
 	/**
-	 * Overridden to cache the resource set as fragmentation.
+	 * Overridden to ensure resourceSet is {@link Fragmentation}
 	 */
 	@Override
 	public NotificationChain basicSetResourceSet(ResourceSet resourceSet, NotificationChain notifications) {
 		if (resourceSet != null && !(resourceSet instanceof Fragmentation)) {
 			throw new IllegalStateException("Fragments can only be used within Fragmentations, not other resource sets.");
 		}
-		fragmentation = (Fragmentation) resourceSet;
-
 		return super.basicSetResourceSet(resourceSet, notifications);
+	}
+
+	/**
+	 * Overridden to not clear the contents list, but loose its reference. This
+	 * allows {@link TreeIterator}s to work, even when fragments in it become
+	 * unloaded.
+	 */
+	@Override
+	protected void doUnload() {
+		Iterator<EObject> allContents = getAllProperContents(unloadingContents);
+
+		getErrors().clear();
+		getWarnings().clear();
+
+		while (allContents.hasNext()) {
+			unloaded((InternalEObject) allContents.next());
+		}
+
+		// Removing reference, instead of clearing it. Will be re-instantiated
+		// empty for next use.
+		contents = null;
 	}
 
 	/**
@@ -72,17 +101,7 @@ public class Fragment extends BinaryResourceImpl {
 	 * @return the fragmentation that this fragment belongs to.
 	 */
 	public Fragmentation getFragmentation() {
-		if (fragmentation == null) {
-			ResourceSet resourceSet = getResourceSet();
-			if (resourceSet != null) {
-				if (resourceSet instanceof Fragmentation) {
-					fragmentation = (Fragmentation) resourceSet;
-				} else { // assertion
-					throw new IllegalStateException("Fragments can only be contained in Fragmentations.");
-				}
-			}
-		}
-		return fragmentation;
+		return (Fragmentation) resourceSet;
 	}
 
 	/**
@@ -268,14 +287,5 @@ public class Fragment extends BinaryResourceImpl {
 				getFragmentation().registerUserObject(Fragment.this, id, (FObjectImpl) internalEObject);
 			}
 		}
-	}
-
-	/**
-	 * @return true if the fragment is new or (re-)loaded. False if the fragment
-	 *         is not loaded. This is different to EMF's {@link #isLoaded()},
-	 *         which is false if the resource is new.
-	 */
-	public boolean fragmentIsLoaded() {
-		return fragmentIsLoaded;
 	}
 }

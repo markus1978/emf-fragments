@@ -22,6 +22,7 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalCause;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 
@@ -39,10 +40,10 @@ import de.hub.emffrag.datastore.LongKeyType;
 public class Fragmentation extends ResourceSetImpl {
 
 	private static class UserObjectID {
-		private final String fragmentID;
+		private final long fragmentID;
 		private final int intrinsicObjectID;
 
-		private UserObjectID(String fragmentID, int intrinsicObjectID) {
+		private UserObjectID(long fragmentID, int intrinsicObjectID) {
 			super();
 			this.fragmentID = fragmentID;
 			this.intrinsicObjectID = intrinsicObjectID;
@@ -52,7 +53,7 @@ public class Fragmentation extends ResourceSetImpl {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((fragmentID == null) ? 0 : fragmentID.hashCode());
+			result = prime * result + (int) (fragmentID ^ (fragmentID >>> 32));
 			result = prime * result + intrinsicObjectID;
 			return result;
 		}
@@ -66,10 +67,7 @@ public class Fragmentation extends ResourceSetImpl {
 			if (getClass() != obj.getClass())
 				return false;
 			UserObjectID other = (UserObjectID) obj;
-			if (fragmentID == null) {
-				if (other.fragmentID != null)
-					return false;
-			} else if (!fragmentID.equals(other.fragmentID))
+			if (fragmentID != other.fragmentID)
 				return false;
 			if (intrinsicObjectID != other.intrinsicObjectID)
 				return false;
@@ -78,11 +76,11 @@ public class Fragmentation extends ResourceSetImpl {
 	}
 
 	/**
-	 * This is a wrapper around a size-based google Guava cache. It provides an additional
-	 * lock mechanism that temporarily prevents eviction even if the cache size
-	 * is exceeded. All "overhanging" entries are removed when the lock is removed. This
-	 * allows us to change the fragmentation without accidently unloading operation critical 
-	 * fragments.
+	 * This is a wrapper around a size-based google Guava cache. It provides an
+	 * additional lock mechanism that temporarily prevents eviction even if the
+	 * cache size is exceeded. All "overhanging" entries are removed when the
+	 * lock is removed. This allows us to change the fragmentation without
+	 * accidently unloading operation critical fragments.
 	 */
 	private class FragmentsCache implements RemovalListener<Fragment, Fragment> {
 		private Cache<Fragment, Fragment> backend;
@@ -98,7 +96,9 @@ public class Fragmentation extends ResourceSetImpl {
 		@Override
 		public void onRemoval(RemovalNotification<Fragment, Fragment> notification) {
 			Fragment fragment = notification.getValue();
-			if (isLocked) {
+			// We must only lock for fragments that are not explicitly removed (i.e. during delete)
+			//
+			if (isLocked && notification.getCause() != RemovalCause.EXPLICIT) {
 				lockedFragments.add(fragment);
 			} else {
 				unloadFragment(fragment);
@@ -175,29 +175,21 @@ public class Fragmentation extends ResourceSetImpl {
 	 *         not yet exists.
 	 */
 	public Fragment getRootFragment() {
-		EList<Resource> resources = getResources();
-		if (resources.isEmpty()) {
-			if (fragmentDataStoreIndex.exists(0l)) {
-				getResource(fragmentDataStoreIndex.getURI(0l), true);
-			} else {
-				URI uri = nextAvailableFragmentURI();
-				Resource resource = createResource(uri);
-				afterLoadFragment((Fragment) resource);
+		if (!fragmentDataStoreIndex.exists(0l)) {
+			try {
+				createNewFragment().save(getLoadOptions());
+			} catch (IOException e) {
+				String msg = "IOException while creating the root fragment of " + this.toString() + ".";
+				EmfFragActivator.instance.error(msg, e);
+				throw new RuntimeException(msg, e);
 			}
 		}
-		return (Fragment)resources.get(0);
+		Fragment fragment = (Fragment) getResource(fragmentDataStoreIndex.getURI(0l), true);
+		return fragment;
 	}
 
 	public EList<EObject> getContents() {
-		Fragment rootFragment = getRootFragment();
-		if (!rootFragment.fragmentIsLoaded()) {
-			try {
-				demandLoad(rootFragment);
-			} catch (IOException e) {
-				throw new RuntimeException(e); // TODO
-			}
-		}
-		return rootFragment.getContents();
+		return getRootFragment().getContents();
 	}
 
 	/**
@@ -218,9 +210,12 @@ public class Fragmentation extends ResourceSetImpl {
 		try {
 			save(getLoadOptions());
 		} catch (IOException e) {
-			throw new RuntimeException(e); // TODO
+			String msg = "IOException while closing " + this.toString() + ".";
+			EmfFragActivator.instance.error(msg, e);
+			throw new RuntimeException(msg, e);
+		} finally {
+			dataStore.close();
 		}
-		dataStore.close();
 	}
 
 	/**
@@ -229,33 +224,67 @@ public class Fragmentation extends ResourceSetImpl {
 	 */
 	@Override
 	public Resource createResource(URI uri, String contentType) {
-		Fragment resource = new Fragment(uri);
-		getResources().add(resource);
-		afterInstantiateFragment(resource);
-		return resource;
+		return instantiateFragment(uri);
 	}
 
+	/**
+	 * Creates a new fragment in the datastore with the next available datastore
+	 * key. Instantiates the new fragment (see {@link #instantiateFragment(URI)}).
+	 */
+	protected Fragment createNewFragment() {
+		Long key = fragmentDataStoreIndex.add();
+		URI uri = fragmentDataStoreIndex.getURI(key);
+		Fragment fragment = instantiateFragment(uri);
+		EmfFragActivator.instance.debug("created " + toString(fragment));
+		return fragment;
+	}
+
+	/**
+	 * Instantiates a new or existing fragment in memory.
+	 */
+	protected Fragment instantiateFragment(URI uri) {
+		Fragment fragment = new Fragment(uri, fragmentDataStoreIndex.getKeyFromURI(uri));
+		getResources().add(fragment);
+		fragmentsCache.add(fragment);
+		EmfFragActivator.instance.debug("instantiated " + toString(fragment));
+		return fragment;
+	}
+	
+	/**
+	 * Overridden for debugging. Loads a fragment from the datastore. Assumes it
+	 * exists in the datastore.
+	 */
 	@Override
 	protected void demandLoad(Resource resource) throws IOException {
 		super.demandLoad(resource);
-		afterLoadFragment((Fragment) resource);
+		Fragment fragment = (Fragment)resource;
+		if (!fragment.getErrors().isEmpty()) {
+			EmfFragActivator.instance.error("Errors in resource after loading it as fragment " + toString(fragment) + ".");
+		}
+		if (!fragment.getWarnings().isEmpty()) {
+			EmfFragActivator.instance.warning("Warnings in resource after loading it as fragment " + toString(fragment) + ".");
+		}
+		EmfFragActivator.instance.debug("loaded " + toString(fragment));
 	}
 
 	/**
 	 * This saves, unloads, and removes the given resource from this resource
-	 * set. It does not delete the resource or its contents.
+	 * set. It does not delete the resource or its contents. Used to unload a
+	 * fragment from memory.
 	 */
 	protected void unloadFragment(Fragment fragment) {
 		if (fragment.isLoaded()) {
-			beforeUnLoadFragment(fragment);
 			try {
 				fragment.save(getLoadOptions());
 			} catch (IOException e) {
-				// TODO
+				String msg = "IOException while unloading " + toString(fragment) + ".";
+				EmfFragActivator.instance.error(msg, e);
+				throw new RuntimeException(msg, e);
 			}
 			fragment.unload();
 		}
 		this.resources.remove(fragment);
+		EmfFragActivator.instance.debug("unloaded " + toString(fragment));
 	}
 
 	protected void registerUserObject(Fragment fragment, int id, FObjectImpl fObject) {
@@ -264,25 +293,7 @@ public class Fragmentation extends ResourceSetImpl {
 
 	protected FObjectImpl getRegisteredUserObject(Fragment fragment, int id) {
 		return userObjectCache.getIfPresent(new UserObjectID(fragment.fFragmentId(), id));
-	}
-
-	private void afterInstantiateFragment(Fragment fragment) {
-		fragmentsCache.add(fragment);
-		EmfFragActivator.instance.debug("instantiated fragment " + fragmentDataStoreIndex.getKeyFromURI(fragment.getURI()));
-	}
-
-	private void afterLoadFragment(Fragment fragment) {
-		EmfFragActivator.instance.debug("loaded fragment " + fragmentDataStoreIndex.getKeyFromURI(fragment.getURI()));
-	}
-
-	private void beforeUnLoadFragment(Fragment fragment) {
-		EmfFragActivator.instance.debug("unloading fragment " + fragmentDataStoreIndex.getKeyFromURI(fragment.getURI()));
-	}
-
-	private URI nextAvailableFragmentURI() {
-		Long nextAvailableFragmentID = fragmentDataStoreIndex.add();
-		return fragmentDataStoreIndex.getURI(nextAvailableFragmentID);
-	}
+	}	
 
 	public URI createURI(long fragmentId, String objectId) {
 		URI uri = fragmentDataStoreIndex.getURI(fragmentId);
@@ -295,6 +306,18 @@ public class Fragmentation extends ResourceSetImpl {
 	public URI createURI(long fragmentId) {
 		return createURI(fragmentId, null);
 	}
+	
+	/**
+	 * Is called when something is added to the root fragment.
+	 */
+	protected void onRootFragmentChange(Notification notification) {
+		if (notification.getFeatureID(Resource.class) == Resource.RESOURCE__CONTENTS) {
+			Fragment fragment = (Fragment)notification.getNotifier();
+			if (fragment.isLoaded() && !fragment.isLoading()) { // do not do that while loading/unloading
+				recursivlyReactToChange(notification, false);
+			}
+		} 
+	}
 
 	/**
 	 * Is called if an object in this {@link Fragmentation} was changed.
@@ -303,29 +326,36 @@ public class Fragmentation extends ResourceSetImpl {
 	 * fragmentation (incl. deleting fragments)
 	 */
 	protected void onChange(Notification notification) {
+		Object feature = notification.getFeature();
+		if (feature != null && feature instanceof EReference && isFragmenting((EReference) feature)) {
+			recursivlyReactToChange(notification, true);							
+		}					
+	}
+	
+	private void recursivlyReactToChange(Notification notification, boolean includeSelf) {
+		// lock the fragments cache to prevent accidental unloading of involved fragments
 		fragmentsCache.lock();
-		try {
-			Object feature = notification.getFeature();
-			if (feature != null && feature instanceof EReference && isFragmenting((EReference) feature)) {
-				int type = notification.getEventType();
-				if (type == Notification.ADD || type == Notification.SET) {
-					addContent((EObject) notification.getNewValue());
-					if (notification.getOldValue() != null) {
-						removeContent((EObject) notification.getOldValue());
-					}
-				} else if (type == Notification.REMOVE || type == Notification.UNSET) {
-					removeContent((EObject) notification.getOldValue());
-				} else if (type == Notification.ADD_MANY) {
-					for (Object added : (Collection<?>) notification.getNewValue()) {
-						addContent((EObject) added);
-					}
-				} else if (type == Notification.REMOVE_MANY) {
-					for (Object removed : (Collection<?>) notification.getOldValue()) {
-						removeContent((EObject) removed);
-					}
+		try {		
+			// do the appropriate thing
+			int type = notification.getEventType();
+			if (type == Notification.ADD || type == Notification.SET) {
+				addContentRecursivly((EObject) notification.getNewValue(), includeSelf);
+				if (notification.getOldValue() != null) {
+					removeContentRecursivly((EObject) notification.getOldValue(), includeSelf);
+				}
+			} else if (type == Notification.REMOVE || type == Notification.UNSET) {
+				removeContentRecursivly((EObject) notification.getOldValue(), includeSelf);
+			} else if (type == Notification.ADD_MANY) {
+				for (Object added : (Collection<?>) notification.getNewValue()) {
+					addContentRecursivly((EObject) added, includeSelf);
+				}
+			} else if (type == Notification.REMOVE_MANY) {
+				for (Object removed : (Collection<?>) notification.getOldValue()) {
+					removeContentRecursivly((EObject) removed, includeSelf);
 				}
 			}
 		} finally {
+			// release the lock on the cache
 			fragmentsCache.unlock();
 		}
 	}
@@ -361,9 +391,9 @@ public class Fragmentation extends ResourceSetImpl {
 		};
 	}
 
-	private void addContent(EObject object) {
-		Iterator<EObject> contents = all(object);
-		if (contents.hasNext()) {
+	private void addContentRecursivly(EObject object, boolean includeSelf) {
+		Iterator<EObject> contents = includeSelf ? all(object) : object.eAllContents();
+		while (contents.hasNext()) {
 			FObjectImpl content = (FObjectImpl) contents.next();
 			if (isFragmenting(content.eContainingFeature()) && (content.fFragmentation() != this || !content.fIsRoot())) {
 				addFragment(content);
@@ -371,9 +401,15 @@ public class Fragmentation extends ResourceSetImpl {
 		}
 	}
 
-	private void removeContent(EObject object) {
-		Iterator<EObject> contents = all(object);
-		if (contents.hasNext()) {
+	private void removeContentRecursivly(EObject object, boolean includeSelf) {
+		if (includeSelf) {
+			FObjectImpl fObject = (FObjectImpl)object;
+			if (fObject.fFragmentation() == this && fObject.fIsRoot()) {
+				deleteFragment(fObject);
+			}
+		}
+		Iterator<EObject> contents = object.eAllContents();
+		while (contents.hasNext()) {
 			FObjectImpl content = (FObjectImpl) contents.next();
 			if (isFragmenting(content.eContainingFeature()) && content.fFragmentation() == this && content.fIsRoot()) {
 				deleteFragment(content);
@@ -382,9 +418,8 @@ public class Fragmentation extends ResourceSetImpl {
 	}
 
 	private void addFragment(FObjectImpl fObject) {
-		Resource resource = createResource(nextAvailableFragmentURI());
-		afterLoadFragment((Fragment) resource);
-		resource.getContents().add(fObject);
+		Fragment fragment = createNewFragment();
+		fragment.getContents().add(fObject);
 	}
 
 	private void deleteFragment(FObjectImpl fObject) {
@@ -395,6 +430,8 @@ public class Fragmentation extends ResourceSetImpl {
 
 		// this will also remove this from ResourceSet#getResources()
 		fragmentsCache.remove(fragment);
+		
+		EmfFragActivator.instance.debug("deleted " + toString(fragment));
 	}
 
 	private boolean isFragmenting(EStructuralFeature reference) {
@@ -416,4 +453,13 @@ public class Fragmentation extends ResourceSetImpl {
 	public int getNumberOfLoadedFragments() {
 		return getResources().size();
 	}
+	
+	protected String toString(Fragment fragment) {
+		return "f[" + dataStore.getURI().toString() + "/" + fragmentDataStoreIndex.getKeyFromURI(fragment.getURI()) + "]";
+	}
+
+	@Override
+	public String toString() {
+		return "fragmentation[" + dataStore.getURI() + "]";
+	}		
 }
