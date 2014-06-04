@@ -2,6 +2,7 @@ package de.hub.emffrag2;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
@@ -11,7 +12,7 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 
 public class FObjectImpl extends MinimalEObjectImpl.Container implements FObject {
 
-	private Fragmentation fragmentation = null;
+	private Fragmentation unloadedFromFragmentation = null;
 
 	@Override
 	public boolean eNotificationRequired() {
@@ -20,14 +21,15 @@ public class FObjectImpl extends MinimalEObjectImpl.Container implements FObject
 
 	@Override
 	public void eNotify(Notification notification) {
-		Fragmentation fFragmentation = fFragmentation();		
+		Fragmentation fFragmentation = fFragmentation();
 		if (fFragmentation != null) {
-			Fragment fragment = (Fragment)eResource();
-			// We have to ensure that we are not currently loading the containing fragment
+			Fragment fragment = (Fragment) eResource();
+			// We have to ensure that we are not currently loading the
+			// containing fragment
 			//
 			if (fragment != null && fragment.isLoaded() && !fragment.isLoading()) {
 				fFragmentation.onChange(notification);
-			} 
+			}
 		}
 		if (eBasicHasAdapters() && eDeliver()) {
 			super.eNotify(notification);
@@ -40,16 +42,50 @@ public class FObjectImpl extends MinimalEObjectImpl.Container implements FObject
 	 */
 	@Override
 	public Object eGet(EStructuralFeature eFeature, boolean resolve) {
-		ensureIsLoaded(resolve);
+		if (resolve) {
+			fEnsureLoaded();
+		}
 		return super.eGet(eFeature, resolve);
 	}
 
-	protected void ensureIsLoaded(boolean resolve) {
-		if (eIsProxy() && resolve) {
-			if (fragmentation == null) { // assertion
-				throw new IllegalStateException("Unloaded FObject without fragmentation.");
+	/**
+	 * Clears {@link #unloadedFromFragmentation}, since object is not unloaded
+	 * anymore, once its proxy URI is null.
+	 */
+	@Override
+	public void eSetProxyURI(URI uri) {
+		throw new UnsupportedOperationException("FObject have a different proxy mechanism. EMF's eSetProxyURI must not be called.");		
+	}
+	
+	public void eSetProxyURI(URI uri, Fragmentation fragmentation) {
+		if (uri == null) {
+			this.unloadedFromFragmentation = null;
+		} else {
+			this.unloadedFromFragmentation = fragmentation;
+			
+			// if this becomes something not MinimalEObjectImpl, eBasicProperties
+			// has to be cleaned instead
+			//
+			eSetDirectResource(null);
+			
+			eBasicSetSettings(new Object[] {});
+			eBasicSetContainer(null);
+
+			// re-create empty eSettings for further use of the object
+			int size = eClass().getFeatureCount() - eStaticFeatureCount();
+			if (size != 0) {
+				eBasicSetSettings(new Object[size]);
 			}
-			EcoreUtil.resolve(this, fragmentation);
+		}
+		super.eSetProxyURI(uri);
+	}
+
+	public void fEnsureLoaded() {
+		if (eIsProxy()) {			
+			if (unloadedFromFragmentation == null) {
+				throw new IllegalStateException("Object unloaded without a fragmentation.");
+			}
+			EcoreUtil.resolve(this, unloadedFromFragmentation);
 		}
 	}
 
@@ -58,7 +94,7 @@ public class FObjectImpl extends MinimalEObjectImpl.Container implements FObject
 	 *         within the resource that contains it.
 	 */
 	public boolean fIsRoot() {
-		ensureIsLoaded(true);
+		fEnsureLoaded();
 		return eDirectResource() != null;
 	}
 
@@ -67,42 +103,18 @@ public class FObjectImpl extends MinimalEObjectImpl.Container implements FObject
 	 *         was not added to a fragmentation yet.
 	 */
 	public Fragmentation fFragmentation() {
-		if (fragmentation == null) {
-			Fragment fragment = fFragment();
-			if (fragment != null) {
-				fragmentation = fragment.getFragmentation();
-			}
+		Fragment fragment = fFragment();
+		if (fragment != null) {
+			Fragmentation fragmentation = fragment.getFragmentation();
+			return fragmentation;
+		} else {
+			return null;
 		}
-		return fragmentation;
 	}
 
 	@Override
 	public Fragment fFragment() {
 		return (Fragment) eResource();
-	}
-
-	/**
-	 * In EMF terminology "unload" only clears all references to/from the
-	 * resource, but not within the object graph. This method does the rest.
-	 * Namingly clears contents, cross references, container, and all feature
-	 * values (settings). This renders the object unusable for clients, but
-	 * clients can still hold references to it. When clients attempt to use it,
-	 * {@link #eGet(EStructuralFeature, boolean)} will trigger a reload of its
-	 * fragment, which will re-instantiate this object.
-	 */
-	public void fTrueUnload(Fragmentation fromFragmentation) {
-		this.fragmentation = fromFragmentation;
-
-		// if this becomes something not MinimalEObjectImpl, eBasicProperties
-		// has to be cleaned as well
-		eBasicSetSettings(new Object[] {});
-		eBasicSetContainer(null);
-
-		// re-create empty eSettings for further use of the object
-		int size = eClass().getFeatureCount() - eStaticFeatureCount();
-		if (size != 0) {
-			eBasicSetSettings(new Object[size]);
-		}
 	}
 
 	/**
@@ -121,11 +133,11 @@ public class FObjectImpl extends MinimalEObjectImpl.Container implements FObject
 	 * TODO: not covered by tests.
 	 */
 	@Override
-	public NotificationChain eBasicSetContainer(InternalEObject newContainer, int newContainerFeatureID, NotificationChain msgs) {
+	public NotificationChain eBasicSetContainer(InternalEObject newContainer, int newContFeatID, NotificationChain msgs) {
 		if (newContainer != null && !(newContainer instanceof FObjectImpl)) {
 			throw new IllegalStateException("FObjects can only be contained by other FObjects not other EObjects.");
 		}
-		return super.eBasicSetContainer(newContainer, newContainerFeatureID, msgs);
+		return super.eBasicSetContainer(newContainer, newContFeatID, msgs);
 	}
 
 }

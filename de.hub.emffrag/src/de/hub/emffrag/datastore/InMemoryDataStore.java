@@ -212,4 +212,7 @@ public class InMemoryDataStore implements IBaseDataStore, IBulkInsertExtension {
 		store.clear();
 	}
 	
+	public int getNumberOfEntries() {
+		return store.size();
+	}
 }

@@ -85,15 +85,19 @@ public class Fragment extends BinaryResourceImpl {
 	}
 
 	/**
-	 * Perform a true unload before regular EMF unload. Does not clear the
-	 * adaptors like {@link #unloaded(InternalEObject)}. This is to make clients
-	 * unaware of automatic background unloaded/loading.
+	 * Perform a EMF-Fragments flavored unload via
+	 * {@link FObjectImpl#eSetProxyURI(URI, Fragmentation)} not
+	 * {@link InternalEObject#eSetProxyURI(URI)}. 
+	 * 
+	 * Does not clear the adaptors
+	 * like {@link #unloaded(InternalEObject)}. This is to make clients unaware
+	 * of automatic background unloaded/loading.
 	 */
 	@Override
 	protected void unloaded(InternalEObject internalEObject) {
-		((FObjectImpl) internalEObject).fTrueUnload(getFragmentation());
 		if (!internalEObject.eIsProxy()) {
-			internalEObject.eSetProxyURI(uri.appendFragment(getURIFragment(internalEObject)));
+			((FObjectImpl) internalEObject).eSetProxyURI(uri.appendFragment(getURIFragment(internalEObject)),
+					getFragmentation());
 		}
 	}
 
@@ -220,7 +224,7 @@ public class Fragment extends BinaryResourceImpl {
 					if (internalEObject == null) {
 						internalEObject = (InternalEObject) eClassData.eFactory.create(eClassData.eClass);
 					} else {
-						internalEObject.eSetProxyURI(null);
+						((FObjectImpl)internalEObject).eSetProxyURI(null, null);
 					}
 					InternalEObject result = internalEObject;
 
@@ -229,7 +233,12 @@ public class Fragment extends BinaryResourceImpl {
 					//
 					int featureID = readCompressedInt() - 1;
 					if (featureID == -2) {
-						internalEObject.eSetProxyURI(readURI());
+						// all proxies have to be EMF-Fragments flavoured
+						// proxies
+						//
+						((FObjectImpl)internalEObject).eSetProxyURI(readURI(), getFragmentation());
+
+
 						if (isEagerProxyResolution) {
 							result = (InternalEObject) EcoreUtil.resolve(internalEObject, resource);
 							internalInternalEObjectList.add(result);

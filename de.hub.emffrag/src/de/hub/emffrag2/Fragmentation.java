@@ -391,38 +391,53 @@ public class Fragmentation extends ResourceSetImpl {
 		};
 	}
 
-	private void addContentRecursivly(EObject object, boolean includeSelf) {
-		Iterator<EObject> contents = includeSelf ? all(object) : object.eAllContents();
-		while (contents.hasNext()) {
-			FObjectImpl content = (FObjectImpl) contents.next();
-			if (isFragmenting(content.eContainingFeature()) && (content.fFragmentation() != this || !content.fIsRoot())) {
-				addFragment(content);
+	private void addContentRecursivly(EObject eObject, boolean includeSelf) {
+		if (eObject instanceof FObject) {
+			FObject fObject = (FObject)eObject;
+			fObject.fEnsureLoaded();
+			Iterator<EObject> contents = includeSelf ? all(fObject) : fObject.eAllContents();
+			while (contents.hasNext()) {
+				EObject eContent = (EObject)contents.next();
+				if (eContent instanceof FObject) {
+					FObject fContent = (FObject)eContent;
+					fContent.fEnsureLoaded();
+					if (isFragmenting(fContent.eContainingFeature()) && (fContent.fFragmentation() != this || !fContent.fIsRoot())) {
+						addFragment(fContent);
+					}
+				}				
 			}
-		}
+		}		
 	}
 
-	private void removeContentRecursivly(EObject object, boolean includeSelf) {
+	private void removeContentRecursivly(EObject eObject, boolean includeSelf) {
 		if (includeSelf) {
-			FObjectImpl fObject = (FObjectImpl)object;
-			if (fObject.fFragmentation() == this && fObject.fIsRoot()) {
-				deleteFragment(fObject);
-			}
+			if (eObject instanceof FObject) {
+				FObject fObject = (FObject)eObject;
+				fObject.fEnsureLoaded();
+				if (fObject.fFragmentation() == this && fObject.fIsRoot()) {
+					deleteFragment(fObject);
+				}
+			}			
 		}
-		Iterator<EObject> contents = object.eAllContents();
+		Iterator<EObject> contents = eObject.eAllContents();
 		while (contents.hasNext()) {
-			FObjectImpl content = (FObjectImpl) contents.next();
-			if (isFragmenting(content.eContainingFeature()) && content.fFragmentation() == this && content.fIsRoot()) {
-				deleteFragment(content);
+			EObject eContent = (EObject)contents.next();
+			if (eContent instanceof FObject) {
+				FObject fContent = (FObject)eContent;
+				fContent.fEnsureLoaded();
+				if (isFragmenting(fContent.eContainingFeature()) && fContent.fFragmentation() == this && fContent.fIsRoot()) {
+					deleteFragment(fContent);
+				}
 			}
 		}
 	}
 
-	private void addFragment(FObjectImpl fObject) {
+	private void addFragment(FObject fObject) {
 		Fragment fragment = createNewFragment();
 		fragment.getContents().add(fObject);
 	}
 
-	private void deleteFragment(FObjectImpl fObject) {
+	private void deleteFragment(FObject fObject) {
 		Fragment fragment = fObject.fFragment();
 		fragment.getContents().remove(fObject);
 		fragmentDataStoreIndex.remove(fragmentDataStoreIndex.getKeyFromURI(fragment.getURI()));

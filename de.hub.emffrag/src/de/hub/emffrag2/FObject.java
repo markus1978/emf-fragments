@@ -21,5 +21,10 @@ public interface FObject extends EObject {
 	 *         was not added to a fragmentation yet.
 	 */
 	public Fragmentation fFragmentation();
+	
+	/**
+	 * Ensures that this {@link FObject} and its fragment is loaded.
+	 */
+	public void fEnsureLoaded();
 
 }
