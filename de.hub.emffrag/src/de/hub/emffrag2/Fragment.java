@@ -5,7 +5,9 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.common.notify.Notification;
@@ -25,6 +27,9 @@ import de.hub.emffrag.fragmentation.FInternalObjectImpl;
 public class Fragment extends BinaryResourceImpl {
 
 	private final long id;
+	
+	// helper of #doUnload()
+	private List<InternalEObject> contentToUnload = new ArrayList<InternalEObject>();
 
 	public Fragment(URI uri, long id) {
 		super(uri);
@@ -67,6 +72,10 @@ public class Fragment extends BinaryResourceImpl {
 	 * Overridden to not clear the contents list, but loose its reference. This
 	 * allows {@link TreeIterator}s to work, even when fragments in it become
 	 * unloaded.
+	 * 
+	 * It also does not unload objects directly out of an iterator, since tree
+	 * iterators depend on the children of their current element. TODO: write an
+	 * iterator that collects an element's children before it hands out the element.
 	 */
 	@Override
 	protected void doUnload() {
@@ -76,28 +85,43 @@ public class Fragment extends BinaryResourceImpl {
 		getWarnings().clear();
 
 		while (allContents.hasNext()) {
-			unloaded((InternalEObject) allContents.next());
+			// Do not unload directly out of the iterator, because it accesses
+			// the
+			// children of the current object.
+			//
+			contentToUnload.add((InternalEObject) allContents.next());
 		}
 
 		// Removing reference, instead of clearing it. Will be re-instantiated
 		// empty for next use.
+		//
 		contents = null;
+
+		// Unload the collected object to unload
+		//
+		for (InternalEObject internalEObject : contentToUnload) {
+			unloaded(internalEObject);
+		}
+		contentToUnload.clear();
 	}
 
 	/**
 	 * Perform a EMF-Fragments flavored unload via
 	 * {@link FObjectImpl#eSetProxyURI(URI, Fragmentation)} not
-	 * {@link InternalEObject#eSetProxyURI(URI)}. 
+	 * {@link InternalEObject#eSetProxyURI(URI)}.
 	 * 
-	 * Does not clear the adaptors
-	 * like {@link #unloaded(InternalEObject)}. This is to make clients unaware
-	 * of automatic background unloaded/loading.
+	 * Does not clear the adaptors like {@link #unloaded(InternalEObject)}. This
+	 * is to make clients unaware of automatic background unloaded/loading.
 	 */
 	@Override
 	protected void unloaded(InternalEObject internalEObject) {
-		if (!internalEObject.eIsProxy()) {
-			((FObjectImpl) internalEObject).eSetProxyURI(uri.appendFragment(getURIFragment(internalEObject)),
-					getFragmentation());
+		if (internalEObject instanceof FObjectImpl) {
+			if (!internalEObject.eIsProxy()) {
+				((FObjectImpl) internalEObject).eSetProxyURI(uri.appendFragment(getURIFragment(internalEObject)),
+						getFragmentation());
+			}
+		} else {
+			super.unloaded(internalEObject);
 		}
 	}
 
@@ -133,6 +157,7 @@ public class Fragment extends BinaryResourceImpl {
 				// We use our own EObjectOutputStream
 				// EObjectOutputStream eObjectOutputStream = new
 				// EObjectOutputStream(outputStream, options);
+				//
 				EObjectOutputStream eObjectOutputStream = new MyEObjectOutputStream(outputStream, options);
 				eObjectOutputStream.saveResource(this);
 			} finally {
@@ -164,9 +189,11 @@ public class Fragment extends BinaryResourceImpl {
 			// We use our own EObjectOutputStream
 			// EObjectInputStream eObjectInputStream = new
 			// EObjectInputStream(inputStream, options);
+			//
 			EObjectInputStream eObjectInputStream = new MyEObjectInputStream(inputStream, options);
 			eObjectInputStream.loadResource(this);
 		}
+
 	}
 
 	// This is a copy from BinaryResourceImpl
@@ -224,7 +251,7 @@ public class Fragment extends BinaryResourceImpl {
 					if (internalEObject == null) {
 						internalEObject = (InternalEObject) eClassData.eFactory.create(eClassData.eClass);
 					} else {
-						((FObjectImpl)internalEObject).eSetProxyURI(null, null);
+						((FObjectImpl) internalEObject).eSetProxyURI(null, null);
 					}
 					InternalEObject result = internalEObject;
 
@@ -233,11 +260,15 @@ public class Fragment extends BinaryResourceImpl {
 					//
 					int featureID = readCompressedInt() - 1;
 					if (featureID == -2) {
-						// all proxies have to be EMF-Fragments flavoured
+						// all FObject proxies have to be EMF-Fragments
+						// flavoured
 						// proxies
 						//
-						((FObjectImpl)internalEObject).eSetProxyURI(readURI(), getFragmentation());
-
+						if (internalEObject instanceof FObjectImpl) {
+							((FObjectImpl) internalEObject).eSetProxyURI(readURI(), getFragmentation());
+						} else {
+							internalEObject.eSetProxyURI(readURI());
+						}
 
 						if (isEagerProxyResolution) {
 							result = (InternalEObject) EcoreUtil.resolve(internalEObject, resource);
@@ -293,7 +324,9 @@ public class Fragment extends BinaryResourceImpl {
 			super.saveEObject(internalEObject, check);
 			if (internalEObject != null) {
 				Integer id = eObjectIDMap.get(internalEObject);
-				getFragmentation().registerUserObject(Fragment.this, id, (FObjectImpl) internalEObject);
+				if (internalEObject instanceof FObjectImpl) {
+					getFragmentation().registerUserObject(Fragment.this, id, (FObjectImpl) internalEObject);
+				}
 			}
 		}
 	}

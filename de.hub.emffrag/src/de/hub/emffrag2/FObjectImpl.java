@@ -1,8 +1,12 @@
 package de.hub.emffrag2;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
@@ -21,19 +25,20 @@ public class FObjectImpl extends MinimalEObjectImpl.Container implements FObject
 
 	@Override
 	public void eNotify(Notification notification) {
-		Fragmentation fFragmentation = fFragmentation();
-		if (fFragmentation != null) {
-			Fragment fragment = (Fragment) eResource();
-			// We have to ensure that we are not currently loading the
-			// containing fragment
-			//
-			if (fragment != null && fragment.isLoaded() && !fragment.isLoading()) {
+		Fragment fragment = (Fragment) eResource();
+		// We have to ensure that we are not currently loading the
+		// containing fragment
+		//
+		if (fragment != null && fragment.isLoaded() && !fragment.isLoading()) {
+			Fragmentation fFragmentation = fFragmentation();
+			if (fFragmentation != null) {
 				fFragmentation.onChange(notification);
 			}
-		}
-		if (eBasicHasAdapters() && eDeliver()) {
-			super.eNotify(notification);
-		}
+			
+			if (eBasicHasAdapters() && eDeliver()) {
+				super.eNotify(notification);
+			}
+		}		
 	}
 
 	/**
@@ -46,6 +51,38 @@ public class FObjectImpl extends MinimalEObjectImpl.Container implements FObject
 			fEnsureLoaded();
 		}
 		return super.eGet(eFeature, resolve);
+	}
+
+	@Override
+	public void eSet(EStructuralFeature eFeature, Object newValue) {
+		fEnsureLoaded();
+		super.eSet(eFeature, newValue);
+	}
+
+	@Override
+	public void eUnset(EStructuralFeature eFeature) {
+		fEnsureLoaded();
+		super.eUnset(eFeature);
+	}
+
+	@Override
+	public boolean eIsSet(EStructuralFeature eFeature) {
+		Fragment fragment = (Fragment) eResource();
+		// We have to ensure that we are not currently loading the
+		// containing fragment
+		//
+		if (eIsProxy()) {
+			if (fragment == null || (fragment.isLoaded() && !fragment.isLoading())) {
+				fEnsureLoaded();
+			}
+		}
+		return super.eIsSet(eFeature);
+	}
+
+	@Override
+	public Object eInvoke(EOperation eOperation, EList<?> arguments) throws InvocationTargetException {
+		fEnsureLoaded();
+		return super.eInvoke(eOperation, arguments);
 	}
 
 	/**

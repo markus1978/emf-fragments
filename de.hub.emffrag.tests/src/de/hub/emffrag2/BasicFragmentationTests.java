@@ -13,6 +13,7 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.EcoreFactory;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
@@ -132,21 +133,53 @@ public class BasicFragmentationTests {
 
 		savedTestObject.put("TestObject", testObject);
 	}
+	
+	@Test
+	public void testBasicManualRegularEMFContentsUnloadReload() {
+		testBasicAutoAddContentsTest();
+		TestObject testObject = savedTestObject.get("TestObject");
+		testObject.getArbitraryContents().add(EcoreFactory.eINSTANCE.createEObject());
+		helperManualUnload(fragmentation.getRootFragment());
+		
+		Assert.assertFalse(testObject.getArbitraryContents().isEmpty());
+		Assert.assertTrue(testObject.getArbitraryContents().get(0) instanceof EObject);
+	}
+	
+	@Test
+	public void testBasicAutoRegularEMFContents() {
+		testBasicAutoAddContentsTest();
+		TestObject container = savedTestObject.get("TestObject");
+		TestObject contents = createTO("2");
+		EObject emfContent = EcoreFactory.eINSTANCE.createEObject();
+		contents.getArbitraryContents().add(emfContent);
+		container.getFragmentedContents().add(contents);
+		
+		Assert.assertEquals("TestObject", container.getName());
+		Assert.assertEquals("2", contents.getName());
+		Assert.assertEquals(contents, container.getFragmentedContents().get(0));
+		Assert.assertFalse(contents.getArbitraryContents().isEmpty());
+		Assert.assertNotEquals(emfContent, contents.getArbitraryContents().get(0));
+		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
+		Assert.assertEquals(2, fragmentation.getNumberOfAllFragments());
+	}
+	
+	private void helperManualUnload(Fragment fragment) {
+		try {
+			fragment.save(null);
+		} catch (IOException e) {
+			Assert.fail(e.getMessage());
+		}
+		fragmentation.unloadFragment(fragment);
+	}
 
 	@Test
 	public void testBasicManualUnload() {
 		TestObject testObject = createTO("TestObject");
 		fragmentation.getContents().add(testObject);
-		Fragment rootFragment = fragmentation.getRootFragment();
-		try {
-			rootFragment.save(null);
-		} catch (IOException e) {
-			Assert.fail(e.getMessage());
-		}
-		fragmentation.unloadFragment(rootFragment);
+		helperManualUnload(fragmentation.getRootFragment());
+		
 
 		Assert.assertTrue(testObject.eIsProxy());
-		;
 		Assert.assertEquals(fragmentation.createURI(0l, ""), ((InternalEObject) testObject).eProxyURI());
 		Assert.assertEquals(1, fragmentation.getNumberOfAllFragments());
 		Assert.assertEquals(0, fragmentation.getNumberOfLoadedFragments());
@@ -155,12 +188,23 @@ public class BasicFragmentationTests {
 	}
 
 	@Test
-	public void testBasicManualReload() {
+	public void testBasicManualReloadViaGet() {
 		testBasicManualUnload();
 
 		TestObject testObject = (TestObject) fragmentation.getContents().get(0);
 		Assert.assertEquals("TestObject", testObject.getName());
 		Assert.assertEquals(savedTestObject.get("TestObject"), testObject);
+		Assert.assertEquals(1, fragmentation.getNumberOfAllFragments());
+		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
+	}
+	
+	@Test
+	public void testBasicManualReloadViaSet() {
+		testBasicManualUnload();
+		TestObject unloadedObject = savedTestObject.get("TestObject");
+		Assert.assertTrue(unloadedObject.eIsProxy());
+		unloadedObject.setName("AnotherName");
+		Assert.assertFalse(unloadedObject.eIsProxy());
 		Assert.assertEquals(1, fragmentation.getNumberOfAllFragments());
 		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
 	}
@@ -330,7 +374,7 @@ public class BasicFragmentationTests {
 
 	@Test
 	public void testBasicManualAdapterReload() {
-		adapterNotificationTest();
+		testBasicAdapterNotification();
 		TestObject testObject = savedTestObject.get("TestObject");
 		fragmentation.unloadFragment((Fragment) testObject.eResource());
 		Assert.assertEquals(1, modifiedTester.size());
@@ -340,7 +384,7 @@ public class BasicFragmentationTests {
 	}
 
 	@Test
-	public void adapterNotificationTest() {
+	public void testBasicAdapterNotification() {
 		testBasicAutoAddContentsTest();
 		TestObject testObject = savedTestObject.get("TestObject");
 		testObject.eAdapters().add(new AdapterImpl() {
@@ -408,9 +452,9 @@ public class BasicFragmentationTests {
 		TestObject nonFragmentingChild = createTO("2", parent, tmPackage.getTestObject_RegularContents());
 		TestObject fragmentingChild = createTO("3", parent, tmPackage.getTestObject_FragmentedContents());
 
-		Assert.assertTrue(parent.eIsProxy());
-		Assert.assertTrue(nonFragmentingChild.eIsProxy());
-		Assert.assertFalse(fragmentingChild.eIsProxy());
+//		Assert.assertTrue(parent.eIsProxy());
+//		Assert.assertTrue(nonFragmentingChild.eIsProxy());
+//		Assert.assertFalse(fragmentingChild.eIsProxy());
 		Assert.assertEquals("3", fragmentingChild.getName());
 
 		Assert.assertTrue(parent.fIsRoot());
