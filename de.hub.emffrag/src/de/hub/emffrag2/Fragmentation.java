@@ -96,9 +96,13 @@ public class Fragmentation extends ResourceSetImpl {
 		@Override
 		public void onRemoval(RemovalNotification<Fragment, Fragment> notification) {
 			Fragment fragment = notification.getValue();
-			// We must only lock for fragments that are not explicitly removed (i.e. during delete)
+			// We must only unload fragments that are not explicitely removed
 			//
-			if (isLocked && notification.getCause() != RemovalCause.EXPLICIT) {
+			if (notification.getCause() == RemovalCause.EXPLICIT) {
+				return;
+			}
+			
+			if (isLocked) {
 				lockedFragments.add(fragment);
 			} else {
 				unloadFragment(fragment);
@@ -116,7 +120,7 @@ public class Fragmentation extends ResourceSetImpl {
 			if (!isLocked) {
 				throw new IllegalStateException("Cannot unlock a not locked fragments cache.");
 			}
-			isLocked = false;
+
 			int space = size - (int) backend.size();
 			if (space > lockedFragments.size()) {
 				space = lockedFragments.size();
@@ -125,10 +129,18 @@ public class Fragmentation extends ResourceSetImpl {
 				Fragment lastLockedFragment = lockedFragments.remove(lockedFragments.size() - 1);
 				backend.put(lastLockedFragment, lastLockedFragment);
 			}
-			for (Fragment leftOverFragment : lockedFragments) {
-				unloadFragment(leftOverFragment);
+			if (lockedFragments.isEmpty()) {
+				isLocked = false;
+			} else {
+				// Keep the lock in case the unloaded cases other loads during save.
+				//
+				List<Fragment> copy = new ArrayList<Fragment>(lockedFragments);
+				lockedFragments.clear();
+				for (Fragment leftOverFragment : copy) {
+					unloadFragment(leftOverFragment);
+				}
+				unlock();
 			}
-			lockedFragments.clear();
 		}
 
 		public void add(Fragment fragment) {
@@ -136,7 +148,9 @@ public class Fragmentation extends ResourceSetImpl {
 		}
 
 		public void remove(Fragment eResource) {
-			backend.invalidate(eResource);
+			if (backend.getIfPresent(eResource) != null) {
+				backend.invalidate(eResource);
+			}
 		}
 	}
 
@@ -144,6 +158,8 @@ public class Fragmentation extends ResourceSetImpl {
 	private final IDataMap<Long> fragmentDataStoreIndex;
 	private final FragmentsCache fragmentsCache;
 	private final Cache<UserObjectID, FObjectImpl> userObjectCache;
+	
+	public boolean resolveProxies = true;
 
 	public Fragmentation(IDataStore dataStore, int fragmentsCacheSize) {
 		this.dataStore = dataStore;
@@ -152,6 +168,14 @@ public class Fragmentation extends ResourceSetImpl {
 		fragmentsCache = new FragmentsCache(fragmentsCacheSize);
 		userObjectCache = CacheBuilder.newBuilder().weakValues().build();
 	}
+	
+	
+
+	@Override
+	public EObject getEObject(URI uri, boolean loadOnDemand) {
+		return super.getEObject(uri, loadOnDemand && resolveProxies);		
+	}
+
 
 	@Override
 	public URIConverter getURIConverter() {
@@ -196,26 +220,24 @@ public class Fragmentation extends ResourceSetImpl {
 	 * Saves all loaded fragments and flushes the data store.
 	 */
 	public void save(Map<?, ?> options) throws IOException {
+		fragmentsCache.lock();
 		for (Resource resource : getResources()) {
 			resource.save(options);
 		}
 		dataStore.flush();
+		fragmentsCache.unlock();
 	}
 
 	/**
 	 * Saves everything still loaded and closes the data store. Do not use this
 	 * instance afterwards.
 	 */
-	public void close() {
-		try {
-			save(getLoadOptions());
-		} catch (IOException e) {
-			String msg = "IOException while closing " + this.toString() + ".";
-			EmfFragActivator.instance.error(msg, e);
-			throw new RuntimeException(msg, e);
-		} finally {
-			dataStore.close();
+	public void close() {		
+		List<Resource> copy = new ArrayList<Resource>(getResources());
+		for (Resource resource : copy) {
+			unloadFragment((Fragment)resource);
 		}
+		dataStore.close();
 	}
 
 	/**
@@ -234,8 +256,8 @@ public class Fragmentation extends ResourceSetImpl {
 	protected Fragment createNewFragment() {
 		Long key = fragmentDataStoreIndex.add();
 		URI uri = fragmentDataStoreIndex.getURI(key);
+		EmfFragActivator.instance.debug("created " + toString(uri));
 		Fragment fragment = instantiateFragment(uri);
-		EmfFragActivator.instance.debug("created " + toString(fragment));
 		return fragment;
 	}
 
@@ -243,10 +265,10 @@ public class Fragmentation extends ResourceSetImpl {
 	 * Instantiates a new or existing fragment in memory.
 	 */
 	protected Fragment instantiateFragment(URI uri) {
-		Fragment fragment = new Fragment(uri, fragmentDataStoreIndex.getKeyFromURI(uri));
+		Fragment fragment = new Fragment(uri, fragmentDataStoreIndex.getKeyFromURI(uri));		
 		getResources().add(fragment);
-		fragmentsCache.add(fragment);
 		EmfFragActivator.instance.debug("instantiated " + toString(fragment));
+		fragmentsCache.add(fragment);
 		return fragment;
 	}
 	
@@ -256,15 +278,24 @@ public class Fragmentation extends ResourceSetImpl {
 	 */
 	@Override
 	protected void demandLoad(Resource resource) throws IOException {
-		super.demandLoad(resource);
-		Fragment fragment = (Fragment)resource;
-		if (!fragment.getErrors().isEmpty()) {
-			EmfFragActivator.instance.error("Errors in resource after loading it as fragment " + toString(fragment) + ".");
+		resolveProxies = false;
+		try {
+			if (resource.isLoaded()) {
+				throw new IllegalStateException("Cannot load an already loaded fragment.");
+			}
+			super.demandLoad(resource);
+			Fragment fragment = (Fragment)resource;
+			if (!fragment.getErrors().isEmpty()) {
+				EmfFragActivator.instance.error("Errors in resource after loading it as fragment " + toString(fragment) + ".");
+			}
+			if (!fragment.getWarnings().isEmpty()) {
+				EmfFragActivator.instance.warning("Warnings in resource after loading it as fragment " + toString(fragment) + ".");
+			}
+			EmfFragActivator.instance.debug("loaded " + toString(fragment));
+		} catch (Exception e) {
+			System.out.println("AAAHHHRRR");
 		}
-		if (!fragment.getWarnings().isEmpty()) {
-			EmfFragActivator.instance.warning("Warnings in resource after loading it as fragment " + toString(fragment) + ".");
-		}
-		EmfFragActivator.instance.debug("loaded " + toString(fragment));
+		resolveProxies = true;
 	}
 
 	/**
@@ -274,17 +305,26 @@ public class Fragmentation extends ResourceSetImpl {
 	 */
 	protected void unloadFragment(Fragment fragment) {
 		if (fragment.isLoaded()) {
-			try {
-				fragment.save(getLoadOptions());
-			} catch (IOException e) {
-				String msg = "IOException while unloading " + toString(fragment) + ".";
-				EmfFragActivator.instance.error(msg, e);
-				throw new RuntimeException(msg, e);
-			}
+			resolveProxies = false;
+			boolean isModified = fragment.isModified();
+			if (isModified) {
+				try {			
+					fragment.save(getLoadOptions());
+				} catch (IOException e) {
+					String msg = "IOException while unloading " + toString(fragment) + ".";
+					EmfFragActivator.instance.error(msg, e);
+					throw new RuntimeException(msg, e);
+				}
+			}			
 			fragment.unload();
+			resolveProxies = true;
+			this.resources.remove(fragment);
+			fragmentsCache.remove(fragment);
+			EmfFragActivator.instance.debug("unloaded " + toString(fragment) + (isModified ? "*" : ""));
+		} else {
+			throw new IllegalStateException("Cannot unload a not loaded fragment.");
 		}
-		this.resources.remove(fragment);
-		EmfFragActivator.instance.debug("unloaded " + toString(fragment));
+		
 	}
 
 	protected void registerUserObject(Fragment fragment, int id, FObjectImpl fObject) {
@@ -294,11 +334,17 @@ public class Fragmentation extends ResourceSetImpl {
 	protected FObjectImpl getRegisteredUserObject(Fragment fragment, int id) {
 		return userObjectCache.getIfPresent(new UserObjectID(fragment.fFragmentId(), id));
 	}	
+	
+	protected FObjectImpl getRegisteredUserObject(URI uri) {
+		int id = Integer.parseInt(uri.fragment());
+		long fragmentId = fragmentDataStoreIndex.getKeyFromURI(uri.trimFragment());
+		return userObjectCache.getIfPresent(new UserObjectID(fragmentId, id));
+	}
 
-	public URI createURI(long fragmentId, String objectId) {
+	public URI createURI(long fragmentId, Integer objectId) {
 		URI uri = fragmentDataStoreIndex.getURI(fragmentId);
 		if (objectId != null) {
-			uri = uri.appendFragment("/" + objectId);
+			uri = uri.appendFragment(String.valueOf(objectId));
 		}
 		return uri;
 	}
@@ -311,6 +357,9 @@ public class Fragmentation extends ResourceSetImpl {
 	 * Is called when something is added to the root fragment.
 	 */
 	protected void onRootFragmentChange(Notification notification) {
+		if (!resolveProxies) {
+			return;
+		}
 		if (notification.getFeatureID(Resource.class) == Resource.RESOURCE__CONTENTS) {
 			Fragment fragment = (Fragment)notification.getNotifier();
 			if (fragment.isLoaded() && !fragment.isLoading()) { // do not do that while loading/unloading
@@ -326,6 +375,9 @@ public class Fragmentation extends ResourceSetImpl {
 	 * fragmentation (incl. deleting fragments)
 	 */
 	protected void onChange(Notification notification) {
+		if (!resolveProxies) {
+			return;
+		}
 		Object feature = notification.getFeature();
 		if (feature != null && feature instanceof EReference && isFragmenting((EReference) feature)) {
 			recursivlyReactToChange(notification, true);							
@@ -339,17 +391,21 @@ public class Fragmentation extends ResourceSetImpl {
 			// do the appropriate thing
 			int type = notification.getEventType();
 			if (type == Notification.ADD || type == Notification.SET) {
+				System.out.println("ADD/SET");
 				addContentRecursivly((EObject) notification.getNewValue(), includeSelf);
 				if (notification.getOldValue() != null) {
 					removeContentRecursivly((EObject) notification.getOldValue(), includeSelf);
 				}
 			} else if (type == Notification.REMOVE || type == Notification.UNSET) {
+				System.out.println("REMOVE/UNSET");
 				removeContentRecursivly((EObject) notification.getOldValue(), includeSelf);
 			} else if (type == Notification.ADD_MANY) {
+				System.out.println("ADD_MANY");
 				for (Object added : (Collection<?>) notification.getNewValue()) {
 					addContentRecursivly((EObject) added, includeSelf);
 				}
 			} else if (type == Notification.REMOVE_MANY) {
+				System.out.println("REMOVE_MANY");
 				for (Object removed : (Collection<?>) notification.getOldValue()) {
 					removeContentRecursivly((EObject) removed, includeSelf);
 				}
@@ -392,14 +448,14 @@ public class Fragmentation extends ResourceSetImpl {
 	}
 
 	private void addContentRecursivly(EObject eObject, boolean includeSelf) {
-		if (eObject instanceof FObject) {
-			FObject fObject = (FObject)eObject;
+		if (eObject instanceof FObjectImpl) {
+			FObjectImpl fObject = (FObjectImpl)eObject;
 			fObject.fEnsureLoaded();
 			Iterator<EObject> contents = includeSelf ? all(fObject) : fObject.eAllContents();
 			while (contents.hasNext()) {
 				EObject eContent = (EObject)contents.next();
-				if (eContent instanceof FObject) {
-					FObject fContent = (FObject)eContent;
+				if (eContent instanceof FObjectImpl) {
+					FObjectImpl fContent = (FObjectImpl)eContent;
 					fContent.fEnsureLoaded();
 					if (isFragmenting(fContent.eContainingFeature()) && (fContent.fFragmentation() != this || !fContent.fIsRoot())) {
 						addFragment(fContent);
@@ -410,38 +466,44 @@ public class Fragmentation extends ResourceSetImpl {
 	}
 
 	private void removeContentRecursivly(EObject eObject, boolean includeSelf) {
+		List<FObjectImpl> fragmentRootsToDelete = new ArrayList<FObjectImpl>();
 		if (includeSelf) {
-			if (eObject instanceof FObject) {
-				FObject fObject = (FObject)eObject;
+			if (eObject instanceof FObjectImpl) {
+				FObjectImpl fObject = (FObjectImpl)eObject;
 				fObject.fEnsureLoaded();
 				if (fObject.fFragmentation() == this && fObject.fIsRoot()) {
-					deleteFragment(fObject);
+					fragmentRootsToDelete.add(fObject);
 				}
 			}			
 		}
 		Iterator<EObject> contents = eObject.eAllContents();
 		while (contents.hasNext()) {
 			EObject eContent = (EObject)contents.next();
-			if (eContent instanceof FObject) {
-				FObject fContent = (FObject)eContent;
+			if (eContent instanceof FObjectImpl) {
+				FObjectImpl fContent = (FObjectImpl)eContent;
 				fContent.fEnsureLoaded();
 				if (isFragmenting(fContent.eContainingFeature()) && fContent.fFragmentation() == this && fContent.fIsRoot()) {
-					deleteFragment(fContent);
+					fragmentRootsToDelete.add(fContent);
 				}
 			}
 		}
+		
+		for(FObjectImpl fragmentRoot: fragmentRootsToDelete) {
+			deleteFragment(fragmentRoot);
+		}
 	}
 
-	private void addFragment(FObject fObject) {
+	private void addFragment(FObjectImpl fObject) {
 		Fragment fragment = createNewFragment();
 		fragment.getContents().add(fObject);
 	}
 
-	private void deleteFragment(FObject fObject) {
+	private void deleteFragment(FObjectImpl fObject) {
 		Fragment fragment = fObject.fFragment();
-		fragment.getContents().remove(fObject);
 		fragmentDataStoreIndex.remove(fragmentDataStoreIndex.getKeyFromURI(fragment.getURI()));
+		resolveProxies = false;
 		fragment.unload();
+		resolveProxies = true;
 
 		// this will also remove this from ResourceSet#getResources()
 		fragmentsCache.remove(fragment);
@@ -470,7 +532,11 @@ public class Fragmentation extends ResourceSetImpl {
 	}
 	
 	protected String toString(Fragment fragment) {
-		return "f[" + dataStore.getURI().toString() + "/" + fragmentDataStoreIndex.getKeyFromURI(fragment.getURI()) + "]";
+		return toString(fragment.getURI());
+	}
+	
+	protected String toString(URI fragmentURI) {
+		return "f[" + dataStore.getURI().toString() + "/" + fragmentDataStoreIndex.getKeyFromURI(fragmentURI) + "]";
 	}
 
 	@Override

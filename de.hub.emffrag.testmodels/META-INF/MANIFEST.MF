@@ -7,12 +7,21 @@ Bundle-ClassPath: .
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: de.hub.emffrag.testmodels.testmodel,
- de.hub.emffrag.testmodels.testmodel.frag.impl,
- de.hub.emffrag.testmodels.testmodel.frag.meta,
- de.hub.emffrag.testmodels.testmodel.frag.util,
- de.hub.emffrag.testmodels.testmodel.regular.impl,
- de.hub.emffrag.testmodels.testmodel.regular.util
+Export-Package: de.hub.emffrag.testmodels,
+ de.hub.emffrag.testmodels.eobject.testmodel,
+ de.hub.emffrag.testmodels.eobject.testmodel.accessnot.impl,
+ de.hub.emffrag.testmodels.eobject.testmodel.accessnot.meta,
+ de.hub.emffrag.testmodels.eobject.testmodel.accessnot.util,
+ de.hub.emffrag.testmodels.eobject.testmodel.eobject.impl,
+ de.hub.emffrag.testmodels.eobject.testmodel.eobject.meta,
+ de.hub.emffrag.testmodels.eobject.testmodel.eobject.util,
+ de.hub.emffrag.testmodels.eobject.testmodel.fobject.impl,
+ de.hub.emffrag.testmodels.eobject.testmodel.fobject.meta,
+ de.hub.emffrag.testmodels.eobject.testmodel.fobject.util,
+ de.hub.emffrag.testmodels.fobject.testmodel,
+ de.hub.emffrag.testmodels.fobject.testmodel.fobject.impl,
+ de.hub.emffrag.testmodels.fobject.testmodel.fobject.meta,
+ de.hub.emffrag.testmodels.fobject.testmodel.fobject.util
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.ecore;visibility:=reexport,
  de.hub.emffrag;bundle-version="1.0.0"

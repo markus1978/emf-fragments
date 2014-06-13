@@ -1,128 +1,88 @@
 package de.hub.emffrag2;
 
-import java.lang.reflect.InvocationTargetException;
-
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EOperation;
-import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
-import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.Resource.Internal;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
-public class FObjectImpl extends MinimalEObjectImpl.Container implements FObject {
+public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 
-	private Fragmentation unloadedFromFragmentation = null;
+	private Fragmentation fragmentationToLoadFrom = null;
+	
+	private boolean isNotifying() {
+		return true;
+	}
+	
 
 	@Override
 	public boolean eNotificationRequired() {
-		return true;
+		return isNotifying();
 	}
 
 	@Override
 	public void eNotify(Notification notification) {
+		fEnsureLoaded();
+
 		Fragment fragment = (Fragment) eResource();
 		// We have to ensure that we are not currently loading the
 		// containing fragment
 		//
 		if (fragment != null && fragment.isLoaded() && !fragment.isLoading()) {
+			fragment.setModified(true);
 			Fragmentation fFragmentation = fFragmentation();
 			if (fFragmentation != null) {
 				fFragmentation.onChange(notification);
 			}
-			
+
 			if (eBasicHasAdapters() && eDeliver()) {
 				super.eNotify(notification);
 			}
-		}		
+		}
 	}
 
-	/**
-	 * Overridden to check if the object is still loaded, and resolves it, if
-	 * necessary.
-	 */
 	@Override
-	public Object eGet(EStructuralFeature eFeature, boolean resolve) {
-		if (resolve) {
+	protected void onAccess() {
+		if (isNotifying()) {
 			fEnsureLoaded();
 		}
-		return super.eGet(eFeature, resolve);
-	}
-
-	@Override
-	public void eSet(EStructuralFeature eFeature, Object newValue) {
-		fEnsureLoaded();
-		super.eSet(eFeature, newValue);
-	}
-
-	@Override
-	public void eUnset(EStructuralFeature eFeature) {
-		fEnsureLoaded();
-		super.eUnset(eFeature);
-	}
-
-	@Override
-	public boolean eIsSet(EStructuralFeature eFeature) {
-		Fragment fragment = (Fragment) eResource();
-		// We have to ensure that we are not currently loading the
-		// containing fragment
-		//
-		if (eIsProxy()) {
-			if (fragment == null || (fragment.isLoaded() && !fragment.isLoading())) {
-				fEnsureLoaded();
-			}
-		}
-		return super.eIsSet(eFeature);
-	}
-
-	@Override
-	public Object eInvoke(EOperation eOperation, EList<?> arguments) throws InvocationTargetException {
-		fEnsureLoaded();
-		return super.eInvoke(eOperation, arguments);
-	}
-
-	/**
-	 * Clears {@link #unloadedFromFragmentation}, since object is not unloaded
-	 * anymore, once its proxy URI is null.
-	 */
-	@Override
-	public void eSetProxyURI(URI uri) {
-		throw new UnsupportedOperationException("FObject have a different proxy mechanism. EMF's eSetProxyURI must not be called.");		
 	}
 	
-	public void eSetProxyURI(URI uri, Fragmentation fragmentation) {
-		if (uri == null) {
-			this.unloadedFromFragmentation = null;
-		} else {
-			this.unloadedFromFragmentation = fragmentation;
-			
-			// if this becomes something not MinimalEObjectImpl, eBasicProperties
-			// has to be cleaned instead
-			//
-			eSetDirectResource(null);
-			
-			eBasicSetSettings(new Object[] {});
-			eBasicSetContainer(null);
-
-			// re-create empty eSettings for further use of the object
-			int size = eClass().getFeatureCount() - eStaticFeatureCount();
-			if (size != 0) {
-				eBasicSetSettings(new Object[size]);
-			}
+	protected void fSetFragmentationToLoadFrom(Fragmentation fragmentationToLoadFrom) {
+		this.fragmentationToLoadFrom = fragmentationToLoadFrom;
+	}
+	
+	public void fUnload(Fragmentation fragmentationToLoadFrom) {
+		this.fragmentationToLoadFrom = fFragmentation();
+		if (fragmentationToLoadFrom == null) {
+			throw new IllegalStateException("Cannot unload an object that does not belong to a fragmentation.");
 		}
-		super.eSetProxyURI(uri);
+		
+		// if this becomes something not MinimalEObjectImpl,
+		// eBasicProperties
+		// has to be cleaned instead
+		//
+		eSetDirectResource(null);
+
+		eBasicSetSettings(new Object[] {});
+		eBasicSetContainer(null);
+
+		// re-create empty eSettings for further use of the object
+		int size = eClass().getFeatureCount() - eStaticFeatureCount();
+		if (size != 0) {
+			eBasicSetSettings(new Object[size]);
+		}
+	}
+	
+	@Override
+	public boolean fIsUnLoaded() {
+		return fragmentationToLoadFrom != null;
 	}
 
 	public void fEnsureLoaded() {
-		if (eIsProxy()) {			
-			if (unloadedFromFragmentation == null) {
-				throw new IllegalStateException("Object unloaded without a fragmentation.");
-			}
-			EcoreUtil.resolve(this, unloadedFromFragmentation);
+		if (fIsUnLoaded()) {	
+			EcoreUtil.resolve(this, fragmentationToLoadFrom);
 		}
 	}
 

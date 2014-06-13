@@ -22,6 +22,11 @@ public interface FObject extends EObject {
 	public boolean fIsRoot();
 
 	/**
+	 * @return True, iff the object is currently loaded.
+	 */
+	public boolean fIsUnLoaded();
+
+	/**
 	 * @return The {@link Fragment} that this object belongs to. Null if it is
 	 *         not part of a fragmentation yet.
 	 */
@@ -48,6 +53,9 @@ public interface FObject extends EObject {
 	 * specific methods or you cannot generate reflective implementations, etc.
 	 * then you might have to call this method manually at the appropriate
 	 * places.
+	 * 
+	 * TODO this should be moved to {@link Fragmentation} which can better
+	 * control load/unloads and the fragments cache including its locks.
 	 */
 	public void fEnsureLoaded();
 

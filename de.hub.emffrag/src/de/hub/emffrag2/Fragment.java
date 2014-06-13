@@ -6,30 +6,35 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import javax.annotation.Resource;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
-import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.URIConverter;
-import org.eclipse.emf.ecore.resource.impl.BinaryResourceImpl;
-import org.eclipse.emf.ecore.util.EcoreUtil;
 
 import de.hub.emffrag.fragmentation.FInternalObjectImpl;
 
-public class Fragment extends BinaryResourceImpl {
+public class Fragment extends UUIDBinaryResourceImpl {
 
 	private final long id;
-	
+
 	// helper of #doUnload()
 	private List<InternalEObject> contentToUnload = new ArrayList<InternalEObject>();
+
+	private SortedMap<Integer, EObject> idToEObjectMap = new TreeMap<Integer, EObject>();
+	private Map<EObject, Integer> eObjectToIDMap = new HashMap<EObject, Integer>();
 
 	public Fragment(URI uri, long id) {
 		super(uri);
@@ -46,15 +51,18 @@ public class Fragment extends BinaryResourceImpl {
 
 	@Override
 	public void eNotify(Notification notification) {
-		Fragmentation fragmentation = getFragmentation();
-		if (fragmentation != null) {
-			fragmentation.onRootFragmentChange(notification);
+		if (notification.getFeatureID(Resource.class) != RESOURCE__IS_MODIFIED) {
+			setModified(true);			
+			Fragmentation fragmentation = getFragmentation();
+			if (fragmentation != null && fIsRoot()) {
+				fragmentation.onRootFragmentChange(notification);
+			}			
 		}
 	}
 
 	@Override
 	public boolean eNotificationRequired() {
-		return fIsRoot() || super.eNotificationRequired();
+		return true;
 	}
 
 	/**
@@ -75,7 +83,8 @@ public class Fragment extends BinaryResourceImpl {
 	 * 
 	 * It also does not unload objects directly out of an iterator, since tree
 	 * iterators depend on the children of their current element. TODO: write an
-	 * iterator that collects an element's children before it hands out the element.
+	 * iterator that collects an element's children before it hands out the
+	 * element.
 	 */
 	@Override
 	protected void doUnload() {
@@ -103,6 +112,8 @@ public class Fragment extends BinaryResourceImpl {
 			unloaded(internalEObject);
 		}
 		contentToUnload.clear();
+
+		clearIDs();
 	}
 
 	/**
@@ -117,8 +128,9 @@ public class Fragment extends BinaryResourceImpl {
 	protected void unloaded(InternalEObject internalEObject) {
 		if (internalEObject instanceof FObjectImpl) {
 			if (!internalEObject.eIsProxy()) {
-				((FObjectImpl) internalEObject).eSetProxyURI(uri.appendFragment(getURIFragment(internalEObject)),
-						getFragmentation());
+				FObjectImpl fObject = (FObjectImpl) internalEObject;
+				fObject.fUnload(getFragmentation());
+				fObject.eSetProxyURI(uri.appendFragment(getURIFragment(internalEObject)));
 			}
 		} else {
 			super.unloaded(internalEObject);
@@ -174,6 +186,8 @@ public class Fragment extends BinaryResourceImpl {
 	 */
 	@Override
 	protected void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
+		idToEObjectMap.clear();
+		eObjectToIDMap.clear();
 		// This is a copy of the super method, except for the market pieces
 		// of code
 		if (inputStream instanceof URIConverter.Loadable) {
@@ -196,122 +210,68 @@ public class Fragment extends BinaryResourceImpl {
 
 	}
 
-	// This is a copy from BinaryResourceImpl
-	private static class InternalEObjectList extends BasicEList<InternalEObject> {
-		private static final long serialVersionUID = 1L;
-
-		public InternalEObject[] eObjects;
-
-		public InternalEObjectList() {
-			super(1000);
-		}
-
-		@Override
-		protected Object[] newData(int capacity) {
-			return eObjects = new InternalEObject[capacity];
-		}
-
-		@Override
-		public final boolean add(InternalEObject object) {
-			if (size == eObjects.length) {
-				grow(size + 1);
-			}
-			eObjects[size++] = object;
-			return true;
-		}
-	}
-
 	/**
 	 * Special {@link EObjectInputStream} that tries to retrieve a loaded object
 	 * from a fragmentation user object cache before it creates a new object.
 	 * Thus allowing to reuse still existing user object and preventing multiple
 	 * EObject instances for the same logical object.
+	 * 
+	 * It also loads IDs into the extrinsic ID implementation of
+	 * {@link Fragment}.
+	 * 
+	 * TODO cache streams
 	 */
-	private class MyEObjectInputStream extends EObjectInputStream {
-		// This is a copy from BinaryResourceImpl. It is only used in
-		// #loadEObject()
-		private InternalEObjectList internalInternalEObjectList = new InternalEObjectList();
+	private class MyEObjectInputStream extends UUIDEObjectInputStream {
 
-		// This is a copy from super class, except the marked pieces
 		public MyEObjectInputStream(InputStream is, Map<?, ?> options) throws IOException {
 			super(is, options);
 		}
 
 		@Override
-		public InternalEObject loadEObject() throws IOException {
-			int id = readCompressedInt();
-			if (id == -1) {
-				return null;
-			} else {
-				if (internalInternalEObjectList.size() <= id) {
-					EClassData eClassData = readEClass();
-
-					// We try to reuse former objects that are still on the heap
-					InternalEObject internalEObject = getFragmentation().getRegisteredUserObject(Fragment.this, id);
-					if (internalEObject == null) {
-						internalEObject = (InternalEObject) eClassData.eFactory.create(eClassData.eClass);
-					} else {
-						((FObjectImpl) internalEObject).eSetProxyURI(null, null);
-					}
-					InternalEObject result = internalEObject;
-
-					// Check if we have a "feature" representing the proxy
-					// URI...
-					//
-					int featureID = readCompressedInt() - 1;
-					if (featureID == -2) {
-						// all FObject proxies have to be EMF-Fragments
-						// flavoured
-						// proxies
-						//
-						if (internalEObject instanceof FObjectImpl) {
-							((FObjectImpl) internalEObject).eSetProxyURI(readURI(), getFragmentation());
-						} else {
-							internalEObject.eSetProxyURI(readURI());
-						}
-
-						if (isEagerProxyResolution) {
-							result = (InternalEObject) EcoreUtil.resolve(internalEObject, resource);
-							internalInternalEObjectList.add(result);
-							if ((style & STYLE_PROXY_ATTRIBUTES) == 0) {
-								return result;
-							}
-						} else {
-							internalInternalEObjectList.add(internalEObject);
-							if ((style & STYLE_PROXY_ATTRIBUTES) == 0) {
-								return internalEObject;
-							}
-						}
-
-						// We must process the proxy attributes even for the
-						// case of eager proxy resolution when we will
-						// immediately discard the proxy.
-						//
-						featureID = readCompressedInt() - 1;
-					} else {
-						internalInternalEObjectList.add(internalEObject);
-					}
-
-					for (; featureID != -1; featureID = readCompressedInt() - 1) {
-						EStructuralFeatureData eStructuralFeatureData = getEStructuralFeatureData(eClassData, featureID);
-						loadFeatureValue(internalEObject, eStructuralFeatureData);
-					}
-
-					return result;
-				} else {
-					return internalInternalEObjectList.eObjects[id];
+		protected InternalEObject createProxy(InternalEObject internalEObject, EClassData eClassData, URI proxyURI)
+				throws IOException {
+			if (internalEObject instanceof FObjectImpl) {
+				// first, we try to find a (still) existing user object proxy
+				FObjectImpl proxyObject = getFragmentation().getRegisteredUserObject(proxyURI);
+				// second, we try to find an already loaded object
+				if (proxyObject == null) {
+					proxyObject = (FObjectImpl)getFragmentation().getEObject(proxyURI, false);
 				}
+				// third, we turn the object into an fObject-like proxy (i.e. with load from fragmentation reference).
+				if (proxyObject == null) {
+					proxyObject = (FObjectImpl)internalEObject;
+					proxyObject.eSetProxyURI(proxyURI);
+					proxyObject.fSetFragmentationToLoadFrom(getFragmentation());
+				}
+				return proxyObject;			
+			} else {
+				return super.createProxy(internalEObject, eClassData, uri);
 			}
+		}
+
+		@Override
+		protected InternalEObject createEObject(InternalEObject internalEObject, EClassData eClassData, int extrinsicID) {
+			if (internalEObject instanceof FObjectImpl) {
+				// We try to reuse former objects that are still on
+				// the heap
+				FObjectImpl fObject = getFragmentation().getRegisteredUserObject(Fragment.this, extrinsicID);
+				if (fObject != null) {
+					fObject.eSetProxyURI(null);
+					fObject.fSetFragmentationToLoadFrom(null);
+					return fObject;
+				}							
+			}			
+			
+			return super.createEObject(internalEObject, eClassData, extrinsicID);
 		}
 	}
 
 	/**
-	 * Special {@link EObjectOutputStream} that registers the saved objects to
-	 * the user object cache. We do this as part of the save, because only here
-	 * it is ensured that each object already has an id. These ids are necessary
-	 * as keys for the user object cache.
+	 * Implementation that disables access notifications during save and registers 
+	 * saved objects that belong to this resource (i.e. non proxy objects) with 
+	 * the fragmentation's user object cache.
 	 */
-	public class MyEObjectOutputStream extends EObjectOutputStream {
+	public class MyEObjectOutputStream extends UUIDEObjectOutputStream {
 		boolean isWritingCrossReferenceURI = false;
 		FInternalObjectImpl currentObject = null;
 
@@ -319,15 +279,14 @@ public class Fragment extends BinaryResourceImpl {
 			super(os, options);
 		}
 
-		@Override
 		public void saveEObject(InternalEObject internalEObject, Check check) throws IOException {
-			super.saveEObject(internalEObject, check);
-			if (internalEObject != null) {
-				Integer id = eObjectIDMap.get(internalEObject);
-				if (internalEObject instanceof FObjectImpl) {
-					getFragmentation().registerUserObject(Fragment.this, id, (FObjectImpl) internalEObject);
+			if (internalEObject instanceof FObjectImpl) {
+				FObjectImpl fObject = (FObjectImpl) internalEObject;
+				if (fObject.eResource() == Fragment.this) {
+					getFragmentation().registerUserObject(Fragment.this, getID(fObject, true), fObject);
 				}
 			}
-		}
+			super.saveEObject(internalEObject, check);	
+		}			
 	}
 }
