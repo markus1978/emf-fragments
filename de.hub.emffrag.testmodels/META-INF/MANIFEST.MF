@@ -9,6 +9,9 @@ Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: de.hub.emffrag.testmodels,
  de.hub.emffrag.testmodels.eobject.testmodel,
+ de.hub.emffrag.testmodels.eobject.testmodel.unload.impl,
+ de.hub.emffrag.testmodels.eobject.testmodel.unload.meta,
+ de.hub.emffrag.testmodels.eobject.testmodel.unload.util,
  de.hub.emffrag.testmodels.eobject.testmodel.accessnot.impl,
  de.hub.emffrag.testmodels.eobject.testmodel.accessnot.meta,
  de.hub.emffrag.testmodels.eobject.testmodel.accessnot.util,

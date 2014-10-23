@@ -26,7 +26,7 @@ import org.eclipse.emf.common.util.Enumerator;
  * A representation of the literals of the enumeration '<em><b>Test Enum</b></em>',
  * and utility methods for working with them.
  * <!-- end-user-doc -->
- * @see de.hub.emffrag.testmodels.eobject.testmodel.accessnot.meta.TestModelPackage#getTestEnum()
+ * @see de.hub.emffrag.testmodels.eobject.testmodel.unload.meta.TestModelPackage#getTestEnum()
  * @model
  * @generated
  */

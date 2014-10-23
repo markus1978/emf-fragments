@@ -1,10 +1,6 @@
 package de.hub.emffrag2;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,9 +18,6 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.URIConverter;
-
-import de.hub.emffrag.fragmentation.FInternalObjectImpl;
 
 public class Fragment extends UUIDBinaryResourceImpl {
 
@@ -143,150 +136,52 @@ public class Fragment extends UUIDBinaryResourceImpl {
 	public Fragmentation getFragmentation() {
 		return (Fragmentation) resourceSet;
 	}
-
-	/**
-	 * Overridden to use a the custom object output stream
-	 * {@link MyEObjectOutputStream}.
-	 */
+	
 	@Override
-	protected void doSave(OutputStream outputStream, Map<?, ?> options) throws IOException {
-		// This is a copy of the super method, except for the market pieces
-		// of code
-		if (outputStream instanceof URIConverter.Saveable) {
-			((URIConverter.Saveable) outputStream).saveResource(this);
+	protected InternalEObject createProxy(InternalEObject internalEObject, URI proxyURI, boolean nop)
+			throws IOException {
+		if (internalEObject instanceof FObjectImpl) {
+			// first, we try to find a (still) existing user object proxy
+			FObjectImpl proxyObject = getFragmentation().getRegisteredUserObject(proxyURI);
+			// second, we try to find an already loaded object
+			if (proxyObject == null) {
+				proxyObject = (FObjectImpl)getFragmentation().getEObject(proxyURI, false);
+			}
+			// third, we turn the object into an fObject-like proxy (i.e. with load from fragmentation reference).
+			if (proxyObject == null) {
+				proxyObject = (FObjectImpl)internalEObject;
+				proxyObject.eSetProxyURI(proxyURI);
+				proxyObject.fSetFragmentationToLoadFrom(getFragmentation());
+			}
+			return proxyObject;			
 		} else {
-			boolean buffer = !(outputStream instanceof BufferedOutputStream);
-			if (buffer) {
-				int bufferCapacity = getBufferCapacity(options);
-				if (bufferCapacity > 0) {
-					outputStream = new BufferedOutputStream(outputStream, bufferCapacity);
-				} else {
-					buffer = false;
-				}
-			}
-
-			try {
-				// We use our own EObjectOutputStream
-				// EObjectOutputStream eObjectOutputStream = new
-				// EObjectOutputStream(outputStream, options);
-				//
-				EObjectOutputStream eObjectOutputStream = new MyEObjectOutputStream(outputStream, options);
-				eObjectOutputStream.saveResource(this);
-			} finally {
-				if (buffer) {
-					outputStream.flush();
-				}
-			}
+			return super.createProxy(internalEObject, uri, nop);
 		}
 	}
-
-	/**
-	 * Overridden to use the custom object input stream
-	 * {@link MyEObjectInputStream}.
-	 */
+	
 	@Override
-	protected void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
-		idToEObjectMap.clear();
-		eObjectToIDMap.clear();
-		// This is a copy of the super method, except for the market pieces
-		// of code
-		if (inputStream instanceof URIConverter.Loadable) {
-			((URIConverter.Loadable) inputStream).loadResource(this);
-		} else {
-			if (!(inputStream instanceof BufferedInputStream)) {
-				int bufferCapacity = getBufferCapacity(options);
-				if (bufferCapacity > 0) {
-					inputStream = new BufferedInputStream(inputStream, bufferCapacity);
-				}
-			}
-
-			// We use our own EObjectOutputStream
-			// EObjectInputStream eObjectInputStream = new
-			// EObjectInputStream(inputStream, options);
-			//
-			EObjectInputStream eObjectInputStream = new MyEObjectInputStream(inputStream, options);
-			eObjectInputStream.loadResource(this);
-		}
-
-	}
-
-	/**
-	 * Special {@link EObjectInputStream} that tries to retrieve a loaded object
-	 * from a fragmentation user object cache before it creates a new object.
-	 * Thus allowing to reuse still existing user object and preventing multiple
-	 * EObject instances for the same logical object.
-	 * 
-	 * It also loads IDs into the extrinsic ID implementation of
-	 * {@link Fragment}.
-	 * 
-	 * TODO cache streams
-	 */
-	private class MyEObjectInputStream extends UUIDEObjectInputStream {
-
-		public MyEObjectInputStream(InputStream is, Map<?, ?> options) throws IOException {
-			super(is, options);
-		}
-
-		@Override
-		protected InternalEObject createProxy(InternalEObject internalEObject, EClassData eClassData, URI proxyURI)
-				throws IOException {
-			if (internalEObject instanceof FObjectImpl) {
-				// first, we try to find a (still) existing user object proxy
-				FObjectImpl proxyObject = getFragmentation().getRegisteredUserObject(proxyURI);
-				// second, we try to find an already loaded object
-				if (proxyObject == null) {
-					proxyObject = (FObjectImpl)getFragmentation().getEObject(proxyURI, false);
-				}
-				// third, we turn the object into an fObject-like proxy (i.e. with load from fragmentation reference).
-				if (proxyObject == null) {
-					proxyObject = (FObjectImpl)internalEObject;
-					proxyObject.eSetProxyURI(proxyURI);
-					proxyObject.fSetFragmentationToLoadFrom(getFragmentation());
-				}
-				return proxyObject;			
-			} else {
-				return super.createProxy(internalEObject, eClassData, uri);
-			}
-		}
-
-		@Override
-		protected InternalEObject createEObject(InternalEObject internalEObject, EClassData eClassData, int extrinsicID) {
-			if (internalEObject instanceof FObjectImpl) {
-				// We try to reuse former objects that are still on
-				// the heap
-				FObjectImpl fObject = getFragmentation().getRegisteredUserObject(Fragment.this, extrinsicID);
-				if (fObject != null) {
-					fObject.eSetProxyURI(null);
-					fObject.fSetFragmentationToLoadFrom(null);
-					return fObject;
-				}							
-			}			
-			
-			return super.createEObject(internalEObject, eClassData, extrinsicID);
-		}
-	}
-
-	/**
-	 * Implementation that disables access notifications during save and registers 
-	 * saved objects that belong to this resource (i.e. non proxy objects) with 
-	 * the fragmentation's user object cache.
-	 */
-	public class MyEObjectOutputStream extends UUIDEObjectOutputStream {
-		boolean isWritingCrossReferenceURI = false;
-		FInternalObjectImpl currentObject = null;
-
-		public MyEObjectOutputStream(OutputStream os, Map<?, ?> options) throws IOException {
-			super(os, options);
-		}
-
-		public void saveEObject(InternalEObject internalEObject, Check check) throws IOException {
-			if (internalEObject instanceof FObjectImpl) {
-				FObjectImpl fObject = (FObjectImpl) internalEObject;
-				if (fObject.eResource() == Fragment.this) {
-					getFragmentation().registerUserObject(Fragment.this, getID(fObject, true), fObject);
-				}
-			}
-			super.saveEObject(internalEObject, check);	
+	protected InternalEObject createEObject(InternalEObject internalEObject, int extrinsicID) {
+		if (internalEObject instanceof FObjectImpl) {
+			// We try to reuse former objects that are still on
+			// the heap
+			FObjectImpl fObject = getFragmentation().getRegisteredUserObject(Fragment.this, extrinsicID);
+			if (fObject != null) {
+				fObject.eSetProxyURI(null);
+				fObject.fSetFragmentationToLoadFrom(null);
+				return fObject;
+			}							
 		}			
+		
+		return super.createEObject(internalEObject, extrinsicID);
+	}
+		
+	@Override
+	protected void beforeSave(InternalEObject internalEObject) {
+		if (internalEObject instanceof FObjectImpl) {
+			FObjectImpl fObject = (FObjectImpl) internalEObject;
+			if (fObject.eResource() == Fragment.this) {
+				getFragmentation().registerUserObject(Fragment.this, getID(fObject, true), fObject);
+			}
+		}
 	}
 }

@@ -97,4 +97,12 @@
             genModel="metamodels/testmodel.eobject.accessnot.genmodel"/>
    </extension>
 
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated testmodel.eobject.unload -->
+      <package
+            uri="http://hu-berlin.de/sam/emfhbase/testmodel"
+            class="de.hub.emffrag.testmodels.eobject.testmodel.unload.meta.TestModelPackage"
+            genModel="metamodels/testmodel.eobject.unload.genmodel"/>
+   </extension>
+
 </plugin>

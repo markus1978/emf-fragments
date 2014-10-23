@@ -38,7 +38,7 @@ public class UUIDBinaryResourceImpl extends BinaryResourceImpl {
 		return getID(object, false);
 	}
 
-	protected Integer getID(EObject object, boolean createOnDemand) {
+	public Integer getID(EObject object, boolean createOnDemand) {
 		Integer id = eObjectToIDMap.get(object);
 		if (id == null && createOnDemand) {
 			if (idToEObjectMap.isEmpty()) {
@@ -149,6 +149,29 @@ public class UUIDBinaryResourceImpl extends BinaryResourceImpl {
 		}
 
 	}
+	
+	protected void beforeSave(InternalEObject internalEObject) {
+		// empty
+	}
+	
+	protected void afterLoad(InternalEObject internalEObject) {
+		// emtpy
+	}
+	
+	protected InternalEObject createProxy(InternalEObject internalEObject, URI uri, boolean isEagerProxyResolution) throws IOException {
+		InternalEObject result = internalEObject;
+		internalEObject.eSetProxyURI(uri);
+		if (isEagerProxyResolution) {
+			result = (InternalEObject) EcoreUtil.resolve(internalEObject, this);				
+			return result;
+		} else {
+			return internalEObject;
+		}					
+	}
+	
+	protected InternalEObject createEObject(InternalEObject internalEObject, int extrinsicID) {
+		return internalEObject;
+	}
 
 	protected class UUIDEObjectInputStream extends EObjectInputStream {
 		// This is a replacement for
@@ -171,27 +194,6 @@ public class UUIDBinaryResourceImpl extends BinaryResourceImpl {
 			}
 		}
 
-		protected void afterLoad(InternalEObject internalEObject) {
-			// emtpy
-		}
-		
-		protected InternalEObject createProxy(InternalEObject internalEObject, EClassData eClassData, URI uri) throws IOException {
-			InternalEObject result = internalEObject;
-			internalEObject.eSetProxyURI(uri);
-			if (isEagerProxyResolution) {
-				result = (InternalEObject) EcoreUtil.resolve(internalEObject, resource);
-				internalInternalEObjectList.add(result);				
-				return result;
-			} else {
-				internalInternalEObjectList.add(internalEObject);				
-				return internalEObject;
-			}					
-		}
-		
-		protected InternalEObject createEObject(InternalEObject internalEObject, EClassData eClassData, int extrinsicID) {
-			return internalEObject;
-		}
-
 		@Override
 		public InternalEObject loadEObject() throws IOException {
 			int id = readCompressedInt();
@@ -211,8 +213,9 @@ public class UUIDBinaryResourceImpl extends BinaryResourceImpl {
 					//
 					int featureID = readCompressedInt() - 1;
 					if (featureID == -2) {
-						result = createProxy(internalEObject, eClassData, readURI());
-												
+						result = createProxy(internalEObject, readURI(), isEagerProxyResolution);
+						internalInternalEObjectList.add(result);
+						
 						if ((style & STYLE_PROXY_ATTRIBUTES) == 0) {
 							return result;
 						}						
@@ -223,7 +226,7 @@ public class UUIDBinaryResourceImpl extends BinaryResourceImpl {
 						//
 						featureID = readCompressedInt() - 1;
 					} else {
-						result = internalEObject = createEObject(internalEObject, eClassData, extrinsicID);
+						result = internalEObject = createEObject(internalEObject, extrinsicID);
 						internalInternalEObjectList.add(internalEObject);
 					}
 
@@ -255,6 +258,7 @@ public class UUIDBinaryResourceImpl extends BinaryResourceImpl {
 			if (internalEObject == null) {
 				writeCompressedInt(-1);
 			} else {
+				beforeSave(internalEObject);
 				Integer id = eObjectIDMap.get(internalEObject);
 				if (id == null) {
 					int idValue = eObjectIDMap.size();

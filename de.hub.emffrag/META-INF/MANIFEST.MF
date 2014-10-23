@@ -6,7 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: com.google.common.base,
+Export-Package: com.google.common.annotations,
+ com.google.common.base,
  com.google.inject,
  com.google.inject.binder,
  com.google.inject.name,
@@ -18,6 +19,7 @@ Export-Package: com.google.common.base,
  de.hub.emffrag.model.emffrag.util,
  de.hub.emffrag.util,
  de.hub.emffrag2,
+ de.hub.emffrag2.unload,
  org.apache.commons.codec,
  org.apache.commons.codec.binary,
  org.apache.commons.codec.digest,

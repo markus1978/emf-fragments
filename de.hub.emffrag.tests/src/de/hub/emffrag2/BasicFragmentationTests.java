@@ -244,6 +244,7 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		System.out.println("### " + fragmentation.resolveProxies);
 		System.out.println(printTO(model)); // EcoreUtil seams to get a different result ... TODO
 		System.out.println("### " + fragmentation.resolveProxies);
+		Assert.assertTrue(EcoreUtil.equals(createTOFromModelString("1f(2f(3f(4f(5f(6)))))"), model));	
 	}
 
 	@Test
@@ -257,9 +258,21 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		reinitializeFragmentation(2);
 		model = (TestObject)fragmentation.getContents().get(0);
 		
+		System.out.println("------ 0");
+		System.out.println(model.getFragmentedContents().get(0)
+				.getFragmentedContents().get(0)
+				.getFragmentedContents().get(0)
+				.getFragmentedContents().get(0)
+				.getFragmentedContents().get(0).getName());
+		System.out.println(printTO(model)); // EcoreUtil seams to get a different result ... TODO
+		
+		fragmentation.resetCachesForTest();
+		model = (TestObject)fragmentation.getContents().get(0);		
+		System.out.println("------ 1");
 		System.out.println(printTO(model)); // EcoreUtil seams to get a different result ... TODO
 		System.out.println(printTO(model)); // EcoreUtil seams to get a different result ... TODO
-		System.out.println(printTO(model)); // EcoreUtil seams to get a different result ... TODO
+		
+		System.out.println("------ 2");
 		Assert.assertTrue(EcoreUtil.equals(createTOFromModelString("1f(2f(3f(4f(5f(6)))))"), model));		
 	}
 
