@@ -12,12 +12,12 @@ import com.google.common.cache.RemovalNotification;
 /**
  * This is a wrapper around a size-based google Guava cache. It provides an
  * additional lock mechanism that temporarily prevents eviction even if the
- * cache size is exceeded. All "overhanging" entries are removed when the
- * lock is removed. This allows us to change the fragmentation without
- * accidently unloading operation critical fragments.
+ * cache size is exceeded. All "overhanging" entries are removed when the lock
+ * is removed. This allows us to change the fragmentation without accidently
+ * unloading operation critical fragments.
  */
 class FragmentsCache {
-	
+
 	public interface FragmentsCacheListener {
 		public void onRemoval(Fragment fragment, boolean explicitly);
 	}
@@ -27,21 +27,21 @@ class FragmentsCache {
 	private List<Fragment> lockedFragments = new ArrayList<Fragment>();
 	private boolean isLocked = false;
 	private int size;
-	
+
 	private class MyRemovalListener implements RemovalListener<Fragment, Fragment> {
 		@Override
 		public void onRemoval(RemovalNotification<Fragment, Fragment> notification) {
 			Fragment fragment = notification.getValue();
 			if (notification.getCause() == RemovalCause.EXPLICIT) {
 				fragmentsCacheListener.onRemoval(fragment, true);
-			} else {			
+			} else {
 				if (isLocked) {
 					lockedFragments.add(fragment);
 				} else {
 					fragmentsCacheListener.onRemoval(fragment, false);
 				}
 			}
-		}	
+		}
 	}
 
 	public FragmentsCache(FragmentsCacheListener fragmentsCacheListener, int size) {
@@ -86,18 +86,27 @@ class FragmentsCache {
 		}
 	}
 
+	public boolean isLocked() {
+		return isLocked;
+	}
+
 	public void add(Fragment fragment) {
 		backend.put(fragment, fragment);
 	}
 
 	/**
-	 * Removes the given fragment explicitly. This means it is removed, even if the cache is locked.
+	 * Removes the given fragment explicitly. This means it is removed, even if
+	 * the cache is locked. Returns true if the fragment was indeed removed.
 	 */
-	public void remove(Fragment eResource) {
+	public boolean remove(Fragment eResource, boolean strict) {
 		if (backend.getIfPresent(eResource) != null) {
 			backend.invalidate(eResource);
+			return true;
 		} else {
-			throw new IllegalArgumentException("Cache does not contain the removed element.");
+			if (strict) {
+				throw new IllegalArgumentException("Cache does not contain the removed element.");
+			}
+			return false;
 		}
 	}
 }

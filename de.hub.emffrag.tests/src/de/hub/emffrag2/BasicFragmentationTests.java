@@ -7,10 +7,8 @@ import java.util.List;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.impl.AdapterImpl;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -106,7 +104,7 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		TestObject model = createTOFromModelString(modelDefinition);
 		fragmentation.getContents().add(model);
 		Assert.assertEquals(loadedFragments, fragmentation.getNumberOfLoadedFragments());
-		Assert.assertEquals(allFragments, fragmentation.getNumberOfAllFragments());
+		Assert.assertEquals(allFragments, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
 		
 		return model;
 	}
@@ -126,20 +124,20 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		Assert.assertTrue(EcoreUtil.equals(createTOFromModelString(modelDefinition), fragmentation.getContents().get(0)));
 		Assert.assertTrue(EcoreUtil.equals(createTOFromModelString(modelDefinition), fragmentation.getContents().get(0)));
 		Assert.assertEquals(loadedFragments, fragmentation.getNumberOfLoadedFragments());
-		Assert.assertEquals(allFragments, fragmentation.getNumberOfAllFragments());
+		Assert.assertEquals(allFragments, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
 	}
 	
 	private void performBasicAutoAddContentsReinitTest(String modelDefinition, int cacheSize, int loadedFragments, int allFragments) {
 		performBasicAutoAddContentsTest(modelDefinition, cacheSize, loadedFragments, allFragments);
+		Assert.assertEquals(1, fragmentation.getContents().size());
 		
-		fragmentation.close();		
 		reinitializeFragmentation(cacheSize);
 		
 		Assert.assertEquals(1, fragmentation.getContents().size());
 		Assert.assertTrue(EcoreUtil.equals(createTOFromModelString(modelDefinition), fragmentation.getContents().get(0)));
 		Assert.assertTrue(EcoreUtil.equals(createTOFromModelString(modelDefinition), fragmentation.getContents().get(0)));
 		Assert.assertEquals(loadedFragments, fragmentation.getNumberOfLoadedFragments());
-		Assert.assertEquals(allFragments, fragmentation.getNumberOfAllFragments());
+		Assert.assertEquals(allFragments, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
 	}
 	
 	@Test
@@ -154,7 +152,7 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		Assert.assertEquals(1, contents.size());
 		Assert.assertEquals(1, fragmentation.getContents().size());
 		Assert.assertEquals(contents, fragmentation.getContents());
-		Assert.assertEquals(1, fragmentation.getNumberOfAllFragments());
+		Assert.assertEquals(1, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
 		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
 	}
 	
@@ -166,20 +164,30 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		
 		Assert.assertTrue(testObject.eIsProxy());
 		Assert.assertEquals(fragmentation.createURI(0l, 0), ((InternalEObject) testObject).eProxyURI());
-		Assert.assertEquals(1, fragmentation.getNumberOfAllFragments());
+		Assert.assertEquals(1, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
 		Assert.assertEquals(0, fragmentation.getNumberOfLoadedFragments());
 
 		save(testObject);
 	}
 
 	@Test
+	public void testBasicManualReloadViaGetOnCached() {
+		testBasicManualUnload();
+
+		TestObject testObject = getSaved(TEST_OBJECT);
+		Assert.assertEquals(TEST_OBJECT, testObject.getName());
+		Assert.assertEquals(1, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
+		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
+	}
+	
+	@Test
 	public void testBasicManualReloadViaGet() {
 		testBasicManualUnload();
 
-		TestObject testObject = (TestObject) fragmentation.getContents().get(0);
+		TestObject testObject = (TestObject) fragmentation.getContents().get(0);		
 		Assert.assertEquals(TEST_OBJECT, testObject.getName());
 		Assert.assertEquals(getSaved(TEST_OBJECT), testObject);
-		Assert.assertEquals(1, fragmentation.getNumberOfAllFragments());
+		Assert.assertEquals(1, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
 		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
 	}
 	
@@ -190,8 +198,19 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		TestObject unloadedObject = getSaved(TEST_OBJECT);
 		unloadedObject.setName("AnotherName");
 		Assert.assertFalse(unloadedObject.eIsProxy());
-		Assert.assertEquals(1, fragmentation.getNumberOfAllFragments());
+		Assert.assertEquals(1, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
 		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
+	}
+	
+	@Test
+	public void TestBasicManualReloadViaList() {
+		testBasicManualUnload();
+
+		TestObject testObject = getSaved(TEST_OBJECT);
+		testObject.getFragmentedContents();
+		Assert.assertEquals(TEST_OBJECT, testObject.getName());
+		Assert.assertEquals(1, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
+		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());		
 	}
 
 	@Test
@@ -213,9 +232,8 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		fragmentation.unloadFragment(fragment);
 	}
 
-	@Test
-	public void testBasicAutoAddFragment() {
-		initializeFragmentation(2);
+	private void testBasicAutoAddFragment(int cacheSize) {
+		initializeFragmentation(cacheSize);
 
 		TestObject container = createTO("1");
 		fragmentation.getContents().add(container);
@@ -225,55 +243,138 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		Assert.assertTrue(contents.fIsRoot());
 		Assert.assertEquals("1", container.getName());
 		Assert.assertEquals("2", contents.getName());
-		Assert.assertEquals(2, fragmentation.getNumberOfAllFragments());
-		Assert.assertEquals(2, fragmentation.getNumberOfLoadedFragments());
+		Assert.assertEquals(2, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
+		Assert.assertEquals(cacheSize > 1 ? 2 : 1, fragmentation.getNumberOfLoadedFragments());
+		
+		save(container);
+		save(contents);
 	}
-
+	
 	@Test
-	public void testRecursiveAutoAddFragmentsToRoot() {				
-		performBasicAutoAddContentsTest("1f(2f(4f(6),5),3)", 1, 1, 6);
-		performBasicAutoAddContentsTest("1f(2f(4f(6),5),3)", 3, 3, 6);
+	public void testBasicAutoAddFragment() {
+		testBasicAutoAddFragment(1);
+	}
+	
+	@Test
+	public void testBasicUserObjectCacheFunctionality() {
+		initializeFragmentation(1);
+		TestObject container = createTO("1");
+		fragmentation.getContents().add(container);
+		TestObject contents = createTO("2", container, tmPackage.getTestObject_FragmentedContents());
+		
+		helperManualUnload(container.fFragment());
+		Assert.assertEquals(container, contents.eContainer());
+		
+		helperManualUnload(contents.fFragment());
+		Assert.assertEquals(contents, container.getFragmentedContents().get(0));
+		
+		reinitializeFragmentation(1);
+		container = (TestObject)fragmentation.getContents().get(0);
+		contents = container.getFragmentedContents().get(0);
+		
+		helperManualUnload(container.fFragment());
+		Assert.assertEquals(container, contents.eContainer());
+		
+		helperManualUnload(contents.fFragment());
+		Assert.assertEquals(contents, container.getFragmentedContents().get(0));
+	}
+	
+	@Test
+	public void testSmallCacheReinitialization() {
+		TestObject model = createTOFromModelString("1f(2)");
+		fragmentation.getRootFragment().getContents().add(model);
+		TestObject testObject = queryTO(model, "1f2");
+		Assert.assertEquals("2", testObject.getName());
 		
 		reinitializeFragmentation(2);
+		model = (TestObject)fragmentation.getRootFragment().getContents().get(0);
+		testObject = queryTO(model, "1f2");
+		Assert.assertEquals("2", testObject.getName());
+		
+		reinitializeFragmentation(1);
+		model = (TestObject)fragmentation.getRootFragment().getContents().get(0);
+		System.out.println("PPP SOLL " + System.identityHashCode(model));
+		Assert.assertNotNull(model);
+		Assert.assertEquals("1", model.getName());
+		Assert.assertEquals(1, model.getFragmentedContents().size());
+		Assert.assertNotNull(model.getFragmentedContents().get(0));
+		Assert.assertEquals(1, model.getFragmentedContents().size());
+		Assert.assertEquals("2", model.getFragmentedContents().get(0).getName());
+		testObject = queryTO(model, "1f2");
+		Assert.assertNotNull(testObject);
+		Assert.assertEquals("2", testObject.getName());
+	}
+	
+	@Test
+	public void testUnloadReloadContainingFragment() {
+		initializeFragmentation(5);
+		
+		TestObject container = createTO("1");
+		fragmentation.getContents().add(container);
+		createTO("2", container, tmPackage.getTestObject_FragmentedContents());
+		Assert.assertEquals(1, container.getFragmentedContents().size());
+		
+		helperManualUnload(fragmentation.getRootFragment());
+		
+		Assert.assertEquals("1", container.getName());
+		Assert.assertEquals(1, container.getFragmentedContents().size());
+		Assert.assertEquals("2", container.getFragmentedContents().get(0).getName());
+	}
+	
+	@Test
+	public void testUnloadReloadContainedFragment() {
+		initializeFragmentation(5);
+		
+		TestObject container = createTO("1");
+		fragmentation.getContents().add(container);
+		TestObject contents = createTO("2", container, tmPackage.getTestObject_FragmentedContents());
+		Assert.assertEquals(1, container.getFragmentedContents().size());
+		Assert.assertEquals(container, contents.eContainer());
+		
+		helperManualUnload(contents.fFragment());
+		
+		Assert.assertEquals("2", contents.getName());
+		Assert.assertEquals(1, container.getFragmentedContents().size());
+		Assert.assertEquals("2", container.getFragmentedContents().get(0).getName());
+		Assert.assertEquals(container, contents.eContainer());
+	}
+	
+	@Test
+	public void testRecursiveAutoAddFragmentsToRoot1() {
+		testRecursiveAutoAddFragmentsToRoot("1f(2f(4f(6),5),3)");
+	}
+	
+	@Test
+	public void testRecursiveAutoAddFragmentsToRoot2() {	
+		testRecursiveAutoAddFragmentsToRoot("1f(2f(3f(4f(5f(6)))))");
+	}
+
+	private void testRecursiveAutoAddFragmentsToRoot(String testModelString) {				
+		performBasicAutoAddContentsTest(testModelString, 1, 1, 6);
+		
+		reinitializeFragmentation(1);
 		TestObject model = (TestObject)fragmentation.getContents().get(0);
 		
-		System.out.println("### " + fragmentation.resolveProxies);
-		System.out.println(printTO(model)); // EcoreUtil seams to get a different result ... TODO
-		System.out.println("### " + fragmentation.resolveProxies);
-		System.out.println(printTO(model)); // EcoreUtil seams to get a different result ... TODO
-		System.out.println("### " + fragmentation.resolveProxies);
-		System.out.println(printTO(model)); // EcoreUtil seams to get a different result ... TODO
-		System.out.println("### " + fragmentation.resolveProxies);
-		Assert.assertTrue(EcoreUtil.equals(createTOFromModelString("1f(2f(3f(4f(5f(6)))))"), model));	
+		for (int i = 0; i < 5; i++) {
+			Assert.assertTrue(EcoreUtil.equals(createTOFromModelString(testModelString), model));
+		}
 	}
 
 	@Test
 	public void testRecursiveAutoAddFragmentsToObject() {
-		TestObject model = performBasicAutoAddContentsTest("1f(2f(3))", 2, 2, 3);
+		TestObject model = performBasicAutoAddContentsTest("1f(2f(3))", 1, 1, 3);
 		queryTO(model, "1f2f3").getFragmentedContents().add(createTOFromModelString("4f(5f(6))"));
-
-		Assert.assertEquals(6, fragmentation.getNumberOfAllFragments());
-		Assert.assertEquals(2, fragmentation.getNumberOfLoadedFragments());
+		String testModelString = "1f(2f(3f(4f(5f(6)))))";
+		
+		Assert.assertEquals(6, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
+		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
 		
 		reinitializeFragmentation(2);
 		model = (TestObject)fragmentation.getContents().get(0);
 		
-		System.out.println("------ 0");
-		System.out.println(model.getFragmentedContents().get(0)
-				.getFragmentedContents().get(0)
-				.getFragmentedContents().get(0)
-				.getFragmentedContents().get(0)
-				.getFragmentedContents().get(0).getName());
-		System.out.println(printTO(model)); // EcoreUtil seams to get a different result ... TODO
-		
-		fragmentation.resetCachesForTest();
-		model = (TestObject)fragmentation.getContents().get(0);		
-		System.out.println("------ 1");
-		System.out.println(printTO(model)); // EcoreUtil seams to get a different result ... TODO
-		System.out.println(printTO(model)); // EcoreUtil seams to get a different result ... TODO
-		
-		System.out.println("------ 2");
-		Assert.assertTrue(EcoreUtil.equals(createTOFromModelString("1f(2f(3f(4f(5f(6)))))"), model));		
+		for (int i = 0; i < 5; i++) {
+			Assert.assertTrue(EcoreUtil.equals(createTOFromModelString(testModelString), model));
+		}		
 	}
 
 	@Test
@@ -285,17 +386,77 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 			objects.add(createTO("" + i));
 		}
 		container.getFragmentedContents().addAll(objects);
-		Assert.assertEquals(4, fragmentation.getNumberOfAllFragments());
+		Assert.assertEquals(4, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
+	}
+	
+	@Test
+	public void testReloadReferenceTest() {
+		testBasicAutoAddFragment(5);
+		
+		TestObject root = getSaved("1");
+		EList<TestObject> reference = root.getFragmentedContents();
+		helperManualUnload(root.fFragment());
+		Assert.assertTrue(root.eIsProxy());
+		root.fEnsureLoaded();
+		Assert.assertTrue(root == fragmentation.getContents().get(0));
+		EList<TestObject> reloadedReference = root.getFragmentedContents();
+		System.out.println("---- " + System.identityHashCode(reference));
+		System.out.println("---- " + System.identityHashCode(reloadedReference));
+		Assert.assertTrue(reference == reloadedReference);
+	}
+	
+	@Test
+	public void testBasicAutoRemove() {
+		initializeFragmentation(1);
+		testBasicAutoAddMany();
+		
+		Assert.assertEquals(4, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
+		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
+		
+		TestObject container = (TestObject) fragmentation.getContents().get(0);
+		List<TestObject> toRemove = new ArrayList<TestObject>(container.getFragmentedContents());
+		container.getFragmentedContents().remove(toRemove.get(toRemove.size() - 1));
+		
+		Assert.assertFalse(fragmentation.isFragmentsCacheLocked());
+		Assert.assertEquals(3, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
+		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
+	}
+	
+	@Test
+	public void testBasicAutoRemoveMany() {
+		initializeFragmentation(1);
+		testBasicAutoAddMany();
+		
+		Assert.assertEquals(4, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
+		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
+		
+		TestObject container = (TestObject) fragmentation.getContents().get(0);
+		List<TestObject> toRemove = container.getFragmentedContents();
+		while (toRemove.size() != 0) {
+			int size = toRemove.size();
+			container.getFragmentedContents().remove(toRemove.get(toRemove.size() - 1));
+			Assert.assertEquals(container.getFragmentedContents(), toRemove);
+			Assert.assertEquals(size - 1, toRemove.size());
+		}
+		
+		Assert.assertEquals(1, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
+		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
 	}
 
 	@Test
-	public void testBasicAutoRemoveMany() {
-		initializeFragmentation(4);
+	public void testBasicAutoRemoveManyAtOnce() {
+		initializeFragmentation(1);
 		testBasicAutoAddMany();
+		
+		Assert.assertEquals(4, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
+		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
+		
 		TestObject container = (TestObject) fragmentation.getContents().get(0);
 		List<TestObject> toRemove = new ArrayList<TestObject>(container.getFragmentedContents());
 		container.getFragmentedContents().removeAll(toRemove);
-		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
+		
+		Assert.assertEquals(1, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
+		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());		
 	}
 
 	@Test
@@ -320,7 +481,7 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 
 		Assert.assertEquals(1, fragmentation.getResources().size());
 		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
-		Assert.assertEquals(2, fragmentation.getNumberOfAllFragments());
+		Assert.assertEquals(2, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
 	}
 
 	@Test
@@ -333,7 +494,7 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		Assert.assertTrue(container.eIsProxy());
 		Assert.assertEquals(fragmentation.createURI(0l, 0), ((InternalEObject) container).eProxyURI());
 		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
-		Assert.assertEquals(2, fragmentation.getNumberOfAllFragments());
+		Assert.assertEquals(2, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
 
 		Assert.assertEquals("1", container.getName());
 		Assert.assertFalse(container.eIsProxy());
@@ -341,7 +502,7 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		Assert.assertEquals("2", contents.getName());
 
 		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
-		Assert.assertEquals(2, fragmentation.getNumberOfAllFragments());
+		Assert.assertEquals(2, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
 	}
 
 	@Test
@@ -350,7 +511,7 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		TestObject model = createTOFromModelString(modelDescription);
 		fragmentation.getContents().add(model);
 		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
-		Assert.assertEquals(3, fragmentation.getNumberOfAllFragments());
+		Assert.assertEquals(3, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
 		
 		EcoreUtil.delete(queryTO(model, "1f2"));
 
@@ -360,26 +521,40 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 
 	@Test
 	public void testRecursiveAutoDeleteFragmentsFromRoot() {
+		initializeFragmentation(1);
 		String modelDescription = "1f(2f(3))";
 		TestObject model = createTOFromModelString(modelDescription);
 		fragmentation.getContents().add(model);
 		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
-		Assert.assertEquals(3, fragmentation.getNumberOfAllFragments());
+		Assert.assertEquals(3, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
 		
 		EcoreUtil.delete(model);
 
 		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
-		assertBaseDataStoreSize(0);
+		assertBaseDataStoreSize(1); // TODO shouldn't be the root fragment also be deleted?
 	}
 
-	@Test
-	public void testRecursiveAutoDeleteFragmentsFromObject() {
-		initializeFragmentation(3);
-		testRecursiveAutoAddFragmentsToRoot();
-		((TestObject) fragmentation.getContents().get(0)).getFragmentedContents().remove(0);
+	private void testRecursiveAutoDeleteFragmentsFromObject(String modelDefinition, int cacheSize) {
+		initializeFragmentation(cacheSize);
+		TestObject model = createTOFromModelString(modelDefinition);
+		fragmentation.getContents().add(model);
+		
+		model.getFragmentedContents().remove(0);
 
-		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
-		assertBaseDataStoreSize(1);
+		Assert.assertEquals(cacheSize <= 2 ? cacheSize : 2, fragmentation.getNumberOfLoadedFragments());
+		Assert.assertEquals(1, model.getFragmentedContents().size());
+		Assert.assertEquals("3", model.getFragmentedContents().get(0).getName());
+		assertBaseDataStoreSize(2);
+	}
+	
+	@Test
+	public void testRecursiveAutoDeleteFragmentsFromObject1() {
+		testRecursiveAutoDeleteFragmentsFromObject("1f(2f(4f(6),5),3)", 2);
+	}
+	
+	@Test
+	public void testRecursiveAutoDeleteFragmentsFromObject2() {
+		testRecursiveAutoDeleteFragmentsFromObject("1f(2f(4f(6),5),3)", 1);
 	}
 
 	@Test

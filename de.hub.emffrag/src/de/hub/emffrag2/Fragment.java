@@ -13,6 +13,7 @@ import javax.annotation.Resource;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -88,8 +89,7 @@ public class Fragment extends UUIDBinaryResourceImpl {
 
 		while (allContents.hasNext()) {
 			// Do not unload directly out of the iterator, because it accesses
-			// the
-			// children of the current object.
+			// the children of the current object.
 			//
 			contentToUnload.add((InternalEObject) allContents.next());
 		}
@@ -122,6 +122,10 @@ public class Fragment extends UUIDBinaryResourceImpl {
 		if (internalEObject instanceof FObjectImpl) {
 			if (!internalEObject.eIsProxy()) {
 				FObjectImpl fObject = (FObjectImpl) internalEObject;
+				
+				// register all unloaded object with the user object cache
+				getFragmentation().registerUserObject(Fragment.this, getID(fObject, true), fObject);
+				
 				fObject.fUnload(getFragmentation());
 				fObject.eSetProxyURI(uri.appendFragment(getURIFragment(internalEObject)));
 			}
@@ -164,24 +168,39 @@ public class Fragment extends UUIDBinaryResourceImpl {
 		if (internalEObject instanceof FObjectImpl) {
 			// We try to reuse former objects that are still on
 			// the heap
-			FObjectImpl fObject = getFragmentation().getRegisteredUserObject(Fragment.this, extrinsicID);
+			Fragmentation fragmentation = getFragmentation();
+			FObjectImpl fObject = fragmentation.getRegisteredUserObject(Fragment.this, extrinsicID);
 			if (fObject != null) {
 				fObject.eSetProxyURI(null);
 				fObject.fSetFragmentationToLoadFrom(null);
+				fObject.fSetItsLoadingIntoFragment(this);
 				return fObject;
-			}							
-		}			
-		
-		return super.createEObject(internalEObject, extrinsicID);
-	}
-		
-	@Override
-	protected void beforeSave(InternalEObject internalEObject) {
-		if (internalEObject instanceof FObjectImpl) {
-			FObjectImpl fObject = (FObjectImpl) internalEObject;
-			if (fObject.eResource() == Fragment.this) {
-				getFragmentation().registerUserObject(Fragment.this, getID(fObject, true), fObject);
+			} else {
+				InternalEObject result = super.createEObject(internalEObject, extrinsicID);
+				((FObjectImpl)result).fSetItsLoadingIntoFragment(this);		
+				return result;
 			}
-		}
+		} else {
+			return super.createEObject(internalEObject, extrinsicID);
+		}		
 	}
+	
+	
+
+	@Override
+	protected void afterLoad(InternalEObject internalEObject) {
+		if (internalEObject instanceof FObjectImpl) {
+			((FObjectImpl)internalEObject).fSetItsLoadingIntoFragment(null);
+		}
+		super.afterLoad(internalEObject);
+	}
+
+	@Override
+	protected void beforeSaveFeature(InternalEObject internalEObject, int featureId, Object value) {
+		if (value instanceof EList<?>) {
+			getFragmentation().getUserCaches()
+					.registerUserReference(fFragmentId(), getID(internalEObject, true), featureId, (EList<?>)value);
+		}
+		super.beforeSaveFeature(internalEObject, featureId, value);
+	}	
 }

@@ -112,7 +112,7 @@ public class FragmentsCacheTests extends AbstractTestModelTests<TestObject, Test
 		Fragment fragment = new Fragment(URI.createURI("test/0" ), 0);
 		cache.add(fragment);
 		cache.lock();
-		cache.remove(fragment);		
+		cache.remove(fragment, true);		
 		// Fragments is removed, locked or not locked. This is expected behavior.
 		Assert.assertEquals(1, removedFragments.size());
 		Assert.assertEquals(0, removedFragments.get(0).fFragmentId());
@@ -131,7 +131,7 @@ public class FragmentsCacheTests extends AbstractTestModelTests<TestObject, Test
 		
 		fragment = new Fragment(URI.createURI("test/1"), 1); 
 		cache.add(fragment);
-		cache.remove(fragment);
+		cache.remove(fragment, true);
 				
 		Assert.assertEquals(1, removedFragments.size());
 		Assert.assertEquals(1, removedFragments.get(0).fFragmentId());
@@ -173,7 +173,7 @@ public class FragmentsCacheTests extends AbstractTestModelTests<TestObject, Test
 		Fragment fragment = new Fragment(URI.createURI("test/0" ), 0);
 		
 		try {
-			cache.remove(fragment);
+			cache.remove(fragment, true);
 		} catch (Exception e) {
 			return;
 		}

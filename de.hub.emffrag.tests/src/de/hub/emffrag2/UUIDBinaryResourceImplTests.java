@@ -19,14 +19,11 @@ import de.hub.emffrag.testmodels.eobject.testmodel.eobject.meta.TestModelPackage
 
 public class UUIDBinaryResourceImplTests extends AbstractTestModelTests<TestObject, TestModelPackage> {
 	
-	
 	@Override
 	protected TestModelPackage testModelPackage() {
 		return TestModelPackage.eINSTANCE;
 	}
 	
-	
-
 	@Override
 	public void initializeTestModel() {	
 		super.initializeTestModel();
@@ -39,13 +36,11 @@ public class UUIDBinaryResourceImplTests extends AbstractTestModelTests<TestObje
 		});
 	}
 
-	@Test
-	public void testBasicSaveLoad() {
+	private void testBasicSaveLoad(String modelDefinition) {
 		ResourceSet rs = new ResourceSetImpl();
 		URI uri = URI.createURI("models/test.bin");
 		Resource resource = rs.createResource(uri);
 		
-		String modelDefinition = "1f(2f(3),4)r(5)c(2,3,4,5)";
 		resource.getContents().add(createTOFromModelString(modelDefinition));
 		try {
 			resource.save(null);
@@ -58,6 +53,16 @@ public class UUIDBinaryResourceImplTests extends AbstractTestModelTests<TestObje
 		Assert.assertTrue(resource.getErrors().isEmpty());
 		Assert.assertTrue(!resource.getContents().isEmpty());
 		assertResource(resource, modelDefinition);
+	}
+	
+	@Test
+	public void testBasicSaveLoad1() {
+		testBasicSaveLoad("1f(2f(3),4)r(5)c(2,3,4,5)");
+	}
+	
+	@Test
+	public void testBasicSaveLoad2() {
+		testBasicSaveLoad("1f(2f(4f(6),5),3)");		
 	}
 	
 	private void assertResource(Resource resource, String modelDefinition) {

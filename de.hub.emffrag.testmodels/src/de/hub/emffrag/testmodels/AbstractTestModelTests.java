@@ -113,22 +113,28 @@ public abstract class AbstractTestModelTests<T extends EObject, P extends EPacka
 	}
 	
 	protected String printTO(T root) {
+		return printTO(root, true);
+	}
+	
+	protected String printTO(T root, boolean printFragmentation) {
 		StringBuffer result = new StringBuffer();
-		printObject(result, root, true);
+		printObject(result, root, true, printFragmentation);
 		return result.toString();
 	}
 	
-	private void printObject(StringBuffer result, T object, boolean withFeatures) {
+	private void printObject(StringBuffer result, T object, boolean printFeatures, boolean printFragmentation) {
 		result.append(object.eGet(nameFeature));
-		if (withFeatures) {
-			printFeature(result, testObjectClass.getEStructuralFeature(TestModelPackage.eINSTANCE.getTestObject_FragmentedContents().getName()), object);
-			printFeature(result, testObjectClass.getEStructuralFeature(TestModelPackage.eINSTANCE.getTestObject_RegularContents().getName()), object);
-			printFeature(result, testObjectClass.getEStructuralFeature(TestModelPackage.eINSTANCE.getTestObject_CrossReferences().getName()), object);
+		if (printFeatures) {
+			if (printFragmentation) {
+				printFeature(result, testObjectClass.getEStructuralFeature(TestModelPackage.eINSTANCE.getTestObject_FragmentedContents().getName()), object, printFragmentation);
+			}
+			printFeature(result, testObjectClass.getEStructuralFeature(TestModelPackage.eINSTANCE.getTestObject_RegularContents().getName()), object, printFragmentation);
+			printFeature(result, testObjectClass.getEStructuralFeature(TestModelPackage.eINSTANCE.getTestObject_CrossReferences().getName()), object, printFragmentation);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private void printFeature(StringBuffer result, EStructuralFeature feature, T object) {	
+	private void printFeature(StringBuffer result, EStructuralFeature feature, T object, boolean printFragmentation) {	
 		EList<T> valueSet = (EList<T>) object.eGet(feature);
 		if (!valueSet.isEmpty()) {
 			result.append(feature.getName().toLowerCase().charAt(0));
@@ -140,7 +146,7 @@ public abstract class AbstractTestModelTests<T extends EObject, P extends EPacka
 				} else {
 					result.append(",");
 				}
-				printObject(result, value, ((EReference)feature).isContainment());
+				printObject(result, value, ((EReference)feature).isContainment(), printFragmentation);
 			}
 			result.append(")");
 		}

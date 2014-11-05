@@ -15,6 +15,7 @@ import java.util.TreeMap;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.URIConverter;
@@ -338,6 +339,21 @@ public class UUIDBinaryResourceImpl extends BinaryResourceImpl {
 					writeCompressedInt(-1);
 				}
 			}
+			
+			
 		}
+
+		@Override
+		protected void saveFeatureValue(InternalEObject internalEObject, Object value, int featureID, EStructuralFeatureData eStructuralFeatureData)
+				throws IOException {
+			// callback required for fragmentation
+			//
+			beforeSaveFeature(internalEObject, featureID, value);
+			super.saveFeatureValue(internalEObject, value, featureID, eStructuralFeatureData);
+		}
+	}
+
+	protected void beforeSaveFeature(InternalEObject internalEObject, int featureId, Object value) {
+		// empty
 	}
 }

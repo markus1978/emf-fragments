@@ -20,9 +20,6 @@ import org.eclipse.emf.ecore.resource.URIHandler;
 import org.eclipse.emf.ecore.resource.impl.ExtensibleURIConverterImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-
 import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.datastore.DataStoreURIHandler;
 import de.hub.emffrag.datastore.IDataMap;
@@ -37,46 +34,12 @@ import de.hub.emffrag2.FragmentsCache.FragmentsCacheListener;
  */
 public class Fragmentation extends ResourceSetImpl {
 
-	private static class UserObjectID {
-		private final long fragmentID;
-		private final int intrinsicObjectID;
-
-		private UserObjectID(long fragmentID, int intrinsicObjectID) {
-			super();
-			this.fragmentID = fragmentID;
-			this.intrinsicObjectID = intrinsicObjectID;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + (int) (fragmentID ^ (fragmentID >>> 32));
-			result = prime * result + intrinsicObjectID;
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			UserObjectID other = (UserObjectID) obj;
-			if (fragmentID != other.fragmentID)
-				return false;
-			if (intrinsicObjectID != other.intrinsicObjectID)
-				return false;
-			return true;
-		}
-	}
+	
 
 	private final IDataStore dataStore;
 	private final IDataMap<Long> fragmentDataStoreIndex;
 	private FragmentsCache fragmentsCache;
-	private Cache<UserObjectID, FObjectImpl> userObjectCache;
+	private final UserCaches userCaches;
 
 	// TODO make private after tests
 	public boolean resolveProxies = true;
@@ -98,13 +61,13 @@ public class Fragmentation extends ResourceSetImpl {
 			}
 		};
 		fragmentsCache = new FragmentsCache(cacheListener, fragmentsCacheSize);
-		userObjectCache = CacheBuilder.newBuilder().weakValues().build();
+		userCaches = new UserCaches();		
 	}
 
 	// TODO remove after test
 	public void resetCachesForTest() {
 		// fragmentsCache = new FragmentsCache(fragmentsCache.size);
-		userObjectCache = CacheBuilder.newBuilder().weakValues().build();
+		// userObjectCache = CacheBuilder.newBuilder().weakValues().build();
 	}
 
 	@Override
@@ -201,11 +164,15 @@ public class Fragmentation extends ResourceSetImpl {
 	 * Instantiates a new or existing fragment in memory.
 	 */
 	protected Fragment instantiateFragment(URI uri) {
-		Fragment fragment = new Fragment(uri, fragmentDataStoreIndex.getKeyFromURI(uri));
+		Fragment fragment = createFragment(uri, fragmentDataStoreIndex.getKeyFromURI(uri));
 		getResources().add(fragment);
 		EmfFragActivator.instance.debug("instantiated " + toString(fragment));
 		fragmentsCache.add(fragment);
 		return fragment;
+	}
+	
+	protected Fragment createFragment(URI uri, long key) {
+		return new Fragment(uri, fragmentDataStoreIndex.getKeyFromURI(uri));
 	}
 
 	/**
@@ -230,7 +197,8 @@ public class Fragmentation extends ResourceSetImpl {
 			}
 			EmfFragActivator.instance.debug("loaded " + toString(fragment));
 		} catch (Exception e) {
-			System.out.println("AAAHHHRRR");
+			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		resolveProxies = true;
 	}
@@ -270,24 +238,28 @@ public class Fragmentation extends ResourceSetImpl {
 	 * This should not be called directly and serves only maintanence purposes.
 	 */
 	public void unloadFragment(Fragment fragment) {
-		fragmentsCache.remove(fragment);
+		fragmentsCache.remove(fragment, true);
 		doUnloadFragment(fragment);
+	}
+	
+	protected UserCaches getUserCaches() {
+		return userCaches;
 	}
 
 	protected void registerUserObject(Fragment fragment, int id, FObjectImpl fObject) {
-		userObjectCache.put(new UserObjectID(fragment.fFragmentId(), id), fObject);
+		userCaches.registerUserObject(fragment.fFragmentId(), id, fObject);
 	}
 
 	protected FObjectImpl getRegisteredUserObject(Fragment fragment, int id) {
-		return userObjectCache.getIfPresent(new UserObjectID(fragment.fFragmentId(), id));
+		return userCaches.getRegisterdUserObject(fragment.fFragmentId(), id);
 	}
 
 	protected FObjectImpl getRegisteredUserObject(URI uri) {
 		int id = Integer.parseInt(uri.fragment());
 		long fragmentId = fragmentDataStoreIndex.getKeyFromURI(uri.trimFragment());
-		return userObjectCache.getIfPresent(new UserObjectID(fragmentId, id));
+		return userCaches.getRegisterdUserObject(fragmentId, id);
 	}
-
+	
 	public URI createURI(long fragmentId, Integer objectId) {
 		URI uri = fragmentDataStoreIndex.getURI(fragmentId);
 		if (objectId != null) {
@@ -341,21 +313,17 @@ public class Fragmentation extends ResourceSetImpl {
 			// do the appropriate thing
 			int type = notification.getEventType();
 			if (type == Notification.ADD || type == Notification.SET) {
-				System.out.println("ADD/SET");
 				addContentRecursivly((EObject) notification.getNewValue(), includeSelf);
 				if (notification.getOldValue() != null) {
 					removeContentRecursivly((EObject) notification.getOldValue(), includeSelf);
 				}
 			} else if (type == Notification.REMOVE || type == Notification.UNSET) {
-				System.out.println("REMOVE/UNSET");
 				removeContentRecursivly((EObject) notification.getOldValue(), includeSelf);
 			} else if (type == Notification.ADD_MANY) {
-				System.out.println("ADD_MANY");
 				for (Object added : (Collection<?>) notification.getNewValue()) {
 					addContentRecursivly((EObject) added, includeSelf);
 				}
 			} else if (type == Notification.REMOVE_MANY) {
-				System.out.println("REMOVE_MANY");
 				for (Object removed : (Collection<?>) notification.getOldValue()) {
 					removeContentRecursivly((EObject) removed, includeSelf);
 				}
@@ -452,12 +420,21 @@ public class Fragmentation extends ResourceSetImpl {
 	private void deleteFragment(FObjectImpl fObject) {
 		Fragment fragment = fObject.fFragment();
 		fragmentDataStoreIndex.remove(fragmentDataStoreIndex.getKeyFromURI(fragment.getURI()));
-		resolveProxies = false;
-		fragment.unload();
-		resolveProxies = true;
+		
+		// TODO, should this be removed? It only causes problems.
+		// resolveProxies = false;
+		// fragment.unload();
+		// resolveProxies = true;
 
 		// this will also remove this from ResourceSet#getResources()
-		fragmentsCache.remove(fragment);
+		if (fragmentsCache.remove(fragment, false)) {
+			// FragmentsCache#remove is called not in strict mode, because the
+			// deleted fragment might not be cached.
+			// Since fragments are removed from the loaded fragments
+			// (#getResources()) implicitly, we have to
+			// remove it explicitly, if the fragment was not in the cache.
+			getResources().remove(fragment);
+		}
 
 		EmfFragActivator.instance.debug("deleted " + toString(fragment));
 	}
@@ -471,7 +448,7 @@ public class Fragmentation extends ResourceSetImpl {
 	 *         fragmentation. An upper bound because removed fragments might
 	 *         also be counted.
 	 */
-	public long getNumberOfAllFragments() {
+	public long getIndexOfLastAddedAndStillExistingFragment() {
 		return fragmentDataStoreIndex.last() + 1;
 	}
 
@@ -480,6 +457,10 @@ public class Fragmentation extends ResourceSetImpl {
 	 */
 	public int getNumberOfLoadedFragments() {
 		return getResources().size();
+	}
+	
+	public boolean isFragmentsCacheLocked() {
+		return fragmentsCache.isLocked();
 	}
 
 	protected String toString(Fragment fragment) {

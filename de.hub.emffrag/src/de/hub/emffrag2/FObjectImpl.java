@@ -2,6 +2,8 @@ package de.hub.emffrag2;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.Resource.Internal;
@@ -10,11 +12,11 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 
 	private Fragmentation fragmentationToLoadFrom = null;
-	
+	private Fragment itsLoadingIntoFragment = null;
+
 	private boolean isNotifying() {
 		return true;
 	}
-	
 
 	@Override
 	public boolean eNotificationRequired() {
@@ -48,17 +50,23 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 			fEnsureLoaded();
 		}
 	}
-	
+
 	protected void fSetFragmentationToLoadFrom(Fragmentation fragmentationToLoadFrom) {
 		this.fragmentationToLoadFrom = fragmentationToLoadFrom;
 	}
 	
+	protected void fSetItsLoadingIntoFragment(Fragment fragment) {
+		this.itsLoadingIntoFragment = fragment;
+	}
+
 	public void fUnload(Fragmentation fragmentationToLoadFrom) {
-		this.fragmentationToLoadFrom = fFragmentation();
-		if (fragmentationToLoadFrom == null) {
+		this.fragmentationToLoadFrom = fragmentationToLoadFrom;
+		if (this.fragmentationToLoadFrom == null) {
 			throw new IllegalStateException("Cannot unload an object that does not belong to a fragmentation.");
 		}
 		
+		boolean isRoot = eDirectResource() != null;
+
 		// if this becomes something not MinimalEObjectImpl,
 		// eBasicProperties
 		// has to be cleaned instead
@@ -66,7 +74,10 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 		eSetDirectResource(null);
 
 		eBasicSetSettings(new Object[] {});
-		eBasicSetContainer(null);
+		// keep container for fragment roots (because it will not be recovered when reloaded)
+		if (!isRoot) {
+			eBasicSetContainer(null);
+		}
 
 		// re-create empty eSettings for further use of the object
 		int size = eClass().getFeatureCount() - eStaticFeatureCount();
@@ -74,14 +85,14 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 			eBasicSetSettings(new Object[size]);
 		}
 	}
-	
+
 	@Override
 	public boolean fIsUnLoaded() {
 		return fragmentationToLoadFrom != null;
 	}
 
 	public void fEnsureLoaded() {
-		if (fIsUnLoaded()) {	
+		if (fIsUnLoaded()) {
 			EcoreUtil.resolve(this, fragmentationToLoadFrom);
 		}
 	}
@@ -137,4 +148,65 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 		return super.eBasicSetContainer(newContainer, newContFeatID, msgs);
 	}
 
+	/**
+	 * Modified copy override that does nothing if the old container is the new
+	 * container. Unloading and loading of containers causes unwanted behavior
+	 * otherwise. On unloading the "old" container becomes a cached user object.
+	 * On loading this cached user object is reused, hence the container is
+	 * already there. When adding the contents to the container, the reverse add
+	 * tries to reset the container, which entails removing the "old" container
+	 * and setting the "new" (same) container. This remove and set does not
+	 * work, because remove also removes the content from the container
+	 * (reverses the currently executed action) and set does only set the
+	 * container to the contents but NOT vice versa. Therefore removing and
+	 * resetting the same container does not yield the same before state.
+	 */
+	@Override
+	public NotificationChain eInverseAdd(InternalEObject otherEnd, int featureID, Class<?> baseClass, NotificationChain msgs) {
+		if (featureID >= 0) {
+			return eInverseAdd(otherEnd, eDerivedStructuralFeatureID(featureID, baseClass), msgs);
+		} else {
+			if (eInternalContainer() != null) {
+				// do nothing if the new container already is the old container
+				if (otherEnd == eInternalContainer()) {
+					return msgs;
+				}
+				msgs = eBasicRemoveFromContainer(msgs);
+			}
+			return eBasicSetContainer(otherEnd, featureID, msgs);
+		}
+	}
+
+	/**
+	 * Overridden to weak cache references. 
+	 */
+	@Override
+	protected EList<?> createListWrapper(EList<?> source, EStructuralFeature feature) {
+		Fragmentation fragmentation = fFragmentation();
+		if (fragmentation == null && itsLoadingIntoFragment != null) {
+			fragmentation = itsLoadingIntoFragment.getFragmentation();
+		}
+		if (fragmentation != null) {
+			Fragment fragment = fFragment();
+			if (fragment == null) {
+				fragment = itsLoadingIntoFragment;
+			}
+			long fragmentId = fragment.fFragmentId();
+			int objectId = fragment.getID(this, true);
+			int featureId = feature.getFeatureID();
+			EList<?> cachedReference = fragmentation.getUserCaches()
+					.getRegisteredUserReference(fragmentId, objectId, featureId);
+			
+			if (cachedReference != null) {
+				// cachedReference.clear();
+				return cachedReference;
+			} else {
+				EList<?> newReference = super.createListWrapper(source, feature);
+				fragmentation.getUserCaches().registerUserReference(fragmentId, objectId, featureId, newReference);
+				return newReference;
+			}
+		} else {
+			return super.createListWrapper(source, feature);
+		}	
+	}
 }

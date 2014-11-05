@@ -34,6 +34,13 @@ public class TestModelTests extends AbstractTestModelTests<TestObject, TestModel
 	}
 	
 	@Test
+	public void basicCreateAndAddTest() {
+		TestObject container = createTO("container");
+		TestObject contents = createTO("contents");
+		container.getFragmentedContents().add(contents);
+	}
+	
+	@Test
 	public void basicCreateTOFromModelStringTest() {
 		testCreateTOFromModel("1", "1", 1);
 		testCreateTOFromModel("1f(2f(3),4)r(5)c(2,3,4,5)", "1c(2,3,4)r(5)f(2f(3),4)c(5)", 5);		
