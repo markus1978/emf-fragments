@@ -22,6 +22,17 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 	public boolean eNotificationRequired() {
 		return isNotifying();
 	}
+	
+	@Override
+	public boolean fIsProxy() {
+		return super.eIsProxy();
+	}
+
+	@Override
+	public boolean eIsProxy() {
+		fEnsureLoaded();
+		return super.eIsProxy();
+	}
 
 	@Override
 	public void eNotify(Notification notification) {

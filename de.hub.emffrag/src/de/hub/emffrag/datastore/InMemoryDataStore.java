@@ -162,14 +162,20 @@ public class InMemoryDataStore implements IBaseDataStore, IBulkInsertExtension {
 
 	@Override
 	public OutputStream openOutputStream(final byte[] key) {
-		return new ByteArrayOutputStream() {
-			@Override
-			public void close() throws IOException {
-				super.close();
-				byte[] value = toByteArray();
-				store.put(key, fleeting ? EMTPY : value);
-			}
-		};
+		byte[] value = store.get(key);
+		if (value != null) {
+			return new ByteArrayOutputStream() {
+				@Override
+				public void close() throws IOException {
+					super.close();
+					byte[] value = toByteArray();
+					store.put(key, fleeting ? EMTPY : value);
+				}
+			};
+		} else {
+			throw new IllegalArgumentException("Datastore entry with key " + URIUtils.encode(key) + " does not exist and cannot be written to.");
+		}
+		
 	}
 
 	@Override
@@ -188,7 +194,11 @@ public class InMemoryDataStore implements IBaseDataStore, IBulkInsertExtension {
 
 	@Override
 	public void delete(byte[] key) {
-		store.remove(key);
+		if (store.get(key) != null) {
+			store.remove(key);
+		} else {
+			throw new IllegalArgumentException("Datastore entry with key " + URIUtils.encode(key) + " does not exist and cannot be deleted.");
+		}
 	}
 
 	@Override

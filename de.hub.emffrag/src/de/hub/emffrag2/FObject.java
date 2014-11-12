@@ -22,6 +22,14 @@ public interface FObject extends EObject {
 	public boolean fIsRoot();
 
 	/**
+	 * {@link #eIsProxy()} will cause the object to be loaded and provided
+	 * everything works as expected, should always return false. This we
+	 * hide the actual proxy status. This method can be used to determine
+	 * the current actual proxy status.s
+	 */
+	public boolean fIsProxy();
+
+	/**
 	 * @return True, iff the object is currently loaded.
 	 */
 	public boolean fIsUnLoaded();

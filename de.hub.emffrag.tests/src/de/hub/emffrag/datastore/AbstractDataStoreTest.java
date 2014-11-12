@@ -1,4 +1,4 @@
-package de.hub.emffrag.fragmentation;
+package de.hub.emffrag.datastore;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,12 +9,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 
-import junit.framework.Assert;
-
 import org.eclipse.emf.common.util.URI;
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.datastore.DataStoreImpl;
 import de.hub.emffrag.datastore.IBaseDataStore;
 import de.hub.emffrag.datastore.IBulkInsertExtension;
@@ -25,6 +26,7 @@ import de.hub.emffrag.datastore.InMemoryDataStore;
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.datastore.ScanningDataStore;
 import de.hub.emffrag.datastore.WriteCachingDataStore;
+import de.hub.emffrag.testmodels.fobject.testmodel.fobject.meta.TestModelPackage;
 
 public abstract class AbstractDataStoreTest {
 
@@ -45,6 +47,12 @@ public abstract class AbstractDataStoreTest {
 	protected abstract URI createURI();
 	
 	protected IDataStore dataStore;
+	
+	@BeforeClass
+	public static void initializeEMFFragments() {
+		EmfFragActivator.standalone(TestModelPackage.eINSTANCE);
+		EmfFragActivator.instance.logInStandAlone = true;
+	}
 	
 	@Before
 	public void createDataStore() {
@@ -182,6 +190,36 @@ public abstract class AbstractDataStoreTest {
 		dataStore.delete(createKey(0));
 		Assert.assertTrue(dataStore.check(createKey(0)));
 		Assert.assertEquals(BigInteger.valueOf(1), new BigInteger(dataStore.ceiling(createKey(0))));
+	}
+	
+	@Test
+	public void testWriteDeleted() {
+		boolean exceptionCatched = false;
+		byte[] key = createKey(0);
+		dataStore.checkAndCreate(key);		
+		dataStore.delete(key);
+		try {
+			dataStore.openOutputStream(key);
+		} catch (Exception e) {
+			exceptionCatched = true;
+		}
+				
+		Assert.assertTrue(exceptionCatched);
+	}
+	
+	@Test
+	public void testDoubleDelete() {
+		boolean exceptionCatched = false;
+		byte[] key = createKey(0);
+		dataStore.checkAndCreate(key);		
+		dataStore.delete(key);
+		try {
+			dataStore.delete(key);
+		} catch (Exception e) {
+			exceptionCatched = true;
+		}
+				
+		Assert.assertTrue(exceptionCatched);		
 	}
 	
 	@Test

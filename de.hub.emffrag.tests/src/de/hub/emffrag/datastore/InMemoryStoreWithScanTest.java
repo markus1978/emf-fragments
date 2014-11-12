@@ -1,4 +1,4 @@
-package de.hub.emffrag.fragmentation;
+package de.hub.emffrag.datastore;
 
 import de.hub.emffrag.datastore.IScanExtension;
 

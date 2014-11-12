@@ -2,12 +2,8 @@ package de.hub.emffrag2;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import javax.annotation.Resource;
 
@@ -23,12 +19,10 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 public class Fragment extends UUIDBinaryResourceImpl {
 
 	private final long id;
+	private boolean isDeleted = false;
 
 	// helper of #doUnload()
 	private List<InternalEObject> contentToUnload = new ArrayList<InternalEObject>();
-
-	private SortedMap<Integer, EObject> idToEObjectMap = new TreeMap<Integer, EObject>();
-	private Map<EObject, Integer> eObjectToIDMap = new HashMap<EObject, Integer>();
 
 	public Fragment(URI uri, long id) {
 		super(uri);
@@ -41,6 +35,14 @@ public class Fragment extends UUIDBinaryResourceImpl {
 
 	public boolean fIsRoot() {
 		return id == 0l;
+	}
+	
+	public void fDelete() {
+		isDeleted = true;
+	}
+	
+	public boolean fIsDeleted() {
+		return isDeleted;
 	}
 
 	@Override
@@ -120,7 +122,7 @@ public class Fragment extends UUIDBinaryResourceImpl {
 	@Override
 	protected void unloaded(InternalEObject internalEObject) {
 		if (internalEObject instanceof FObjectImpl) {
-			if (!internalEObject.eIsProxy()) {
+			if (!((FObject)internalEObject).fIsProxy()) {
 				FObjectImpl fObject = (FObjectImpl) internalEObject;
 				
 				// register all unloaded object with the user object cache

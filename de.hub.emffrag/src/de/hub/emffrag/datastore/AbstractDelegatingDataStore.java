@@ -3,6 +3,10 @@ package de.hub.emffrag.datastore;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import de.hub.emffrag.EmfFragActivator;
+import de.hub.util.Ansi;
+import de.hub.util.Ansi.Color;
+
 
 public class AbstractDelegatingDataStore implements IBaseDataStore {
 
@@ -14,10 +18,18 @@ public class AbstractDelegatingDataStore implements IBaseDataStore {
 	}
 
 	public InputStream openInputStream(byte[] key) {
+		EmfFragActivator.instance.debug(
+				Ansi.format("DATASTORE: ", Color.RED) +
+				Ansi.format("read ", Color.GREEN) + 
+				Ansi.format(URIUtils.encode(key), Color.values()[Math.abs(key[key.length-1]) % Color.values().length]));
 		return delegate.openInputStream(key);
 	}
 
 	public OutputStream openOutputStream(byte[] key) {
+		EmfFragActivator.instance.debug(
+				Ansi.format("DATASTORE: ", Color.RED) +
+				Ansi.format("write ", Color.BLUE) + 
+				Ansi.format(URIUtils.encode(key), Color.values()[Math.abs(key[key.length-1]) % Color.values().length]));
 		return delegate.openOutputStream(key);
 	}
 
@@ -38,11 +50,19 @@ public class AbstractDelegatingDataStore implements IBaseDataStore {
 	}
 
 	public boolean checkAndCreate(byte[] key) {
+		EmfFragActivator.instance.debug(
+				Ansi.format("DATASTORE: ", Color.RED) +
+				Ansi.format("create ", Color.YELLOW) + 
+				Ansi.format(URIUtils.encode(key), Color.values()[Math.abs(key[key.length-1]) % Color.values().length]));
 		return delegate.checkAndCreate(key);
 	}
 
-	public void delete(byte[] bytes) {
-		delegate.delete(bytes);
+	public void delete(byte[] key) {
+		EmfFragActivator.instance.debug(
+				Ansi.format("DATASTORE: ", Color.RED) +
+				Ansi.format("delete ", Color.RED) + 
+				Ansi.format(URIUtils.encode(key), Color.values()[Math.abs(key[key.length-1]) % Color.values().length]));
+		delegate.delete(key);
 	}
 
 	@Override

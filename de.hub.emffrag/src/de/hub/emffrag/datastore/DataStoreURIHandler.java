@@ -23,6 +23,10 @@ import java.util.Map;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.impl.URIHandlerImpl;
 
+import de.hub.emffrag.EmfFragActivator;
+import de.hub.util.Ansi;
+import de.hub.util.Ansi.Color;
+
 
 public class DataStoreURIHandler extends URIHandlerImpl {
     
@@ -41,13 +45,23 @@ public class DataStoreURIHandler extends URIHandlerImpl {
 
     @Override
     public OutputStream createOutputStream(final URI uri, Map<?, ?> options) throws IOException {
-    	return store.openOutputStream(URIUtils.decode(uri.segment(1)));
+    	OutputStream result = store.openOutputStream(URIUtils.decode(uri.segment(1)));
+    	if (result == null) {
+    		EmfFragActivator.instance.error(
+    				Ansi.format("URIHANDLER: ", Color.BLACK) +
+    				Ansi.format("could not create outputstream for ", Color.RED) + uri.toString());
+    		throw new IOException("Requested resource for URI " + uri.toString() + " does not exist.");
+    	}
+    	return result;
     }
 
     @Override
     public InputStream createInputStream(URI uri, Map<?, ?> options) throws IOException {
     	InputStream result = store.openInputStream(URIUtils.decode(uri.segment(1)));
     	if (result == null) {
+    		EmfFragActivator.instance.error(
+    				Ansi.format("URIHANDLER: ", Color.BLACK) +
+    				Ansi.format("could not create inputstream for ", Color.RED) + uri.toString());
     		throw new IOException("Requested resource for URI " + uri.toString() + " does not exist.");
     	}
 		return result;

@@ -2,8 +2,8 @@ package de.hub.emffrag.habse;
 
 import org.eclipse.emf.common.util.URI;
 
+import de.hub.emffrag.datastore.AbstractDataStoreTest;
 import de.hub.emffrag.datastore.IBaseDataStore;
-import de.hub.emffrag.fragmentation.AbstractDataStoreTest;
 import de.hub.emffrag.hbase.HBaseDataStore;
 
 public class HBaseStoreTest extends AbstractDataStoreTest {

@@ -3,6 +3,11 @@ package de.hub.emffrag.fragmentation;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import de.hub.emffrag.datastore.InMemoryStoreTest;
+import de.hub.emffrag.datastore.InMemoryStoreWithBulkInsertTest;
+import de.hub.emffrag.datastore.InMemoryStoreWithScanAndBulkInsertTest;
+import de.hub.emffrag.datastore.InMemoryStoreWithScanTest;
+
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ 

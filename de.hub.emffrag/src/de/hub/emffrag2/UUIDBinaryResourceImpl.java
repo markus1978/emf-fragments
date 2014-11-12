@@ -287,7 +287,7 @@ public class UUIDBinaryResourceImpl extends BinaryResourceImpl {
 								return;
 							}
 							checkIsTransientProxy = true;
-						} else if (internalEObject.eIsProxy()) {
+						} else if ((internalEObject instanceof FObject) ? ((FObject)internalEObject).fIsProxy() : internalEObject.eIsProxy()) {
 							writeCompressedInt(-1);
 							writeURI(internalEObject.eProxyURI());
 							if ((style & STYLE_PROXY_ATTRIBUTES) == 0) {
@@ -306,7 +306,7 @@ public class UUIDBinaryResourceImpl extends BinaryResourceImpl {
 								return;
 							}
 							checkIsTransientProxy = true;
-						} else if (internalEObject.eIsProxy()) {
+						} else if ((internalEObject instanceof FObject) ? ((FObject)internalEObject).fIsProxy() : internalEObject.eIsProxy()) {
 							writeCompressedInt(-1);
 							writeURI(internalEObject.eProxyURI());
 							if ((style & STYLE_PROXY_ATTRIBUTES) == 0) {

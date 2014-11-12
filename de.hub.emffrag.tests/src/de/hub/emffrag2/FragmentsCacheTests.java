@@ -56,7 +56,7 @@ public class FragmentsCacheTests extends AbstractTestModelTests<TestObject, Test
 	}
 	
 	@Test
-	public void NotLockAddSingleTest() {		
+	public void notLockAddSingleTest() {		
 		FragmentsCache cache = new FragmentsCache(fragmentsCacheListener, 1);
 		
 		cache.add(new Fragment(URI.createURI("test/1"), 1));
@@ -69,7 +69,7 @@ public class FragmentsCacheTests extends AbstractTestModelTests<TestObject, Test
 	}
 	
 	@Test
-	public void LockAddMultipleTest() {
+	public void lockAddMultipleTest() {
 		FragmentsCache cache = new FragmentsCache(fragmentsCacheListener, 1);
 		
 		cache.add(new Fragment(URI.createURI("test/0"), 0));
@@ -89,7 +89,7 @@ public class FragmentsCacheTests extends AbstractTestModelTests<TestObject, Test
 	}
 	
 	@Test
-	public void LockEmptyAddMultipleTest() {
+	public void lockEmptyAddMultipleTest() {
 		FragmentsCache cache = new FragmentsCache(fragmentsCacheListener, 1);
 		
 		cache.lock();
@@ -107,7 +107,7 @@ public class FragmentsCacheTests extends AbstractTestModelTests<TestObject, Test
 	}
 	
 	@Test
-	public void LockRemoveSingleTest() {
+	public void lockRemoveSingleTest() {
 		FragmentsCache cache = new FragmentsCache(fragmentsCacheListener, 1);
 		Fragment fragment = new Fragment(URI.createURI("test/0" ), 0);
 		cache.add(fragment);
@@ -142,11 +142,21 @@ public class FragmentsCacheTests extends AbstractTestModelTests<TestObject, Test
 	}
 	
 	@Test
-	public void lockTwiceTest() {
+	public void nestedLocksTest() {
 		FragmentsCache cache = new FragmentsCache(fragmentsCacheListener, 1);
 		cache.lock();
+		cache.lock();
+		
+		Assert.assertTrue(cache.isLocked());
+		
+		cache.unlock();
+		Assert.assertTrue(cache.isLocked());
+		
+		cache.unlock();
+		Assert.assertFalse(cache.isLocked());
+		
 		try {
-			cache.lock();
+			cache.unlock();
 		} catch (Exception e) {
 			return;
 		}
@@ -179,6 +189,14 @@ public class FragmentsCacheTests extends AbstractTestModelTests<TestObject, Test
 		}
 		
 		Assert.fail("Exception expected.");
+	}
+	
+	@Test
+	public void removeNotExistingElementNotStrict() {
+		FragmentsCache cache = new FragmentsCache(fragmentsCacheListener, 1);
+		Fragment fragment = new Fragment(URI.createURI("test/0" ), 0);
+		
+		cache.remove(fragment, false);				
 	}
 	
 }

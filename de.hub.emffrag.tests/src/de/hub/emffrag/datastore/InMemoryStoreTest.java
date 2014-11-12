@@ -1,4 +1,4 @@
-package de.hub.emffrag.fragmentation;
+package de.hub.emffrag.datastore;
 
 import org.eclipse.emf.common.util.URI;
 

@@ -162,7 +162,7 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		fragmentation.getContents().add(testObject);
 		helperManualUnload(fragmentation.getRootFragment());
 		
-		Assert.assertTrue(testObject.eIsProxy());
+		Assert.assertTrue(testObject.fIsProxy());
 		Assert.assertEquals(fragmentation.createURI(0l, 0), ((InternalEObject) testObject).eProxyURI());
 		Assert.assertEquals(1, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
 		Assert.assertEquals(0, fragmentation.getNumberOfLoadedFragments());
@@ -197,7 +197,7 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		
 		TestObject unloadedObject = getSaved(TEST_OBJECT);
 		unloadedObject.setName("AnotherName");
-		Assert.assertFalse(unloadedObject.eIsProxy());
+		Assert.assertFalse(unloadedObject.fIsProxy());
 		Assert.assertEquals(1, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
 		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
 	}
@@ -353,10 +353,9 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		performBasicAutoAddContentsTest(testModelString, 1, 1, 6);
 		
 		reinitializeFragmentation(1);
-		TestObject model = (TestObject)fragmentation.getContents().get(0);
-		
+		TestObject model = (TestObject)fragmentation.getContents().get(0);		
 		for (int i = 0; i < 5; i++) {
-			Assert.assertTrue(EcoreUtil.equals(createTOFromModelString(testModelString), model));
+			Assert.assertTrue("Failed attempt " + (i+1) + ": ", EcoreUtil.equals(createTOFromModelString(testModelString), model));
 		}
 	}
 
@@ -396,7 +395,7 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		TestObject root = getSaved("1");
 		EList<TestObject> reference = root.getFragmentedContents();
 		helperManualUnload(root.fFragment());
-		Assert.assertTrue(root.eIsProxy());
+		Assert.assertTrue(root.fIsProxy());
 		root.fEnsureLoaded();
 		Assert.assertTrue(root == fragmentation.getContents().get(0));
 		EList<TestObject> reloadedReference = root.getFragmentedContents();
@@ -465,16 +464,16 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		fragmentation.getContents().add(container);
 		TestObject contents = createTO("2", container, tmPackage.getTestObject_FragmentedContents());
 
-		Assert.assertTrue(container.eIsProxy() && container.fIsUnLoaded());
-		Assert.assertFalse(contents.eIsProxy() || contents.fIsUnLoaded());
+		Assert.assertTrue(container.fIsProxy() && container.fIsUnLoaded());
+		Assert.assertFalse(contents.fIsProxy() || contents.fIsUnLoaded());
 
 		Assert.assertEquals(container, fragmentation.getContents().get(0));
 		
 		Assert.assertFalse(container.getFragmentedContents().isEmpty());
 		Assert.assertEquals(contents, container.getFragmentedContents().get(0));
 		
-		Assert.assertTrue(container.eIsProxy() && container.fIsUnLoaded());
-		Assert.assertFalse(contents.eIsProxy() || contents.fIsUnLoaded());
+		Assert.assertTrue(container.fIsProxy() && container.fIsUnLoaded());
+		Assert.assertFalse(contents.fIsProxy() || contents.fIsUnLoaded());
 
 		Assert.assertEquals("2", contents.getName());
 		Assert.assertFalse(container.getFragmentedContents().isEmpty());
@@ -491,13 +490,13 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		TestObject contents = createTO("2", container, tmPackage.getTestObject_FragmentedContents());
 
 		Assert.assertEquals(1, fragmentation.getResources().size());
-		Assert.assertTrue(container.eIsProxy());
+		Assert.assertTrue(container.fIsProxy());
 		Assert.assertEquals(fragmentation.createURI(0l, 0), ((InternalEObject) container).eProxyURI());
 		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
 		Assert.assertEquals(2, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
 
 		Assert.assertEquals("1", container.getName());
-		Assert.assertFalse(container.eIsProxy());
+		Assert.assertFalse(container.fIsProxy());
 		Assert.assertTrue(contents.fIsRoot());
 		Assert.assertEquals("2", contents.getName());
 
@@ -662,9 +661,9 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		TestObject nonFragmentingChild = createTO("2", parent, tmPackage.getTestObject_RegularContents());
 		TestObject fragmentingChild = createTO("3", parent, tmPackage.getTestObject_FragmentedContents());
 
-		Assert.assertTrue(parent.eIsProxy());
-		Assert.assertTrue(nonFragmentingChild.eIsProxy());
-		Assert.assertFalse(fragmentingChild.eIsProxy());
+		Assert.assertTrue(parent.fIsProxy());
+		Assert.assertTrue(nonFragmentingChild.fIsProxy());
+		Assert.assertFalse(fragmentingChild.fIsProxy());
 		Assert.assertEquals("3", fragmentingChild.getName());
 
 		Assert.assertTrue(parent.fIsRoot());

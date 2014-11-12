@@ -26,6 +26,8 @@ import de.hub.emffrag.datastore.IDataMap;
 import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag2.FragmentsCache.FragmentsCacheListener;
+import de.hub.util.Ansi;
+import de.hub.util.Ansi.Color;
 
 /**
  * In contrast to {@link ResourceSetImpl}, this class does not normalize URIs,
@@ -155,7 +157,12 @@ public class Fragmentation extends ResourceSetImpl {
 	protected Fragment createNewFragment() {
 		Long key = fragmentDataStoreIndex.add();
 		URI uri = fragmentDataStoreIndex.getURI(key);
-		EmfFragActivator.instance.debug("created " + toString(uri));
+		
+		EmfFragActivator.instance.debug(
+				Ansi.format("FRAGMENTATION: ", Color.BLUE) +
+				Ansi.format("created ", Color.YELLOW) + 
+				Ansi.format(toString(uri), Color.values()[(int)(key % Color.values().length)]));
+		
 		Fragment fragment = instantiateFragment(uri);
 		return fragment;
 	}
@@ -166,7 +173,12 @@ public class Fragmentation extends ResourceSetImpl {
 	protected Fragment instantiateFragment(URI uri) {
 		Fragment fragment = createFragment(uri, fragmentDataStoreIndex.getKeyFromURI(uri));
 		getResources().add(fragment);
-		EmfFragActivator.instance.debug("instantiated " + toString(fragment));
+		
+		EmfFragActivator.instance.debug(
+				Ansi.format("FRAGMENTATION: ", Color.BLUE) +
+				Ansi.format("instantiated ", Color.BLUE) + 
+				Ansi.format(toString(fragment), Color.values()[(int)(fragment.fFragmentId() % Color.values().length)]));
+		
 		fragmentsCache.add(fragment);
 		return fragment;
 	}
@@ -195,7 +207,12 @@ public class Fragmentation extends ResourceSetImpl {
 				EmfFragActivator.instance.warning("Warnings in resource after loading it as fragment " + toString(fragment)
 						+ ".");
 			}
-			EmfFragActivator.instance.debug("loaded " + toString(fragment));
+			
+			EmfFragActivator.instance.debug(
+					Ansi.format("FRAGMENTATION: ", Color.BLUE) +
+					Ansi.format("loaded ", Color.GREEN) + 
+					Ansi.format(toString(fragment), Color.values()[(int)(fragment.fFragmentId() % Color.values().length)]));
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
@@ -212,7 +229,7 @@ public class Fragmentation extends ResourceSetImpl {
 		if (fragment.isLoaded()) {
 			resolveProxies = false;
 			boolean isModified = fragment.isModified();
-			if (isModified) {
+			if (isModified && !fragment.fIsDeleted()) {
 				try {
 					fragment.save(getLoadOptions());
 				} catch (IOException e) {
@@ -224,7 +241,13 @@ public class Fragmentation extends ResourceSetImpl {
 			fragment.unload();
 			resolveProxies = true;
 			this.resources.remove(fragment);			
-			EmfFragActivator.instance.debug("unloaded " + toString(fragment) + (isModified ? "*" : ""));
+			
+			EmfFragActivator.instance.debug(
+					Ansi.format("FRAGMENTATION: ", Color.BLUE) +
+					Ansi.format("unloaded ", Color.RED) + 
+					Ansi.format(toString(fragment), Color.values()[(int)(fragment.fFragmentId() % Color.values().length)]) +
+					(isModified ? "*" : ""));
+			
 		} else {
 			throw new IllegalStateException("Cannot unload a not loaded fragment.");
 		}
@@ -308,7 +331,7 @@ public class Fragmentation extends ResourceSetImpl {
 	private void recursivlyReactToChange(Notification notification, boolean includeSelf) {
 		// lock the fragments cache to prevent accidental unloading of involved
 		// fragments
-		fragmentsCache.lock();
+		fragmentsCache.lock();		
 		try {
 			// do the appropriate thing
 			int type = notification.getEventType();
@@ -406,7 +429,13 @@ public class Fragmentation extends ResourceSetImpl {
 				}
 			}
 		}
+		
+		// unroot the fragment roots to avoid reverseRemove/container schenanigans later
+		for (FObjectImpl fragmentRoot : fragmentRootsToDelete) {
+			fragmentRoot.eBasicSetContainer(null);
+		}
 
+		// acutally delete the fragments
 		for (FObjectImpl fragmentRoot : fragmentRootsToDelete) {
 			deleteFragment(fragmentRoot);
 		}
@@ -420,6 +449,7 @@ public class Fragmentation extends ResourceSetImpl {
 	private void deleteFragment(FObjectImpl fObject) {
 		Fragment fragment = fObject.fFragment();
 		fragmentDataStoreIndex.remove(fragmentDataStoreIndex.getKeyFromURI(fragment.getURI()));
+		fragment.fDelete();
 		
 		// TODO, should this be removed? It only causes problems.
 		// resolveProxies = false;
@@ -436,7 +466,10 @@ public class Fragmentation extends ResourceSetImpl {
 			getResources().remove(fragment);
 		}
 
-		EmfFragActivator.instance.debug("deleted " + toString(fragment));
+		EmfFragActivator.instance.debug(
+				Ansi.format("FRAGMENTATION: ", Color.BLUE) +
+				Ansi.format("deleted ", Color.MAGENTA) + 
+				Ansi.format(toString(fragment), Color.values()[(int)(fragment.fFragmentId() % Color.values().length)]));
 	}
 
 	private boolean isFragmenting(EStructuralFeature reference) {
