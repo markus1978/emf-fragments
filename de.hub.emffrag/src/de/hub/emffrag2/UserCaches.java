@@ -4,8 +4,6 @@ import org.eclipse.emf.common.util.EList;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
 
 public class UserCaches {
 	

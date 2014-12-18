@@ -3,6 +3,7 @@ package de.hub.emffrag2;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.junit.Assert;
@@ -96,6 +97,15 @@ public class AccessNotificationTests extends AbstractTestModelTests<TestObject, 
 		assertNotAccessed(contents);
 		to.getRegularContents().add(contents);
 		assertAccessed(contents);
+		assertAccessed(to);
+	}
+	
+	@Test
+	public void testImmediateValueSetAccess() {
+		TestObject to = createTO("1");
+		EList<TestObject> contents = to.getFragmentedContents();
+		assertAccessed(to);
+		contents.size();
 		assertAccessed(to);
 	}
 }

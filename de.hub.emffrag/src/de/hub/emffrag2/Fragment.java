@@ -198,11 +198,10 @@ public class Fragment extends UUIDBinaryResourceImpl {
 	}
 
 	@Override
-	protected void beforeSaveFeature(InternalEObject internalEObject, int featureId, Object value) {
+	protected void beforeSaveFeature(InternalEObject internalEObject, int featureId) {
+		Object value = ((FObjectImpl)internalEObject).fNoAccessDynamicGet(featureId);
 		if (value instanceof EList<?>) {
-			getFragmentation().getUserCaches()
-					.registerUserReference(fFragmentId(), getID(internalEObject, true), featureId, (EList<?>)value);
+			getFragmentation().getUserCaches().registerUserReference(fFragmentId(), getID(internalEObject, true), featureId, (EList<?>)value);
 		}
-		super.beforeSaveFeature(internalEObject, featureId, value);
-	}	
+	}
 }

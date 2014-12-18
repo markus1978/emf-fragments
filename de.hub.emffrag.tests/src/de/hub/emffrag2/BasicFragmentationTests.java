@@ -433,9 +433,11 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		List<TestObject> toRemove = container.getFragmentedContents();
 		while (toRemove.size() != 0) {
 			int size = toRemove.size();
-			container.getFragmentedContents().remove(toRemove.get(toRemove.size() - 1));
-			Assert.assertEquals(container.getFragmentedContents(), toRemove);
+			TestObject objectToRemove = toRemove.get(toRemove.size() - 1);
+			Assert.assertTrue(container.getFragmentedContents().remove(objectToRemove));
+			Assert.assertSame(container.getFragmentedContents(), toRemove);
 			Assert.assertEquals(size - 1, toRemove.size());
+			// TODO ... inverseRemove automatically adds the removed object back on .. thats not right
 		}
 		
 		Assert.assertEquals(1, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
@@ -558,8 +560,7 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 
 	@Test
 	public void testBasicAutoFragmentReplace() {
-		initializeFragmentation(3);
-		testBasicAutoAddFragment();
+		testBasicAutoAddFragment(3);
 		TestObject container = (TestObject) fragmentation.getContents().get(0);
 		TestObject replaced = container.getFragmentedContents().get(0);
 		TestObject replacement = createTO("3");
@@ -575,6 +576,7 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 	
 	@Test
 	public void testBasicManualModifyWhileUnloaded() {
+		initializeFragmentation(3);
 		TestObject container = createTO("1");
 		TestObject contents = createTO("2");
 		EList<TestObject> fragmentedContents = container.getFragmentedContents();
@@ -582,6 +584,7 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		helperManualUnload(fragmentation.getRootFragment());
 		fragmentedContents.add(contents);
 		
+		Assert.assertSame(container.getFragmentedContents(), fragmentedContents);
 		Assert.assertFalse(container.getFragmentedContents().isEmpty());
 		// TODO: more assertion, once the former passes
 	}

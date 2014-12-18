@@ -22,7 +22,7 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 	public boolean eNotificationRequired() {
 		return isNotifying();
 	}
-	
+
 	@Override
 	public boolean fIsProxy() {
 		return super.eIsProxy();
@@ -62,10 +62,11 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 		}
 	}
 
-	protected void fSetFragmentationToLoadFrom(Fragmentation fragmentationToLoadFrom) {
+	protected void fSetFragmentationToLoadFrom(
+			Fragmentation fragmentationToLoadFrom) {
 		this.fragmentationToLoadFrom = fragmentationToLoadFrom;
 	}
-	
+
 	protected void fSetItsLoadingIntoFragment(Fragment fragment) {
 		this.itsLoadingIntoFragment = fragment;
 	}
@@ -73,9 +74,10 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 	public void fUnload(Fragmentation fragmentationToLoadFrom) {
 		this.fragmentationToLoadFrom = fragmentationToLoadFrom;
 		if (this.fragmentationToLoadFrom == null) {
-			throw new IllegalStateException("Cannot unload an object that does not belong to a fragmentation.");
+			throw new IllegalStateException(
+					"Cannot unload an object that does not belong to a fragmentation.");
 		}
-		
+
 		boolean isRoot = eDirectResource() != null;
 
 		// if this becomes something not MinimalEObjectImpl,
@@ -85,7 +87,8 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 		eSetDirectResource(null);
 
 		eBasicSetSettings(new Object[] {});
-		// keep container for fragment roots (because it will not be recovered when reloaded)
+		// keep container for fragment roots (because it will not be recovered
+		// when reloaded)
 		if (!isRoot) {
 			eBasicSetContainer(null);
 		}
@@ -142,7 +145,8 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 	@Override
 	protected void eSetDirectResource(Internal resource) {
 		if (resource != null && !(resource instanceof Fragment)) {
-			throw new IllegalStateException("FObjects can only be added to Fragments not to other Resources.");
+			throw new IllegalStateException(
+					"FObjects can only be added to Fragments not to other Resources.");
 		}
 		super.eSetDirectResource(resource);
 	}
@@ -152,9 +156,11 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 	 * TODO: not covered by tests.
 	 */
 	@Override
-	public NotificationChain eBasicSetContainer(InternalEObject newContainer, int newContFeatID, NotificationChain msgs) {
+	public NotificationChain eBasicSetContainer(InternalEObject newContainer,
+			int newContFeatID, NotificationChain msgs) {
 		if (newContainer != null && !(newContainer instanceof FObjectImpl)) {
-			throw new IllegalStateException("FObjects can only be contained by other FObjects not other EObjects.");
+			throw new IllegalStateException(
+					"FObjects can only be contained by other FObjects not other EObjects.");
 		}
 		return super.eBasicSetContainer(newContainer, newContFeatID, msgs);
 	}
@@ -173,9 +179,11 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 	 * resetting the same container does not yield the same before state.
 	 */
 	@Override
-	public NotificationChain eInverseAdd(InternalEObject otherEnd, int featureID, Class<?> baseClass, NotificationChain msgs) {
+	public NotificationChain eInverseAdd(InternalEObject otherEnd,
+			int featureID, Class<?> baseClass, NotificationChain msgs) {
 		if (featureID >= 0) {
-			return eInverseAdd(otherEnd, eDerivedStructuralFeatureID(featureID, baseClass), msgs);
+			return eInverseAdd(otherEnd,
+					eDerivedStructuralFeatureID(featureID, baseClass), msgs);
 		} else {
 			if (eInternalContainer() != null) {
 				// do nothing if the new container already is the old container
@@ -187,12 +195,14 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 			return eBasicSetContainer(otherEnd, featureID, msgs);
 		}
 	}
+	
+	// TODO we probably need a eInverseRemove similar to eInverseAdd
 
 	/**
-	 * Overridden to weak cache references. 
+	 * Overridden to weak cache references.
 	 */
 	@Override
-	protected EList<?> createListWrapper(EList<?> source, EStructuralFeature feature) {
+	protected <E> EList<E> createListWrapper(EList<E> source, EStructuralFeature feature) {
 		Fragmentation fragmentation = fFragmentation();
 		if (fragmentation == null && itsLoadingIntoFragment != null) {
 			fragmentation = itsLoadingIntoFragment.getFragmentation();
@@ -205,19 +215,18 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 			long fragmentId = fragment.fFragmentId();
 			int objectId = fragment.getID(this, true);
 			int featureId = feature.getFeatureID();
-			EList<?> cachedReference = fragmentation.getUserCaches()
-					.getRegisteredUserReference(fragmentId, objectId, featureId);
-			
+			EList<E> cachedReference = fragmentation.getUserCaches().getRegisteredUserReference(fragmentId, objectId, featureId);
+
 			if (cachedReference != null) {
-				// cachedReference.clear();
+				((AccessNotifyingEListWrapper<E>)cachedReference).setDelegateList(source);
 				return cachedReference;
 			} else {
-				EList<?> newReference = super.createListWrapper(source, feature);
+				EList<E> newReference = super.createListWrapper(source, feature);
 				fragmentation.getUserCaches().registerUserReference(fragmentId, objectId, featureId, newReference);
 				return newReference;
 			}
 		} else {
 			return super.createListWrapper(source, feature);
-		}	
+		}
 	}
 }

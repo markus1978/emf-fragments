@@ -26,9 +26,10 @@ public abstract class AccessNotifyingEObjectImpl extends MinimalEObjectImpl {
 	/**
 	 * Is called on each read access to this object, or one of its contained
 	 * feature lists/maps.
+	 * Return true, if the object was changed as a result of this call.
 	 */
 	protected void onAccess() {
-
+	
 	}
 
 	@Override
@@ -47,15 +48,8 @@ public abstract class AccessNotifyingEObjectImpl extends MinimalEObjectImpl {
 		super.dynamicSet(dynamicFeatureID, value);
 	}
 
-	@SuppressWarnings({ "rawtypes" })
-	protected EList<?> createListWrapper(final EList<?> source, EStructuralFeature feature) {
-		return new EListWrapper() {
-			@Override
-			protected EList<?> delegateList() {
-				onAccess();
-				return source;
-			}
-		};
+	protected <E> EList<E> createListWrapper(final EList<E> source, EStructuralFeature feature) {
+		return new AccessNotifyingEListWrapper<E>(source);
 	}
 
 	@Override
@@ -87,11 +81,82 @@ public abstract class AccessNotifyingEObjectImpl extends MinimalEObjectImpl {
 		return super.eBasicSettings();
 	}
 	
+	protected Object[] fNoAccessBasicSettings() {
+		return super.eBasicSettings();
+	}
+	
+	/**
+	 * Overridden: When getting a many feature for the first, EMF creates an
+	 * EList as a value set realization. We create a wrapper around that list
+	 * for access notification to those
+	 * lists. EMF's code structure does not allow to return the wrapper, on the
+	 * eGet that creates it. Therefore, we have to get it again.
+	 */
+	public Object eGet(int featureID, boolean resolve, boolean coreType) {
+		Object value = super.eGet(featureID, resolve, coreType);
+		if (value != null && value instanceof EList<?>) {
+			return fNoAccessDynamicGet(featureID);
+		} 
+		
+		return value;
+	}
+	
+	/**
+	 * Returns the value directly, without the feature setting and without an access notification.
+	 */
+	public Object fNoAccessDynamicGet(int featureID) {
+		Object[] eBasicSettings = fNoAccessBasicSettings();
+		if (eBasicSettings == null) {
+			eBasicSettings = fNoAccessBasicSettings();
+		}
+		return eBasicSettings[featureID - eStaticFeatureCount()];
+	}
+	
+	public void fNoAccessDynamicSet(int featureID, Object value) {
+		Object[] eBasicSettings = fNoAccessBasicSettings();
+		if (eBasicSettings == null) {
+			eBasicSettings = fNoAccessBasicSettings();
+		}
+		eBasicSettings[featureID - eStaticFeatureCount()] = value;
+	}
+
+
+	@SuppressWarnings("unchecked")
+	private <E> void fEnsureAccessNotifyingListWarpper(EList<E> wrapper, EStructuralFeature feature) {
+		int featureID = feature.getFeatureID();
+		EList<E> value = (EList<E>)fNoAccessDynamicGet(featureID);
+		if (value == null) {
+			fNoAccessDynamicSet(featureID, wrapper);
+		} else if (value != wrapper) {
+			if (value instanceof AccessNotifyingEListWrapper) {
+				throw new IllegalStateException();
+			} else {
+				((AccessNotifyingEListWrapper<E>)wrapper).setDelegateList(value);
+				fNoAccessDynamicSet(featureID, wrapper);
+			}
+		}
+	}
+	
 	/**
 	 * A wrapper for a serious of interfaces, which are simultanously implemented by EMF's value sets.
 	 */
-	private static abstract class EListWrapper<E> implements InternalEList<E>, InternalEList.Unsettable<E>, EStructuralFeature.Setting {
-		protected abstract EList<E> delegateList();
+	public class AccessNotifyingEListWrapper<E> implements InternalEList<E>, InternalEList.Unsettable<E>, EStructuralFeature.Setting {
+		private EList<E> delegateList = null; 
+		
+		private AccessNotifyingEListWrapper(EList<E> delegateList) {
+			this.delegateList = delegateList;
+		}
+		
+		public void setDelegateList(EList<E> delegateList) {
+			this.delegateList = delegateList;
+		}
+		
+		private EList<E> delegateList() {
+			onAccess();
+			// onAccess might have compromised the installed list wrapper. We make sure it gets installed anyways.
+			fEnsureAccessNotifyingListWarpper(this, ((EStructuralFeature.Setting)delegateList).getEStructuralFeature());
+			return delegateList;
+		}
 		
 		private InternalEList<E> delegateInternalEList() {
 			return (InternalEList<E>)delegateList();
