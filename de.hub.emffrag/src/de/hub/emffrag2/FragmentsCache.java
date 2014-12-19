@@ -1,13 +1,7 @@
 package de.hub.emffrag2;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.RemovalCause;
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * This is a wrapper around a size-based google Guava cache. It provides an
@@ -18,35 +12,17 @@ import com.google.common.cache.RemovalNotification;
  */
 class FragmentsCache {
 
+	private final Queue<Fragment> cachedFragments = new LinkedList<Fragment>();
+	private final int size;
+	private final FragmentsCacheListener fragmentsCacheListener;
+	private int locks = 0;
+	
 	public interface FragmentsCacheListener {
 		public void onRemoval(Fragment fragment, boolean explicitly);
 	}
-
-	private final FragmentsCacheListener fragmentsCacheListener;
-	private Cache<Fragment, Fragment> backend;
-	private List<Fragment> lockedFragments = new ArrayList<Fragment>();
-	private int locks = 0;
-	private int size;
-
-	private class MyRemovalListener implements RemovalListener<Fragment, Fragment> {
-		@Override
-		public void onRemoval(RemovalNotification<Fragment, Fragment> notification) {
-			Fragment fragment = notification.getValue();
-			if (notification.getCause() == RemovalCause.EXPLICIT) {
-				fragmentsCacheListener.onRemoval(fragment, true);
-			} else {
-				if (isLocked()) {
-					lockedFragments.add(fragment);
-				} else {
-					fragmentsCacheListener.onRemoval(fragment, false);
-				}
-			}
-		}
-	}
-
+	
 	public FragmentsCache(FragmentsCacheListener fragmentsCacheListener, int size) {
 		this.fragmentsCacheListener = fragmentsCacheListener;
-		backend = CacheBuilder.newBuilder().maximumSize(size).removalListener(new MyRemovalListener()).build();
 		this.size = size;
 	}
 
@@ -59,31 +35,16 @@ class FragmentsCache {
 			throw new IllegalStateException("Cannot unlock a not locked fragments cache.");
 		}
 
-		if (locks == 1) {
-			int space = size - (int) backend.size();
-			if (space > lockedFragments.size()) {
-				space = lockedFragments.size();
+		locks--;
+		invalidate();
+	}
+	
+	private void invalidate() {
+		if (!isLocked()) {
+			while (cachedFragments.size() > size) {
+				Fragment invalid = cachedFragments.poll();
+				fragmentsCacheListener.onRemoval(invalid, false);
 			}
-			for (int i = 0; i < space; i++) {
-				Fragment lastLockedFragment = lockedFragments.remove(lockedFragments.size() - 1);
-				backend.put(lastLockedFragment, lastLockedFragment);
-			}
-			if (lockedFragments.isEmpty()) {
-				locks--;
-			} else {
-				// Keep the lock in case the unloaded causes other loads during save.
-				//
-				List<Fragment> copy = new ArrayList<Fragment>(lockedFragments);
-				lockedFragments.clear();
-				for (Fragment leftOverFragment : copy) {
-					// only implicitly removed fragments are possible here
-					//
-					fragmentsCacheListener.onRemoval(leftOverFragment, false);
-				}
-				unlock();
-			}
-		} else {
-			locks--;
 		}
 	}
 
@@ -92,22 +53,20 @@ class FragmentsCache {
 	}
 
 	public void add(Fragment fragment) {
-		backend.put(fragment, fragment);
+		cachedFragments.add(fragment);
+		invalidate();
 	}
 
 	/**
 	 * Removes the given fragment explicitly. This means it is removed, even if
 	 * the cache is locked. Returns true if the fragment was indeed removed.
 	 */
-	public boolean remove(Fragment eResource, boolean strict) {
-		if (backend.getIfPresent(eResource) != null) {
-			backend.invalidate(eResource);
-			return true;
-		} else {
-			if (strict) {
-				throw new IllegalArgumentException("Cache does not contain the removed element.");
-			}
-			return false;
+	public boolean remove(Fragment fragment, boolean strict) {
+		boolean removed = cachedFragments.remove(fragment);
+		if (strict && !removed) {
+			throw new IllegalArgumentException("Cache does not contain the removed element.");
 		}
+		fragmentsCacheListener.onRemoval(fragment, true);
+		return removed;
 	}
 }

@@ -21,13 +21,13 @@ import org.eclipse.emf.ecore.resource.URIHandler;
 import org.eclipse.emf.ecore.resource.impl.ExtensibleURIConverterImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 
-import sun.reflect.misc.FieldUtil;
 import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.datastore.DataStoreURIHandler;
 import de.hub.emffrag.datastore.IDataMap;
 import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag2.FragmentsCache.FragmentsCacheListener;
+import de.hub.emffrag2.PooledStackMultiMap.Nullable;
 import de.hub.util.Ansi;
 import de.hub.util.Ansi.Color;
 
@@ -36,9 +36,7 @@ import de.hub.util.Ansi.Color;
  * does not use the {@link Resource.Factory.Registry}, and it also installs its
  * own {@link URIHandler}.
  */
-public class Fragmentation extends ResourceSetImpl {
-
-	
+public class Fragmentation extends ResourceSetImpl implements Nullable<Fragmentation> {
 
 	private final IDataStore dataStore;
 	private final IDataMap<Long> fragmentDataStoreIndex;
@@ -206,8 +204,7 @@ public class Fragmentation extends ResourceSetImpl {
 				EmfFragActivator.instance.error("Errors in resource after loading it as fragment " + toString(fragment) + ".");
 			}
 			if (!fragment.getWarnings().isEmpty()) {
-				EmfFragActivator.instance.warning("Warnings in resource after loading it as fragment " + toString(fragment)
-						+ ".");
+				EmfFragActivator.instance.warning("Warnings in resource after loading it as fragment " + toString(fragment) + ".");
 			}
 			
 			EmfFragActivator.instance.debug(
@@ -309,7 +306,10 @@ public class Fragmentation extends ResourceSetImpl {
 			if (fragment.isLoaded() && !fragment.isLoading()) { // do not do
 																// that while
 																// loading/unloading
+				// this is not part of a AccessNotifyingObject transaction, we have to lock manually.
+				lockFragmentsCache();
 				recursivlyReactToChange(notification, false);
+				unlockFragmentsCache();
 			}
 		}
 	}
@@ -329,50 +329,54 @@ public class Fragmentation extends ResourceSetImpl {
 			recursivlyReactToChange(notification, true);
 		}
 	}
+	
+	public void lockFragmentsCache() {
+		fragmentsCache.lock();
+	}
+	
+	public void unlockFragmentsCache() {
+		fragmentsCache.unlock();
+	}
+	
+	public boolean fragmentsCacheIsLocked() {
+		return fragmentsCache.isLocked();
+	}
 
 	private void recursivlyReactToChange(Notification notification, boolean includeSelf) {
 		// lock the fragments cache to prevent accidental unloading of involved
 		// fragments
-		fragmentsCache.lock();		
 		
 		Notification nextNotification = null;
 		try {
 			nextNotification = (Notification)FieldUtils.readField(notification, "next", true);
 		} catch (IllegalAccessException e) {
-			fragmentsCache.unlock();
 			throw new IllegalArgumentException("Unexpection Notification implementationw without next field.");
 		}
 		
 		if (nextNotification != null) {
 			if (nextNotification.getEventType() == Notification.ADD && notification.getEventType() == Notification.REMOVE) {
 				// move detected, do nothing for the remove event: the fragments do not need to be removed
-				fragmentsCache.unlock();
 				return;
 			}
 		}
 		
-		try {
-			// do the appropriate thing
-			int type = notification.getEventType();
-			if (type == Notification.ADD || type == Notification.SET) {
-				addContentRecursivly((EObject) notification.getNewValue(), includeSelf);
-				if (notification.getOldValue() != null) {
-					removeContentRecursivly((EObject) notification.getOldValue(), includeSelf);
-				}
-			} else if (type == Notification.REMOVE || type == Notification.UNSET) {
+		// do the appropriate thing
+		int type = notification.getEventType();
+		if (type == Notification.ADD || type == Notification.SET) {
+			addContentRecursivly((EObject) notification.getNewValue(), includeSelf);
+			if (notification.getOldValue() != null) {
 				removeContentRecursivly((EObject) notification.getOldValue(), includeSelf);
-			} else if (type == Notification.ADD_MANY) {
-				for (Object added : (Collection<?>) notification.getNewValue()) {
-					addContentRecursivly((EObject) added, includeSelf);
-				}
-			} else if (type == Notification.REMOVE_MANY) {
-				for (Object removed : (Collection<?>) notification.getOldValue()) {
-					removeContentRecursivly((EObject) removed, includeSelf);
-				}
 			}
-		} finally {
-			// release the lock on the cache
-			fragmentsCache.unlock();
+		} else if (type == Notification.REMOVE || type == Notification.UNSET) {
+			removeContentRecursivly((EObject) notification.getOldValue(), includeSelf);
+		} else if (type == Notification.ADD_MANY) {
+			for (Object added : (Collection<?>) notification.getNewValue()) {
+				addContentRecursivly((EObject) added, includeSelf);
+			}
+		} else if (type == Notification.REMOVE_MANY) {
+			for (Object removed : (Collection<?>) notification.getOldValue()) {
+				removeContentRecursivly((EObject) removed, includeSelf);
+			}
 		}
 	}
 
@@ -418,9 +422,6 @@ public class Fragmentation extends ResourceSetImpl {
 					FObjectImpl fContent = (FObjectImpl) eContent;
 					fContent.fEnsureLoaded();
 					EStructuralFeature eContainingFeature = fContent.eContainingFeature();
-					if (eContainingFeature == null) {
-						System.out.println("### no");
-					}
 					if (eContainingFeature != null && isFragmenting(eContainingFeature)
 							&& (fContent.fFragmentation() != this || !fContent.fIsRoot())) {
 						addFragment(fContent);
@@ -473,11 +474,6 @@ public class Fragmentation extends ResourceSetImpl {
 		Fragment fragment = fObject.fFragment();
 		fragmentDataStoreIndex.remove(fragmentDataStoreIndex.getKeyFromURI(fragment.getURI()));
 		fragment.fDelete();
-		
-		// TODO, should this be removed? It only causes problems.
-		// resolveProxies = false;
-		// fragment.unload();
-		// resolveProxies = true;
 
 		// this will also remove this from ResourceSet#getResources()
 		if (fragmentsCache.remove(fragment, false)) {
@@ -531,4 +527,16 @@ public class Fragmentation extends ResourceSetImpl {
 	public String toString() {
 		return "fragmentation[" + dataStore.getURI() + "]";
 	}
+	
+	@Override
+	public Fragmentation self() {
+		return this;
+	}
+	
+	public static final Nullable<Fragmentation> NULL = new Nullable<Fragmentation>() {
+		@Override
+		public Fragmentation self() {
+			return null;
+		}
+	};
 }

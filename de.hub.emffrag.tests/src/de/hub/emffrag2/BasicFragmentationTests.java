@@ -7,6 +7,7 @@ import java.util.List;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.impl.AdapterImpl;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.InternalEObject;
@@ -14,6 +15,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -91,11 +93,33 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 	public void initializeFragmentation() {
 		initializeFragmentation(1);
 	}
+	
+	@After
+	public void commonAssertions() {
+		assertFragmentation();
+	}
 
 	protected void assertBaseDataStoreSize(int size) {
 		if (baseDataStore != null) {
 			Assert.assertEquals(size, baseDataStore.getNumberOfEntries());
 		}
+	}
+	
+	protected void assertFragmentation() {
+		for(EObject content: fragmentation.getContents()) {
+			if (content instanceof FObject) {
+				Assert.assertSame(fragmentation, ((FObject)content).fFragmentation());
+			}
+			TreeIterator<EObject> eAllContents = content.eAllContents();
+			while (eAllContents.hasNext()) {
+				EObject next = eAllContents.next();
+				if (next instanceof FObject) {
+					Assert.assertSame(fragmentation, ((FObject)next).fFragmentation());
+				}
+			}
+		}
+		
+		Assert.assertFalse(fragmentation.fragmentsCacheIsLocked());
 	}
 	
 	private TestObject performBasicAutoAddContentsTest(String modelDefinition, int cacheSize, int loadedFragments, int allFragments) {
@@ -105,6 +129,8 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		fragmentation.getContents().add(model);
 		Assert.assertEquals(loadedFragments, fragmentation.getNumberOfLoadedFragments());
 		Assert.assertEquals(allFragments, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
+		
+		assertFragmentation();
 		
 		return model;
 	}
@@ -362,9 +388,17 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 	@Test
 	public void testRecursiveAutoAddFragmentsToObject() {
 		TestObject model = performBasicAutoAddContentsTest("1f(2f(3))", 1, 1, 3);
-		queryTO(model, "1f2f3").getFragmentedContents().add(createTOFromModelString("4f(5f(6))"));
+		Assert.assertEquals(3, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
+		Assert.assertNotNull(model.fFragmentation());
+		Assert.assertSame(fragmentation, model.fFragmentation());
+		
+		TestObject queryResult = queryTO(model, "1f2f3");
+		queryResult.getFragmentedContents().add(createTOFromModelString("4f(5f(6))"));
+		Assert.assertNotNull(queryResult.fFragmentation());
+		
 		String testModelString = "1f(2f(3f(4f(5f(6)))))";
 		
+		Assert.assertFalse(fragmentation.fragmentsCacheIsLocked());
 		Assert.assertEquals(6, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
 		Assert.assertEquals(1, fragmentation.getNumberOfLoadedFragments());
 		
@@ -689,4 +723,5 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 
 	// TODO weird cases and left overs
 	// 1. moving a fragment root to a non fragmenting reference's value set
+	// 2. client references to iterators over value sets
 }

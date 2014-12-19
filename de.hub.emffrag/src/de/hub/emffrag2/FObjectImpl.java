@@ -10,6 +10,8 @@ import org.eclipse.emf.ecore.resource.Resource.Internal;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
 public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
+	
+	private static PooledStackMultiMap<FObject, Fragmentation> fragmentationsWithOpenTransactions = new PooledStackMultiMap<FObject, Fragmentation>();
 
 	private Fragmentation fragmentationToLoadFrom = null;
 	private Fragment itsLoadingIntoFragment = null;
@@ -40,6 +42,26 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 			fragment.setModified(true);
 		}
 		return fragment;
+	}
+	
+	@Override
+	protected void onBeginTransaction() {
+		fEnsureLoaded();
+		Fragmentation fragmentation = fFragmentation();
+		if (fragmentation != null) {
+			fragmentation.lockFragmentsCache();
+			fragmentationsWithOpenTransactions.push(this, fragmentation);
+		} else {
+			fragmentationsWithOpenTransactions.push(this, Fragmentation.NULL);
+		}
+	}
+	
+	@Override
+	protected void onEndTransaction() {
+		Fragmentation fragmentationWithOpenTransaction = fragmentationsWithOpenTransactions.pop(this);
+		if (fragmentationWithOpenTransaction != null) {
+			fragmentationWithOpenTransaction.unlockFragmentsCache();
+		}
 	}
 
 	@Override
@@ -246,7 +268,6 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 
 			if (cachedReference != null) {
 				((AccessNotifyingEListWrapper<E>) cachedReference).setDelegateList(source);
-				System.out.println("##### source " + source.size());
 				return cachedReference;
 			} else {
 				EList<E> newReference = super.createListWrapper(source, feature);
