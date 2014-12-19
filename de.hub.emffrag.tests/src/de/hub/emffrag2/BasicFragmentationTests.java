@@ -586,16 +586,17 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		
 		Assert.assertSame(container.getFragmentedContents(), fragmentedContents);
 		Assert.assertFalse(container.getFragmentedContents().isEmpty());
-		// TODO: more assertion, once the former passes
+		Assert.assertSame(contents, container.getFragmentedContents().get(0));
 	}
 	
 	@Test
 	public void testBasicAutoFragmentMove() {
-		TestObject container = createTO("1");
+		initializeFragmentation(1);
+		TestObject container = createTO("container");
 		fragmentation.getContents().add(container);
-		TestObject source = createTO("2", container, tmPackage.getTestObject_FragmentedContents());
-		TestObject target = createTO("3", container, tmPackage.getTestObject_FragmentedContents());
-		TestObject object = createTO("4", source, tmPackage.getTestObject_FragmentedContents());
+		TestObject source = createTO("source", container, tmPackage.getTestObject_FragmentedContents());
+		TestObject target = createTO("target", container, tmPackage.getTestObject_FragmentedContents());
+		TestObject object = createTO("object", source, tmPackage.getTestObject_FragmentedContents());
 		
 		object.fEnsureLoaded();
 		URI uri = object.fFragment().getURI();
@@ -686,4 +687,6 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		Assert.assertNotEquals(container, fragmentation.getContents().get(0));
 	}
 
+	// TODO weird cases and left overs
+	// 1. moving a fragment root to a non fragmenting reference's value set
 }

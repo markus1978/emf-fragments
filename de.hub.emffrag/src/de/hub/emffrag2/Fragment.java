@@ -76,11 +76,6 @@ public class Fragment extends UUIDBinaryResourceImpl {
 	 * Overridden to not clear the contents list, but loose its reference. This
 	 * allows {@link TreeIterator}s to work, even when fragments in it become
 	 * unloaded.
-	 * 
-	 * It also does not unload objects directly out of an iterator, since tree
-	 * iterators depend on the children of their current element. TODO: write an
-	 * iterator that collects an element's children before it hands out the
-	 * element.
 	 */
 	@Override
 	protected void doUnload() {

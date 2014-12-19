@@ -33,17 +33,28 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 		fEnsureLoaded();
 		return super.eIsProxy();
 	}
+	
+	private Fragment markModified() {
+		Fragment fragment = (Fragment) eResource();
+		if (fragment != null && fragment.isLoaded() && !fragment.isLoading()) {
+			fragment.setModified(true);
+		}
+		return fragment;
+	}
 
 	@Override
 	public void eNotify(Notification notification) {
 		fEnsureLoaded();
 
-		Fragment fragment = (Fragment) eResource();
+		// TODO this mark modified might be too late for larger changes that work over multiple notifications.
+		// E.g. when an object is moved, its removed from its old container first and than added. With 
+		// very small fragment caches, this results in unloading of old container resource before it was marked modified.
+		// Modification must be tracked at a lower level, or save always, or better lock fragments over whole transactions.
+		Fragment fragment = markModified();
 		// We have to ensure that we are not currently loading the
 		// containing fragment
 		//
 		if (fragment != null && fragment.isLoaded() && !fragment.isLoading()) {
-			fragment.setModified(true);
 			Fragmentation fFragmentation = fFragmentation();
 			if (fFragmentation != null) {
 				fFragmentation.onChange(notification);
@@ -195,14 +206,28 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 			return eBasicSetContainer(otherEnd, featureID, msgs);
 		}
 	}
-	
-	// TODO we probably need a eInverseRemove similar to eInverseAdd
+
+	/**
+	 * Copy override that does not set the base container to null for similar
+	 * reasons than in
+	 * {@link #eInverseAdd(InternalEObject, int, Class, NotificationChain)}.
+	 */
+	@Override
+	public NotificationChain eInverseRemove(InternalEObject otherEnd,
+			int featureID, Class<?> baseClass, NotificationChain msgs) {
+		if (featureID >= 0) {
+			return eInverseRemove(otherEnd, eDerivedStructuralFeatureID(featureID, baseClass), msgs);
+		} else {
+			return msgs;
+		}
+	}
 
 	/**
 	 * Overridden to weak cache references.
 	 */
 	@Override
-	protected <E> EList<E> createListWrapper(EList<E> source, EStructuralFeature feature) {
+	protected <E> EList<E> createListWrapper(EList<E> source,
+			EStructuralFeature feature) {
 		Fragmentation fragmentation = fFragmentation();
 		if (fragmentation == null && itsLoadingIntoFragment != null) {
 			fragmentation = itsLoadingIntoFragment.getFragmentation();
@@ -215,10 +240,13 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 			long fragmentId = fragment.fFragmentId();
 			int objectId = fragment.getID(this, true);
 			int featureId = feature.getFeatureID();
-			EList<E> cachedReference = fragmentation.getUserCaches().getRegisteredUserReference(fragmentId, objectId, featureId);
+			EList<E> cachedReference = fragmentation
+					.getUserCaches()
+					.getRegisteredUserReference(fragmentId, objectId, featureId);
 
 			if (cachedReference != null) {
-				((AccessNotifyingEListWrapper<E>)cachedReference).setDelegateList(source);
+				((AccessNotifyingEListWrapper<E>) cachedReference).setDelegateList(source);
+				System.out.println("##### source " + source.size());
 				return cachedReference;
 			} else {
 				EList<E> newReference = super.createListWrapper(source, feature);

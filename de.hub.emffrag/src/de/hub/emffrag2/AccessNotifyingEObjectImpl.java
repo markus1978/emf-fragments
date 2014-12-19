@@ -38,7 +38,7 @@ public abstract class AccessNotifyingEObjectImpl extends MinimalEObjectImpl {
 			EStructuralFeature eStructuralFeature = eDynamicFeature(dynamicFeatureID);
 			if (!eStructuralFeature.isTransient()) {
 				if (FeatureMapUtil.isFeatureMap(eStructuralFeature)) {
-					// TODO
+					// TODO wrapper for feature maps
 				} else if (eStructuralFeature.isMany()) {
 					super.dynamicSet(dynamicFeatureID, createListWrapper((EList<?>) value, eStructuralFeature));
 					return;
@@ -144,10 +144,12 @@ public abstract class AccessNotifyingEObjectImpl extends MinimalEObjectImpl {
 		private EList<E> delegateList = null; 
 		
 		private AccessNotifyingEListWrapper(EList<E> delegateList) {
+			System.out.println("##### delegate list " + delegateList.size());
 			this.delegateList = delegateList;
 		}
 		
 		public void setDelegateList(EList<E> delegateList) {
+			System.out.println("##### delegate list " + delegateList.size());
 			this.delegateList = delegateList;
 		}
 		
@@ -167,15 +169,19 @@ public abstract class AccessNotifyingEObjectImpl extends MinimalEObjectImpl {
 		}
 		
 		public boolean add(E arg0) {
+			System.out.println("#### addd");
 			return delegateInternalEList().add(arg0);
 		}
 		public void add(int arg0, E arg1) {
+			System.out.println("#### addd");
 			delegateInternalEList().add(arg0, arg1);
 		}
 		public boolean addAll(Collection<? extends E> arg0) {
+			System.out.println("#### addd");
 			return delegateInternalEList().addAll(arg0);
 		}
 		public boolean addAll(int arg0, Collection<? extends E> arg1) {
+			System.out.println("#### addd");
 			return delegateInternalEList().addAll(arg0, arg1);
 		}
 		public E basicGet(int index) {
@@ -215,18 +221,23 @@ public abstract class AccessNotifyingEObjectImpl extends MinimalEObjectImpl {
 			return delegateInternalEList().basicRemove(object, notifications);
 		}
 		public NotificationChain basicAdd(E object, NotificationChain notifications) {
+			System.out.println("#### addd");
 			return delegateInternalEList().basicAdd(object, notifications);
 		}
 		public void addUnique(E object) {
+			System.out.println("#### addd");
 			delegateInternalEList().addUnique(object);
 		}
 		public void addUnique(int index, E object) {
+			System.out.println("#### addd");
 			delegateInternalEList().addUnique(index, object);
 		}
 		public boolean addAllUnique(Collection<? extends E> collection) {
+			System.out.println("#### addd");
 			return delegateInternalEList().addAllUnique(collection);
 		}
 		public boolean addAllUnique(int index, Collection<? extends E> collection) {
+			System.out.println("#### addd");
 			return delegateInternalEList().addAllUnique(index, collection);
 		}
 		public void clear() {

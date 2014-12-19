@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
@@ -20,6 +21,7 @@ import org.eclipse.emf.ecore.resource.URIHandler;
 import org.eclipse.emf.ecore.resource.impl.ExtensibleURIConverterImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 
+import sun.reflect.misc.FieldUtil;
 import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.datastore.DataStoreURIHandler;
 import de.hub.emffrag.datastore.IDataMap;
@@ -332,6 +334,23 @@ public class Fragmentation extends ResourceSetImpl {
 		// lock the fragments cache to prevent accidental unloading of involved
 		// fragments
 		fragmentsCache.lock();		
+		
+		Notification nextNotification = null;
+		try {
+			nextNotification = (Notification)FieldUtils.readField(notification, "next", true);
+		} catch (IllegalAccessException e) {
+			fragmentsCache.unlock();
+			throw new IllegalArgumentException("Unexpection Notification implementationw without next field.");
+		}
+		
+		if (nextNotification != null) {
+			if (nextNotification.getEventType() == Notification.ADD && notification.getEventType() == Notification.REMOVE) {
+				// move detected, do nothing for the remove event: the fragments do not need to be removed
+				fragmentsCache.unlock();
+				return;
+			}
+		}
+		
 		try {
 			// do the appropriate thing
 			int type = notification.getEventType();
@@ -398,7 +417,11 @@ public class Fragmentation extends ResourceSetImpl {
 				if (eContent instanceof FObjectImpl) {
 					FObjectImpl fContent = (FObjectImpl) eContent;
 					fContent.fEnsureLoaded();
-					if (isFragmenting(fContent.eContainingFeature())
+					EStructuralFeature eContainingFeature = fContent.eContainingFeature();
+					if (eContainingFeature == null) {
+						System.out.println("### no");
+					}
+					if (eContainingFeature != null && isFragmenting(eContainingFeature)
 							&& (fContent.fFragmentation() != this || !fContent.fIsRoot())) {
 						addFragment(fContent);
 					}
@@ -473,7 +496,7 @@ public class Fragmentation extends ResourceSetImpl {
 	}
 
 	private boolean isFragmenting(EStructuralFeature reference) {
-		return !reference.getEAnnotations().isEmpty(); // TODO
+		return !reference.getEAnnotations().isEmpty(); // TODO reasonable detection of fragmentation annotations
 	}
 
 	/**

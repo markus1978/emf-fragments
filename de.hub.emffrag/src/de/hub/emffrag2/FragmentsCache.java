@@ -71,7 +71,7 @@ class FragmentsCache {
 			if (lockedFragments.isEmpty()) {
 				locks--;
 			} else {
-				// Keep the lock in case the unloaded cases other loads during save.
+				// Keep the lock in case the unloaded causes other loads during save.
 				//
 				List<Fragment> copy = new ArrayList<Fragment>(lockedFragments);
 				lockedFragments.clear();
