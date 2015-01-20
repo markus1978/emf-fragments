@@ -1,4 +1,4 @@
-package de.hub.emffrag2;
+package de.hub.emffrag.fragmentation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +10,12 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import de.hub.emffrag.fragmentation.Fragment;
+import de.hub.emffrag.fragmentation.FragmentsCache;
+import de.hub.emffrag.fragmentation.FragmentsCache.FragmentsCacheListener;
 import de.hub.emffrag.testmodels.AbstractTestModelTests;
 import de.hub.emffrag.testmodels.fobject.testmodel.TestObject;
 import de.hub.emffrag.testmodels.fobject.testmodel.fobject.meta.TestModelPackage;
-import de.hub.emffrag2.FragmentsCache.FragmentsCacheListener;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class FragmentsCacheTests extends AbstractTestModelTests<TestObject, TestModelPackage> {

@@ -42,7 +42,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import de.hub.emffrag.datastore.DataStoreImpl;
 import de.hub.emffrag.datastore.IDataStore;
-import de.hub.emffrag2.Fragmentation;
+import de.hub.emffrag.fragmentation.Fragmentation;
 
 
 /** This view uses the standard generated ImportProviderAdatpers to create Content and Labels.*/

@@ -1,4 +1,4 @@
-package de.hub.emffrag2;
+package de.hub.emffrag.fragmentation;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.InternalEObject;

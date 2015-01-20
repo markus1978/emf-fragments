@@ -1,4 +1,4 @@
-package de.hub.emffrag2;
+package de.hub.emffrag.fragmentation;
 
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EObject;

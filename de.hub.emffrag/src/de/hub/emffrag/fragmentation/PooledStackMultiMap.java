@@ -1,4 +1,4 @@
-package de.hub.emffrag2;
+package de.hub.emffrag.fragmentation;
 
 import java.util.HashMap;
 import java.util.Map;

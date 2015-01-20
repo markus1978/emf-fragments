@@ -15,15 +15,12 @@
  */
 package de.hub.emffrag.testmodels.fobject.testmodel.fobject.impl;
 
+import de.hub.emffrag.fragmentation.FObjectImpl;
 import de.hub.emffrag.testmodels.fobject.testmodel.TestEnum;
 import de.hub.emffrag.testmodels.fobject.testmodel.TestObject;
-
 import de.hub.emffrag.testmodels.fobject.testmodel.fobject.meta.TestModelPackage;
 
-import de.hub.emffrag2.FObjectImpl;
-
 import org.eclipse.emf.common.util.EList;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 

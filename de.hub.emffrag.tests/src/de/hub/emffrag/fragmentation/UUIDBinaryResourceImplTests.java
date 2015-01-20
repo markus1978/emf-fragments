@@ -1,4 +1,4 @@
-package de.hub.emffrag2;
+package de.hub.emffrag.fragmentation;
 
 import java.io.IOException;
 
@@ -13,6 +13,7 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
+import de.hub.emffrag.fragmentation.UUIDBinaryResourceImpl;
 import de.hub.emffrag.testmodels.AbstractTestModelTests;
 import de.hub.emffrag.testmodels.eobject.testmodel.TestObject;
 import de.hub.emffrag.testmodels.eobject.testmodel.eobject.meta.TestModelPackage;

@@ -3,7 +3,7 @@ package de.hub.emffrag.mongodb;
 import org.eclipse.emf.common.util.URI;
 
 import de.hub.emffrag.datastore.IBaseDataStore;
-import de.hub.emffrag2.BasicFragmentationTests;
+import de.hub.emffrag.fragmentation.BasicFragmentationTests;
 
 public class MongodbBasicFragmentationTests extends BasicFragmentationTests {
 

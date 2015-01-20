@@ -1,4 +1,4 @@
-package de.hub.emffrag2;
+package de.hub.emffrag.fragmentation;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,8 +26,8 @@ import de.hub.emffrag.datastore.DataStoreURIHandler;
 import de.hub.emffrag.datastore.IDataMap;
 import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.LongKeyType;
-import de.hub.emffrag2.FragmentsCache.FragmentsCacheListener;
-import de.hub.emffrag2.PooledStackMultiMap.Nullable;
+import de.hub.emffrag.fragmentation.FragmentsCache.FragmentsCacheListener;
+import de.hub.emffrag.fragmentation.PooledStackMultiMap.Nullable;
 import de.hub.util.Ansi;
 import de.hub.util.Ansi.Color;
 

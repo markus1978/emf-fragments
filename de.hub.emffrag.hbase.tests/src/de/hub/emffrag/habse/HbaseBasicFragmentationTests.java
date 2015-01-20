@@ -7,8 +7,8 @@ import org.eclipse.emf.common.util.URI;
 import org.junit.BeforeClass;
 
 import de.hub.emffrag.datastore.IBaseDataStore;
+import de.hub.emffrag.fragmentation.BasicFragmentationTests;
 import de.hub.emffrag.hbase.HBaseDataStore;
-import de.hub.emffrag2.BasicFragmentationTests;
 
 public class HbaseBasicFragmentationTests extends BasicFragmentationTests {
 	

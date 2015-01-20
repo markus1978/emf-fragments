@@ -1,6 +1,6 @@
 package de.hub.emffrag.testmodels;
 
-import de.hub.emffrag2.AccessNotifyingEObjectImpl;
+import de.hub.emffrag.fragmentation.AccessNotifyingEObjectImpl;
 
 public class AccessNotifyingTestEObjectImpl extends AccessNotifyingEObjectImpl {
 

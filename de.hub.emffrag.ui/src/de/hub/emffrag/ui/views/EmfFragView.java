@@ -45,7 +45,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import de.hub.emffrag.datastore.DataStoreImpl;
 import de.hub.emffrag.datastore.IDataStore;
-import de.hub.emffrag2.Fragmentation;
+import de.hub.emffrag.fragmentation.Fragmentation;
 
 /** This view uses the MoDisco content and label providers. */
 public class EmfFragView extends ViewPart {

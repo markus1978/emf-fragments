@@ -15,9 +15,9 @@
  */
 package de.hub.emffrag.testmodels.fobject.testmodel;
 
-import de.hub.emffrag2.FObject;
-import org.eclipse.emf.common.util.EList;
+import de.hub.emffrag.fragmentation.FObject;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
 /**

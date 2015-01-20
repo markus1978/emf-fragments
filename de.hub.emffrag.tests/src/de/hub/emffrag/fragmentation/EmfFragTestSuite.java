@@ -1,4 +1,4 @@
-package de.hub.emffrag2;
+package de.hub.emffrag.fragmentation;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
