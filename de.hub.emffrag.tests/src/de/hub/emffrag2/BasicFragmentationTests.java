@@ -471,7 +471,6 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 			Assert.assertTrue(container.getFragmentedContents().remove(objectToRemove));
 			Assert.assertSame(container.getFragmentedContents(), toRemove);
 			Assert.assertEquals(size - 1, toRemove.size());
-			// TODO ... inverseRemove automatically adds the removed object back on .. thats not right
 		}
 		
 		Assert.assertEquals(1, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
