@@ -25,6 +25,7 @@ import org.junit.runners.MethodSorters;
 
 import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.datastore.DataStoreImpl;
+import de.hub.emffrag.datastore.IBaseDataStore;
 import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.InMemoryDataStore;
 import de.hub.emffrag.testmodels.AbstractTestModelTests;
@@ -52,7 +53,7 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 
 	protected Fragmentation fragmentation;
 	protected IDataStore dataStore;
-	private InMemoryDataStore baseDataStore = null;
+	private IBaseDataStore baseDataStore = null;
 	protected static  TestModelPackage tmPackage = TestModelPackage.eINSTANCE;
 	
 	@Override
@@ -83,9 +84,13 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		fragmentation.close();
 		initializeFragmentation(fragmentsCacheSize, dataStore);
 	}
+	
+	protected IBaseDataStore createBaseDataStore() {
+		return new InMemoryDataStore(false);
+	}
 
-	protected void createDataStore() {
-		baseDataStore = new InMemoryDataStore(false);
+	private final void createDataStore() {
+		baseDataStore = createBaseDataStore(); 
 		dataStore = new DataStoreImpl(baseDataStore, getTestFragmentationURI());
 	}
 
@@ -100,8 +105,8 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 	}
 
 	protected void assertBaseDataStoreSize(int size) {
-		if (baseDataStore != null) {
-			Assert.assertEquals(size, baseDataStore.getNumberOfEntries());
+		if (baseDataStore != null && baseDataStore instanceof InMemoryDataStore) {
+			Assert.assertEquals(size, ((InMemoryDataStore)baseDataStore).getNumberOfEntries());
 		}
 	}
 	

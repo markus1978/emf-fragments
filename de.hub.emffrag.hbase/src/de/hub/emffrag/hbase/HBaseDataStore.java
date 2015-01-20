@@ -21,13 +21,18 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
+import org.eclipse.emf.common.util.URI;
 
 import com.google.common.base.Throwables;
 
 import de.hub.emffrag.EmfFragActivator;
+import de.hub.emffrag.datastore.DataStoreImpl;
 import de.hub.emffrag.datastore.IBaseDataStore;
 import de.hub.emffrag.datastore.IBulkInsertExtension;
+import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.IScanExtension;
+import de.hub.emffrag.datastore.ScanningDataStore;
+import de.hub.emffrag.datastore.WriteCachingDataStore;
 
 /**
  * HBase implementation of {@link DataStore}. This implementation currently only
@@ -35,6 +40,19 @@ import de.hub.emffrag.datastore.IScanExtension;
  */
 public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, IScanExtension {
 
+	public static IDataStore createDataStore(URI uri, int scanCacheSize, int bulkInsertSize) {
+		if (bulkInsertSize <= 0) {
+			bulkInsertSize = 1000;
+		}
+		HBaseDataStore baseDataStore = new HBaseDataStore(uri.path().substring(1), true);
+		baseDataStore.setScanCacheSize(scanCacheSize > 0 ? scanCacheSize : 1);
+		if (scanCacheSize > 0) {
+			return new DataStoreImpl(new ScanningDataStore(new WriteCachingDataStore(baseDataStore, baseDataStore, bulkInsertSize), baseDataStore), uri);
+		} else {
+			return new DataStoreImpl(new WriteCachingDataStore(baseDataStore, baseDataStore, bulkInsertSize), uri);
+		}				
+	}	
+	
 	
 	private int scanCacheSize = 1000;
 

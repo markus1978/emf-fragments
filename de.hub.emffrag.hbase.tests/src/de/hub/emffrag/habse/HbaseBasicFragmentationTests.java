@@ -3,10 +3,12 @@ package de.hub.emffrag.habse;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.eclipse.emf.common.util.URI;
 import org.junit.BeforeClass;
 
-import de.hub.emffrag.datastore.IDataStore;
-import de.hub.emffrag.fragmentation.BasicFragmentationTests;
+import de.hub.emffrag.datastore.IBaseDataStore;
+import de.hub.emffrag.hbase.HBaseDataStore;
+import de.hub.emffrag2.BasicFragmentationTests;
 
 public class HbaseBasicFragmentationTests extends BasicFragmentationTests {
 	
@@ -18,7 +20,8 @@ public class HbaseBasicFragmentationTests extends BasicFragmentationTests {
 	}
 
 	@Override
-	protected IDataStore createTestDataStore() {
-		return HBaseDataStoreFactory.createDataStore();
+	protected IBaseDataStore createBaseDataStore() {
+		URI uri = URI.createURI("hbase://localhost/testmodel");
+		return new HBaseDataStore(uri.path().substring(1), true);
 	}
 }

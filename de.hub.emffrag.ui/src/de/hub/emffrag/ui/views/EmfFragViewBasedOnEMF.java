@@ -40,7 +40,9 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.DrillDownAdapter;
 import org.eclipse.ui.part.ViewPart;
 
-import de.hub.emffrag.EmfFragActivator;
+import de.hub.emffrag.datastore.DataStoreImpl;
+import de.hub.emffrag.datastore.IDataStore;
+import de.hub.emffrag2.Fragmentation;
 
 
 /** This view uses the standard generated ImportProviderAdatpers to create Content and Labels.*/
@@ -168,12 +170,16 @@ public class EmfFragViewBasedOnEMF extends ViewPart {
 		viewer.getControl().setFocus();
 	}
 	
+	protected IDataStore createDataStore(URI uri) {
+		return DataStoreImpl.createDataStore(uri);
+	}
+	
 	private void addModel(String uriString) {
 		Resource resource = null;
 		try {
 			URI uri = URI.createURI(uriString);
-			EmfFragActivator.instance.useBinaryFragments = uriString.endsWith(".bin");
-			resource = rs.getResource(uri, true);
+			resource = new Fragmentation(createDataStore(uri), 100).getRootFragment();
+			viewer.setInput(resource.getResourceSet());
 		} catch (Exception e) {
 			showMessage("Could not open the model at " + uriString + ": " + e.getMessage());
 			e.printStackTrace();

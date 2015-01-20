@@ -1,64 +1,31 @@
 package de.hub.emffrag;
 
-import java.util.Map;
-
-import junit.framework.Assert;
-
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.osgi.framework.Bundle;
+import org.junit.Assert;
 import org.osgi.framework.BundleContext;
 
-import de.hub.emffrag.fragmentation.FGlobalEventListener;
-import de.hub.emffrag.fragmentation.FragmentedModel;
-import de.hub.emffrag.fragmentation.FragmentedModelFactory;
-import de.hub.emffrag.fragmentation.IdSemantics;
-import de.hub.emffrag.fragmentation.IndexBasedIdSemantics;
-import de.hub.emffrag.fragmentation.IndexBasedIdSemantics.IdBehaviour;
-
 public class EmfFragActivator extends Plugin {
-	
-	public FragmentedModel defaultModel = null;
-	public boolean useBinaryFragments = false;
-	public boolean collectStatistics = false;
-	public FGlobalEventListener globalEventListener = FGlobalEventListener.emptyInstance;
-	
-	public IdSemantics idSemantics = new IndexBasedIdSemantics(IdBehaviour.strict);
 	
 	public static EmfFragActivator instance = null;
 	
 	public boolean logInStandAlone = false;
-	private boolean isStandAlone = false;
-	public int cacheSize = 100;
-	public int bulkInsertSize = 1000;
-	
+	private boolean isStandAlone = false;	
 	private int warningsAndErrors = 0;
-
 
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);		
 		instance = this;
 		init();		
-		
-		Bundle bundle = Platform.getBundle("de.hub.emffrag.mongodb");
-		if (bundle != null) {
-			try {
-				bundle.start();
-			} catch (Exception e) {
-				
-			}
-		}
 	}
 
 	private void init() {
-		Map<String, Object> protocolToFactoryMap = Resource.Factory.Registry.INSTANCE.getProtocolToFactoryMap();
-		protocolToFactoryMap.put("memory", new FragmentedModelFactory());
+
 	}
 	
 	public static void standalone(EPackage... metaModels) {
@@ -128,5 +95,4 @@ public class EmfFragActivator extends Plugin {
 	public void resetWarningsAndErrors() {
 		warningsAndErrors = 0;
 	}
-
 }

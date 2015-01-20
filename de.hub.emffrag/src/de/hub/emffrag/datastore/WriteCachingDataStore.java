@@ -20,11 +20,11 @@ public class WriteCachingDataStore extends AbstractDelegatingDataStore {
 		this.bulkInsertSize = bulkInsertSize;
 	}
 
-	public WriteCachingDataStore(IBaseDataStore baseDataStore, IBulkInsertExtension bulkInsertExtension) {
+	public WriteCachingDataStore(IBaseDataStore baseDataStore, IBulkInsertExtension bulkInsertExtension, int bulkInsertSize) {
 		super(baseDataStore);
 		this.bulkInsertExtension = bulkInsertExtension;
 		if (EmfFragActivator.instance != null) {
-			this.bulkInsertSize = EmfFragActivator.instance.bulkInsertSize;
+			this.bulkInsertSize = bulkInsertSize;
 		}
 	}
 

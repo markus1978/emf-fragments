@@ -65,7 +65,7 @@ public abstract class AbstractDataStoreTest {
 			baseDataStore = new ScanningDataStore(baseDataStore, scanExtension);
 		}
 		if (bulkInsertExtension != null) {
-			baseDataStore = new WriteCachingDataStore(baseDataStore, bulkInsertExtension);
+			baseDataStore = new WriteCachingDataStore(baseDataStore, bulkInsertExtension, 100);
 		}
 		dataStore = new DataStoreImpl(baseDataStore, uri);
 	}

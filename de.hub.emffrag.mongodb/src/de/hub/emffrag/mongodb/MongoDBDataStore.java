@@ -5,22 +5,90 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.eclipse.emf.common.util.URI;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
+import com.mongodb.ReadPreference;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 
+import de.hub.emffrag.datastore.DataStoreImpl;
 import de.hub.emffrag.datastore.IBaseDataStore;
+import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.IScanExtension;
+import de.hub.emffrag.datastore.ScanningDataStore;
 import de.hub.emffrag.datastore.URIUtils;
 
 public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
+	
+	public static IDataStore createDataStore(URI uri, boolean useScanning) {
+		MongoDBDataStore baseDataStore = new MongoDBDataStore(uri.authority(), uri.path().substring(1));
+		if (useScanning) {
+			return new DataStoreImpl(new ScanningDataStore(baseDataStore, baseDataStore), uri);
+		} else {
+			return new DataStoreImpl(baseDataStore, uri);
+		}				
+	}
+	
+	private final static Map<String, DB> dataBases = new HashMap<String, DB>();
+	
+	public static DB getDataBase(String host, int port) {
+		DB dataBase = dataBases.get(host + port);
+		if (dataBase == null) {
+			MongoClient dbClient;
+			try {
+				ReadPreference.nearest();
+				if (port != -1) {
+					dbClient = new MongoClient(host, port);
+				} else {
+					dbClient = new MongoClient(host);	
+				}			
+			} catch (UnknownHostException e) {
+				throw new IllegalArgumentException("Given host does not exists or DB is not running: " + host);	
+			}
+			dataBase = dbClient.getDB("emffrag");
+			dataBases.put(host+port, dataBase);
+		}
+		return dataBase;				
+	}
+	
+	public static void dropCollection(URI uri) {
+		String hostName = null;
+		int hostPort = -1;
+		
+		String host = uri.authority();
+		String[] hostParts = host.split(":");
+		if (hostParts.length == 1) {
+			hostName = hostParts[0];
+		} else if (hostParts.length == 2) {
+			hostName = hostParts[0];
+			try {
+				hostPort = Integer.parseInt(hostParts[1]);
+			} catch (NumberFormatException e) {
+				throw new IllegalArgumentException("Invalid host format: " + host);
+			}
+		} else {
+			throw new IllegalArgumentException("Invalid host format: " + host);			
+		}
+
+		String dataStoreId = uri.path().substring(1);
+		DB db = MongoDBDataStore.getDataBase(hostName, hostPort);
+		DBCollection collection = db.getCollection(dataStoreId);		
+
+		collection.dropIndexes();
+		collection.drop();
+	}
 
 	private static final int MAX_BSON_SIZE = 1024*1024*16 - 256;
 	
@@ -57,7 +125,7 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 			throw new IllegalArgumentException("Invalid host format: " + host);			
 		}
 
-		db = EmfFragMongoDBActivator.instance.getDataBase(hostName, hostPort);
+		db = getDataBase(hostName, hostPort);
 		collection = db.getCollection(dataStoreId);		
 		if (dropFirst) {
 			collection.dropIndexes();

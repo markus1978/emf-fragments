@@ -2,8 +2,7 @@ package de.hub.emffrag.mongodb;
 
 import java.net.UnknownHostException;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 

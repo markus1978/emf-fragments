@@ -4,6 +4,10 @@ import org.eclipse.emf.common.util.URI;
 
 
 public class DataStoreImpl extends AbstractDelegatingDataStore implements IDataStore {
+	
+	public static IDataStore createDataStore(URI uri) {
+		return IDataStore.dataStoreFactoryRegistry.get(uri.scheme()).createDataStore(uri);
+	}
 
 	private final URI uri;
 	
