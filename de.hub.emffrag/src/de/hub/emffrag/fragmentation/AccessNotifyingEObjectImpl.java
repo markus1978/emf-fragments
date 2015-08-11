@@ -91,8 +91,13 @@ public abstract class AccessNotifyingEObjectImpl extends MinimalEObjectImpl {
 		return super.eBasicSettings();
 	}
 
-	protected Object[] fNoAccessBasicSettings() {
-		return super.eBasicSettings();
+	private Object[] fNoAccessBasicSettings() {
+		Object[] result =  super.eBasicSettings();
+		if (result == null) {
+			eSettings();
+			result = super.eBasicSettings();
+		}
+		return result;
 	}
 
 	/**
@@ -117,17 +122,11 @@ public abstract class AccessNotifyingEObjectImpl extends MinimalEObjectImpl {
 	 */
 	public Object fNoAccessDynamicGet(int featureID) {
 		Object[] eBasicSettings = fNoAccessBasicSettings();
-		if (eBasicSettings == null) {
-			eBasicSettings = fNoAccessBasicSettings();
-		}
 		return eBasicSettings[featureID - eStaticFeatureCount()];
 	}
 
 	public void fNoAccessDynamicSet(int featureID, Object value) {
 		Object[] eBasicSettings = fNoAccessBasicSettings();
-		if (eBasicSettings == null) {
-			eBasicSettings = fNoAccessBasicSettings();
-		}
 		eBasicSettings[featureID - eStaticFeatureCount()] = value;
 	}
 
