@@ -8,9 +8,11 @@ import java.io.OutputStream;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.emf.common.util.URI;
 
+import com.google.common.base.Stopwatch;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -29,8 +31,20 @@ import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.IScanExtension;
 import de.hub.emffrag.datastore.ScanningDataStore;
 import de.hub.emffrag.datastore.URIUtils;
+import de.hub.emffrag.statistics.Statistic;
+import de.hub.emffrag.statistics.services.Histogram;
+import de.hub.emffrag.statistics.services.Summary;
 
 public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
+	
+	private final Statistic entrySizeStatistic = new Statistic.StatisticBuilder()
+			.withService(new Summary())
+			.withService(new Histogram())
+			.register(MongoDBDataStore.class, "EntrySize");
+	private final Statistic writeTimeStatistic = new Statistic.StatisticBuilder()
+			.withService(new Summary())
+			.withService(new Histogram())
+			.register(MongoDBDataStore.class, "WriteTimes");
 	
 	public static IDataStore createDataStore(URI uri, boolean useScanning) {
 		MongoDBDataStore baseDataStore = new MongoDBDataStore(uri.authority(), uri.path().substring(1));
@@ -209,6 +223,7 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 		return new ByteArrayOutputStream(256) {
 			@Override
 			public void close() throws IOException {
+				Stopwatch watch = Stopwatch.createStarted();
 				super.close();
 				byte[] keyString = adoptKey(key);
 				byte[] byteArray = toByteArray();
@@ -222,6 +237,8 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 					gridFsFile.save();
 					collection.update(new BasicDBObject(KEY, keyString), new BasicDBObject(KEY, keyString).append(TYPE, TYPE_GRID_FS).append(FILE_NAME, fileName), true, false);
 				}
+				writeTimeStatistic.track(watch.stop().elapsed(TimeUnit.NANOSECONDS));
+				entrySizeStatistic.track(byteArray.length);
 			}
 		};
 	}

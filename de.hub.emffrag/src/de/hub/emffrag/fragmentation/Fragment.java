@@ -16,8 +16,18 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 
+import de.hub.emffrag.statistics.Statistic;
+import de.hub.emffrag.statistics.Statistic.StatisticBuilder;
+import de.hub.emffrag.statistics.services.Histogram;
+import de.hub.emffrag.statistics.services.Summary;
+
 public class Fragment extends UUIDBinaryResourceImpl {
 
+	private static final Statistic fragmentSizeAtUnloadStatistic = new StatisticBuilder()
+			.withService(new Summary())
+			.withService(new Histogram())
+			.register(Fragment.class, "FragmentSizeAtUnload");
+	
 	private final long id;
 	private boolean isDeleted = false;
 
@@ -79,6 +89,8 @@ public class Fragment extends UUIDBinaryResourceImpl {
 	 */
 	@Override
 	protected void doUnload() {
+		int numberOfUnloadedObjects = 0;
+		
 		Iterator<EObject> allContents = getAllProperContents(unloadingContents);
 
 		getErrors().clear();
@@ -89,6 +101,7 @@ public class Fragment extends UUIDBinaryResourceImpl {
 			// the children of the current object.
 			//
 			contentToUnload.add((InternalEObject) allContents.next());
+			numberOfUnloadedObjects++;
 		}
 
 		// Removing reference, instead of clearing it. Will be re-instantiated
@@ -104,6 +117,8 @@ public class Fragment extends UUIDBinaryResourceImpl {
 		contentToUnload.clear();
 
 		clearIDs();
+		
+		fragmentSizeAtUnloadStatistic.track(numberOfUnloadedObjects);
 	}
 
 	/**

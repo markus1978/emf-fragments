@@ -12,9 +12,6 @@ import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTable;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-
 public class HBaseUtil {
 	
 	public static final byte[] colFamily = "value".getBytes();
@@ -33,7 +30,7 @@ public class HBaseUtil {
 				admin.deleteTable(name);
 			}
 		} catch (IOException e) {
-			Throwables.propagate(e);
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -55,7 +52,7 @@ public class HBaseUtil {
 				try {
 					baos.close();
 				} catch (IOException e) {
-					Throwables.propagate(e);
+					throw new RuntimeException(e);
 				}
 			}
 		}
@@ -63,7 +60,9 @@ public class HBaseUtil {
 	}
 
 	public static HTable getHBaseTable(String tableName, boolean deleteExistingTable) throws MasterNotRunningException, ZooKeeperConnectionException {
-		Preconditions.checkArgument(tableName != null);
+		if (tableName == null) {
+			throw new IllegalArgumentException("tableName must not be null");
+		}
 		
 		if (admin == null) {
 			if (config == null) {
@@ -90,7 +89,7 @@ public class HBaseUtil {
 
 			table = new HTable(config, tableName);
 		} catch (Exception e) {
-			Throwables.propagate(e);
+			throw new RuntimeException(e);
 		}
 		return table;
 	}

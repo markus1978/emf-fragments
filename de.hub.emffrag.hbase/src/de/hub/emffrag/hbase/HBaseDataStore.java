@@ -23,8 +23,6 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.eclipse.emf.common.util.URI;
 
-import com.google.common.base.Throwables;
-
 import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.datastore.DataStoreImpl;
 import de.hub.emffrag.datastore.IBaseDataStore;
@@ -87,7 +85,7 @@ public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, ISc
 				hTable = HBaseUtil.getHBaseTable(dataStoreId, deleteExistingTable);
 			}
 		} catch (Exception e) {
-			Throwables.propagate(e);
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -105,8 +103,7 @@ public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, ISc
 				return result.getRow();
 			}
 		} catch (IOException e) {
-			Throwables.propagate(e);
-			return null;
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -122,8 +119,7 @@ public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, ISc
 				return result.getRow();
 			}
 		} catch (IOException e) {
-			Throwables.propagate(e);
-			return null;
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -134,7 +130,7 @@ public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, ISc
 		try {
 			result = hTable.get(new Get(key));
 		} catch (IOException e) {
-			Throwables.propagate(e);
+			throw new RuntimeException(e);
 		}
 		byte[] value = result.getValue(colFamily, col);
 		if (value == null || result.isEmpty()) {
@@ -164,8 +160,7 @@ public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, ISc
 		try {
 			return !hTable.exists(new Get(key));
 		} catch (IOException e) {
-			Throwables.propagate(e);
-			return false;
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -191,7 +186,7 @@ public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, ISc
 				return false;
 			}
 		} catch (Exception e) {
-			Throwables.propagate(e);
+			throw new RuntimeException(e);
 		} finally {
 			// try {
 			// hTable.unlockRow(lockRow);
@@ -202,7 +197,6 @@ public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, ISc
 		// } else {
 		// return false;
 		// }
-		return false;
 	}
 
 	@Override
@@ -211,7 +205,7 @@ public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, ISc
 		try {
 			hTable.delete(new Delete(bytes));
 		} catch (IOException e) {
-			Throwables.propagate(e);
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -226,7 +220,7 @@ public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, ISc
 			hTable.close();
 			hTable = null;
 		} catch (IOException e) {
-			Throwables.propagate(e);
+			throw new RuntimeException(e);
 		}
 	}
 	
@@ -289,7 +283,7 @@ public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, ISc
 			scan.setCaching(scanCacheSize);
 			scanner = hTable.getScanner(scan);
 		} catch (IOException e) {
-			Throwables.propagate(e);
+			throw new RuntimeException(e);
 		}
 		
 		return new Cursor(scanner);	

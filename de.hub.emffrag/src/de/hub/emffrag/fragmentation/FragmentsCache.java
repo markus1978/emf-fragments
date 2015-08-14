@@ -3,6 +3,11 @@ package de.hub.emffrag.fragmentation;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import de.hub.emffrag.statistics.IWithStatistics;
+import de.hub.emffrag.statistics.Statistic;
+import de.hub.emffrag.statistics.services.Plot;
+import de.hub.emffrag.statistics.services.Summary;
+
 /**
  * This is a wrapper around a size-based google Guava cache. It provides an
  * additional lock mechanism that temporarily prevents eviction even if the
@@ -10,12 +15,17 @@ import java.util.Queue;
  * is removed. This allows us to change the fragmentation without accidently
  * unloading operation critical fragments.
  */
-class FragmentsCache {
+class FragmentsCache implements IWithStatistics {
 
 	private final Queue<Fragment> cachedFragments = new LinkedList<Fragment>();
 	private final int size;
 	private final FragmentsCacheListener fragmentsCacheListener;
 	private int locks = 0;
+	
+	private final Statistic statistic = new Statistic.StatisticBuilder()
+			.withService(new Summary())
+			.withService(new Plot(500))
+			.register(this, "FragmentsCacheSize");
 	
 	public interface FragmentsCacheListener {
 		public void onRemoval(Fragment fragment, boolean explicitly);
@@ -68,5 +78,10 @@ class FragmentsCache {
 		}
 		fragmentsCacheListener.onRemoval(fragment, true);
 		return removed;
+	}
+
+	@Override
+	public void trackStatistics() {
+		statistic.track(cachedFragments.size());
 	}
 }

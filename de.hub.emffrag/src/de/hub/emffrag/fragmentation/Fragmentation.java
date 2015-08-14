@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.eclipse.emf.common.notify.Notification;
@@ -21,6 +22,8 @@ import org.eclipse.emf.ecore.resource.URIHandler;
 import org.eclipse.emf.ecore.resource.impl.ExtensibleURIConverterImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 
+import com.google.common.base.Stopwatch;
+
 import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.datastore.DataStoreURIHandler;
 import de.hub.emffrag.datastore.IDataMap;
@@ -28,6 +31,10 @@ import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.fragmentation.FragmentsCache.FragmentsCacheListener;
 import de.hub.emffrag.fragmentation.PooledStackMultiMap.Nullable;
+import de.hub.emffrag.statistics.Statistic;
+import de.hub.emffrag.statistics.Statistics;
+import de.hub.emffrag.statistics.Statistic.StatisticBuilder;
+import de.hub.emffrag.statistics.services.Summary;
 import de.hub.util.Ansi;
 import de.hub.util.Ansi.Color;
 
@@ -38,6 +45,10 @@ import de.hub.util.Ansi.Color;
  */
 public class Fragmentation extends ResourceSetImpl implements Nullable<Fragmentation> {
 
+	private final Statistic unloadTimeStatistic = new StatisticBuilder()
+			.withService(new Summary())
+			.register(Fragmentation.class, "UnloadTimes");
+	
 	private final IDataStore dataStore;
 	private final IDataMap<Long> fragmentDataStoreIndex;
 	private FragmentsCache fragmentsCache;
@@ -226,6 +237,8 @@ public class Fragmentation extends ResourceSetImpl implements Nullable<Fragmenta
 	 */
 	private void doUnloadFragment(Fragment fragment) {
 		if (fragment.isLoaded()) {
+			Stopwatch watch = Stopwatch.createStarted();
+			
 			resolveProxies = false;
 			boolean isModified = fragment.isModified();
 			if (isModified && !fragment.fIsDeleted()) {
@@ -247,6 +260,9 @@ public class Fragmentation extends ResourceSetImpl implements Nullable<Fragmenta
 					Ansi.format(toString(fragment), Color.values()[(int)(fragment.fFragmentId() % Color.values().length)]) +
 					(isModified ? "*" : ""));
 			
+			Statistics.trackRegisteredSourcesWithStatistic();;
+			
+			unloadTimeStatistic.track(watch.stop().elapsed(TimeUnit.NANOSECONDS));
 		} else {
 			throw new IllegalStateException("Cannot unload a not loaded fragment.");
 		}

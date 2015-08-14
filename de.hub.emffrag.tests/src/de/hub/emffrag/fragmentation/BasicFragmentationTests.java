@@ -16,6 +16,7 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -31,6 +32,7 @@ import de.hub.emffrag.datastore.InMemoryDataStore;
 import de.hub.emffrag.fragmentation.FObject;
 import de.hub.emffrag.fragmentation.Fragment;
 import de.hub.emffrag.fragmentation.Fragmentation;
+import de.hub.emffrag.statistics.Statistics;
 import de.hub.emffrag.testmodels.AbstractTestModelTests;
 import de.hub.emffrag.testmodels.fobject.testmodel.TestObject;
 import de.hub.emffrag.testmodels.fobject.testmodel.fobject.meta.TestModelPackage;
@@ -415,7 +417,7 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 		
 		for (int i = 0; i < 5; i++) {
 			Assert.assertTrue(EcoreUtil.equals(createTOFromModelString(testModelString), model));
-		}		
+		}	
 	}
 
 	@Test
@@ -726,6 +728,13 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 
 		Assert.assertFalse(fragmentation.getContents().isEmpty());
 		Assert.assertNotEquals(container, fragmentation.getContents().get(0));
+	}
+	
+	@AfterClass
+	public static void afterAll() {		
+		StringBuilder report = new StringBuilder();
+		Statistics.report(report);
+		System.out.println(report.toString());
 	}
 
 	// TODO weird cases and left overs
