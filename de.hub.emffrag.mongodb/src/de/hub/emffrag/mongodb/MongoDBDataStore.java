@@ -237,7 +237,7 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 					gridFsFile.save();
 					collection.update(new BasicDBObject(KEY, keyString), new BasicDBObject(KEY, keyString).append(TYPE, TYPE_GRID_FS).append(FILE_NAME, fileName), true, false);
 				}
-				writeTimeStatistic.track(watch.stop().elapsed(TimeUnit.NANOSECONDS));
+				writeTimeStatistic.track(watch.stop().elapsed(TimeUnit.MICROSECONDS));
 				entrySizeStatistic.track(byteArray.length);
 			}
 		};

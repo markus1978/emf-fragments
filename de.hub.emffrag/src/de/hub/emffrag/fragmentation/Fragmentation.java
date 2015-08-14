@@ -34,6 +34,8 @@ import de.hub.emffrag.fragmentation.PooledStackMultiMap.Nullable;
 import de.hub.emffrag.statistics.Statistic;
 import de.hub.emffrag.statistics.Statistics;
 import de.hub.emffrag.statistics.Statistic.StatisticBuilder;
+import de.hub.emffrag.statistics.services.Histogram;
+import de.hub.emffrag.statistics.services.Plot;
 import de.hub.emffrag.statistics.services.Summary;
 import de.hub.util.Ansi;
 import de.hub.util.Ansi.Color;
@@ -47,7 +49,13 @@ public class Fragmentation extends ResourceSetImpl implements Nullable<Fragmenta
 
 	private final Statistic unloadTimeStatistic = new StatisticBuilder()
 			.withService(new Summary())
+			.withService(new Histogram())
 			.register(Fragmentation.class, "UnloadTimes");
+	private final Statistic unloadsStatistic = new StatisticBuilder()
+			.sumTime(100)
+			.withService(new Summary())
+			.withService(new Plot(1000))
+			.register(Fragmentation.class, "Unloads");
 	
 	private final IDataStore dataStore;
 	private final IDataMap<Long> fragmentDataStoreIndex;
@@ -262,7 +270,8 @@ public class Fragmentation extends ResourceSetImpl implements Nullable<Fragmenta
 			
 			Statistics.trackRegisteredSourcesWithStatistic();;
 			
-			unloadTimeStatistic.track(watch.stop().elapsed(TimeUnit.NANOSECONDS));
+			unloadTimeStatistic.track(watch.stop().elapsed(TimeUnit.MICROSECONDS));
+			unloadsStatistic.track(1);
 		} else {
 			throw new IllegalStateException("Cannot unload a not loaded fragment.");
 		}

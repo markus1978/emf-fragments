@@ -21,7 +21,7 @@ public class Summary implements IStatisticalService{
 		StatisticalSummary summary = this.summary.getSummary();
 		out.append("Summary: ");
 		out.append("mean=" + f.format(summary.getMean()) + ",min=" + f.format(summary.getMin()) + ",max=" + f.format(summary.getMax()));
-		out.append("n=" + f.format(summary.getN()) + ",sum=" + f.format(summary.getSum()) + ",sd=" + f.format(summary.getStandardDeviation()));
+		out.append(",n=" + f.format(summary.getN()) + ",sum=" + f.format(summary.getSum()) + ",sd=" + f.format(summary.getStandardDeviation()));
 		out.append("\n");
 	}
 

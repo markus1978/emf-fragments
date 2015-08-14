@@ -3,7 +3,7 @@ package de.hub.emffrag.statistics.services;
 import java.text.DecimalFormat;
 
 public class Helper {
-	private static final DecimalFormat format = new DecimalFormat("#.0");
+	private static final DecimalFormat format = new DecimalFormat("0.0");
 	
 	public static void plotLine(StringBuilder out, double value, double maxValue) {
 		out.append("[");
