@@ -4,8 +4,11 @@ Bundle-Name: EMF-Fragments Mongo Adapter
 Bundle-SymbolicName: de.hub.emffrag.mongodb;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-ClassPath: libs/mongo-2.10.1.jar,
- .
+Bundle-ClassPath: .,
+ bin/,
+ lib/bundles/guava-18.0.jar,
+ lib/jars/jsr305-1.3.9.jar,
+ lib/jars/mongo-java-driver-2.13.2.jar
 Require-Bundle: de.hub.emffrag
 Export-Package: com.mongodb,
  com.mongodb.gridfs,

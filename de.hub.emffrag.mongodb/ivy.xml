@@ -24,7 +24,9 @@
         module="emffrag"
         status="integration">
 	</info>
+	<retrieve pattern="${dist.dir}/lib/[artifact].[ext]" conf="runtime"/>
 	<dependencies>
 		<dependency org="com.google.guava" name="guava" rev="18.0"/>
+		<dependency org="org.mongodb" name="mongo-java-driver" rev="2.13.2"/>
 	</dependencies>
 </ivy-module>
