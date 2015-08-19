@@ -1,6 +1,7 @@
 package de.hub.emffrag.fragmentation;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -32,12 +33,13 @@ import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.emffrag.fragmentation.FragmentsCache.FragmentsCacheListener;
 import de.hub.emffrag.fragmentation.PooledStackMultiMap.Nullable;
 import de.hub.emffrag.statistics.Statistic;
-import de.hub.emffrag.statistics.Statistics;
 import de.hub.emffrag.statistics.Statistic.StatisticBuilder;
+import de.hub.emffrag.statistics.Statistics;
 import de.hub.emffrag.statistics.services.Histogram;
 import de.hub.emffrag.statistics.services.Plot;
 import de.hub.emffrag.statistics.services.Summary;
 import de.hub.util.Ansi;
+import de.hub.util.PrettyPrintEObjectInputStream;
 import de.hub.util.Ansi.Color;
 
 /**
@@ -135,12 +137,21 @@ public class Fragmentation extends ResourceSetImpl implements Nullable<Fragmenta
 		return getRootFragment().getContents();
 	}
 
+	private final List<Resource> helper = new ArrayList<Resource>();
+	private List<Resource> getCopyOfResources() {
+		helper.clear();
+		for (Resource resource: getResources()) {
+			helper.add(resource);
+		}
+		return helper;
+	}
+	
 	/**
 	 * Saves all loaded fragments and flushes the data store.
 	 */
 	public void save(Map<?, ?> options) throws IOException {
-		fragmentsCache.lock();
-		for (Resource resource : getResources()) {
+		fragmentsCache.lock();		
+		for (Resource resource : getCopyOfResources()) {
 			resource.save(options);
 		}
 		dataStore.flush();
@@ -151,11 +162,10 @@ public class Fragmentation extends ResourceSetImpl implements Nullable<Fragmenta
 	 * Saves everything still loaded and closes the data store. Do not use this
 	 * instance afterwards.
 	 */
-	public void close() {
-		List<Resource> copy = new ArrayList<Resource>(getResources());
-		for (Resource resource : copy) {
+	public void close() {		
+		for (Resource resource : getCopyOfResources()) {
 			unloadFragment((Fragment) resource);
-		}
+		}		
 		dataStore.close();
 	}
 
@@ -246,6 +256,7 @@ public class Fragmentation extends ResourceSetImpl implements Nullable<Fragmenta
 	private void doUnloadFragment(Fragment fragment) {
 		if (fragment.isLoaded()) {
 			Stopwatch watch = Stopwatch.createStarted();
+			URI uri = fragment.getURI();
 			
 			resolveProxies = false;
 			boolean isModified = fragment.isModified();
@@ -267,6 +278,18 @@ public class Fragmentation extends ResourceSetImpl implements Nullable<Fragmenta
 					Ansi.format("unloaded ", Color.RED) + 
 					Ansi.format(toString(fragment), Color.values()[(int)(fragment.fFragmentId() % Color.values().length)]) +
 					(isModified ? "*" : ""));
+			
+			if (EmfFragActivator.instance.logFragmentPrettyPrints) {
+				try {
+					InputStream inputStream = getURIConverter().createInputStream(uri, null);		
+					String print = PrettyPrintEObjectInputStream.prettyPrint(uri, inputStream, true);
+					inputStream.close();
+					EmfFragActivator.instance.debug(print);
+				} catch (IOException e) {
+					e.printStackTrace();
+					EmfFragActivator.instance.warning("Could not pretty print fragment for debug.", e);
+				}
+			}
 			
 			Statistics.trackRegisteredSourcesWithStatistic();;
 			

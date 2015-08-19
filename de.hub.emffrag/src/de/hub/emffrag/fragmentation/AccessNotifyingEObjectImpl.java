@@ -67,9 +67,18 @@ public abstract class AccessNotifyingEObjectImpl extends MinimalEObjectImpl {
 		onAccess();
 		return super.eInternalContainer();
 	}
+	
+	public InternalEObject fNoAccessInternalContainer() {
+		return super.eInternalContainer();
+	}
 
+	@Override
 	protected void eBasicSetContainer(InternalEObject newContainer) {
 		onAccess();
+		super.eBasicSetContainer(newContainer);
+	}
+	
+	protected void fNoAccessBasicSetContainer(InternalEObject newContainer) {	
 		super.eBasicSetContainer(newContainer);
 	}
 
@@ -91,7 +100,7 @@ public abstract class AccessNotifyingEObjectImpl extends MinimalEObjectImpl {
 		return super.eBasicSettings();
 	}
 
-	private Object[] fNoAccessBasicSettings() {
+	protected final Object[] fNoAccessBasicSettings() {
 		Object[] result =  super.eBasicSettings();
 		if (result == null) {
 			eSettings();

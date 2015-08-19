@@ -14,8 +14,9 @@ public class EmfFragActivator extends Plugin {
 	public static EmfFragActivator instance = null;
 	
 	public boolean logInStandAlone = false;
+	public boolean logFragmentPrettyPrints = false;
 	private boolean isStandAlone = false;	
-	private int warningsAndErrors = 0;
+	private int warningsAndErrors = 0;	
 
 	@Override
 	public void start(BundleContext context) throws Exception {

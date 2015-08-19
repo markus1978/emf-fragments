@@ -297,21 +297,23 @@ public class UUIDBinaryResourceImpl extends BinaryResourceImpl {
 						break;
 					}
 					case RESOURCE: {
-						Resource resource = internalEObject.eResource();
-						if (resource != this.resource && resource != null) {
-							writeCompressedInt(-1);
-							writeURI(resource.getURI(), resource.getURIFragment(internalEObject));
-							if ((style & STYLE_PROXY_ATTRIBUTES) == 0) {
-								return;
-							}
-							checkIsTransientProxy = true;
-						} else if ((internalEObject instanceof FObject) ? ((FObject)internalEObject).fIsProxy() : internalEObject.eIsProxy()) {
+						if ((internalEObject instanceof FObject) ? ((FObject)internalEObject).fIsProxy() : internalEObject.eIsProxy()) {
 							writeCompressedInt(-1);
 							writeURI(internalEObject.eProxyURI());
 							if ((style & STYLE_PROXY_ATTRIBUTES) == 0) {
 								return;
 							}
 							checkIsTransientProxy = true;
+						} else {
+							Resource resource = internalEObject.eResource();
+							if (resource != this.resource && resource != null) {
+								writeCompressedInt(-1);
+								writeURI(resource.getURI(), resource.getURIFragment(internalEObject));
+								if ((style & STYLE_PROXY_ATTRIBUTES) == 0) {
+									return;
+								}
+								checkIsTransientProxy = true;
+							}
 						}
 						break;
 					}

@@ -140,6 +140,8 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 
 	public void fEnsureLoaded() {
 		if (fIsUnLoaded()) {
+			// if this object gets re-loaded the load process will reuse it,
+			// deproxyfy it and re-add its settings automatically.
 			EcoreUtil.resolve(this, fragmentationToLoadFrom);
 		}
 	}
