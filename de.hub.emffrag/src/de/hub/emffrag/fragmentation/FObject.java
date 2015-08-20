@@ -4,7 +4,7 @@ import org.eclipse.emf.ecore.EObject;
 
 public interface FObject extends EObject {
 	/**
-	 * @return The {@link Fragment} that this object belongs to. Null if it is
+	 * @return The {@link FragmentImpl} that this object belongs to. Null if it is
 	 *         not part of a fragmentation yet.
 	 */
 	public Fragment fFragment();

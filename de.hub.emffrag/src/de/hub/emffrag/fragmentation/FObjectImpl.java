@@ -15,7 +15,7 @@ public class FObjectImpl extends MinimalEObjectImpl implements FObject {
 	}
 
 	public Fragmentation fFragmentation() {
-		Fragment fragment = fFragment();
+		FragmentImpl fragment = fFragment();
 		if (fragment != null) {
 			Fragmentation fragmentation = fragment.fFragmentation();
 			return fragmentation;
@@ -24,8 +24,8 @@ public class FObjectImpl extends MinimalEObjectImpl implements FObject {
 		}
 	}
 
-	public Fragment fFragment() {
-		return (Fragment) eResource();
+	public FragmentImpl fFragment() {
+		return (FragmentImpl) eResource();
 	}
 	
 	public void fUnload() {
@@ -48,7 +48,7 @@ public class FObjectImpl extends MinimalEObjectImpl implements FObject {
 		// containing fragment 
 		// TODO check for proxy instead, should be sufficient with non eager proxy resolution.
 		//
-		Fragment fragment = (Fragment)eResource();
+		FragmentImpl fragment = (FragmentImpl)eResource();
 		if (fragment != null && fragment.isLoaded() && !fragment.isLoading()) {
 			Fragmentation fFragmentation = fragment.fFragmentation();
 			if (fFragmentation != null) {
@@ -66,11 +66,11 @@ public class FObjectImpl extends MinimalEObjectImpl implements FObject {
 	
 	private Collection<Object> freeProxyChildrenSources = new HashSet<Object>();
 	
-	protected void fDetachFrom(Fragment fragment) {
+	protected void fDetachFrom(FragmentImpl fragment) {
 		freeProxyChildrenSources.addAll(fragment.fRemoveProxy(this));
 	}
 	
-	protected void fAttachToFragment(Fragment fragment) {
+	protected void fAttachToFragment(FragmentImpl fragment) {
 		for (Object freeProxyChildSource: freeProxyChildrenSources) {
 			FragmentationProxyManager.INSTANCE.getProxy(freeProxyChildSource, fragment);
 		}

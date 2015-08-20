@@ -5,6 +5,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.ClassUtils;
+
 import com.google.common.base.Preconditions;
 
 
@@ -31,9 +33,8 @@ public abstract class ProxyManager {
 		
 		Class<? extends Object> sourceClass = source.getClass();
 
-		for(Class<?> sourceInterface: sourceClass.getInterfaces()) {
-			helper.add(sourceInterface);
-		}
+		List<Class<?>> allInterfaces = ClassUtils.getAllInterfaces(sourceClass);
+		helper.addAll(allInterfaces);
 		helper.add(Proxy.class);
 		Proxy proxy = (Proxy)java.lang.reflect.Proxy.newProxyInstance(
 				sourceClass.getClassLoader(), helper.toArray(new Class<?>[]{}), new ProxyHandler(source));
@@ -46,7 +47,7 @@ public abstract class ProxyManager {
 		Object rootSource = hasProxyRootType(source) ? source : parent.fGetRootSource();
 		Preconditions.checkArgument(hasProxyRootType(rootSource));
 		
-		ProxyContainer result = getContainerFromProxyRootSource(source);
+		ProxyContainer result = getContainerFromProxyRootSource(rootSource);
 		if (result == null) {
 			return freeContainer;
 		} else {
@@ -59,7 +60,7 @@ public abstract class ProxyManager {
 		
 		Proxy existingProxy = proxyContainer.fGetProxyIfExists(source);
 		if (existingProxy == null) {
-			createNewProxy(source, proxyContainer);
+			existingProxy = createNewProxy(source, proxyContainer);
 		}
 		return existingProxy;
 	}
@@ -100,6 +101,9 @@ public abstract class ProxyManager {
 			if (method.getDeclaringClass() == Proxy.class) {
 				return method.invoke(this, args);
 			} else {	
+				if (args == null) {
+					args = new Object[]{};
+				}
 				Object[] sourceArgs = new Object[args.length];
 				for (int i = 0; i < sourceArgs.length; i++) {
 					sourceArgs[i] = getSource(args[i]);
@@ -108,7 +112,7 @@ public abstract class ProxyManager {
 				Object result = method.invoke(source, sourceArgs);
 				if (hasProxyType(result)) {
 					if (hasProxyRootType(result)) {
-						return getProxy(result, null);
+						return getProxy(result, getContainer(result, null));
 					} else {
 						Proxy resultProxy = getProxyWithParent(result, (Proxy)proxy);
 						resultProxy.fSetParentProxy((Proxy)proxy);												

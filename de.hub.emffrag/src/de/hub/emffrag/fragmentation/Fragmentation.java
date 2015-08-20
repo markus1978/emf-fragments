@@ -17,6 +17,7 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 
 import de.hub.emffrag.EmfFragActivator;
@@ -71,7 +72,7 @@ public final class Fragmentation {
 	}
 	
 	public Fragment getRootFragment() {
-		return root;
+		return (Fragment)FragmentationProxyManager.INSTANCE.getProxy(root, root);
 	}
 	
 	/**
@@ -96,7 +97,7 @@ public final class Fragmentation {
 	 * Instantiates a new or existing fragment in memory.
 	 */
 	private Fragment instantiateFragment(URI uri) {
-		Fragment fragment = new Fragment(this, uri, fragmentDataStoreIndex.getKeyFromURI(uri));
+		Fragment fragment = new FragmentImpl(this, uri, fragmentDataStoreIndex.getKeyFromURI(uri));
 		resourceSet.getResources().add(fragment);
 		
 		EmfFragActivator.instance.debug(
@@ -146,7 +147,7 @@ public final class Fragmentation {
 	}
 
 	public EList<EObject> getContents() {
-		return root.getContents();
+		return getRootFragment().getContents();
 	}
 	
 	/**
@@ -155,7 +156,7 @@ public final class Fragmentation {
 	protected void onRootFragmentChange(Notification notification) {
 		if (notification.getFeatureID(Resource.class) == Resource.RESOURCE__CONTENTS) {
 			Fragment fragment = (Fragment) notification.getNotifier();
-			if (fragment.isLoaded() && !fragment.isLoading()) { // do not do
+			if (fragment.isLoaded() && !((ResourceImpl)fragment).isLoading()) { // do not do
 																// that while
 																// loading/unloading
 				// this is not part of a AccessNotifyingObject transaction, we have to lock manually.
