@@ -2,6 +2,7 @@ package de.hub.emffrag.fragmentation;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
+import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
@@ -104,6 +105,7 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 		this.itsLoadingIntoFragment = fragment;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void fUnload(Fragmentation fragmentationToLoadFrom) {
 		this.fragmentationToLoadFrom = fragmentationToLoadFrom;
 		if (this.fragmentationToLoadFrom == null) {
@@ -119,11 +121,10 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 		//
 		eSetDirectResource(null);
 
-		eBasicSetSettings(new Object[] {});
 		// keep container for fragment roots (because it will not be recovered
 		// when reloaded)
 		if (!isRoot) {
-			eBasicSetContainer(null);
+			fNoAccessBasicSetContainer(null);
 		}
 
 		// re-create empty eSettings for further use of the object
@@ -280,4 +281,35 @@ public class FObjectImpl extends AccessNotifyingEObjectImpl implements FObject {
 			return super.createListWrapper(source, feature);
 		}
 	}
+	
+	@Override
+	protected <E> void onAccess(AccessNotifyingEListWrapper<E> listWrapper) {
+		// empty, the implementation below does break some test cases
+	}
+
+//	@Override
+//	protected <E> void onAccess(AccessNotifyingEListWrapper<E> listWrapper) {
+//		if (fIsUnLoaded()) {
+//			// install an empty list for potential loading
+//			BasicEList<E> save = (BasicEList<E>)listWrapper.getDelegateList();
+//			BasicEList<E> newList = new BasicEList<E>();
+//			listWrapper.setDelegateList(newList);
+//			onAccess(); 
+//			
+//			// compare if loaded list is equal to existing list
+//			boolean equal = true;
+//			int size = save.size();
+//			equal = equal && (size == newList.size());
+//			if (equal) {
+//				for (int i = 0; i < size; i++) {
+//					equal = equal && (save.get(i) == newList.get(i));
+//				}
+//			}
+//			if (!equal) {
+//				// list was changed during absence -> raise mod count
+//				// save.setData(save.size(), save.data());
+//			}			
+//			listWrapper.setDelegateList(save);	
+//		}
+//	}
 }

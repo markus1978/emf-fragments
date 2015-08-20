@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.function.Consumer;
 
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.EList;
@@ -32,6 +33,10 @@ public abstract class AccessNotifyingEObjectImpl extends MinimalEObjectImpl {
 	 */
 	protected void onAccess() {
 
+	}
+	
+	protected <E> void onAccess(AccessNotifyingEListWrapper<E> listWrapper) {
+		
 	}
 
 	protected void onBeginTransaction() {
@@ -190,12 +195,21 @@ public abstract class AccessNotifyingEObjectImpl extends MinimalEObjectImpl {
 		public void setDelegateList(EList<E> delegateList) {
 			this.delegateList = delegateList;
 		}
-
-		private EList<E> delegateList() {
-			onAccess();
+		
+		public EList<E> getDelegateList() {
+			return delegateList;
+		}
+		
+		private void onAccess() {
+			// AccessNotifyingEObjectImpl.this.onAccess(this);
+			AccessNotifyingEObjectImpl.this.onAccess();
 			// onAccess might have compromised the installed list wrapper. We
 			// make sure it gets installed anyways.
 			fEnsureAccessNotifyingListWarpper(this, ((EStructuralFeature.Setting) delegateList).getEStructuralFeature());
+		}
+
+		private EList<E> delegateList() {
+			onAccess();
 			return delegateList;
 		}
 
@@ -349,9 +363,7 @@ public abstract class AccessNotifyingEObjectImpl extends MinimalEObjectImpl {
 		}
 
 		public Iterator<E> iterator() {
-			// TODO what about client references to iterators? Access,
-			// transactions?
-			return delegateInternalEList().iterator();
+			return new IteratorWrapper<E>(this, delegateInternalEList().iterator());
 		}
 
 		public int lastIndexOf(Object arg0) {
@@ -359,11 +371,11 @@ public abstract class AccessNotifyingEObjectImpl extends MinimalEObjectImpl {
 		}
 
 		public ListIterator<E> listIterator() {
-			return delegateInternalEList().listIterator();
+			return new ListIteratorWrapper<E>(this, delegateInternalEList().listIterator());
 		}
 
 		public ListIterator<E> listIterator(int arg0) {
-			return delegateInternalEList().listIterator(arg0);
+			return new ListIteratorWrapper<E>(this, delegateInternalEList().listIterator(arg0));
 		}
 
 		public void move(int newPosition, E object) {
@@ -483,6 +495,112 @@ public abstract class AccessNotifyingEObjectImpl extends MinimalEObjectImpl {
 			onBeginTransaction();
 			try {
 				delegateSetting().unset();
+			} finally {
+				onEndTransaction();
+			}
+		}
+	}
+	
+	private class IteratorWrapper<E> implements Iterator<E> {
+		private final AccessNotifyingEListWrapper<E> listWrapper;
+		private final Iterator<E> delegate;
+
+		public IteratorWrapper(AccessNotifyingEListWrapper<E> listWrapper, Iterator<E> delegate) {
+			super();
+			this.listWrapper = listWrapper;
+			this.delegate = delegate;
+		}
+
+		private Iterator<E> delegateIterator() {
+			//listWrapper.onAccess();
+			return delegate;
+		}
+
+		public boolean hasNext() {
+			return delegateIterator().hasNext();
+		}
+
+		public E next() {
+			return delegateIterator().next();
+		}
+
+		public void remove() {
+			onBeginTransaction();
+			try {
+				delegateIterator().remove();
+			} finally {
+				onEndTransaction();
+			}
+		}
+
+		public void forEachRemaining(Consumer<? super E> action) {
+			delegateIterator().forEachRemaining(action);
+		}
+	}
+	
+	private class ListIteratorWrapper<E> implements ListIterator<E> {
+		private final AccessNotifyingEListWrapper<E> listWrapper;
+		private final ListIterator<E> delegate;
+		
+		public ListIteratorWrapper(AccessNotifyingEListWrapper<E> listWrapper, ListIterator<E> delegate) {
+			super();
+			this.listWrapper = listWrapper;
+			this.delegate = delegate;
+		}
+
+		private ListIterator<E> delegateIterator() {
+			//listWrapper.onAccess();
+			return delegate;
+		}
+
+		public boolean hasNext() {
+			return delegateIterator().hasNext();
+		}
+
+		public E next() {
+			return delegateIterator().next();
+		}
+
+		public boolean hasPrevious() {
+			return delegateIterator().hasPrevious();
+		}
+
+		public void forEachRemaining(Consumer<? super E> action) {
+			delegateIterator().forEachRemaining(action);
+		}
+
+		public E previous() {
+			return delegateIterator().previous();
+		}
+
+		public int nextIndex() {
+			return delegateIterator().nextIndex();
+		}
+
+		public int previousIndex() {
+			return delegateIterator().previousIndex();
+		}
+
+		public void remove() {
+			onBeginTransaction();
+			try {
+				delegateIterator().remove();
+			} finally {
+				onEndTransaction();
+			}
+		}
+
+		public void set(E e) {
+			try {
+				delegateIterator().set(e);
+			} finally {
+				onEndTransaction();
+			}
+		}
+
+		public void add(E e) {
+			try {
+				delegateIterator().add(e);
 			} finally {
 				onEndTransaction();
 			}

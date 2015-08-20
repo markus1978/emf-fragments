@@ -6,10 +6,12 @@ import java.util.List;
 import org.eclipse.emf.common.util.URI;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.fragmentation.Fragment;
 import de.hub.emffrag.fragmentation.FragmentsCache;
 import de.hub.emffrag.fragmentation.FragmentsCache.FragmentsCacheListener;
@@ -38,6 +40,11 @@ public class FragmentsCacheTests extends AbstractTestModelTests<TestObject, Test
 	@Before
 	public void init() {
 		removedFragments.clear();
+	}
+	
+	@BeforeClass
+	public static void setup() {
+		EmfFragActivator.standalone(tmPackage);
 	}
 	
 	@Test

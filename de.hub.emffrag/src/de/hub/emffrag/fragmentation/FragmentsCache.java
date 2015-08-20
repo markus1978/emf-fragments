@@ -3,10 +3,13 @@ package de.hub.emffrag.fragmentation;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.statistics.IWithStatistics;
 import de.hub.emffrag.statistics.Statistic;
 import de.hub.emffrag.statistics.services.Plot;
 import de.hub.emffrag.statistics.services.Summary;
+import de.hub.util.Ansi;
+import de.hub.util.Ansi.Color;
 
 /**
  * This is a wrapper around a size-based google Guava cache. It provides an
@@ -64,6 +67,11 @@ class FragmentsCache implements IWithStatistics {
 
 	public void add(Fragment fragment) {
 		cachedFragments.add(fragment);
+		
+		EmfFragActivator.instance.debug(
+				Ansi.format("FRAGMENTATION-CACHE: ", Color.YELLOW) +
+				Ansi.format("add, size=" + cachedFragments.size(), Color.BLACK));	
+		
 		invalidate();
 	}
 

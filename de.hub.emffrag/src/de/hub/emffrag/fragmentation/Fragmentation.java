@@ -190,7 +190,7 @@ public class Fragmentation extends ResourceSetImpl implements Nullable<Fragmenta
 		EmfFragActivator.instance.debug(
 				Ansi.format("FRAGMENTATION: ", Color.BLUE) +
 				Ansi.format("created ", Color.YELLOW) + 
-				Ansi.format(toString(uri), Color.values()[(int)(key % Color.values().length)]));
+				Ansi.format(toString(uri), Color.values()[(int)(key % Color.values().length)]));		
 		
 		Fragment fragment = instantiateFragment(uri);
 		return fragment;
@@ -223,10 +223,25 @@ public class Fragmentation extends ResourceSetImpl implements Nullable<Fragmenta
 	@Override
 	protected void demandLoad(Resource resource) throws IOException {
 		resolveProxies = false;
+		String print = null;
 		try {
 			if (resource.isLoaded()) {
 				throw new IllegalStateException("Cannot load an already loaded fragment.");
 			}
+			
+			if (EmfFragActivator.instance.logFragmentPrettyPrints) {
+				try {
+					URI uri = resource.getURI();
+					InputStream inputStream = getURIConverter().createInputStream(uri, null);		
+					print = PrettyPrintEObjectInputStream.prettyPrint(uri, inputStream, true);
+					inputStream.close();
+					EmfFragActivator.instance.debug("demandLoad: " + print);
+				} catch (IOException e) {
+					e.printStackTrace();
+					EmfFragActivator.instance.warning("Could not pretty print fragment for debug.", e);
+				}
+			}
+			
 			super.demandLoad(resource);
 			Fragment fragment = (Fragment) resource;
 			if (!fragment.getErrors().isEmpty()) {
@@ -284,7 +299,7 @@ public class Fragmentation extends ResourceSetImpl implements Nullable<Fragmenta
 					InputStream inputStream = getURIConverter().createInputStream(uri, null);		
 					String print = PrettyPrintEObjectInputStream.prettyPrint(uri, inputStream, true);
 					inputStream.close();
-					EmfFragActivator.instance.debug(print);
+					EmfFragActivator.instance.debug("doUnloadFragment: " + print);
 				} catch (IOException e) {
 					e.printStackTrace();
 					EmfFragActivator.instance.warning("Could not pretty print fragment for debug.", e);

@@ -9,7 +9,7 @@ public class URIUtils {
 	public static byte[] decode(String string) {
 		// return base64url.decode(string);
 		// TODO
-		return base64url.decode(string.substring(0, string.indexOf("_")));
+		return base64url.decode(string.substring(0, string.lastIndexOf("_")));
 	}
 	
 	public static String encode(byte[] bytes) {
