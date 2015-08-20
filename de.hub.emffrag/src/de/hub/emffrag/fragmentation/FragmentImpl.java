@@ -122,7 +122,18 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 			}
 		}
 		
-		super.eNotify(notification);
+		if (super.eNotificationRequired()) {
+			super.eNotify(notification);
+		}
+	}
+	
+	
+	/**
+	 * Always required to propagate changes to fragmentation for automated fragmentation of new content.
+	 */
+	@Override
+	public boolean eNotificationRequired() {
+		return true;
 	}
 
 	/**

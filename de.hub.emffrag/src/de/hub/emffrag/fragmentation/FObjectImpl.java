@@ -56,7 +56,16 @@ public class FObjectImpl extends MinimalEObjectImpl implements FObject {
 			}
 		}
 		
-		super.eNotify(notification);
+		if (super.eNotificationRequired()) {
+			super.eNotify(notification);
+		}
+	}
+	
+	
+
+	@Override
+	public boolean eNotificationRequired() {
+		return true;
 	}
 
 	// TODO can be removed is its use in Fragmentation becomes unnessecary.

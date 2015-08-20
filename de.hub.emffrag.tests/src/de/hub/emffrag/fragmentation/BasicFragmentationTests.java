@@ -269,28 +269,28 @@ public class BasicFragmentationTests extends AbstractTestModelTests<TestObject, 
 //		fragmentation.unloadFragment(fragment);
 //	}
 //
-//	private void testBasicAutoAddFragment(int cacheSize) {
-//		initializeFragmentation(cacheSize);
-//
-//		TestObject container = createTO("1");
-//		fragmentation.getContents().add(container);
-//		TestObject contents = createTO("2", container, tmPackage.getTestObject_FragmentedContents());
-//
-//		Assert.assertTrue(container.fIsRoot());
-//		Assert.assertTrue(contents.fIsRoot());
-//		Assert.assertEquals("1", container.getName());
-//		Assert.assertEquals("2", contents.getName());
-//		Assert.assertEquals(2, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
-//		Assert.assertEquals(cacheSize > 1 ? 2 : 1, fragmentation.getNumberOfLoadedFragments());
-//		
-//		save(container);
-//		save(contents);
-//	}
-//	
-//	@Test
-//	public void testBasicAutoAddFragment() {
-//		testBasicAutoAddFragment(1);
-//	}
+	private void testBasicAutoAddFragment(int cacheSize) {
+		initializeFragmentation(cacheSize);
+
+		TestObject container = createTO("1");
+		fragmentation.getContents().add(container);
+		TestObject contents = createTO("2", container, tmPackage.getTestObject_FragmentedContents());
+
+		Assert.assertTrue(container.fIsRoot());
+		Assert.assertTrue(contents.fIsRoot());
+		Assert.assertEquals("1", container.getName());
+		Assert.assertEquals("2", contents.getName());
+		Assert.assertEquals(2, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
+		Assert.assertEquals(2, fragmentation.getNumberOfLoadedFragments());
+		
+		save(container);
+		save(contents);
+	}
+	
+	@Test
+	public void testBasicAutoAddFragment() {
+		testBasicAutoAddFragment(1);
+	}
 //	
 //	@Test
 //	public void testBasicUserObjectCacheFunctionality() {

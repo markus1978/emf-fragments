@@ -336,4 +336,20 @@ public final class Fragmentation {
 	public String toString() {
 		return "fragmentation[" + dataStore.getURI() + "]";
 	}
+
+	/**
+	 * @return An upper bound for the number of fragments that are in this
+	 *         fragmentation. An upper bound because removed fragments might
+	 *         also be counted.
+	 */
+	public long getIndexOfLastAddedAndStillExistingFragment() {
+		return fragmentDataStoreIndex.last() + 1;
+	}
+
+	/**
+	 * @return Number of fragments currently loaded.
+	 */
+	public int getNumberOfLoadedFragments() {
+		return resourceSet.getResources().size();
+	}
 }
