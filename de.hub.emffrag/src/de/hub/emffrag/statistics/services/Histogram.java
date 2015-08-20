@@ -1,13 +1,9 @@
 package de.hub.emffrag.statistics.services;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import com.flaptor.hist4j.AdaptiveHistogram;
-import com.flaptor.hist4j.Cell;
 
 import de.hub.emffrag.statistics.IStatisticalService;
 
@@ -27,24 +23,6 @@ public class Histogram implements IStatisticalService {
 		max = value > max ? value : max;
 	}
 	
-	private final List<Float> overlapHelperList = new ArrayList<Float>();
-	
-	private float overlap(float s1, float e1, float s2, float e2) {
-		overlapHelperList.clear();
-		overlapHelperList.add(s1);
-		overlapHelperList.add(s2);
-		overlapHelperList.add(e1);
-		overlapHelperList.add(e2);
-		Collections.sort(overlapHelperList);
-		float snd = overlapHelperList.get(1);
-		float trd = overlapHelperList.get(2);
-		if ((snd == s1 || snd == s2) && (trd == e1 || trd == e2)) {
-			return trd - snd;
-		} else {
-			return 0;
-		}
-	}
-
 	@Override
 	public void report(StringBuilder out) {
 		histogram.normalize(min, max);

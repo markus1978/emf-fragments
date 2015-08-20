@@ -9,6 +9,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: de.hub.emffrag,
  de.hub.emffrag.datastore,
  de.hub.emffrag.fragmentation,
+ de.hub.emffrag.proxies,
  de.hub.emffrag.statistics,
  de.hub.emffrag.statistics.services,
  de.hub.util

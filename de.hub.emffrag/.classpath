@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="xtend-gen"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry exported="true" kind="lib" path="lib/bundles/guava-18.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/bundles/guava-18.0.jar" sourcepath="lib/sources/guava-18.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jars/aopalliance-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jars/asm-3.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jars/cglib-2.2.1-v20090111.jar"/>

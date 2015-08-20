@@ -2,7 +2,7 @@
 <genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
     xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" copyrightText="Copyright 2012 Markus Scheidgen&#xA;&#xA;Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);&#xA;you may not use this file except in compliance with the License.&#xA;You may obtain a copy of the License at&#xA;&#xA;    http://www.apache.org/licenses/LICENSE-2.0&#xA;&#xA;Unless required by applicable law or agreed to in writing, software&#xA;distributed under the License is distributed on an &quot;AS IS&quot; BASIS,&#xA;WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.&#xA;See the License for the specific language governing permissions and&#xA;limitations under the License."
     modelDirectory="/de.hub.emffrag.testmodels/gen-src" modelPluginID="de.hub.emffrag.testmodels"
-    modelName="testmodel" rootExtendsClass="de.hub.emffrag.testmodels.TestFObjectImpl"
+    modelName="testmodel" rootExtendsClass="de.hub.emffrag.fragmentation.FObjectImpl"
     rootImplementsInterface="" reflectiveDelegation="true" importerID="org.eclipse.emf.importer.ecore"
     featureDelegation="Reflective" containmentProxies="true" complianceLevel="6.0"
     copyrightFields="false" language="">

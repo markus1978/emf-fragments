@@ -15,19 +15,17 @@
  */
 package de.hub.emffrag.testmodels.eobject.testmodel.fobject.impl;
 
-import de.hub.emffrag.testmodels.eobject.testmodel.TestEnum;
-import de.hub.emffrag.testmodels.eobject.testmodel.TestObject;
-
-import de.hub.emffrag.testmodels.eobject.testmodel.fobject.meta.TestModelFactory;
-import de.hub.emffrag.testmodels.eobject.testmodel.fobject.meta.TestModelPackage;
-
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
-
 import org.eclipse.emf.ecore.impl.EPackageImpl;
+
+import de.hub.emffrag.testmodels.eobject.testmodel.TestEnum;
+import de.hub.emffrag.testmodels.eobject.testmodel.TestObject;
+import de.hub.emffrag.testmodels.eobject.testmodel.fobject.meta.TestModelFactory;
+import de.hub.emffrag.testmodels.eobject.testmodel.fobject.meta.TestModelPackage;
 
 /**
  * <!-- begin-user-doc -->
@@ -281,7 +279,7 @@ public class TestModelPackageImpl extends EPackageImpl implements TestModelPacka
 	 * @generated
 	 */
 	protected void createDeAnnotations() {
-		String source = "de.hub.emffrag";		
+		String source = "de.hub.emffrag";	
 		addAnnotation
 		  (getTestObject_FragmentedContents(), 
 		   source, 

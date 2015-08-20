@@ -1,44 +1,42 @@
 package de.hub.emffrag.fragmentation;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.Collection;
 
 import javax.annotation.Resource;
 
 import org.eclipse.emf.common.notify.Notification;
-import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.InternalEObject;
-import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.BinaryResourceImpl;
 
-import de.hub.emffrag.statistics.Statistic;
-import de.hub.emffrag.statistics.Statistic.StatisticBuilder;
-import de.hub.emffrag.statistics.services.Histogram;
-import de.hub.emffrag.statistics.services.Summary;
+import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
-public class Fragment extends UUIDBinaryResourceImpl {
+import de.hub.emffrag.proxies.Proxy;
+import de.hub.emffrag.proxies.ProxyContainer;
 
-	private static final Statistic fragmentSizeAtUnloadStatistic = new StatisticBuilder()
-			.withService(new Summary())
-			.withService(new Histogram())
-			.register(Fragment.class, "FragmentSizeAtUnload");
-	
+public class Fragment extends BinaryResourceImpl implements ProxyContainer {
+
+	private final Fragmentation fragmentation;
+	private final Cache<Object, Proxy> proxyCache = CacheBuilder.newBuilder().weakValues().build();
 	private final long id;
-	private boolean isDeleted = false;
-
-	// helper of #doUnload()
-	private List<InternalEObject> contentToUnload = new ArrayList<InternalEObject>();
-
-	public Fragment(URI uri, long id) {
+	
+	protected Fragment() {
+		id = -1;
+		fragmentation = null;
+	}
+	
+	public Fragment(Fragmentation fragmentation, URI uri, long id) {
 		super(uri);
 		this.id = id;
+		this.fragmentation = fragmentation;
 	}
-
+	
 	public long fFragmentId() {
 		return id;
 	}
@@ -46,171 +44,116 @@ public class Fragment extends UUIDBinaryResourceImpl {
 	public boolean fIsRoot() {
 		return id == 0l;
 	}
-
-	public void fDelete() {
-		isDeleted = true;
-	}
-
-	public boolean fIsDeleted() {
-		return isDeleted;
-	}
-
+	
 	@Override
-	public void eNotify(Notification notification) {
-		if (notification.getFeatureID(Resource.class) != RESOURCE__IS_MODIFIED) {
-			setModified(true);
-			Fragmentation fragmentation = getFragmentation();
-			if (fragmentation != null && fIsRoot()) {
-				fragmentation.onRootFragmentChange(notification);
+	public boolean fHasProxies() {
+		// we only count EObject proxies. EObjectProxies remain in memory
+		// as long child EList or Iterator proxies are in memory, since
+		// the EObject parent/child proxy links are hard references. 
+		for (Object proxy: proxyCache.asMap().keySet()) {
+			if (proxy instanceof EObject) {
+				return true;
 			}
 		}
+		return false;
 	}
-
-	@Override
-	public boolean eNotificationRequired() {
-		return true;
-	}
-
+	
 	/**
-	 * Overridden to ensure resourceSet is {@link Fragmentation}
+	 * @param source of the proxy to remove.
+	 * @return A collection with all the sources of all the child proxies of the given source's proxy.
 	 */
 	@Override
-	public NotificationChain basicSetResourceSet(ResourceSet resourceSet, NotificationChain notifications) {
-		if (resourceSet != null && !(resourceSet instanceof Fragmentation)) {
-			throw new IllegalStateException("Fragments can only be used within Fragmentations, not other resource sets.");
+	public Collection<Object> fRemoveProxy(Object sourceAsObject) {
+		FObject source = (FObject)sourceAsObject;
+		Preconditions.checkArgument(source.fFragment() == this);
+		
+		Collection<Proxy> proxiesToRemove = new ArrayList<Proxy>();
+		Collection<Object> sourcesToRemove = new ArrayList<Object>();
+		for (Proxy proxy: proxyCache.asMap().values()) {
+			if (proxy.fGetRootSource() == source) {
+				proxiesToRemove.add(proxy);
+				sourcesToRemove.add(proxy.fGetSource());
+			}
 		}
-		return super.basicSetResourceSet(resourceSet, notifications);
+		
+		for (Proxy proxy: proxiesToRemove) {
+			proxyCache.invalidate(proxy);
+		}
+		return sourcesToRemove;
 	}
-
-	/**
-	 * Overridden to not clear the contents list, but loose its reference. This
-	 * allows {@link TreeIterator}s to work, even when fragments in it become
-	 * unloaded.
-	 */
+	
 	@Override
-	protected void doUnload() {
-		int numberOfUnloadedObjects = 0;
+	public Proxy fGetProxyIfExists(Object source) {
+		return proxyCache.getIfPresent(source);
+	}
+	
+	@Override
+	public void fPutProxy(Object source, Proxy proxy) {
+		proxyCache.put(source, proxy);
+	}
 
-		Iterator<EObject> allContents = getAllProperContents(unloadingContents);
-
-		getErrors().clear();
-		getWarnings().clear();
-
-		while (allContents.hasNext()) {
-			// Do not unload directly out of the iterator, because it accesses
-			// the children of the current object.
-			//
-			contentToUnload.add((InternalEObject) allContents.next());
-			numberOfUnloadedObjects++;
-		}
-
-		// Removing reference, instead of clearing it. Will be re-instantiated
-		// empty for next use.
-		//
-		contents = null;
-
-		// Unload the collected object to unload
-		//
-		for (InternalEObject internalEObject : contentToUnload) {
-			unloaded(internalEObject);
-		}
-		contentToUnload.clear();
-
-		clearIDs();
-
-		fragmentSizeAtUnloadStatistic.track(numberOfUnloadedObjects);
+	@SuppressWarnings("unchecked")
+	public EList<EObject> fGetContents() {
+		return (EList<EObject>)FragmentationProxyManager.INSTANCE.getProxy(getContents(), this);
 	}
 
 	/**
-	 * Perform a EMF-Fragments flavored unload via
-	 * {@link FObjectImpl#eSetProxyURI(URI, Fragmentation)} not
-	 * {@link InternalEObject#eSetProxyURI(URI)}.
-	 * 
-	 * Does not clear the adaptors like {@link #unloaded(InternalEObject)}. This
-	 * is to make clients unaware of automatic background unloaded/loading.
+	 * Perform a EMF-Fragments flavored unload.
 	 */
 	@Override
 	protected void unloaded(InternalEObject internalEObject) {
 		if (internalEObject instanceof FObjectImpl) {
-			if (!((FObject) internalEObject).fIsProxy()) {
-				FObjectImpl fObject = (FObjectImpl) internalEObject;
+			((FObjectImpl)internalEObject).fUnload();	
+		}
+		
+		super.unloaded(internalEObject);
+	}
 
-				// register all unloaded object with the user object cache
-				getFragmentation().registerUserObject(Fragment.this, getID(fObject, true), fObject);
-
-				fObject.fUnload(getFragmentation());
-				fObject.eSetProxyURI(uri.appendFragment(getURIFragment(internalEObject)));
+	public Fragmentation fFragmentation() {
+		return fragmentation;
+	}
+	
+	/**
+	 * Promotes change to the contents to {@link Fragmentation}. Should
+	 * only be invoked for root fragment (TODO test this).
+	 */
+	@Override
+	public void eNotify(Notification notification) {
+		if (notification.getFeatureID(Resource.class) != RESOURCE__IS_MODIFIED) {
+			Fragmentation fragmentation = fFragmentation();
+			if (fragmentation != null && fIsRoot()) {
+				fragmentation.onRootFragmentChange(notification);
 			}
-		} else {
-			super.unloaded(internalEObject);
+		}
+		
+		super.eNotify(notification);
+	}
+
+	/**
+	 * Overrided to transfor proxies when the proxy source changes fragments.
+	 */
+	@Override
+	public void attached(EObject eObject) {
+		super.attached(eObject);
+		((FObjectImpl)eObject).fAttachToFragment(this);
+		TreeIterator<EObject> eAllContents = eObject.eAllContents();
+		while (eAllContents.hasNext()) {
+			FObjectImpl fObject = (FObjectImpl)eAllContents.next();
+			fObject.fAttachToFragment(this);
 		}
 	}
 
 	/**
-	 * @return the fragmentation that this fragment belongs to.
+	 * Overrided to transfor proxies when the proxy source changes fragments.
 	 */
-	public Fragmentation getFragmentation() {
-		return (Fragmentation) resourceSet;
-	}
-
 	@Override
-	protected InternalEObject createProxy(InternalEObject internalEObject, URI proxyURI, boolean nop) throws IOException {
-		if (internalEObject instanceof FObjectImpl) {
-			// first, we try to find a (still) existing user object proxy
-			FObjectImpl proxyObject = getFragmentation().getRegisteredUserObject(proxyURI);
-			// second, we try to find an already loaded object
-			if (proxyObject == null) {
-				proxyObject = (FObjectImpl) getFragmentation().getEObject(proxyURI, false);
-			}
-			// third, we turn the object into an fObject-like proxy (i.e. with
-			// load from fragmentation reference).
-			if (proxyObject == null) {
-				proxyObject = (FObjectImpl) internalEObject;
-				proxyObject.eSetProxyURI(proxyURI);
-				proxyObject.fSetFragmentationToLoadFrom(getFragmentation());
-			}
-			return proxyObject;
-		} else {
-			return super.createProxy(internalEObject, uri, nop);
-		}
-	}
-
-	@Override
-	protected InternalEObject createEObject(InternalEObject internalEObject, int extrinsicID) {
-		if (internalEObject instanceof FObjectImpl) {
-			// We try to reuse former objects that are still on
-			// the heap
-			Fragmentation fragmentation = getFragmentation();
-			FObjectImpl fObject = fragmentation.getRegisteredUserObject(Fragment.this, extrinsicID);
-			if (fObject != null) {
-				fObject.eSetProxyURI(null);
-				fObject.fSetFragmentationToLoadFrom(null);
-				fObject.fSetItsLoadingIntoFragment(this);
-				return fObject;
-			} else {
-				InternalEObject result = super.createEObject(internalEObject, extrinsicID);
-				((FObjectImpl) result).fSetItsLoadingIntoFragment(this);
-				return result;
-			}
-		} else {
-			return super.createEObject(internalEObject, extrinsicID);
-		}
-	}
-
-	@Override
-	protected void afterLoad(InternalEObject internalEObject) {
-		if (internalEObject instanceof FObjectImpl) {
-			((FObjectImpl) internalEObject).fSetItsLoadingIntoFragment(null);
-		}
-		super.afterLoad(internalEObject);
-	}
-
-	@Override
-	protected void beforeSaveFeature(InternalEObject internalEObject, int featureId) {
-		Object value = ((FObjectImpl) internalEObject).fNoAccessDynamicGet(featureId);
-		if (value instanceof EList<?>) {
-			getFragmentation().getUserCaches().registerUserReference(fFragmentId(), getID(internalEObject, true), featureId,
-					(EList<?>) value);
+	public void detached(EObject eObject) {		
+		super.detached(eObject);
+		((FObjectImpl)eObject).fDetachFrom(this);
+		TreeIterator<EObject> eAllContents = eObject.eAllContents();
+		while (eAllContents.hasNext()) {
+			FObjectImpl fObject = (FObjectImpl)eAllContents.next();
+			fObject.fDetachFrom(this);
 		}
 	}
 }

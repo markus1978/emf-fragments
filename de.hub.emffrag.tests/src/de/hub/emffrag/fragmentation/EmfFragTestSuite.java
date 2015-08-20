@@ -6,9 +6,6 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	AccessNotificationTests.class,
-	FragmentsCacheTests.class,
-	UUIDBinaryResourceImplTests.class,
 	BasicFragmentationTests.class
 })
 public class EmfFragTestSuite {

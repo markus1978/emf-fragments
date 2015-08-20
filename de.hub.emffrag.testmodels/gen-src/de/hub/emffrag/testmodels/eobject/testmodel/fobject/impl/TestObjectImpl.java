@@ -15,17 +15,14 @@
  */
 package de.hub.emffrag.testmodels.eobject.testmodel.fobject.impl;
 
-import de.hub.emffrag.testmodels.AccessNotifyingTestEObjectImpl;
-
-import de.hub.emffrag.testmodels.eobject.testmodel.TestEnum;
-import de.hub.emffrag.testmodels.eobject.testmodel.TestObject;
-
-import de.hub.emffrag.testmodels.eobject.testmodel.fobject.meta.TestModelPackage;
-
 import org.eclipse.emf.common.util.EList;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
+
+import de.hub.emffrag.fragmentation.FObjectImpl;
+import de.hub.emffrag.testmodels.eobject.testmodel.TestEnum;
+import de.hub.emffrag.testmodels.eobject.testmodel.TestObject;
+import de.hub.emffrag.testmodels.eobject.testmodel.fobject.meta.TestModelPackage;
 
 /**
  * <!-- begin-user-doc -->
@@ -33,6 +30,7 @@ import org.eclipse.emf.ecore.EObject;
  * <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
+ * </p>
  * <ul>
  *   <li>{@link de.hub.emffrag.testmodels.eobject.testmodel.fobject.impl.TestObjectImpl#getName <em>Name</em>}</li>
  *   <li>{@link de.hub.emffrag.testmodels.eobject.testmodel.fobject.impl.TestObjectImpl#getRegularContents <em>Regular Contents</em>}</li>
@@ -41,11 +39,10 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link de.hub.emffrag.testmodels.eobject.testmodel.fobject.impl.TestObjectImpl#getEnumAttribute <em>Enum Attribute</em>}</li>
  *   <li>{@link de.hub.emffrag.testmodels.eobject.testmodel.fobject.impl.TestObjectImpl#getArbitraryContents <em>Arbitrary Contents</em>}</li>
  * </ul>
- * </p>
  *
  * @generated
  */
-public class TestObjectImpl extends AccessNotifyingTestEObjectImpl implements TestObject {
+public class TestObjectImpl extends FObjectImpl implements TestObject {
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
