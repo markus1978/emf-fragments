@@ -17,12 +17,12 @@ public class FragmentationProxyManager extends ProxyManager {
 	}
 
 	@Override
-	protected boolean hasProxyType(Object source) {
+	public boolean hasProxyType(Object source) {
 		return getProxyType(source) != null;
 	}
 	
 	@Override
-	protected Class<?> getProxyType(Object source) {
+	public Class<?> getProxyType(Object source) {
 		if (source instanceof Fragment) {
 			return Fragment.class;
 		} else if (source instanceof FObject) {
@@ -37,12 +37,12 @@ public class FragmentationProxyManager extends ProxyManager {
 	}
 	
 	@Override
-	protected boolean hasProxyRootType(Object source) {
+	public boolean hasProxyRootType(Object source) {
 		return source instanceof FObject || source instanceof Fragment;
 	}
 	
 	@Override
-	protected Class<?>[] getParentTypes(Class<?> proxiedType) {
+	public Class<?>[] getParentTypes(Class<?> proxiedType) {
 		if (proxiedType == Fragment.class) {
 			return new Class<?>[]{};
 		} else if (proxiedType == FObject.class) {
@@ -64,6 +64,16 @@ public class FragmentationProxyManager extends ProxyManager {
 			return ((FObject)source).fFragment();
 		} else {
 			throw new IllegalArgumentException();
+		}
+	}
+
+	@Override
+	protected void onFinishedClientOperation(Object source) {
+		if (source instanceof FObject) {
+			Fragmentation fFragmentation = ((FObject)source).fFragmentation();
+			if (fFragmentation != null) {
+				fFragmentation.onFinishedClientOperation();
+			}
 		}
 	}
 }

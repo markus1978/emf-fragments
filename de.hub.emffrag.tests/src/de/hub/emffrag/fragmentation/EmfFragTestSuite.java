@@ -6,7 +6,9 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	BasicFragmentationTests.class
+	BasicFragmentationTests.class,
+	FragmentationGCTests.class,
+	CrossReferenceTests.class
 })
 public class EmfFragTestSuite {
 

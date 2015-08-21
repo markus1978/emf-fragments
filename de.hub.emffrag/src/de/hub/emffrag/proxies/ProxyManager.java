@@ -19,12 +19,13 @@ public abstract class ProxyManager {
 		this.freeContainer = freeContainer;
 	}
 
-	protected abstract boolean hasProxyType(Object source);	
-	protected abstract boolean hasProxyRootType(Object source);
-	protected abstract Class<?> getProxyType(Object source);	
-	protected abstract Class<?>[] getParentTypes(Class<?> proxyType);
+	public abstract boolean hasProxyType(Object source);	
+	public abstract boolean hasProxyRootType(Object source);
+	public abstract Class<?> getProxyType(Object source);	
+	public abstract Class<?>[] getParentTypes(Class<?> proxyType);
 	
 	protected abstract ProxyContainer getContainerFromProxyRootSource(Object source);
+	protected abstract void onFinishedClientOperation(Object source);
 	
 	private Proxy createNewProxy(Object source, ProxyContainer proxyContainer) {
 		Preconditions.checkArgument(!(source instanceof Proxy));
@@ -80,6 +81,8 @@ public abstract class ProxyManager {
 	private class ProxyHandler implements InvocationHandler, Proxy {
 		private final Object source;
 		private Proxy parentProxy = null;
+		
+		private ProxyContainer pContainer = null;
 
 		public ProxyHandler(Object source) {
 			super();
@@ -95,32 +98,43 @@ public abstract class ProxyManager {
 		public Object fGetSource() {
 			return source;
 		}
+		
+		@Override
+		public void dSetContainer(ProxyContainer container) {
+			this.pContainer = container;
+		}
 
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 			if (method.getDeclaringClass() == Proxy.class) {
 				return method.invoke(this, args);
 			} else {	
+				boolean isEMFOperation = false;
 				if (args == null) {
 					args = new Object[]{};
 				}
 				Object[] sourceArgs = new Object[args.length];
 				for (int i = 0; i < sourceArgs.length; i++) {
 					sourceArgs[i] = getSource(args[i]);
+					isEMFOperation |= sourceArgs[i] != args[i];
 				}
 				
 				Object result = method.invoke(source, sourceArgs);
 				if (hasProxyType(result)) {
+					isEMFOperation = true;
 					if (hasProxyRootType(result)) {
-						return getProxy(result, getContainer(result, null));
+						result = getProxy(result, getContainer(result, null));
 					} else {
 						Proxy resultProxy = getProxyWithParent(result, (Proxy)proxy);
 						resultProxy.fSetParentProxy((Proxy)proxy);												
-						return resultProxy;
+						result = resultProxy;
 					}					
-				} else {
-					return result;
 				}
+				
+				if (isEMFOperation) {
+					onFinishedClientOperation(source);
+				}
+				return result;
 			}
 		}
 

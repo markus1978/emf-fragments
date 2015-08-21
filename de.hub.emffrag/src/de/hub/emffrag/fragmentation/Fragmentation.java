@@ -34,7 +34,8 @@ public final class Fragmentation {
 	private final int fragmentCacheSize;
 	private final IDataMap<Long> fragmentDataStoreIndex;
 	private final ResourceSet resourceSet;	
-	private final Fragment root;
+	
+	private int finishedClientOperations = 0;
 	
 	public Fragmentation(IDataStore dataStore, int fragmentsCacheSize) {
 		this.dataStore = dataStore;
@@ -46,11 +47,21 @@ public final class Fragmentation {
 			public Resource createResource(URI uri, String contentType) {
 				return instantiateFragment(uri);
 			}
+
+			@Override
+			protected void demandLoad(Resource resource) throws IOException {
+				super.demandLoad(resource);
+				Fragment fragment = (Fragment)resource;
+				EmfFragActivator.instance.debug(
+						Ansi.format("FRAGMENTATION: ", Color.BLUE) +
+						Ansi.format("loaded ", Color.GREEN) + 
+						Ansi.format(Fragmentation.this.toString(fragment), Color.values()[(int)(fragment.fFragmentId() % Color.values().length)]));
+			}
 		};
 		
 		resourceSet.getURIConverter().getURIHandlers().add(0, new DataStoreURIHandler(dataStore));
 		
-		this.root = initRootFragment();
+		initRootFragment();
 	}
 	
 	protected Map<?,?> getLoadOptions() {
@@ -67,11 +78,17 @@ public final class Fragmentation {
 				throw new RuntimeException(msg, e);
 			}
 		}
-		Fragment fragment = (Fragment)resourceSet.getResource(fragmentDataStoreIndex.getURI(0l), true);
+		URI rootURI = getURI(0l);
+		Fragment fragment = (Fragment)resourceSet.getResource(rootURI, true);
 		return fragment;
+	}
+
+	public URI getURI(long id) {
+		return fragmentDataStoreIndex.getURI(id);
 	}
 	
 	public Fragment getRootFragment() {
+		Fragment root = (Fragment)resourceSet.getResource(getURI(0l), true);
 		return (Fragment)FragmentationProxyManager.INSTANCE.getProxy(root, root);
 	}
 	
@@ -82,7 +99,7 @@ public final class Fragmentation {
 	 */
 	private Fragment createFragment() {
 		Long key = fragmentDataStoreIndex.add();
-		URI uri = fragmentDataStoreIndex.getURI(key);
+		URI uri = getURI(key);
 		
 		EmfFragActivator.instance.debug(
 				Ansi.format("FRAGMENTATION: ", Color.BLUE) +
@@ -105,16 +122,15 @@ public final class Fragmentation {
 				Ansi.format("instantiated ", Color.BLUE) + 
 				Ansi.format(toString(fragment), Color.values()[(int)(fragment.fFragmentId() % Color.values().length)]));
 		
-		gc();
-		
 		return fragment;
 	}
 	
-	private void gc() {
+	public void gc() {
+		EmfFragActivator.instance.debug(Ansi.format("FRAGMENTATION: ", Color.BLUE) + Ansi.format("gc start", Color.BLACK));
 		int count = 0;
 		Collection<Fragment> fragemntsToUnload = new ArrayList<Fragment>();	
 		for(Resource resource: resourceSet.getResources()) {
-			if (((Fragment)resource).fHasProxies()) {
+			if (!((Fragment)resource).fHasProxies()) {
 				count++;
 				if (count > fragmentCacheSize) {
 					fragemntsToUnload.add((Fragment)resource);
@@ -125,6 +141,7 @@ public final class Fragmentation {
 		for(Fragment fragment: fragemntsToUnload) {
 			unloadFragment(fragment);
 		}
+		EmfFragActivator.instance.debug(Ansi.format("FRAGMENTATION: ", Color.BLUE) + Ansi.format("gc end", Color.BLACK));
 	}
 
 	private void unloadFragment(Fragment fragment) {
@@ -300,9 +317,9 @@ public final class Fragmentation {
 
 	private void deleteFragment(FObject fObject) {
 		Fragment fragment = fObject.fFragment();
-		fragmentDataStoreIndex.remove(fragmentDataStoreIndex.getKeyFromURI(fragment.getURI()));
 		fragment.unload();
 		resourceSet.getResources().remove(fragment);
+		fragmentDataStoreIndex.remove(fragmentDataStoreIndex.getKeyFromURI(fragment.getURI()));
 
 		EmfFragActivator.instance.debug(
 				Ansi.format("FRAGMENTATION: ", Color.BLUE) +
@@ -310,7 +327,7 @@ public final class Fragmentation {
 				Ansi.format(toString(fragment), Color.values()[(int)(fragment.fFragmentId() % Color.values().length)]));
 	}
 
-	private boolean isFragmenting(EStructuralFeature reference) {
+	public static boolean isFragmenting(EStructuralFeature reference) {
 		return !reference.getEAnnotations().isEmpty(); // TODO reasonable detection of fragmentation annotations
 	}
 	
@@ -351,5 +368,14 @@ public final class Fragmentation {
 	 */
 	public int getNumberOfLoadedFragments() {
 		return resourceSet.getResources().size();
+	}
+
+	protected void onFinishedClientOperation() {
+		// TODO better strategy to determine gc interval, gc necessity, e.g. count changes to resources.
+		finishedClientOperations++;
+		if (finishedClientOperations > fragmentCacheSize*10) {
+			gc();
+			finishedClientOperations = 0;
+		}
 	}
 }

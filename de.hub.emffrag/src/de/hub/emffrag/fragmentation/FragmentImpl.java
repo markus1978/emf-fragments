@@ -2,6 +2,8 @@ package de.hub.emffrag.fragmentation;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.Resource;
 
@@ -22,8 +24,52 @@ import de.hub.emffrag.proxies.ProxyContainer;
 public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyContainer {
 
 	private final Fragmentation fragmentation;
-	private final Cache<Object, Proxy> proxyCache = CacheBuilder.newBuilder().weakValues().build();
+	private final Cache<CacheKey, Proxy> proxyCache = CacheBuilder.newBuilder().weakValues().build();
 	private final long id;
+	
+	private static class CacheKey {
+		private final Object source;
+
+		public CacheKey(Object source) {
+			super();
+			this.source = source;
+		}
+		
+		public Object get() {
+			return source;
+		}
+
+		/**
+		 * Hash code based on source identity
+		 */
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((source == null) ? 0 : System.identityHashCode(source));
+			return result;
+		}
+
+		/**
+		 * Equals for sameness of source.
+		 */
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			CacheKey other = (CacheKey) obj;
+			if (source == null) {
+				if (other.source != null)
+					return false;
+			} else if (source != other.source)
+				return false;
+			return true;
+		}
+	}
 	
 	protected FragmentImpl() {
 		id = -1;
@@ -48,15 +94,18 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 	
 	@Override
 	public boolean fHasProxies() {
+		proxyCache.cleanUp();
 		// we only count EObject proxies. EObjectProxies remain in memory
 		// as long child EList or Iterator proxies are in memory, since
 		// the EObject parent/child proxy links are hard references. 
-		for (Object proxy: proxyCache.asMap().keySet()) {
-			if (proxy instanceof EObject) {
+		ConcurrentMap<CacheKey, Proxy> cacheMap = proxyCache.asMap();
+		for (CacheKey proxyKey: cacheMap.keySet()) {
+			Object source = proxyKey.get();
+			if (FragmentationProxyManager.INSTANCE.hasProxyRootType(source)) {
 				return true;
 			}
 		}
-		return false;
+		return !cacheMap.isEmpty();
 	}
 	
 	/**
@@ -78,19 +127,22 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 		}
 		
 		for (Proxy proxy: proxiesToRemove) {
-			proxyCache.invalidate(proxy);
+			proxyCache.invalidate(new CacheKey(proxy.fGetSource()));
+			proxy.dSetContainer(null);
 		}
+			
 		return sourcesToRemove;
 	}
 	
 	@Override
 	public Proxy fGetProxyIfExists(Object source) {
-		return proxyCache.getIfPresent(source);
+		return proxyCache.getIfPresent(new CacheKey(source));
 	}
 	
 	@Override
 	public void fPutProxy(Object source, Proxy proxy) {
-		proxyCache.put(source, proxy);
+		proxy.dSetContainer(this);
+		proxyCache.put(new CacheKey(source), proxy);		
 	}
 
 	/**
@@ -135,18 +187,34 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 	public boolean eNotificationRequired() {
 		return true;
 	}
+	
+	private List<FObject> intraFragmentContents(FObject fObject) {
+		Fragment fragment = fObject.fFragment();
+		List<FObject> objectsToDetach = new ArrayList<FObject>();
+		
+		objectsToDetach.add(fObject);
+		TreeIterator<EObject> eAllContents = fObject.eAllContents();
+		while (eAllContents.hasNext()) {
+			fObject = (FObjectImpl)eAllContents.next();
+			if (fObject.fFragment() != fragment) {
+				eAllContents.prune();
+			} else {
+				objectsToDetach.add(fObject);
+			}
+		}
+		return objectsToDetach;
+	}
 
 	/**
 	 * Overrided to transfor proxies when the proxy source changes fragments.
 	 */
 	@Override
 	public void attached(EObject eObject) {
-		super.attached(eObject);
-		((FObjectImpl)eObject).fAttachToFragment(this);
-		TreeIterator<EObject> eAllContents = eObject.eAllContents();
-		while (eAllContents.hasNext()) {
-			FObjectImpl fObject = (FObjectImpl)eAllContents.next();
-			fObject.fAttachToFragment(this);
+		super.attached(eObject);		
+		List<FObject> objectsToDetach = intraFragmentContents((FObject)eObject);
+		
+		for (FObject objectToDetach: objectsToDetach) {
+			((FObjectImpl)objectToDetach).fAttachToFragment(this);
 		}
 	}
 
@@ -155,12 +223,11 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 	 */
 	@Override
 	public void detached(EObject eObject) {		
-		super.detached(eObject);
-		((FObjectImpl)eObject).fDetachFrom(this);
-		TreeIterator<EObject> eAllContents = eObject.eAllContents();
-		while (eAllContents.hasNext()) {
-			FObjectImpl fObject = (FObjectImpl)eAllContents.next();
-			fObject.fDetachFrom(this);
+		List<FObject> objectsToDetach = intraFragmentContents((FObject)eObject);
+		
+		for (FObject objectToDetach: objectsToDetach) {
+			((FObjectImpl)objectToDetach).fDetachFromFragment(this);
 		}
+		super.detached(eObject);
 	}
 }

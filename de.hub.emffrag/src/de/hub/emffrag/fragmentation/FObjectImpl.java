@@ -75,7 +75,7 @@ public class FObjectImpl extends MinimalEObjectImpl implements FObject {
 	
 	private Collection<Object> freeProxyChildrenSources = new HashSet<Object>();
 	
-	protected void fDetachFrom(FragmentImpl fragment) {
+	protected void fDetachFromFragment(FragmentImpl fragment) {
 		freeProxyChildrenSources.addAll(fragment.fRemoveProxy(this));
 	}
 	

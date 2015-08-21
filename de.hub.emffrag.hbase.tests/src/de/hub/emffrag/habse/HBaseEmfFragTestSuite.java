@@ -6,7 +6,9 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	HbaseBasicFragmentationTests.class
+	HbaseBasicFragmentationTests.class,
+	HbaseCrossReferenceTests.class,
+	HbaseFragmentationGCTests.class
 })
 public class HBaseEmfFragTestSuite {
 

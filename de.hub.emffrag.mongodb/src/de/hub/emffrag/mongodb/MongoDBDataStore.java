@@ -25,6 +25,7 @@ import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 
+import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.datastore.DataStoreImpl;
 import de.hub.emffrag.datastore.IBaseDataStore;
 import de.hub.emffrag.datastore.IDataStore;
@@ -107,6 +108,7 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 	private static final int MAX_BSON_SIZE = 1024*1024*16 - 256;
 	
 	private static final String TYPE = "type";
+	private static final int TYPE_EMPTY = 0;
 	private static final int TYPE_BSON = 1;
 	private static final int TYPE_GRID_FS = 2;
 	
@@ -190,7 +192,8 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 		if (result != null) {			
 			Integer typeAsInteger = (Integer)result.get(TYPE);
 			if (typeAsInteger == null) {
-				return null;				
+				EmfFragActivator.instance.warning("No type of mongodb database entry.");
+				return null;
 			}
 			int type = typeAsInteger;
 			if (type == TYPE_BSON) {
@@ -210,6 +213,8 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 					throw new IllegalStateException("There is no grid fs file for the given key.");	
 				}
 				return gridFsFile.getInputStream();
+			} else if (type == TYPE_EMPTY) {
+				return new ByteArrayInputStream(new byte[]{});
 			} else {
 				throw new IllegalStateException("Unknown mongo-db value storage type.");
 			}
@@ -256,7 +261,7 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 	@Override
 	synchronized public boolean checkAndCreate(byte[] key) {				
 		try {
-			collection.insert(new BasicDBObject(KEY, adoptKey(key)));
+			collection.insert(new BasicDBObject(KEY, adoptKey(key)).append(TYPE, TYPE_EMPTY));
 		} catch (MongoException e) {
 			return false;
 		}

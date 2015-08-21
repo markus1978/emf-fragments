@@ -10,8 +10,7 @@ import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 
 import de.hub.emffrag.EmfFragActivator;
 
-public class TestAttach {
-
+public class TreeIteratorSameTest {
 	public static void main(String args[]) {
 		EmfFragActivator.standalone(EcorePackage.eINSTANCE);
 		
@@ -40,10 +39,9 @@ public class TestAttach {
 		r.getContents().add(parent);
 		parent.getESubpackages().add(child);
 		
-		r.unload();
-		
-//		r.getContents().clear();
-//		
-//		r.getContents().add(parent);
+		System.out.println(r.getAllContents().equals(r.getAllContents()));
+		System.out.println("" + (r.getAllContents() == r.getAllContents()));
+		System.out.println(parent.eAllContents().equals(parent.eAllContents()));
+		System.out.println("" + (parent.eAllContents() == parent.eAllContents()));
 	}
 }

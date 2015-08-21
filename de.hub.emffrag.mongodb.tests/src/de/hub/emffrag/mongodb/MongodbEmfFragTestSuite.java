@@ -6,7 +6,9 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	MongodbBasicFragmentationTests.class
+	MongodbBasicFragmentationTests.class,
+	MongodbCrossReferenceTests.class,
+	MongodbFragmentationGCTests.class
 })
 public class MongodbEmfFragTestSuite {
 
