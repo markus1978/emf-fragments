@@ -58,10 +58,10 @@ public class FragmentationProxyManager extends ProxyManager {
 
 	@Override
 	protected ProxyContainer getContainerFromProxyRootSource(Object source) {
-		if (source instanceof Fragment) {
-			return (Fragment)source;
+		if (source instanceof FragmentImpl) {
+			return (FragmentImpl)source;
 		} else if (source instanceof FObject) {
-			return ((FObject)source).fFragment();
+			return (FragmentImpl)((FObject)source).fFragment();
 		} else {
 			throw new IllegalArgumentException();
 		}

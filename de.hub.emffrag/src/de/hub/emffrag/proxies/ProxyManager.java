@@ -36,7 +36,7 @@ public abstract class ProxyManager {
 
 		List<Class<?>> allInterfaces = ClassUtils.getAllInterfaces(sourceClass);
 		helper.addAll(allInterfaces);
-		helper.add(Proxy.class);
+		helper.add(DynamicProxy.class);
 		Proxy proxy = (Proxy)java.lang.reflect.Proxy.newProxyInstance(
 				sourceClass.getClassLoader(), helper.toArray(new Class<?>[]{}), new ProxyHandler(source));
 		proxyContainer.fPutProxy(source, proxy);
@@ -45,7 +45,7 @@ public abstract class ProxyManager {
 	
 	private ProxyContainer getContainer(Object source, Proxy parent) {
 		Preconditions.checkArgument(hasProxyRootType(source) ? parent == null : parent != null);
-		Object rootSource = hasProxyRootType(source) ? source : parent.fGetRootSource();
+		Object rootSource = hasProxyRootType(source) ? source : parent.fRoot().fSource();
 		Preconditions.checkArgument(hasProxyRootType(rootSource));
 		
 		ProxyContainer result = getContainerFromProxyRootSource(rootSource);
@@ -75,14 +75,12 @@ public abstract class ProxyManager {
 	}
 	
 	private Object getSource(Object proxy) {
-		return (proxy instanceof Proxy) ? ((Proxy)proxy).fGetSource() : proxy;
+		return (proxy instanceof Proxy) ? ((Proxy)proxy).fSource() : proxy;
 	}
 	
-	private class ProxyHandler implements InvocationHandler, Proxy {
+	private class ProxyHandler implements InvocationHandler, DynamicProxy, RootProxy {
 		private final Object source;
 		private Proxy parentProxy = null;
-		
-		private ProxyContainer pContainer = null;
 
 		public ProxyHandler(Object source) {
 			super();
@@ -95,18 +93,13 @@ public abstract class ProxyManager {
 		}
 
 		@Override
-		public Object fGetSource() {
+		public Object fSource() {
 			return source;
-		}
-		
-		@Override
-		public void dSetContainer(ProxyContainer container) {
-			this.pContainer = container;
 		}
 
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-			if (method.getDeclaringClass() == Proxy.class) {
+			if (method.getDeclaringClass() == Proxy.class || method.getDeclaringClass() == DynamicProxy.class) {
 				return method.invoke(this, args);
 			} else {	
 				boolean isEMFOperation = false;
@@ -126,7 +119,9 @@ public abstract class ProxyManager {
 						result = getProxy(result, getContainer(result, null));
 					} else {
 						Proxy resultProxy = getProxyWithParent(result, (Proxy)proxy);
-						resultProxy.fSetParentProxy((Proxy)proxy);												
+						if (resultProxy instanceof DynamicProxy) {
+							((DynamicProxy)resultProxy).fSetParentProxy((Proxy)proxy);
+						}
 						result = resultProxy;
 					}					
 				}
@@ -139,12 +134,17 @@ public abstract class ProxyManager {
 		}
 
 		@Override
-		public Object fGetRootSource() {
+		public RootProxy fRoot() {
 			if (parentProxy == null) {
-				return source; 
+				return this; 
 			} else {
-				return parentProxy.fGetRootSource();
+				return parentProxy.fRoot();
 			}
+		}
+
+		@Override
+		public ProxyContainer fContainer() {
+			return getContainer(source, parentProxy);
 		}	
 	}
 }

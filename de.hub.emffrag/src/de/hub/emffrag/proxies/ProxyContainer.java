@@ -2,8 +2,6 @@ package de.hub.emffrag.proxies;
 
 import java.util.Collection;
 
-
-
 public interface ProxyContainer {
 	
 	public boolean fHasProxies();

@@ -120,15 +120,14 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 		Collection<Proxy> proxiesToRemove = new ArrayList<Proxy>();
 		Collection<Object> sourcesToRemove = new ArrayList<Object>();
 		for (Proxy proxy: proxyCache.asMap().values()) {
-			if (proxy.fGetRootSource() == source) {
+			if (proxy.fRoot().fSource() == source) {
 				proxiesToRemove.add(proxy);
-				sourcesToRemove.add(proxy.fGetSource());
+				sourcesToRemove.add(proxy.fSource());
 			}
 		}
 		
 		for (Proxy proxy: proxiesToRemove) {
-			proxyCache.invalidate(new CacheKey(proxy.fGetSource()));
-			proxy.dSetContainer(null);
+			proxyCache.invalidate(new CacheKey(proxy.fSource()));
 		}
 			
 		return sourcesToRemove;
@@ -141,7 +140,6 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 	
 	@Override
 	public void fPutProxy(Object source, Proxy proxy) {
-		proxy.dSetContainer(this);
 		proxyCache.put(new CacheKey(source), proxy);		
 	}
 

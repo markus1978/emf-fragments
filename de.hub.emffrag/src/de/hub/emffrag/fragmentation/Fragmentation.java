@@ -25,6 +25,7 @@ import de.hub.emffrag.datastore.DataStoreURIHandler;
 import de.hub.emffrag.datastore.IDataMap;
 import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.LongKeyType;
+import de.hub.emffrag.proxies.ProxyFactory;
 import de.hub.util.Ansi;
 import de.hub.util.Ansi.Color;
 
@@ -89,7 +90,11 @@ public final class Fragmentation {
 	
 	public Fragment getRootFragment() {
 		Fragment root = (Fragment)resourceSet.getResource(getURI(0l), true);
-		return (Fragment)FragmentationProxyManager.INSTANCE.getProxy(root, root);
+		if (EmfFragActivator.instance.useDynamicProxies) {
+			return (Fragment)FragmentationProxyManager.INSTANCE.getProxy(root, (FragmentImpl)root); // TODO	
+		} else {
+			return (Fragment)ProxyFactory.INSTANCE.create(root, null);
+		}
 	}
 	
 	/**
@@ -130,7 +135,7 @@ public final class Fragmentation {
 		int count = 0;
 		Collection<Fragment> fragemntsToUnload = new ArrayList<Fragment>();	
 		for(Resource resource: resourceSet.getResources()) {
-			if (!((Fragment)resource).fHasProxies()) {
+			if (!((FragmentImpl)resource).fHasProxies()) {
 				count++;
 				if (count > fragmentCacheSize) {
 					fragemntsToUnload.add((Fragment)resource);

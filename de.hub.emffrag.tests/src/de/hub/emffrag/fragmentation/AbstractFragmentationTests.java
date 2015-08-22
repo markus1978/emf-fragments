@@ -57,6 +57,7 @@ public class AbstractFragmentationTests extends AbstractTestModelTests<TestObjec
 		EmfFragActivator.standalone(TestModelPackage.eINSTANCE);
 		EmfFragActivator.instance.logInStandAlone = true;
 		EmfFragActivator.instance.logFragmentPrettyPrints = true;
+		EmfFragActivator.instance.useDynamicProxies = true;
 	}
 
 	protected void initializeFragmentation(int fragmentsCacheSize, IDataStore dataStore) {
