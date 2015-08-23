@@ -36,7 +36,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link de.hub.emffrag.testmodels.eobject.testmodel.TestObject#getArbitraryContents <em>Arbitrary Contents</em>}</li>
  * </ul>
  *
- * @see de.hub.emffrag.testmodels.eobject.testmodel.fobject.meta.TestModelPackage#getTestObject()
+ * @see de.hub.emffrag.testmodels.eobject.testmodel.proxy.meta.TestmodelPackage#getTestObject()
  * @model
  * @generated
  */
@@ -51,7 +51,7 @@ public interface TestObject extends EObject {
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Name</em>' attribute.
 	 * @see #setName(String)
-	 * @see de.hub.emffrag.testmodels.eobject.testmodel.fobject.meta.TestModelPackage#getTestObject_Name()
+	 * @see de.hub.emffrag.testmodels.eobject.testmodel.proxy.meta.TestmodelPackage#getTestObject_Name()
 	 * @model
 	 * @generated
 	 */
@@ -77,7 +77,7 @@ public interface TestObject extends EObject {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Regular Contents</em>' containment reference list.
-	 * @see de.hub.emffrag.testmodels.eobject.testmodel.fobject.meta.TestModelPackage#getTestObject_RegularContents()
+	 * @see de.hub.emffrag.testmodels.eobject.testmodel.proxy.meta.TestmodelPackage#getTestObject_RegularContents()
 	 * @model containment="true" resolveProxies="true"
 	 * @generated
 	 */
@@ -93,7 +93,7 @@ public interface TestObject extends EObject {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Fragmented Contents</em>' containment reference list.
-	 * @see de.hub.emffrag.testmodels.eobject.testmodel.fobject.meta.TestModelPackage#getTestObject_FragmentedContents()
+	 * @see de.hub.emffrag.testmodels.eobject.testmodel.proxy.meta.TestmodelPackage#getTestObject_FragmentedContents()
 	 * @model containment="true" resolveProxies="true"
 	 *        annotation="de.hub.emffrag fragments='true'"
 	 * @generated
@@ -110,7 +110,7 @@ public interface TestObject extends EObject {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Cross References</em>' reference list.
-	 * @see de.hub.emffrag.testmodels.eobject.testmodel.fobject.meta.TestModelPackage#getTestObject_CrossReferences()
+	 * @see de.hub.emffrag.testmodels.eobject.testmodel.proxy.meta.TestmodelPackage#getTestObject_CrossReferences()
 	 * @model
 	 * @generated
 	 */
@@ -128,7 +128,7 @@ public interface TestObject extends EObject {
 	 * @return the value of the '<em>Enum Attribute</em>' attribute.
 	 * @see de.hub.emffrag.testmodels.eobject.testmodel.TestEnum
 	 * @see #setEnumAttribute(TestEnum)
-	 * @see de.hub.emffrag.testmodels.eobject.testmodel.fobject.meta.TestModelPackage#getTestObject_EnumAttribute()
+	 * @see de.hub.emffrag.testmodels.eobject.testmodel.proxy.meta.TestmodelPackage#getTestObject_EnumAttribute()
 	 * @model
 	 * @generated
 	 */
@@ -155,7 +155,7 @@ public interface TestObject extends EObject {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Arbitrary Contents</em>' containment reference list.
-	 * @see de.hub.emffrag.testmodels.eobject.testmodel.fobject.meta.TestModelPackage#getTestObject_ArbitraryContents()
+	 * @see de.hub.emffrag.testmodels.eobject.testmodel.proxy.meta.TestmodelPackage#getTestObject_ArbitraryContents()
 	 * @model containment="true" resolveProxies="true"
 	 * @generated
 	 */

@@ -105,4 +105,12 @@
             genModel="metamodels/testmodel.eobject.unload.genmodel"/>
    </extension>
 
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated testmodel.eobject.proxy -->
+      <package
+            uri="http://hu-berlin.de/sam/emfhbase/testmodel"
+            class="de.hub.emffrag.testmodels.eobject.testmodel.proxy.meta.TestmodelPackage"
+            genModel="metamodels/testmodel.eobject.proxy.genmodel"/>
+   </extension>
+
 </plugin>
