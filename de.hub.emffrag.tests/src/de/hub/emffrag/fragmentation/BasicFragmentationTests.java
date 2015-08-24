@@ -15,6 +15,7 @@ import org.junit.runners.MethodSorters;
 
 import de.hub.emffrag.statistics.Statistics;
 import de.hub.emffrag.testmodels.fobject.testmodel.TestObject;
+import de.hub.emffrag.testmodels.fobject.testmodel.fobject.meta.TestModelPackage;
 
 /**
  * Basic fragmentation tests. These tests test the fragmentation based on
@@ -51,7 +52,7 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 	public void testBasicAddFragment() {
 		TestObject container = createTO("1");
 		fragmentation.getContents().add(container);
-		TestObject contents = createTO("2", container, tmPackage.getTestObject_FragmentedContents());
+		TestObject contents = createTO("2", container, TestModelPackage.eINSTANCE.getTestObject_FragmentedContents());
 
 		Assert.assertTrue(container.fIsRoot());
 		Assert.assertTrue(contents.fIsRoot());
@@ -241,9 +242,9 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 	public void testBasicAutoFragmentMove() {
 		TestObject container = createTO("container");
 		fragmentation.getContents().add(container);
-		TestObject source = createTO("source", container, tmPackage.getTestObject_FragmentedContents());
-		TestObject target = createTO("target", container, tmPackage.getTestObject_FragmentedContents());
-		TestObject object = createTO("object", source, tmPackage.getTestObject_FragmentedContents());
+		TestObject source = createTO("source", container, TestModelPackage.eINSTANCE.getTestObject_FragmentedContents());
+		TestObject target = createTO("target", container, TestModelPackage.eINSTANCE.getTestObject_FragmentedContents());
+		TestObject object = createTO("object", source, TestModelPackage.eINSTANCE.getTestObject_FragmentedContents());
 		
 		URI uri = object.fFragment().getURI();
 		target.getFragmentedContents().add(object);
@@ -285,8 +286,8 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 	public void testBasicAutoIsRootTest() {
 		testBasicAddContentsTest();
 		TestObject parent = getSaved(TEST_OBJECT);
-		TestObject nonFragmentingChild = createTO("2", parent, tmPackage.getTestObject_RegularContents());
-		TestObject fragmentingChild = createTO("3", parent, tmPackage.getTestObject_FragmentedContents());
+		TestObject nonFragmentingChild = createTO("2", parent, TestModelPackage.eINSTANCE.getTestObject_RegularContents());
+		TestObject fragmentingChild = createTO("3", parent, TestModelPackage.eINSTANCE.getTestObject_FragmentedContents());
 
 		Assert.assertEquals("3", fragmentingChild.getName());
 

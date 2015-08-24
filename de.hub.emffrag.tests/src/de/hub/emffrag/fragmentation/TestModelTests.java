@@ -7,15 +7,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import de.hub.emffrag.testmodels.AbstractTestModelTests;
-import de.hub.emffrag.testmodels.eobject.testmodel.TestObject;
-import de.hub.emffrag.testmodels.eobject.testmodel.eobject.meta.TestModelPackage;
+import de.hub.emffrag.testmodels.fobject.testmodel.TestObject;
 
-public class TestModelTests extends AbstractTestModelTests<TestObject, TestModelPackage> {
-
-	@Override
-	protected TestModelPackage testModelPackage() {
-		return TestModelPackage.eINSTANCE;
-	}
+public class TestModelTests extends AbstractTestModelTests {
 	
 	private void testCreateTOFromModel(String modelDefinition, String equalModelDefinition, int expectedSize) {
 		TestObject root = createTOFromModelString(modelDefinition);

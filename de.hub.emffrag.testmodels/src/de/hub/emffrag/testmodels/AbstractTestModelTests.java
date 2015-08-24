@@ -11,58 +11,45 @@ import java.util.Queue;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EFactory;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcoreFactory;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 
-import de.hub.emffrag.testmodels.eobject.testmodel.eobject.meta.TestModelPackage;
+import de.hub.emffrag.testmodels.fobject.testmodel.TestObject;
+import de.hub.emffrag.testmodels.fobject.testmodel.fobject.meta.TestModelFactory;
+import de.hub.emffrag.testmodels.fobject.testmodel.fobject.meta.TestModelPackage;
 
-public abstract class AbstractTestModelTests<T extends EObject, P extends EPackage> {
-	private final EClass testObjectClass = (EClass)testModelPackage().getEClassifier(TestModelPackage.eINSTANCE.getTestObject().getName());
-	private final EStructuralFeature nameFeature = testObjectClass.getEStructuralFeature(TestModelPackage.eINSTANCE.getTestObject_Name().getName());
+public abstract class AbstractTestModelTests {
+	private final EClass testObjectClass = TestModelPackage.eINSTANCE.getTestObject();
+	private final EStructuralFeature nameFeature = TestModelPackage.eINSTANCE.getTestObject_Name();
 	
-	protected EFactory tmFactory;
-	protected EPackage tmPackage;
 	protected List<Object> modifiedTester = new ArrayList<Object>();
-	private Map<String, T> savedTestObject = new HashMap<String, T>();
+	private Map<String, TestObject> savedTestObject = new HashMap<String, TestObject>();
 
-	protected void save(T object) {
+	protected void save(TestObject object) {
 		savedTestObject.put((String)object.eGet(nameFeature), object);
 	}
 	
-	protected T getSaved(String name) {
+	protected TestObject getSaved(String name) {
 		return savedTestObject.get(name);
 	}
 	
-
 	@Before
 	public void initializeTestModel() {
 		savedTestObject.clear();
 		modifiedTester.clear();
-		tmPackage = testModelPackage();
-		tmFactory = tmPackage.getEFactoryInstance();
 	}
-	
-	@BeforeClass
-	public static void initializeEMF() {
-		
-	}
-	
-	protected abstract P testModelPackage();
 
-	protected T createTO(String name) {
+	protected TestObject createTO(String name) {
 		return createTO(name, null, null);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected T createTO(String name, T parent, EReference reference) {
-		T testObject = (T)tmFactory.create((EClass)tmPackage.getEClassifier("TestObject"));
+	protected TestObject createTO(String name, TestObject parent, EReference reference) {
+		TestObject testObject = TestModelFactory.eINSTANCE.createTestObject();
 		testObject.eSet(testObject.eClass().getEStructuralFeature("name"), name);
 		if (parent != null) {
 			((List) parent.eGet(reference)).add(testObject);
@@ -81,11 +68,10 @@ public abstract class AbstractTestModelTests<T extends EObject, P extends EPacka
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	protected T createTOFromModelString(String model) {
+	protected TestObject createTOFromModelString(String model) {
 		EObject object = createFromModelString(model);
 		if (isTestObject(object)) {
-			return (T)object;
+			return (TestObject)object;
 		} else {
 			Assert.fail("Model string describes not a test object.");
 			return null;
@@ -102,45 +88,44 @@ public abstract class AbstractTestModelTests<T extends EObject, P extends EPacka
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	protected T queryTO(EObject root, String query) {
+	protected TestObject queryTO(EObject root, String query) {
 		EObject object = query(root, query);
 		if (isTestObject(object)) {
-			return (T)object;
+			return (TestObject)object;
 		} else {
 			return null;
 		}
 	}
 	
-	protected String printTO(T root) {
+	protected String printTO(TestObject root) {
 		return printTO(root, true);
 	}
 	
-	protected String printTO(T root, boolean printFragmentation) {
+	protected String printTO(TestObject root, boolean printFragmentation) {
 		StringBuffer result = new StringBuffer();
 		printObject(result, root, true, printFragmentation);
 		return result.toString();
 	}
 	
-	private void printObject(StringBuffer result, T object, boolean printFeatures, boolean printFragmentation) {
+	private void printObject(StringBuffer result, TestObject object, boolean printFeatures, boolean printFragmentation) {
 		result.append(object.eGet(nameFeature));
 		if (printFeatures) {
 			if (printFragmentation) {
 				printFeature(result, testObjectClass.getEStructuralFeature(TestModelPackage.eINSTANCE.getTestObject_FragmentedContents().getName()), object, printFragmentation);
 			}
-			printFeature(result, testObjectClass.getEStructuralFeature(TestModelPackage.eINSTANCE.getTestObject_RegularContents().getName()), object, printFragmentation);
-			printFeature(result, testObjectClass.getEStructuralFeature(TestModelPackage.eINSTANCE.getTestObject_CrossReferences().getName()), object, printFragmentation);
+			printFeature(result, TestModelPackage.eINSTANCE.getTestObject_RegularContents(), object, printFragmentation);
+			printFeature(result, TestModelPackage.eINSTANCE.getTestObject_CrossReferences(), object, printFragmentation);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private void printFeature(StringBuffer result, EStructuralFeature feature, T object, boolean printFragmentation) {	
-		EList<T> valueSet = (EList<T>) object.eGet(feature);
+	private void printFeature(StringBuffer result, EStructuralFeature feature, TestObject object, boolean printFragmentation) {	
+		EList<TestObject> valueSet = (EList<TestObject>) object.eGet(feature);
 		if (!valueSet.isEmpty()) {
 			result.append(feature.getName().toLowerCase().charAt(0));
 			result.append("(");
 			boolean first = true;
-			for (T value: valueSet) {
+			for (TestObject value: valueSet) {
 				if (first) {
 					first = false;					
 				} else {
@@ -157,14 +142,14 @@ public abstract class AbstractTestModelTests<T extends EObject, P extends EPacka
 	}
 
 	private class TestModelParser {
-		Map<String, T> objects = new HashMap<String, T>();
+		Map<String, TestObject> objects = new HashMap<String, TestObject>();
 		int offset = 0;
 		
 		EObject getObject(String name) {
 			if (name.equals("E")) {
 				return EcoreFactory.eINSTANCE.createEObject();
 			} else {
-				T result = objects.get(name);
+				TestObject result = objects.get(name);
 				if (result == null) {
 					result = createTO(name);
 					objects.put(name, result);
@@ -293,13 +278,13 @@ public abstract class AbstractTestModelTests<T extends EObject, P extends EPacka
 		EList<EObject> getValueSet(char c, EObject object) {
 			EStructuralFeature feature = null;
 			if (c == 'f') {
-				feature = testObjectClass.getEStructuralFeature(TestModelPackage.eINSTANCE.getTestObject_FragmentedContents().getName());
+				feature = TestModelPackage.eINSTANCE.getTestObject_FragmentedContents();
 			} else if (c == 'r') {
-				feature = testObjectClass.getEStructuralFeature(TestModelPackage.eINSTANCE.getTestObject_RegularContents().getName());
+				feature = TestModelPackage.eINSTANCE.getTestObject_RegularContents();
 			} else if (c == 'c') {
-				feature = testObjectClass.getEStructuralFeature(TestModelPackage.eINSTANCE.getTestObject_CrossReferences().getName());
+				feature = TestModelPackage.eINSTANCE.getTestObject_CrossReferences();
 			} else if (c == 'a') {
-				feature = testObjectClass.getEStructuralFeature(TestModelPackage.eINSTANCE.getTestObject_ArbitraryContents().getName());
+				feature = TestModelPackage.eINSTANCE.getTestObject_ArbitraryContents();
 			}
 			if (feature != null && isTestObject(object)) {
 				return (EList<EObject>)object.eGet(feature);

@@ -16,22 +16,6 @@ public class EmfFragActivator extends Plugin {
 	public boolean logInStandAlone = false;
 	public boolean logFragmentPrettyPrints = false;
 	
-	/**
-	 * When using dynamic proxies, emf-fragments uses generated the interfaces and implementations for its internal representation
-	 * on an object, and it will hand java dynamic proxies that implement the same interface to clients (you). In this case, set
-	 * FObjectImpl as base class, reflective feature delegation, and containment proxies in your gen-model. This use
-	 * of dynamic proxies has a set of drawbacks: (1) performance, we use dynamic proxies and java reflection each time you 
-	 * use an emf method on your model. (2) You initially create objects in their internal emf-fragments representation and then add them 
-	 * to a fragmentation and you get proxies out of a fragmentation. Forget about the objects that you (client) created as soon as 
-	 * you put them into a fragmentation, since they might become unloaded (only proxies count as references for the fragmentation's
-	 * garbage collection).
-	 * 
-	 * The regular case is no dynamic proxies. Here emf-fragments uses internal objects that do not implement the generated
-	 * interfaces (purely reflective emf-model) and the generated interfaces and implementations are used for client proxies. In your
-	 * gen-model set ProxyEObjectImpl as your model element base class, reflective feature delegation, and containment proxies.
-	 */
-	public boolean useDynamicProxies = false;
-	
 	private boolean isStandAlone = false;	
 	private int warningsAndErrors = 0;
 

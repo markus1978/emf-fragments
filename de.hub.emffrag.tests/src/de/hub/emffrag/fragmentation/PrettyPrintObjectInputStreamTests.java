@@ -15,17 +15,11 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import de.hub.emffrag.testmodels.AbstractTestModelTests;
-import de.hub.emffrag.testmodels.eobject.testmodel.TestObject;
-import de.hub.emffrag.testmodels.eobject.testmodel.eobject.meta.TestModelPackage;
+import de.hub.emffrag.testmodels.fobject.testmodel.TestObject;
 import de.hub.util.PrettyPrintEObjectInputStream;
 
 @FixMethodOrder(MethodSorters.JVM)
-public class PrettyPrintObjectInputStreamTests extends AbstractTestModelTests<TestObject, TestModelPackage> {
-
-	@Override
-	protected TestModelPackage testModelPackage() {
-		return TestModelPackage.eINSTANCE;
-	}
+public class PrettyPrintObjectInputStreamTests extends AbstractTestModelTests {
 	
 	@Test
 	public void testPrettyPrint() {

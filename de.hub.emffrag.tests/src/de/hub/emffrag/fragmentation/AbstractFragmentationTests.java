@@ -16,7 +16,6 @@ import de.hub.emffrag.datastore.IBaseDataStore;
 import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.InMemoryDataStore;
 import de.hub.emffrag.testmodels.AbstractTestModelTests;
-import de.hub.emffrag.testmodels.fobject.testmodel.TestObject;
 import de.hub.emffrag.testmodels.fobject.testmodel.fobject.meta.TestModelPackage;
 
 /**
@@ -32,7 +31,7 @@ import de.hub.emffrag.testmodels.fobject.testmodel.fobject.meta.TestModelPackage
  * triggered by the test manually.
  */
 @FixMethodOrder(MethodSorters.JVM)
-public class AbstractFragmentationTests extends AbstractTestModelTests<TestObject, TestModelPackage> {
+public class AbstractFragmentationTests extends AbstractTestModelTests {
 
 	protected static final String TEST_OBJECT = "TestObject";
 
@@ -41,12 +40,6 @@ public class AbstractFragmentationTests extends AbstractTestModelTests<TestObjec
 	protected Fragmentation fragmentation;
 	protected IDataStore dataStore;
 	private IBaseDataStore baseDataStore = null;
-	protected static  TestModelPackage tmPackage = TestModelPackage.eINSTANCE;
-	
-	@Override
-	protected TestModelPackage testModelPackage() {
-		return TestModelPackage.eINSTANCE;
-	}
 
 	protected URI getTestFragmentationURI() {
 		return testFragmentationURI;
@@ -57,7 +50,6 @@ public class AbstractFragmentationTests extends AbstractTestModelTests<TestObjec
 		EmfFragActivator.standalone(TestModelPackage.eINSTANCE);
 		EmfFragActivator.instance.logInStandAlone = true;
 		EmfFragActivator.instance.logFragmentPrettyPrints = true;
-		EmfFragActivator.instance.useDynamicProxies = true;
 	}
 
 	protected void initializeFragmentation(int fragmentsCacheSize, IDataStore dataStore) {

@@ -8,16 +8,6 @@ Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: de.hub.emffrag.testmodels,
- de.hub.emffrag.testmodels.eobject.testmodel,
- de.hub.emffrag.testmodels.eobject.testmodel.proxy.impl,
- de.hub.emffrag.testmodels.eobject.testmodel.proxy.meta,
- de.hub.emffrag.testmodels.eobject.testmodel.proxy.util,
- de.hub.emffrag.testmodels.eobject.testmodel.eobject.impl,
- de.hub.emffrag.testmodels.eobject.testmodel.eobject.meta,
- de.hub.emffrag.testmodels.eobject.testmodel.eobject.util,
- de.hub.emffrag.testmodels.eobject.testmodel.fobject.impl,
- de.hub.emffrag.testmodels.eobject.testmodel.fobject.meta,
- de.hub.emffrag.testmodels.eobject.testmodel.fobject.util,
  de.hub.emffrag.testmodels.fobject.testmodel,
  de.hub.emffrag.testmodels.fobject.testmodel.fobject.impl,
  de.hub.emffrag.testmodels.fobject.testmodel.fobject.meta,

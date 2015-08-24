@@ -25,7 +25,6 @@ import de.hub.emffrag.datastore.DataStoreURIHandler;
 import de.hub.emffrag.datastore.IDataMap;
 import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.LongKeyType;
-import de.hub.emffrag.proxies.ProxyFactory;
 import de.hub.util.Ansi;
 import de.hub.util.Ansi.Color;
 
@@ -90,11 +89,7 @@ public final class Fragmentation {
 	
 	public Fragment getRootFragment() {
 		Fragment root = (Fragment)resourceSet.getResource(getURI(0l), true);
-		if (EmfFragActivator.instance.useDynamicProxies) {
-			return (Fragment)FragmentationProxyManager.INSTANCE.getProxy(root, (FragmentImpl)root); // TODO	
-		} else {
-			return (Fragment)ProxyFactory.INSTANCE.create(root, null);
-		}
+		return (Fragment)FragmentationProxyManager.INSTANCE.getProxy(root, (FragmentImpl)root);		
 	}
 	
 	/**
