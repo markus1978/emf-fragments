@@ -185,23 +185,6 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 	public boolean eNotificationRequired() {
 		return true;
 	}
-	
-	private List<FObject> intraFragmentContents(FObject fObject) {
-		Fragment fragment = fObject.fFragment();
-		List<FObject> objectsToDetach = new ArrayList<FObject>();
-		
-		objectsToDetach.add(fObject);
-		TreeIterator<EObject> eAllContents = fObject.eAllContents();
-		while (eAllContents.hasNext()) {
-			fObject = (FObjectImpl)eAllContents.next();
-			if (fObject.fFragment() != fragment) {
-				eAllContents.prune();
-			} else {
-				objectsToDetach.add(fObject);
-			}
-		}
-		return objectsToDetach;
-	}
 
 	/**
 	 * Overrided to transfor proxies when the proxy source changes fragments.
@@ -209,11 +192,7 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 	@Override
 	public void attached(EObject eObject) {
 		super.attached(eObject);		
-		List<FObject> objectsToDetach = intraFragmentContents((FObject)eObject);
-		
-		for (FObject objectToDetach: objectsToDetach) {
-			((FObjectImpl)objectToDetach).fAttachToFragment(this);
-		}
+		((FObjectImpl)eObject).fAttachToFragment(this);		
 	}
 
 	/**
@@ -221,11 +200,7 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 	 */
 	@Override
 	public void detached(EObject eObject) {		
-		List<FObject> objectsToDetach = intraFragmentContents((FObject)eObject);
-		
-		for (FObject objectToDetach: objectsToDetach) {
-			((FObjectImpl)objectToDetach).fDetachFromFragment(this);
-		}
+		((FObjectImpl)eObject).fDetachFromFragment(this);
 		super.detached(eObject);
 	}
 }

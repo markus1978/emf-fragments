@@ -25,6 +25,8 @@ public class Histogram implements IStatisticalService {
 	
 	@Override
 	public void report(StringBuilder out) {
+		out.append("Histogram:\n");
+		
 		histogram.normalize(min, max);
 		float size = max - min;
 		float binSize = size / binCount;

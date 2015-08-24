@@ -85,16 +85,22 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 
 	@Test
 	public void testRecursiveAddFragmentsToRoot1() {
-		testRecursiveAddFragmentsToRoot("1f(2f(4f(6),5),3)");
+		testRecursiveAddFragmentsToRoot("1f(2f(4f(6),5),3)", 6);
 	}
 	
 	@Test
 	public void testRecursiveAddFragmentsToRoot2() {	
-		testRecursiveAddFragmentsToRoot("1f(2f(3f(4f(5f(6)))))");
+		testRecursiveAddFragmentsToRoot("1f(2f(3f(4f(5f(6)))))", 6);
+	}
+	
+	@Test
+	public void testRecursiveAddFragmentsToRoot3() {	
+		testRecursiveAddFragmentsToRoot("1f(2r(3f(4r(5r(6)))))", 3);
 	}
 
-	private void testRecursiveAddFragmentsToRoot(String testModelString) {				
-		performBasicAddContentsTest(testModelString, 6);
+	private void testRecursiveAddFragmentsToRoot(String testModelString, int expectedFragments) {				
+		performBasicAddContentsTest(testModelString, expectedFragments);
+		assertFragmentation();
 		
 		reinitializeFragmentation(1);
 		TestObject model = (TestObject)fragmentation.getContents().get(0);		

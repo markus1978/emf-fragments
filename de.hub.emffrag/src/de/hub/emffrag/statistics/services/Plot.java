@@ -42,6 +42,7 @@ public class Plot implements IStatisticalService {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void report(StringBuilder out) {
+		out.append("Plot:\n");
 		Helper.plotChart(out, (Collection<Double>)binValues, 0, binDuration);
 	}
 }
