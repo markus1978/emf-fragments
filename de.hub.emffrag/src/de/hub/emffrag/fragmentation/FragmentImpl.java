@@ -2,16 +2,17 @@ package de.hub.emffrag.fragmentation;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.annotation.Resource;
-
 import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.util.AbstractTreeIterator;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.InternalEObject;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.BinaryResourceImpl;
 
 import com.google.common.base.Preconditions;
@@ -23,10 +24,13 @@ import de.hub.emffrag.proxies.ProxyContainer;
 
 public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyContainer {
 
+	private static long accessCounter = 0;
+	
 	private final Fragmentation fragmentation;
 	private final Cache<CacheKey, Proxy> proxyCache = CacheBuilder.newBuilder().weakValues().build();
 	private final long id;
-	
+	private long lastAccessCount = -1;
+
 	private static class CacheKey {
 		private final Object source;
 
@@ -34,7 +38,7 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 			super();
 			this.source = source;
 		}
-		
+
 		public Object get() {
 			return source;
 		}
@@ -70,18 +74,18 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 			return true;
 		}
 	}
-	
+
 	protected FragmentImpl() {
 		id = -1;
 		fragmentation = null;
 	}
-	
+
 	public FragmentImpl(Fragmentation fragmentation, URI uri, long id) {
 		super(uri);
 		this.id = id;
 		this.fragmentation = fragmentation;
 	}
-	
+
 	@Override
 	public long fFragmentId() {
 		return id;
@@ -91,15 +95,15 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 	public boolean fIsRoot() {
 		return id == 0l;
 	}
-	
+
 	@Override
 	public boolean fHasProxies() {
 		proxyCache.cleanUp();
 		// we only count EObject proxies. EObjectProxies remain in memory
 		// as long child EList or Iterator proxies are in memory, since
-		// the EObject parent/child proxy links are hard references. 
+		// the EObject parent/child proxy links are hard references.
 		ConcurrentMap<CacheKey, Proxy> cacheMap = proxyCache.asMap();
-		for (CacheKey proxyKey: cacheMap.keySet()) {
+		for (CacheKey proxyKey : cacheMap.keySet()) {
 			Object source = proxyKey.get();
 			if (FragmentationProxyManager.INSTANCE.hasProxyRootType(source)) {
 				return true;
@@ -107,61 +111,84 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 		}
 		return !cacheMap.isEmpty();
 	}
-	
+
 	/**
-	 * @param source of the proxy to remove.
-	 * @return A collection with all the sources of all the child proxies of the given source's proxy.
+	 * @param source
+	 *            of the proxy to remove.
+	 * @return A collection with all the sources of all the child proxies of the
+	 *         given source's proxy.
 	 */
 	@Override
 	public Collection<Object> fRemoveProxy(Object sourceAsObject) {
-		FObject source = (FObject)sourceAsObject;
+		lastAccessCount = accessCounter++;
+		FObject source = (FObject) sourceAsObject;
 		Preconditions.checkArgument(source.fFragment() == this);
-		
+
 		Collection<Proxy> proxiesToRemove = new ArrayList<Proxy>();
 		Collection<Object> sourcesToRemove = new ArrayList<Object>();
-		for (Proxy proxy: proxyCache.asMap().values()) {
+		for (Proxy proxy : proxyCache.asMap().values()) {
 			if (proxy.fRoot().fSource() == source) {
 				proxiesToRemove.add(proxy);
 				sourcesToRemove.add(proxy.fSource());
 			}
 		}
-		
-		for (Proxy proxy: proxiesToRemove) {
+
+		for (Proxy proxy : proxiesToRemove) {
 			proxyCache.invalidate(new CacheKey(proxy.fSource()));
 		}
-			
+
 		return sourcesToRemove;
 	}
-	
+
 	@Override
 	public Proxy fGetProxyIfExists(Object source) {
+		lastAccessCount = accessCounter++;
 		return proxyCache.getIfPresent(new CacheKey(source));
 	}
-	
+
 	@Override
 	public void fPutProxy(Object source, Proxy proxy) {
-		proxyCache.put(new CacheKey(source), proxy);		
+		lastAccessCount = accessCounter++;
+		proxyCache.put(new CacheKey(source), proxy);
 	}
 
 	/**
-	 * Perform a EMF-Fragments flavored unload.
+	 * Triggers a EMF-Fragments flavored unload after the regular unload object
+	 * contents.
 	 */
-	@Override
-	protected void unloaded(InternalEObject internalEObject) {
-		if (internalEObject instanceof FObjectImpl) {
-			((FObjectImpl)internalEObject).fUnload();	
+	protected void doUnload() {
+		Iterator<EObject> allContents = getAllProperContents(unloadingContents);
+		List<EObject> unloadedObjects = new ArrayList<EObject>();
+
+		// This guard is needed to ensure that clear doesn't make the resource
+		// become loaded.
+		//
+		if (!getContents().isEmpty()) {
+			getContents().clear();
 		}
-		
-		super.unloaded(internalEObject);
+		getErrors().clear();
+		getWarnings().clear();
+
+		while (allContents.hasNext()) {
+			InternalEObject next = (InternalEObject) allContents.next();
+			unloaded(next);
+			unloadedObjects.add(next);
+		}
+
+		for (EObject unloadedObject : unloadedObjects) {
+			if (unloadedObject instanceof FObjectImpl) {
+				((FObjectImpl) unloadedObject).fUnload();
+			}
+		}
 	}
 
 	public Fragmentation fFragmentation() {
 		return fragmentation;
 	}
-	
+
 	/**
-	 * Promotes change to the contents to {@link Fragmentation}. Should
-	 * only be invoked for root fragment (TODO test this).
+	 * Promotes change to the contents to {@link Fragmentation}. Should only be
+	 * invoked for root fragment (TODO test this).
 	 */
 	@Override
 	public void eNotify(Notification notification) {
@@ -171,15 +198,15 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 				fragmentation.onRootFragmentChange(notification);
 			}
 		}
-		
+
 		if (super.eNotificationRequired()) {
 			super.eNotify(notification);
 		}
 	}
-	
-	
+
 	/**
-	 * Always required to propagate changes to fragmentation for automated fragmentation of new content.
+	 * Always required to propagate changes to fragmentation for automated
+	 * fragmentation of new content.
 	 */
 	@Override
 	public boolean eNotificationRequired() {
@@ -191,16 +218,35 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 	 */
 	@Override
 	public void attached(EObject eObject) {
-		super.attached(eObject);		
-		((FObjectImpl)eObject).fAttachToFragment(this);		
+		super.attached(eObject);
+		((FObject) eObject).fAttachToFragment(this);
 	}
 
 	/**
 	 * Overrided to transfor proxies when the proxy source changes fragments.
 	 */
 	@Override
-	public void detached(EObject eObject) {		
-		((FObjectImpl)eObject).fDetachFromFragment(this);
+	public void detached(EObject eObject) {
+		((FObject) eObject).fDetachFromFragment(this);
 		super.detached(eObject);
 	}
+	
+	public long getLastAccessCount() {
+		return lastAccessCount;
+	}
+
+	@Override
+	public TreeIterator<EObject> getAllContents() {
+		final Proxy proxy = FragmentationProxyManager.INSTANCE.getProxy(this, this);
+		return new AbstractTreeIterator<EObject>((Resource)proxy, false) {	
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Iterator<EObject> getChildren(Object object) {
+				return object == proxy ? ((Resource)proxy).getContents().iterator()
+						: ((EObject) object).eContents().iterator();
+			}
+		};
+	}
+	
 }

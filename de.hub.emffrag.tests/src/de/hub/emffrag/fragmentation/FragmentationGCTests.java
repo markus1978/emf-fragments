@@ -1,5 +1,7 @@
 package de.hub.emffrag.fragmentation;
 
+import java.lang.ref.WeakReference;
+
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EObject;
 import org.junit.Assert;
@@ -21,6 +23,49 @@ public class FragmentationGCTests extends AbstractFragmentationTests {
 		
 		fragmentation.gc();
 		Assert.assertSame(1, fragmentation.getNumberOfLoadedFragments());
+	}
+	
+	@Test
+	public void gcTest() {
+		String start = "";
+		String end = "";
+		for (int i = 0; i < 100; i++) {
+			start += i+"f(";
+			end += ")";
+		}
+		runGCTest(start+end);
+	}
+	
+	private void runGCTest(String modelString) {
+		initializeFragmentation(0);
+		TestObject testModel = createTOFromModelString(modelString);
+		
+		int objects = 1;
+		TreeIterator<EObject> eAllContents = testModel.eAllContents();
+		while(eAllContents.hasNext()) {
+			eAllContents.next();
+			objects++;
+		}
+		
+		fragmentation.getContents().add(testModel);
+		
+		systemGC();
+		fragmentation.gc();
+		Assert.assertSame(1, fragmentation.getNumberOfLoadedFragments());
+		
+		TreeIterator<EObject> allContents = fragmentation.getRootFragment().getAllContents();
+		int count = 0;
+		while (allContents.hasNext()) {
+			FObject next = (FObject)allContents.next();
+			systemGC();
+			fragmentation.gc();
+			
+			Assert.assertTrue(next != null && !next.eIsProxy());
+			Assert.assertTrue(next.fFragmentation() == fragmentation);
+			count++;
+		}
+		
+		Assert.assertSame(objects, count);
 	}
 	
 	@Test
@@ -47,6 +92,18 @@ public class FragmentationGCTests extends AbstractFragmentationTests {
 				Assert.assertNotNull(((TestObject)eAllContents.next()).getName());
 			}
 			Assert.assertSame(3, count);
+		}
+	}
+	
+	private void systemGC() {
+		for (int i = 0; i < 2; i++) {
+			Object obj = new Object();
+			WeakReference<Object> ref = new WeakReference<Object>(obj);
+			obj = null;
+			while (ref.get() != null) {
+				System.gc();
+			}
+			Runtime.getRuntime().runFinalization();
 		}
 	}
 }

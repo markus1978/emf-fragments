@@ -2,10 +2,16 @@ package de.hub.emffrag.fragmentation;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.util.AbstractTreeIterator;
+import org.eclipse.emf.common.util.TreeIterator;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
+
+import de.hub.emffrag.proxies.Proxy;
 
 public class FObjectImpl extends MinimalEObjectImpl implements FObject {
 
@@ -75,15 +81,30 @@ public class FObjectImpl extends MinimalEObjectImpl implements FObject {
 	
 	private Collection<Object> freeProxyChildrenSources = new HashSet<Object>();
 	
-	protected void fDetachFromFragment(FragmentImpl fragment) {
+	@Override
+	public void fDetachFromFragment(FragmentImpl fragment) {
 		freeProxyChildrenSources.addAll(fragment.fRemoveProxy(this));
 	}
 	
-	protected void fAttachToFragment(FragmentImpl fragment) {
+	@Override
+	public void fAttachToFragment(FragmentImpl fragment) {
 		for (Object freeProxyChildSource: freeProxyChildrenSources) {
 			FragmentationProxyManager.INSTANCE.getProxy(freeProxyChildSource, fragment);
 		}
 		freeProxyChildrenSources.clear();
 	}
 
+	@Override
+	public TreeIterator<EObject> eAllContents() {
+		EObject proxy = (fFragment() == null) ? this : 
+				(EObject)FragmentationProxyManager.INSTANCE.getProxy(this, fFragment());
+		return new AbstractTreeIterator<EObject>((EObject)proxy, false) {	
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Iterator<EObject> getChildren(Object object) {
+				return ((EObject) object).eContents().iterator();						
+			}
+		};
+	}
 }

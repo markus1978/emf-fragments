@@ -13,9 +13,9 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import de.hub.emffrag.statistics.Statistics;
 import de.hub.emffrag.testmodels.fobject.testmodel.TestObject;
 import de.hub.emffrag.testmodels.fobject.testmodel.fobject.meta.TestModelPackage;
+import de.hub.jstattrack.Statistics;
 
 /**
  * Basic fragmentation tests. These tests test the fragmentation based on
@@ -313,13 +313,6 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 
 		Assert.assertFalse(fragmentation.getContents().isEmpty());
 		Assert.assertNotEquals(container, fragmentation.getContents().get(0));
-	}
-	
-	@AfterClass
-	public static void afterAll() {		
-		StringBuilder report = new StringBuilder();
-		Statistics.report(report);
-		System.out.println(report.toString());
 	}
 
 //	// TODO weird cases and left overs

@@ -10,13 +10,12 @@ Export-Package: de.hub.emffrag,
  de.hub.emffrag.datastore,
  de.hub.emffrag.fragmentation,
  de.hub.emffrag.proxies,
- de.hub.emffrag.statistics,
- de.hub.emffrag.statistics.services,
  de.hub.util
 Require-Bundle: org.eclipse.core.runtime;visibility:=reexport,
  org.eclipse.emf.ecore;visibility:=reexport,
  org.eclipse.emf.ecore.xmi;bundle-version="2.7.0";visibility:=reexport,
- org.junit;bundle-version="4.8.2";visibility:=reexport
+ org.junit;bundle-version="4.8.2";visibility:=reexport,
+ de.hub.jstattrack;bundle-version="1.0.0";visibility:=reexport
 Bundle-ClassPath: ./,
  bin/,
  lib/jars/commons-math3-3.5.jar,

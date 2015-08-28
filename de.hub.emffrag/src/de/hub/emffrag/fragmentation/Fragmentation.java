@@ -3,6 +3,8 @@ package de.hub.emffrag.fragmentation;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -25,10 +27,18 @@ import de.hub.emffrag.datastore.DataStoreURIHandler;
 import de.hub.emffrag.datastore.IDataMap;
 import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.LongKeyType;
+import de.hub.jstattrack.Statistic;
+import de.hub.jstattrack.Statistic.Timer;
+import de.hub.jstattrack.StatisticBuilder;
+import de.hub.jtrackstat.services.Summary;
 import de.hub.util.Ansi;
 import de.hub.util.Ansi.Color;
 
 public final class Fragmentation {
+	
+	private final Statistic gcExecTimeStat = StatisticBuilder.create().withService(Summary.class).register(Fragmentation.class, "gcExecTime");
+	private final Statistic gcFragmentsStat = StatisticBuilder.create().withService(Summary.class).register(Fragmentation.class, "gcFragments");
+	private final Statistic gcloadedFragmentsStat = StatisticBuilder.create().withService(Summary.class).register(Fragmentation.class, "gcLoadedFragments");
 	
 	private final IDataStore dataStore;
 	private final int fragmentCacheSize;
@@ -36,10 +46,12 @@ public final class Fragmentation {
 	private final ResourceSet resourceSet;	
 	
 	private int finishedClientOperations = 0;
+	private int clientOperationsForGCCount = 0;
 	
 	public Fragmentation(IDataStore dataStore, int fragmentsCacheSize) {
 		this.dataStore = dataStore;
 		this.fragmentCacheSize = fragmentsCacheSize;
+		this.clientOperationsForGCCount = fragmentsCacheSize+10;
 		this.fragmentDataStoreIndex = dataStore.getMap(("f_").getBytes(), LongKeyType.instance);
 		
 		this.resourceSet =  new ResourceSetImpl() {
@@ -56,6 +68,7 @@ public final class Fragmentation {
 						Ansi.format("FRAGMENTATION: ", Color.BLUE) +
 						Ansi.format("loaded ", Color.GREEN) + 
 						Ansi.format(Fragmentation.this.toString(fragment), Color.values()[(int)(fragment.fFragmentId() % Color.values().length)]));
+				fragment.setTrackingModification(true);
 			}
 		};
 		
@@ -125,29 +138,48 @@ public final class Fragmentation {
 		return fragment;
 	}
 	
-	public void gc() {
+	public int gc() {
 		EmfFragActivator.instance.debug(Ansi.format("FRAGMENTATION: ", Color.BLUE) + Ansi.format("gc start", Color.BLACK));
-		int count = 0;
-		Collection<Fragment> fragemntsToUnload = new ArrayList<Fragment>();	
-		for(Resource resource: resourceSet.getResources()) {
+		
+		EList<Resource> resources = resourceSet.getResources();
+		gcloadedFragmentsStat.track(resources.size());
+		Timer gcExecTimer = gcExecTimeStat.timer();
+		List<FragmentImpl> fragemntsToUnload = new ArrayList<FragmentImpl>();	
+		for(Resource resource: resources) {
 			if (!((FragmentImpl)resource).fHasProxies()) {
-				count++;
-				if (count > fragmentCacheSize) {
-					fragemntsToUnload.add((Fragment)resource);
-				}
+				fragemntsToUnload.add((FragmentImpl)resource);
 			}
 		}
 		
-		for(Fragment fragment: fragemntsToUnload) {
-			unloadFragment(fragment);
-		}
+		Collections.sort(fragemntsToUnload, new Comparator<FragmentImpl>() {
+			@Override
+			public int compare(FragmentImpl o1, FragmentImpl o2) {
+				return Long.compare(o1.getLastAccessCount(), o2.getLastAccessCount());
+			}
+		});
+		
+		int count = 0;
+		loop: for(Fragment fragment: fragemntsToUnload) {
+			if (count <= fragmentCacheSize) {
+				unloadFragment(fragment);
+				count++;
+			} else {
+				break loop;
+			}
+		}		
+		
+		gcExecTimer.track();
+		gcFragmentsStat.track(count);
+		
 		EmfFragActivator.instance.debug(Ansi.format("FRAGMENTATION: ", Color.BLUE) + Ansi.format("gc end", Color.BLACK));
+		return count;
 	}
 
 	private void unloadFragment(Fragment fragment) {
 		try {
-			// TODO track modification?
-			fragment.save(getLoadOptions());
+			if (fragment.isModified()) {
+				fragment.save(getLoadOptions());
+			}
 		} catch (IOException e) {
 			EmfFragActivator.instance.error("IOException during fragment save.", e);
 		}
@@ -303,11 +335,6 @@ public final class Fragmentation {
 				}
 			}
 		}
-		
-		// unroot the fragment roots to avoid reverseRemove/container schenanigans later
-		for (FObject fragmentRoot : fragmentRootsToDelete) {
-			((FObjectImpl)fragmentRoot).fBasicSetContainer(null); // TODO
-		}
 
 		// acutally delete the fragments
 		for (FObject fragmentRoot : fragmentRootsToDelete) {
@@ -371,11 +398,20 @@ public final class Fragmentation {
 	}
 
 	protected void onFinishedClientOperation() {
-		// TODO better strategy to determine gc interval, gc necessity, e.g. count changes to resources.
 		finishedClientOperations++;
-		if (finishedClientOperations > fragmentCacheSize*10) {
-			gc();
+		if (finishedClientOperations >= clientOperationsForGCCount) {
+			int unloadedFragments = gc();
+			if (unloadedFragments == 0) {
+				clientOperationsForGCCount = clientOperationsForGCCount <= 0 ? 1 : clientOperationsForGCCount;
+				clientOperationsForGCCount  *= 10;
+			} else {
+				clientOperationsForGCCount /= 2;
+			}
 			finishedClientOperations = 0;
 		}
+	}
+	
+	public IDataStore getDataStore() {
+		return dataStore;
 	}
 }

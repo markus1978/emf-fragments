@@ -3,6 +3,7 @@ package de.hub.emffrag.fragmentation;
 import java.util.Iterator;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EObject;
 
 import de.hub.emffrag.proxies.ProxyContainer;
@@ -23,7 +24,9 @@ public class FragmentationProxyManager extends ProxyManager {
 	
 	@Override
 	public Class<?> getProxyType(Object source) {
-		if (source instanceof Fragment) {
+		if (source instanceof TreeIterator<?>) {
+			return null; // do not proxy this kind of iterator
+		} else if (source instanceof Fragment) {
 			return Fragment.class;
 		} else if (source instanceof FObject) {
 			return FObject.class;
@@ -59,9 +62,9 @@ public class FragmentationProxyManager extends ProxyManager {
 	@Override
 	protected ProxyContainer getContainerFromProxyRootSource(Object source) {
 		if (source instanceof FragmentImpl) {
-			return (FragmentImpl)source;
+			return (Fragment)source;
 		} else if (source instanceof FObject) {
-			return (FragmentImpl)((FObject)source).fFragment();
+			return (Fragment)((FObject)source).fFragment();
 		} else {
 			throw new IllegalArgumentException();
 		}

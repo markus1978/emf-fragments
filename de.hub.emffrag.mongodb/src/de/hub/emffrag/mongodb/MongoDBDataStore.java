@@ -32,19 +32,19 @@ import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.IScanExtension;
 import de.hub.emffrag.datastore.ScanningDataStore;
 import de.hub.emffrag.datastore.URIUtils;
-import de.hub.emffrag.statistics.Statistic;
-import de.hub.emffrag.statistics.services.Histogram;
-import de.hub.emffrag.statistics.services.Summary;
+import de.hub.jstattrack.Statistic;
+import de.hub.jstattrack.StatisticBuilder;
+import de.hub.jtrackstat.services.Histogram;
+import de.hub.jtrackstat.services.Summary;
 
 public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 	
-	private final Statistic entrySizeStatistic = new Statistic.StatisticBuilder()
+	private static final Statistic entrySizeStatistic = new StatisticBuilder()
 			.withService(new Summary())
 			.withService(new Histogram())
 			.register(MongoDBDataStore.class, "EntrySize");
-	private final Statistic writeTimeStatistic = new Statistic.StatisticBuilder()
+	private static final Statistic writeTimeStatistic = new StatisticBuilder()
 			.withService(new Summary())
-			.withService(new Histogram())
 			.register(MongoDBDataStore.class, "WriteTimes");
 	
 	public static IDataStore createDataStore(URI uri, boolean useScanning) {
@@ -123,6 +123,7 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 		this(host, dataStoreId, false);
 	}
 
+	@SuppressWarnings("deprecation")
 	public MongoDBDataStore(String host, String dataStoreId, boolean dropFirst) {
 		String hostName = null;
 		int hostPort = -1;

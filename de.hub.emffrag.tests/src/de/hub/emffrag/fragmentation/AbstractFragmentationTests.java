@@ -4,6 +4,7 @@ import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -17,6 +18,7 @@ import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.InMemoryDataStore;
 import de.hub.emffrag.testmodels.AbstractTestModelTests;
 import de.hub.emffrag.testmodels.fobject.testmodel.fobject.meta.TestModelPackage;
+import de.hub.jstattrack.Statistics;
 
 /**
  * Basic fragmentation tests. These tests test the fragmentation based on
@@ -104,5 +106,10 @@ public class AbstractFragmentationTests extends AbstractTestModelTests {
 				}
 			}
 		}
+	}
+	
+	@AfterClass
+	public static void afterAll() {		
+		Statistics.printReport(System.out);
 	}
 }

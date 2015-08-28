@@ -20,4 +20,15 @@ public interface FObject extends EObject {
 	 *         within the resource that contains it.
 	 */
 	public boolean fIsRoot();
+	
+	/**
+	 * Removes this object as a proxy from the given fragment.
+	 */
+	public void fDetachFromFragment(FragmentImpl fragment);
+	
+	/**
+	 * Adds this object as a proxy to the given fragment.
+	 */
+	public void fAttachToFragment(FragmentImpl fragment);
+
 }
