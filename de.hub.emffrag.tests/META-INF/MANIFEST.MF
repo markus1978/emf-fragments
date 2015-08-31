@@ -5,6 +5,7 @@ Bundle-SymbolicName: de.hub.emffrag.tests
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: de.hub.emffrag;bundle-version="1.0.0",
  de.hub.emffrag.testmodels;bundle-version="1.0.0";visibility:=reexport,
- de.hub.emffrag.hbase;bundle-version="1.0.0"
+ de.hub.emffrag.hbase;bundle-version="1.0.0",
+ org.eclipse.pde.junit.runtime;bundle-version="3.4.500"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: de.hub.emffrag.fragmentation

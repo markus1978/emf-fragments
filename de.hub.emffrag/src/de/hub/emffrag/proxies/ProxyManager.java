@@ -13,7 +13,7 @@ import com.google.common.base.Preconditions;
 
 import de.hub.jstattrack.Statistic;
 import de.hub.jstattrack.StatisticBuilder;
-import de.hub.jtrackstat.services.Summary;
+import de.hub.jstattrack.services.Summary;
 
 
 public abstract class ProxyManager {

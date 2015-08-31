@@ -31,8 +31,8 @@ import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.jstattrack.Statistic;
 import de.hub.jstattrack.Statistic.Timer;
+import de.hub.jstattrack.services.Summary;
 import de.hub.jstattrack.StatisticBuilder;
-import de.hub.jtrackstat.services.Summary;
 import de.hub.util.Ansi;
 import de.hub.util.Ansi.Color;
 

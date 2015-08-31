@@ -34,8 +34,8 @@ import de.hub.emffrag.datastore.ScanningDataStore;
 import de.hub.emffrag.datastore.URIUtils;
 import de.hub.jstattrack.Statistic;
 import de.hub.jstattrack.StatisticBuilder;
-import de.hub.jtrackstat.services.Histogram;
-import de.hub.jtrackstat.services.Summary;
+import de.hub.jstattrack.services.Histogram;
+import de.hub.jstattrack.services.Summary;
 
 public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 	

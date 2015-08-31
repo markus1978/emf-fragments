@@ -6,7 +6,6 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.junit.Assert;
 import org.osgi.framework.BundleContext;
 
 public class EmfFragActivator extends Plugin {
@@ -16,8 +15,7 @@ public class EmfFragActivator extends Plugin {
 	public boolean logInStandAlone = false;
 	public boolean logFragmentPrettyPrints = false;
 	
-	private boolean isStandAlone = false;	
-	private int warningsAndErrors = 0;
+	private boolean isStandAlone = false;
 
 	@Override
 	public void start(BundleContext context) throws Exception {
@@ -71,30 +69,18 @@ public class EmfFragActivator extends Plugin {
 	}
 
 	public void warning(String msg) {
-		warningsAndErrors++;
 		log(Status.WARNING, msg, null);		
 	}
 	
 	public void warning(String msg, Exception e) {
-		warningsAndErrors++;
 		log(Status.WARNING, msg, e);
 	}
 	
 	public void error(String msg) {
-		warningsAndErrors++;
 		log(Status.ERROR, msg, null);
 	}
 	
 	public void error(String msg, Exception e) {
-		warningsAndErrors++;
 		log(Status.ERROR, msg, e);
-	}	
-	
-	public void assertWarningsAndErrors(boolean value) {
-		Assert.assertEquals(value, warningsAndErrors == 0);
-	}
-	
-	public void resetWarningsAndErrors() {
-		warningsAndErrors = 0;
 	}
 }

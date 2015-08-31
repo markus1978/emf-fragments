@@ -14,7 +14,6 @@ Export-Package: de.hub.emffrag,
 Require-Bundle: org.eclipse.core.runtime;visibility:=reexport,
  org.eclipse.emf.ecore;visibility:=reexport,
  org.eclipse.emf.ecore.xmi;bundle-version="2.7.0";visibility:=reexport,
- org.junit;bundle-version="4.8.2";visibility:=reexport,
  de.hub.jstattrack;bundle-version="1.0.0";visibility:=reexport
 Bundle-ClassPath: ./,
  bin/,

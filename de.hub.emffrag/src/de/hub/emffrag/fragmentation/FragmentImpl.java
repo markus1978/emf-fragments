@@ -23,7 +23,7 @@ import de.hub.emffrag.proxies.Proxy;
 import de.hub.emffrag.proxies.ProxyContainer;
 import de.hub.jstattrack.Statistic;
 import de.hub.jstattrack.StatisticBuilder;
-import de.hub.jtrackstat.services.Summary;
+import de.hub.jstattrack.services.Summary;
 
 public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyContainer {
 	
