@@ -7,7 +7,7 @@ Require-Bundle: org.eclipse.core.runtime,
  de.hub.emffrag;bundle-version="1.0.0";visibility:=reexport,
  org.apache.hadoop.hbase;bundle-version="0.94.2";visibility:=reexport
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
 Export-Package: de.hub.emffrag.hbase
 Bundle-Activator: de.hub.emffrag.hbase.EmfFragHBaseActivator

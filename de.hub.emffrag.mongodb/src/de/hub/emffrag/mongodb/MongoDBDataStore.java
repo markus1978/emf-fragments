@@ -284,6 +284,7 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 		
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public void flush() {
 		db.cleanCursors(true);

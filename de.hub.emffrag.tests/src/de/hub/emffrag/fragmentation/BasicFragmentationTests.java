@@ -7,7 +7,6 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -15,7 +14,6 @@ import org.junit.runners.MethodSorters;
 
 import de.hub.emffrag.testmodels.fobject.testmodel.TestObject;
 import de.hub.emffrag.testmodels.fobject.testmodel.fobject.meta.TestModelPackage;
-import de.hub.jstattrack.Statistics;
 
 /**
  * Basic fragmentation tests. These tests test the fragmentation based on

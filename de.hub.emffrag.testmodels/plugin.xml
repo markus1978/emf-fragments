@@ -18,61 +18,6 @@
 -->
 
 <plugin>
-
-   <extension point="org.eclipse.emf.ecore.generated_package">
-      <package
-            uri="http://hu-berlin.de/sam/emfhbase/testmodel/frag"
-            class="de.hub.emffrag.testmodels.testmodel.frag.meta.TestModelPackage"
-            genModel="metamodels/TestMM.genmodel"/>
-   </extension>
-
-   <extension point="org.eclipse.emf.ecore.generated_package">
-      <package
-            uri="http://hu-berlin.de/sam/emfhbase/testmodel/regular"
-            class="de.hub.emffrag.testmodels.testmodel.TestModelPackage"
-            genModel="metamodels/TestMM.genmodel"/>
-   </extension>
-
-   <extension point="org.eclipse.emf.ecore.generated_package">
-      <!-- @generated TestMM_access -->
-      <package
-            uri="http://hu-berlin.de/sam/emfhbase/testmodel"
-            class="de.hub.emffrag.testmodels.testmodel.access.meta.TestModelPackage"
-            genModel="metamodels/TestMM_access.genmodel"/>
-   </extension>
-
-   <extension point="org.eclipse.emf.ecore.generated_package">
-      <!-- @generated TestMM_regular -->
-      <package
-            uri="http://hu-berlin.de/sam/emfhbase/testmodel"
-            class="de.hub.emffrag.testmodels.regular.testmodel.meta.TestModelPackage"
-            genModel="metamodels/TestMM_regular.genmodel"/>
-   </extension>
-
-   <extension point="org.eclipse.emf.ecore.generated_package">
-      <!-- @generated TestMM_fObject -->
-      <package
-            uri="http://hu-berlin.de/sam/emfhbase/testmodel"
-            class="de.hub.emffrag.testmodels.fobject.testmodel.meta.TestModelPackage"
-            genModel="metamodels/TestMM_fObject.genmodel"/>
-   </extension>
-
-   <extension point="org.eclipse.emf.ecore.generated_package">
-      <!-- @generated TestMM_frag -->
-      <package
-            uri="http://hu-berlin.de/sam/emfhbase/testmodel"
-            class="de.hub.emffrag.testmodels.frag.testmodel.meta.TestModelPackage"
-            genModel="metamodels/TestMM_frag.genmodel"/>
-   </extension>
-
-   <extension point="org.eclipse.emf.ecore.generated_package">
-      <!-- @generated eObject.fObjectImpl.testmodel -->
-      <package
-            uri="http://hu-berlin.de/sam/emfhbase/testmodel"
-            class="de.hub.emffrag.testmodels.eobject.testmodel.fobject.meta.TestModelPackage"
-            genModel="metamodels/eObject.fObjectImpl.testmodel.genmodel"/>
-   </extension>
-
    <extension point="org.eclipse.emf.ecore.generated_package">
       <!-- @generated testmodel.fobject.fobject -->
       <package
@@ -80,37 +25,4 @@
             class="de.hub.emffrag.testmodels.fobject.testmodel.fobject.meta.TestModelPackage"
             genModel="metamodels/testmodel.fobject.fobject.genmodel"/>
    </extension>
-
-   <extension point="org.eclipse.emf.ecore.generated_package">
-      <!-- @generated testmodel.eobject.eobject -->
-      <package
-            uri="http://hu-berlin.de/sam/emfhbase/testmodel"
-            class="de.hub.emffrag.testmodels.eobject.testmodel.eobject.meta.TestModelPackage"
-            genModel="metamodels/testmodel.eobject.eobject.genmodel"/>
-   </extension>
-
-   <extension point="org.eclipse.emf.ecore.generated_package">
-      <!-- @generated testmodel.eobject.accessnot -->
-      <package
-            uri="http://hu-berlin.de/sam/emfhbase/testmodel"
-            class="de.hub.emffrag.testmodels.eobject.testmodel.accessnot.meta.TestModelPackage"
-            genModel="metamodels/testmodel.eobject.accessnot.genmodel"/>
-   </extension>
-
-   <extension point="org.eclipse.emf.ecore.generated_package">
-      <!-- @generated testmodel.eobject.unload -->
-      <package
-            uri="http://hu-berlin.de/sam/emfhbase/testmodel"
-            class="de.hub.emffrag.testmodels.eobject.testmodel.unload.meta.TestModelPackage"
-            genModel="metamodels/testmodel.eobject.unload.genmodel"/>
-   </extension>
-
-   <extension point="org.eclipse.emf.ecore.generated_package">
-      <!-- @generated testmodel.eobject.proxy -->
-      <package
-            uri="http://hu-berlin.de/sam/emfhbase/testmodel"
-            class="de.hub.emffrag.testmodels.eobject.testmodel.proxy.meta.TestmodelPackage"
-            genModel="metamodels/testmodel.eobject.proxy.genmodel"/>
-   </extension>
-
 </plugin>

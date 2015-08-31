@@ -28,6 +28,7 @@ public class MongodbAPITests {
 	private DB db;
 	private DBCollection collection;
 	
+	@SuppressWarnings("deprecation")
 	@Before 
 	public void init() {
 		keyType = LongKeyType.instance;

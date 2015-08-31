@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: EMF-Fragments Mongo Adapter
 Bundle-SymbolicName: de.hub.emffrag.mongodb;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .,
  bin/,
  lib/bundles/guava-18.0.jar,
