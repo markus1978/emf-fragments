@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ExtensibleURIConverterImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 
@@ -57,7 +59,9 @@ public final class Fragmentation {
 		this.resourceSet =  new ResourceSetImpl() {
 			@Override
 			public Resource createResource(URI uri, String contentType) {
-				return instantiateFragment(uri);
+				Fragment fragment = instantiateFragment(uri);
+				fragment.setTrackingModification(true);
+				return fragment;
 			}
 
 			@Override
@@ -68,9 +72,15 @@ public final class Fragmentation {
 						Ansi.format("FRAGMENTATION: ", Color.BLUE) +
 						Ansi.format("loaded ", Color.GREEN) + 
 						Ansi.format(Fragmentation.this.toString(fragment), Color.values()[(int)(fragment.fFragmentId() % Color.values().length)]));
-				fragment.setTrackingModification(true);
 			}
 		};
+		((ResourceSetImpl)resourceSet).setURIResourceMap(new HashMap<URI,Resource>());
+		resourceSet.setURIConverter(new ExtensibleURIConverterImpl() {
+			@Override
+			public URI normalize(URI uri) {
+				return uri;
+			}			
+		});
 		
 		resourceSet.getURIConverter().getURIHandlers().add(0, new DataStoreURIHandler(dataStore));
 		
@@ -160,7 +170,7 @@ public final class Fragmentation {
 		
 		int count = 0;
 		loop: for(Fragment fragment: fragemntsToUnload) {
-			if (count <= fragmentCacheSize) {
+			if (count >= fragmentCacheSize) {
 				unloadFragment(fragment);
 				count++;
 			} else {
@@ -227,10 +237,7 @@ public final class Fragmentation {
 		}
 	}
 	
-	private void recursivlyReactToChange(Notification notification, boolean includeSelf) {
-		// lock the fragments cache to prevent accidental unloading of involved
-		// fragments
-		
+	private void recursivlyReactToChange(Notification notification, boolean includeSelf) {		
 		Notification nextNotification = null;
 		try {
 			nextNotification = (Notification)FieldUtils.readField(notification, "next", true);
@@ -361,7 +368,9 @@ public final class Fragmentation {
 	public void close() {
 		for (Resource resource: resourceSet.getResources()) {
 			try {
-				resource.save(getLoadOptions());
+				if (resource.isModified()) {
+					resource.save(getLoadOptions());
+				}
 			} catch (IOException e) {
 				EmfFragActivator.instance.error("IOException during fragment save.", e);
 			}	

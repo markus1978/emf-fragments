@@ -7,11 +7,11 @@ import java.util.Iterator;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.util.AbstractTreeIterator;
 import org.eclipse.emf.common.util.TreeIterator;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
 
-import de.hub.emffrag.proxies.Proxy;
+import de.hub.emffrag.EmfFragActivator;
 
 public class FObjectImpl extends MinimalEObjectImpl implements FObject {
 
@@ -41,7 +41,20 @@ public class FObjectImpl extends MinimalEObjectImpl implements FObject {
 		//
 		eSetDirectResource(null);
 		eBasicSetContainer(null);
-		eBasicSetSettings(new Object[] {});
+		Object[] eSettings = eBasicSettings();
+		if (eSettings != null) {
+			for (int i = 0; i < eSettings.length; i++) {
+				eSettings[i] = null;
+			}
+		}
+	}
+
+	@Override
+	public void eSetProxyURI(URI uri) {
+		if (uri.toString().endsWith("-1")) {
+			EmfFragActivator.instance.error("Bad uri: " + uri.toString());
+		}
+		super.eSetProxyURI(uri);
 	}
 
 	/**
@@ -73,32 +86,28 @@ public class FObjectImpl extends MinimalEObjectImpl implements FObject {
 	public boolean eNotificationRequired() {
 		return true;
 	}
-
-	// TODO can be removed is its use in Fragmentation becomes unnessecary.
-	protected void fBasicSetContainer(InternalEObject object) {
-		eBasicSetContainer(object);
-	}
 	
 	private Collection<Object> freeProxyChildrenSources = new HashSet<Object>();
 	
-	@Override
-	public void fDetachFromFragment(FragmentImpl fragment) {
+	protected void fDetachFromFragment(FragmentImpl fragment) {
 		freeProxyChildrenSources.addAll(fragment.fRemoveProxy(this));
 	}
 	
-	@Override
-	public void fAttachToFragment(FragmentImpl fragment) {
+	protected void fAttachToFragment(FragmentImpl fragment) {
 		for (Object freeProxyChildSource: freeProxyChildrenSources) {
 			FragmentationProxyManager.INSTANCE.getProxy(freeProxyChildSource, fragment);
 		}
 		freeProxyChildrenSources.clear();
 	}
-
-	@Override
-	public TreeIterator<EObject> eAllContents() {
-		EObject proxy = (fFragment() == null) ? this : 
-				(EObject)FragmentationProxyManager.INSTANCE.getProxy(this, fFragment());
-		return new AbstractTreeIterator<EObject>((EObject)proxy, false) {	
+	
+	/**
+	 * TreeIterators must not work as internal objects that use internal objects internally.
+	 * They must work with proxy objects internal to keep references to all the fragments
+	 * of all the objects of all the value sets that it currently holds iterators to.
+	 */
+	public TreeIterator<EObject> pAllContents() {
+		Object proxy = FragmentationProxyManager.INSTANCE.getProxy(this, fFragment());
+		return new AbstractTreeIterator<EObject>(proxy, false) {
 			private static final long serialVersionUID = 1L;
 
 			@Override

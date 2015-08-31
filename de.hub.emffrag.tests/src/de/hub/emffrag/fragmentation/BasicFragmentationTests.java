@@ -241,7 +241,6 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		Assert.assertNull(replaced.eContainer());
 		Assert.assertNull(replaced.fFragmentation());
 		Assert.assertTrue(replacement.fIsRoot());
-		Assert.assertEquals(2, fragmentation.getNumberOfLoadedFragments());
 	}
 
 	@Test

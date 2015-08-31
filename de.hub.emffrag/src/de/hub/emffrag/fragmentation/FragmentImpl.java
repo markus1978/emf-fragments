@@ -21,26 +21,63 @@ import com.google.common.cache.CacheBuilder;
 
 import de.hub.emffrag.proxies.Proxy;
 import de.hub.emffrag.proxies.ProxyContainer;
+import de.hub.jstattrack.Statistic;
+import de.hub.jstattrack.StatisticBuilder;
+import de.hub.jtrackstat.services.Summary;
 
 public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyContainer {
-
-	private static long accessCounter = 0;
 	
+	private static Statistic stat = StatisticBuilder.create().withService(new Summary()).register(FragmentImpl.class, "cacheKeys");
+	
+	private static long accessCounter = 1;
+
 	private final Fragmentation fragmentation;
-	private final Cache<CacheKey, Proxy> proxyCache = CacheBuilder.newBuilder().weakValues().build();
+	private final Cache<CacheKey, Proxy> proxyCache = CacheBuilder.newBuilder().weakValues().initialCapacity(500).build();
 	private final long id;
-	private long lastAccessCount = -1;
+	private long lastAccessCount = 0;
+	
+	/**
+	 * TreeIterators must not work as internal objects that use internal objects internally.
+	 * They must work with proxy objects internal to keep references to all the fragments
+	 * of all the objects of all the value sets that it currently holds iterators to.
+	 */
+	public TreeIterator<EObject> pAllContents() {
+		lastAccessCount = accessCounter++;
+		final Resource proxy = (Resource)FragmentationProxyManager.INSTANCE.getProxy(this, this);
+		return new AbstractTreeIterator<EObject>(proxy, false) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Iterator<EObject> getChildren(Object object) {
+				return object == proxy ? proxy.getContents().iterator() : ((EObject) object)
+						.eContents().iterator();
+			}
+		};
+	}
+	
+	
+
+	@Override
+	public String getURIFragment(EObject eObject) {
+		// TODO Auto-generated method stub
+		String uriFragment = super.getURIFragment(eObject);
+		if (uriFragment.endsWith("-1")) {
+			super.getURIFragment(eObject);
+		}
+		return uriFragment;
+	}
+
+
 
 	private static class CacheKey {
 		private final Object source;
+		private final int identifyHashCode;
 
 		public CacheKey(Object source) {
 			super();
+			stat.track(1);
 			this.source = source;
-		}
-
-		public Object get() {
-			return source;
+			identifyHashCode = System.identityHashCode(source);
 		}
 
 		/**
@@ -48,10 +85,7 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 		 */
 		@Override
 		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((source == null) ? 0 : System.identityHashCode(source));
-			return result;
+			return identifyHashCode;
 		}
 
 		/**
@@ -99,16 +133,7 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 	@Override
 	public boolean fHasProxies() {
 		proxyCache.cleanUp();
-		// we only count EObject proxies. EObjectProxies remain in memory
-		// as long child EList or Iterator proxies are in memory, since
-		// the EObject parent/child proxy links are hard references.
 		ConcurrentMap<CacheKey, Proxy> cacheMap = proxyCache.asMap();
-		for (CacheKey proxyKey : cacheMap.keySet()) {
-			Object source = proxyKey.get();
-			if (FragmentationProxyManager.INSTANCE.hasProxyRootType(source)) {
-				return true;
-			}
-		}
 		return !cacheMap.isEmpty();
 	}
 
@@ -219,7 +244,7 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 	@Override
 	public void attached(EObject eObject) {
 		super.attached(eObject);
-		((FObject) eObject).fAttachToFragment(this);
+		((FObjectImpl) eObject).fAttachToFragment(this);
 	}
 
 	/**
@@ -227,7 +252,7 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 	 */
 	@Override
 	public void detached(EObject eObject) {
-		((FObject) eObject).fDetachFromFragment(this);
+		((FObjectImpl) eObject).fDetachFromFragment(this);
 		super.detached(eObject);
 	}
 	

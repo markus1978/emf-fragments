@@ -3,16 +3,23 @@ package de.hub.emffrag.proxies;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.ClassUtils;
 
 import com.google.common.base.Preconditions;
 
+import de.hub.jstattrack.Statistic;
+import de.hub.jstattrack.StatisticBuilder;
+import de.hub.jtrackstat.services.Summary;
+
 
 public abstract class ProxyManager {
 	
 	private final ProxyContainer freeContainer;
+	private Statistic proxyStat = new StatisticBuilder().withService(new Summary()).register(ProxyManager.class, "Proxies");
 
 	public ProxyManager(ProxyContainer freeContainer) {
 		super();
@@ -27,19 +34,25 @@ public abstract class ProxyManager {
 	protected abstract ProxyContainer getContainerFromProxyRootSource(Object source);
 	protected abstract void onFinishedClientOperation(Object source);
 	
+	private Map<Class<?>, Class<?>[]> classToInterfacesMap = new HashMap<Class<?>, Class<?>[]>();
+	
 	private Proxy createNewProxy(Object source, ProxyContainer proxyContainer) {
 		Preconditions.checkArgument(!(source instanceof Proxy));
 		
-		List<Class<?>> helper = new ArrayList<Class<?>>();
+		Class<?> sourceClass = source.getClass();
+		Class<?>[] interfaces = classToInterfacesMap.get(sourceClass);
+		if (interfaces == null) {
+			List<Class<?>> helper = new ArrayList<Class<?>>();		
+			List<Class<?>> allInterfaces = ClassUtils.getAllInterfaces(sourceClass);
+			helper.addAll(allInterfaces);
+			helper.add(DynamicProxy.class);
+			interfaces = helper.toArray(new Class<?>[]{});
+			classToInterfacesMap.put(sourceClass, interfaces);
+		}
 		
-		Class<? extends Object> sourceClass = source.getClass();
-
-		List<Class<?>> allInterfaces = ClassUtils.getAllInterfaces(sourceClass);
-		helper.addAll(allInterfaces);
-		helper.add(DynamicProxy.class);
-		Proxy proxy = (Proxy)java.lang.reflect.Proxy.newProxyInstance(
-				sourceClass.getClassLoader(), helper.toArray(new Class<?>[]{}), new ProxyHandler(source));
+		Proxy proxy = (Proxy)java.lang.reflect.Proxy.newProxyInstance(sourceClass.getClassLoader(), interfaces, new ProxyHandler(source));
 		proxyContainer.fPutProxy(source, proxy);
+		proxyStat.track();
 		return proxy;
 	}
 	
@@ -64,6 +77,14 @@ public abstract class ProxyManager {
 			existingProxy = createNewProxy(source, proxyContainer);
 		}
 		return existingProxy;
+	}
+	
+	protected Object resolve(Object object, ProxyContainer container) {
+		return object;
+	}
+	
+	protected Method replace(Method method) {
+		return method;
 	}
 	
 	/**
@@ -112,25 +133,42 @@ public abstract class ProxyManager {
 					isEMFOperation |= sourceArgs[i] != args[i];
 				}
 				
-				Object result = method.invoke(source, sourceArgs);
-				if (hasProxyType(result)) {
-					isEMFOperation = true;
-					if (hasProxyRootType(result)) {
-						result = getProxy(result, getContainer(result, null));
-					} else {
-						Proxy resultProxy = getProxyWithParent(result, (Proxy)proxy);
-						if (resultProxy instanceof DynamicProxy) {
-							((DynamicProxy)resultProxy).fSetParentProxy((Proxy)proxy);
-						}
-						result = resultProxy;
-					}					
-				}
+				Object result = replace(method).invoke(source, sourceArgs);
+				if (result instanceof Object[]) {
+					Object[] array = (Object[])result;
+					for (int i = 0; i < array.length; i++) {
+						Object resultItem = array[i];
+						resultItem = resolve(resultItem, ((Proxy)proxy).fRoot().fContainer());
+						resultItem = proxify(resultItem, proxy, isEMFOperation);
+						array[i] = resultItem;
+					}
+					result = array;
+				} else {
+					result = resolve(result, ((Proxy)proxy).fRoot().fContainer());
+					result = proxify(result, proxy, isEMFOperation);
+				}				
 				
 				if (isEMFOperation) {
 					onFinishedClientOperation(source);
 				}
 				return result;
 			}
+		}
+		
+		private Object proxify(Object result, Object proxy, boolean isEMFOperation) {
+			if (hasProxyType(result)) {
+				isEMFOperation = true;
+				if (hasProxyRootType(result)) {
+					result = getProxy(result, getContainer(result, null));
+				} else {
+					Proxy resultProxy = getProxyWithParent(result, (Proxy)proxy);
+					if (resultProxy instanceof DynamicProxy) {
+						((DynamicProxy)resultProxy).fSetParentProxy((Proxy)proxy);
+					}
+					result = resultProxy;
+				}					
+			}
+			return result;
 		}
 
 		@Override

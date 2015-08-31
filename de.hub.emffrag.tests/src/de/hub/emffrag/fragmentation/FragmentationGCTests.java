@@ -26,46 +26,93 @@ public class FragmentationGCTests extends AbstractFragmentationTests {
 	}
 	
 	@Test
-	public void gcTest() {
-		String start = "";
-		String end = "";
-		for (int i = 0; i < 100; i++) {
-			start += i+"f(";
-			end += ")";
-		}
-		runGCTest(start+end);
-	}
-	
-	private void runGCTest(String modelString) {
+	public void modelCreateGCTest() {
 		initializeFragmentation(0);
-		TestObject testModel = createTOFromModelString(modelString);
-		
-		int objects = 1;
-		TreeIterator<EObject> eAllContents = testModel.eAllContents();
-		while(eAllContents.hasNext()) {
-			eAllContents.next();
-			objects++;
-		}
-		
+		TestObject testModel = createTOFromModelString("1f(2f(3r(0,0)),4,5f(0,0))");
 		fragmentation.getContents().add(testModel);
 		
-		systemGC();
+		testModel = ((TestObject)fragmentation.getContents().get(0)).getFragmentedContents().get(0);
+		testModel = null;
+		gc();
 		fragmentation.gc();
-		Assert.assertSame(1, fragmentation.getNumberOfLoadedFragments());
 		
-		TreeIterator<EObject> allContents = fragmentation.getRootFragment().getAllContents();
-		int count = 0;
-		while (allContents.hasNext()) {
-			FObject next = (FObject)allContents.next();
-			systemGC();
-			fragmentation.gc();
-			
-			Assert.assertTrue(next != null && !next.eIsProxy());
-			Assert.assertTrue(next.fFragmentation() == fragmentation);
-			count++;
+		Assert.assertSame(0, fragmentation.getNumberOfLoadedFragments());
+	}
+	
+	private void performTraverseGCTest(String modelSpec, int maxOpenFragments) {
+		initializeFragmentation(0);
+		TestObject testModel = createTOFromModelString(modelSpec);
+		int refCount = 1;
+		TreeIterator<EObject> countIt = testModel.eAllContents();
+		while(countIt.hasNext()) {
+			refCount++;
+			countIt.next();
 		}
 		
-		Assert.assertSame(objects, count);
+		fragmentation.getContents().add(testModel);		
+		fragmentation.gc();
+		Assert.assertTrue(fragmentation.getIndexOfLastAddedAndStillExistingFragment() > 3);
+		
+		TreeIterator<EObject> it = fragmentation.getRootFragment().getAllContents();
+		
+		int actualCount = 0;
+		while (it.hasNext()) {
+			actualCount++;
+			it.next();
+			gc();
+			fragmentation.gc();
+			Assert.assertTrue(fragmentation.getNumberOfLoadedFragments() <= maxOpenFragments);
+		}
+		
+		Assert.assertSame(refCount, actualCount);
+	}
+	
+	@Test
+	public void modelTraverseGCTest1() {
+		performTraverseGCTest("1f(2,3,4,5,6,7)", 1);		
+	}
+	
+	@Test
+	public void modelTraverseGCTest2() {
+		performTraverseGCTest("1f(2f(3,4,5,6,7))", 2);
+	}
+	
+	@Test
+	public void modelTraverseGCTest3() {
+		performTraverseGCTest("1f(2f(0,0,0,0,0),3f(0,0,0,0,0),4f(0,0,0,0,0))", 2);		
+	}
+	
+	@Test
+	public void modelTraverseGCTest4() {
+		performTraverseGCTest("1f(2f(3f(4f(5),4f(5)),3f(4f(5),4f(5))),2f(3f(4f(5),4f(5)),3f(4f(5),4f(5))))", 4);		
+	}
+	
+	@Test
+	public void modelTraverseFromEObjectTest() {
+		initializeFragmentation(0);
+		TestObject testModel = createTOFromModelString("1f(2f(3f(4f(5),4f(5)),3f(4f(5),4f(5))),2f(3f(4f(5),4f(5)),3f(4f(5),4f(5))))");
+		int refCount = 1;
+		TreeIterator<EObject> countIt = testModel.eAllContents();
+		while(countIt.hasNext()) {
+			refCount++;
+			countIt.next();
+		}
+		
+		fragmentation.getContents().add(testModel);		
+		fragmentation.gc();
+		
+		TreeIterator<EObject> it = fragmentation.getRootFragment().getContents().get(0).eAllContents();
+		
+		int actualCount = 1;
+		while (it.hasNext()) {
+			actualCount++;
+			it.next();
+			gc();
+			fragmentation.gc();
+			Assert.assertTrue(fragmentation.getNumberOfLoadedFragments() <= 4);
+		}
+		
+		Assert.assertSame(refCount, actualCount);
 	}
 	
 	@Test
@@ -95,15 +142,15 @@ public class FragmentationGCTests extends AbstractFragmentationTests {
 		}
 	}
 	
-	private void systemGC() {
+	public static void gc() {
 		for (int i = 0; i < 2; i++) {
 			Object obj = new Object();
-			WeakReference<Object> ref = new WeakReference<Object>(obj);
+			WeakReference<?> ref = new WeakReference<Object>(obj);
 			obj = null;
 			while (ref.get() != null) {
 				System.gc();
 			}
-			Runtime.getRuntime().runFinalization();
+			System.runFinalization();
 		}
 	}
 }
