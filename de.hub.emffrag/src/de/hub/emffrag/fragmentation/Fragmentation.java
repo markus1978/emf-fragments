@@ -39,8 +39,9 @@ import de.hub.util.Ansi.Color;
 public final class Fragmentation {
 	
 	private final Statistic gcExecTimeStat = StatisticBuilder.create().withService(Summary.class).register(Fragmentation.class, "gcExecTime");
-	private final Statistic gcFragmentsStat = StatisticBuilder.create().withService(Summary.class).register(Fragmentation.class, "gcFragments");
-	private final Statistic gcloadedFragmentsStat = StatisticBuilder.create().withService(Summary.class).register(Fragmentation.class, "gcLoadedFragments");
+	private final Statistic gcUnloadedFragmentsStat = StatisticBuilder.create().withService(Summary.class).register(Fragmentation.class, "gcUnloadedFragments");
+	private final Statistic gcUnloadableFragmentsStat = StatisticBuilder.create().withService(Summary.class).register(Fragmentation.class, "gcUnloadableFragments");
+	private final Statistic gcLoadedFragmentsStat = StatisticBuilder.create().withService(Summary.class).register(Fragmentation.class, "gcLoadedFragments");
 	
 	private final IDataStore dataStore;
 	private final int fragmentCacheSize;
@@ -152,7 +153,7 @@ public final class Fragmentation {
 		EmfFragActivator.instance.debug(Ansi.format("FRAGMENTATION: ", Color.BLUE) + Ansi.format("gc start", Color.BLACK));
 		
 		EList<Resource> resources = resourceSet.getResources();
-		gcloadedFragmentsStat.track(resources.size());
+		gcLoadedFragmentsStat.track(resources.size());
 		Timer gcExecTimer = gcExecTimeStat.timer();
 		List<FragmentImpl> fragemntsToUnload = new ArrayList<FragmentImpl>();	
 		for(Resource resource: resources) {
@@ -161,6 +162,8 @@ public final class Fragmentation {
 			}
 		}
 		
+		gcUnloadableFragmentsStat.track(fragemntsToUnload.size());
+		
 		Collections.sort(fragemntsToUnload, new Comparator<FragmentImpl>() {
 			@Override
 			public int compare(FragmentImpl o1, FragmentImpl o2) {
@@ -168,21 +171,16 @@ public final class Fragmentation {
 			}
 		});
 		
-		int count = 0;
-		loop: for(Fragment fragment: fragemntsToUnload) {
-			if (count >= fragmentCacheSize) {
-				unloadFragment(fragment);
-				count++;
-			} else {
-				break loop;
-			}
-		}		
+		int numberOfFragmentsToUnload = fragemntsToUnload.size() - fragmentCacheSize;
+		for (int i = 0; i < numberOfFragmentsToUnload; i++) {
+			unloadFragment(fragemntsToUnload.get(i));
+		}			
 		
 		gcExecTimer.track();
-		gcFragmentsStat.track(count);
+		gcUnloadedFragmentsStat.track(numberOfFragmentsToUnload);
 		
 		EmfFragActivator.instance.debug(Ansi.format("FRAGMENTATION: ", Color.BLUE) + Ansi.format("gc end", Color.BLACK));
-		return count;
+		return numberOfFragmentsToUnload;
 	}
 
 	private void unloadFragment(Fragment fragment) {

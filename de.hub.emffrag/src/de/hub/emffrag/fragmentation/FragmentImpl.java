@@ -55,20 +55,6 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 		};
 	}
 	
-	
-
-	@Override
-	public String getURIFragment(EObject eObject) {
-		// TODO Auto-generated method stub
-		String uriFragment = super.getURIFragment(eObject);
-		if (uriFragment.endsWith("-1")) {
-			super.getURIFragment(eObject);
-		}
-		return uriFragment;
-	}
-
-
-
 	private static class CacheKey {
 		private final Object source;
 		private final int identifyHashCode;
@@ -112,12 +98,14 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 	protected FragmentImpl() {
 		id = -1;
 		fragmentation = null;
+		lastAccessCount = accessCounter++;
 	}
 
 	public FragmentImpl(Fragmentation fragmentation, URI uri, long id) {
 		super(uri);
 		this.id = id;
 		this.fragmentation = fragmentation;
+		lastAccessCount = accessCounter++;
 	}
 
 	@Override
