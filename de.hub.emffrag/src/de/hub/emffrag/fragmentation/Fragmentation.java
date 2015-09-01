@@ -31,6 +31,8 @@ import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.LongKeyType;
 import de.hub.jstattrack.Statistic;
 import de.hub.jstattrack.Statistic.Timer;
+import de.hub.jstattrack.services.BatchedPlot;
+import de.hub.jstattrack.services.Histogram;
 import de.hub.jstattrack.services.Summary;
 import de.hub.jstattrack.StatisticBuilder;
 import de.hub.util.Ansi;
@@ -38,10 +40,10 @@ import de.hub.util.Ansi.Color;
 
 public final class Fragmentation {
 	
-	private final Statistic gcExecTimeStat = StatisticBuilder.create().withService(Summary.class).register(Fragmentation.class, "gcExecTime");
-	private final Statistic gcUnloadedFragmentsStat = StatisticBuilder.create().withService(Summary.class).register(Fragmentation.class, "gcUnloadedFragments");
-	private final Statistic gcUnloadableFragmentsStat = StatisticBuilder.create().withService(Summary.class).register(Fragmentation.class, "gcUnloadableFragments");
-	private final Statistic gcLoadedFragmentsStat = StatisticBuilder.create().withService(Summary.class).register(Fragmentation.class, "gcLoadedFragments");
+	private final Statistic gcExecTimeStat = StatisticBuilder.createWithSummary().withService(Histogram.class).register(Fragmentation.class, "gcExecTime");
+	private final Statistic gcUnloadedFragmentsStat = StatisticBuilder.createWithSummary().withService(Histogram.class).register(Fragmentation.class, "gcUnloadedFragments");
+	private final Statistic gcUnloadableFragmentsStat = StatisticBuilder.createWithSummary().withService(BatchedPlot.class).register(Fragmentation.class, "gcUnloadableFragments");
+	private final Statistic gcLoadedFragmentsStat = StatisticBuilder.createWithSummary().withService(BatchedPlot.class).register(Fragmentation.class, "gcLoadedFragments");
 	
 	private final IDataStore dataStore;
 	private final int fragmentCacheSize;

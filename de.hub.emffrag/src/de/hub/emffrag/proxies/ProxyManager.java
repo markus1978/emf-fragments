@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.ClassUtils;
 
@@ -13,13 +14,14 @@ import com.google.common.base.Preconditions;
 
 import de.hub.jstattrack.Statistic;
 import de.hub.jstattrack.StatisticBuilder;
+import de.hub.jstattrack.services.BatchedPlot;
 import de.hub.jstattrack.services.Summary;
 
 
 public abstract class ProxyManager {
 	
 	private final ProxyContainer freeContainer;
-	private Statistic proxyStat = new StatisticBuilder().withService(new Summary()).register(ProxyManager.class, "Proxies");
+	private Statistic proxyStat = new StatisticBuilder().sumTime(1, TimeUnit.MINUTES).withService(new Summary()).withService(BatchedPlot.class).register(ProxyManager.class, "Proxies (per minute)");
 
 	public ProxyManager(ProxyContainer freeContainer) {
 		super();
