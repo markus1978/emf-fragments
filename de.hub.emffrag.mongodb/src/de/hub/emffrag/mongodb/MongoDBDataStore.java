@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.emf.common.util.URI;
 
-import com.google.common.base.Stopwatch;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -32,20 +31,22 @@ import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.IScanExtension;
 import de.hub.emffrag.datastore.ScanningDataStore;
 import de.hub.emffrag.datastore.URIUtils;
-import de.hub.jstattrack.Statistic;
-import de.hub.jstattrack.StatisticBuilder;
+import de.hub.jstattrack.TimeStatistic;
+import de.hub.jstattrack.TimeStatistic.Timer;
+import de.hub.jstattrack.ValueStatistic;
 import de.hub.jstattrack.services.Histogram;
 import de.hub.jstattrack.services.Summary;
 
 public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 	
-	private static final Statistic entrySizeStatistic = new StatisticBuilder()
-			.withService(new Summary())
-			.withService(new Histogram())
-			.register(MongoDBDataStore.class, "EntrySize");
-	private static final Statistic writeTimeStatistic = new StatisticBuilder()
-			.withService(new Summary())
-			.register(MongoDBDataStore.class, "WriteTimes");
+	private static final ValueStatistic entrySizeStatistic = new ValueStatistic("b")
+			.with(Summary.class)
+			.with(Histogram.class)
+			.register(MongoDBDataStore.class, "Entry size");
+	private static final TimeStatistic writeTimeStatistic = new TimeStatistic(TimeUnit.MICROSECONDS)
+			.with(Summary.class)
+			.with(Histogram.class)
+			.register(MongoDBDataStore.class, "Write execution times");
 	
 	public static IDataStore createDataStore(URI uri, boolean useScanning) {
 		MongoDBDataStore baseDataStore = new MongoDBDataStore(uri.authority(), uri.path().substring(1));
@@ -229,7 +230,7 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 		return new ByteArrayOutputStream(256) {
 			@Override
 			public void close() throws IOException {
-				Stopwatch watch = Stopwatch.createStarted();
+				Timer timer = writeTimeStatistic.timer();
 				super.close();
 				byte[] keyString = adoptKey(key);
 				byte[] byteArray = toByteArray();
@@ -243,7 +244,7 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 					gridFsFile.save();
 					collection.update(new BasicDBObject(KEY, keyString), new BasicDBObject(KEY, keyString).append(TYPE, TYPE_GRID_FS).append(FILE_NAME, fileName), true, false);
 				}
-				writeTimeStatistic.track(watch.stop().elapsed(TimeUnit.MICROSECONDS));
+				timer.track();
 				entrySizeStatistic.track(byteArray.length);
 			}
 		};

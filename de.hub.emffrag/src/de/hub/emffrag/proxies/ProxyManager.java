@@ -12,8 +12,7 @@ import org.apache.commons.lang3.ClassUtils;
 
 import com.google.common.base.Preconditions;
 
-import de.hub.jstattrack.Statistic;
-import de.hub.jstattrack.StatisticBuilder;
+import de.hub.jstattrack.CountStatistic;
 import de.hub.jstattrack.services.BatchedPlot;
 import de.hub.jstattrack.services.Summary;
 
@@ -21,7 +20,7 @@ import de.hub.jstattrack.services.Summary;
 public abstract class ProxyManager {
 	
 	private final ProxyContainer freeContainer;
-	private Statistic proxyStat = new StatisticBuilder().sumTime(1, TimeUnit.MINUTES).withService(new Summary()).withService(BatchedPlot.class).register(ProxyManager.class, "Proxies (per minute)");
+	private CountStatistic proxyStat = new CountStatistic(1, TimeUnit.MINUTES).with(Summary.class).with(BatchedPlot.class).register(ProxyManager.class, "Created proxies");
 
 	public ProxyManager(ProxyContainer freeContainer) {
 		super();

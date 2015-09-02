@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.eclipse.emf.common.notify.Notification;
@@ -29,21 +30,21 @@ import de.hub.emffrag.datastore.DataStoreURIHandler;
 import de.hub.emffrag.datastore.IDataMap;
 import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.LongKeyType;
-import de.hub.jstattrack.Statistic;
-import de.hub.jstattrack.Statistic.Timer;
+import de.hub.jstattrack.TimeStatistic;
+import de.hub.jstattrack.TimeStatistic.Timer;
+import de.hub.jstattrack.ValueStatistic;
 import de.hub.jstattrack.services.BatchedPlot;
 import de.hub.jstattrack.services.Histogram;
 import de.hub.jstattrack.services.Summary;
-import de.hub.jstattrack.StatisticBuilder;
 import de.hub.util.Ansi;
 import de.hub.util.Ansi.Color;
 
 public final class Fragmentation {
 	
-	private final Statistic gcExecTimeStat = StatisticBuilder.createWithSummary().withService(Histogram.class).register(Fragmentation.class, "gcExecTime");
-	private final Statistic gcUnloadedFragmentsStat = StatisticBuilder.createWithSummary().withService(Histogram.class).register(Fragmentation.class, "gcUnloadedFragments");
-	private final Statistic gcUnloadableFragmentsStat = StatisticBuilder.createWithSummary().withService(BatchedPlot.class).register(Fragmentation.class, "gcUnloadableFragments");
-	private final Statistic gcLoadedFragmentsStat = StatisticBuilder.createWithSummary().withService(BatchedPlot.class).register(Fragmentation.class, "gcLoadedFragments");
+	private final TimeStatistic gcExecTimeStat = new TimeStatistic(TimeUnit.MICROSECONDS).with(Summary.class).with(Histogram.class).register(Fragmentation.class, "GC execution time");
+	private final ValueStatistic gcUnloadedFragmentsStat = new ValueStatistic("#").with(Summary.class).with(Histogram.class).register(Fragmentation.class, "GC unloaded fragments per run");
+	private final ValueStatistic gcUnloadableFragmentsStat = new ValueStatistic("#").with(Summary.class).with(Histogram.class).register(Fragmentation.class, "GC unloadable fragments in each run");
+	private final ValueStatistic gcLoadedFragmentsStat = new ValueStatistic("#").with(Summary.class).with(BatchedPlot.class).register(Fragmentation.class, "Loaded fragments");
 	
 	private final IDataStore dataStore;
 	private final int fragmentCacheSize;

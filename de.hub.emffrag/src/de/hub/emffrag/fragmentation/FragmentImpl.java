@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.util.AbstractTreeIterator;
@@ -21,13 +22,13 @@ import com.google.common.cache.CacheBuilder;
 
 import de.hub.emffrag.proxies.Proxy;
 import de.hub.emffrag.proxies.ProxyContainer;
-import de.hub.jstattrack.Statistic;
-import de.hub.jstattrack.StatisticBuilder;
+import de.hub.jstattrack.CountStatistic;
+import de.hub.jstattrack.services.BatchedPlot;
 import de.hub.jstattrack.services.Summary;
 
 public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyContainer {
 	
-	private static Statistic stat = StatisticBuilder.create().withService(new Summary()).register(FragmentImpl.class, "cacheKeys");
+	private static CountStatistic stat = new CountStatistic(1, TimeUnit.MINUTES).with(Summary.class).with(BatchedPlot.class).register(FragmentImpl.class, "CacheKeys created");
 	
 	private static long accessCounter = 1;
 
@@ -61,7 +62,7 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 
 		public CacheKey(Object source) {
 			super();
-			stat.track(1);
+			stat.track();
 			this.source = source;
 			identifyHashCode = System.identityHashCode(source);
 		}
