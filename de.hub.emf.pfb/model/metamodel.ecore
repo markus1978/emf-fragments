@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="pfbmm" nsURI="http://sam.hub.de/EMF/PFB/1.0" nsPrefix="pfbmm">
+  <eClassifiers xsi:type="ecore:EClass" name="M">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="c" upperBound="-1" eType="#//M"
+        containment="true">
+      <eAnnotations source="de.hub.emffrag">
+        <details key="fragments" value="true"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="s" upperBound="-1" eType="#//S"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="r" upperBound="-1" eType="#//R"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="t" upperBound="-1" eType="#//T"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="g" upperBound="-1" eType="#//M"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="R"/>
+  <eClassifiers xsi:type="ecore:EClass" name="S">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="r" eType="#//R"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="T">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="source" eType="#//S"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="#//S"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="r" eType="#//R"/>
+  </eClassifiers>
+</ecore:EPackage>

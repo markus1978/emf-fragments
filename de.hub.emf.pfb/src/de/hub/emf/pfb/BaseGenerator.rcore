@@ -1,0 +1,37 @@
+package de.hub.emf.pfb
+
+import pfbmm.R
+
+import static de.hub.randomemf.runtime.Random.*
+
+generator BaseGenerator(
+	int maxMInMDepth, 
+	double avgMInM,
+	double avgRSTInM,
+	double avgToRDist
+) for pfbmm in "platform:/resource/de.hub.emf.pfb/model/metamodel.ecore" {
+	
+	start: M ->
+		c += M#1
+	;
+	
+	M: M -> 
+		c += M#if (depth < maxMInMDepth) Content(avgMInM) else 0
+		r += Trigger#Content(avgRSTInM)
+		s += State#Content(avgRSTInM)
+		t += Transition#Content(avgRSTInM)
+	;
+	
+	Trigger: R ->
+	;
+	
+	State: S ->
+		r := @(RandomWalk(Poisson(avgToRDist)+1, self, typeof(R)))
+	;
+	
+	Transition: T ->
+		r := @(RandomWalk(Poisson(avgToRDist)+1, self, typeof(R)))
+		source := @(Uniform((self.eContainer as pfbmm.M).s))
+		target := @(Uniform((self.eContainer as pfbmm.M).s))
+	;
+}

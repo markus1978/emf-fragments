@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated metamodel -->
+      <package
+            uri="http://sam.hub.de/EMF/PFB/1.0"
+            class="pfbmm.PfbmmPackage"
+            genModel="model/metamodel.genmodel"/>
+   </extension>
+
+</plugin>

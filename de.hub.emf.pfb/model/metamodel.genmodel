@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/de.hub.emf.pfb/src-gen" editDirectory="/de.hub.emf.pfb.edit/src"
+    modelPluginID="de.hub.emf.pfb" modelName="Metamodel" rootExtendsClass="de.hub.emffrag.fragmentation.FObjectImpl"
+    reflectiveDelegation="true" importerID="org.eclipse.emf.importer.ecore" featureDelegation="Reflective"
+    containmentProxies="true" complianceLevel="8.0" copyrightFields="false" importOrganizing="true">
+  <foreignModel>metamodel.ecore</foreignModel>
+  <genPackages prefix="Pfbmm" disposableProviderFactory="true" ecorePackage="metamodel.ecore#/">
+    <genClasses ecoreClass="metamodel.ecore#//M">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference metamodel.ecore#//M/c"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference metamodel.ecore#//M/s"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference metamodel.ecore#//M/r"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference metamodel.ecore#//M/t"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference metamodel.ecore#//M/g"/>
+    </genClasses>
+    <genClasses ecoreClass="metamodel.ecore#//R"/>
+    <genClasses ecoreClass="metamodel.ecore#//S">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference metamodel.ecore#//S/r"/>
+    </genClasses>
+    <genClasses ecoreClass="metamodel.ecore#//T">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference metamodel.ecore#//T/source"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference metamodel.ecore#//T/target"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference metamodel.ecore#//T/r"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>
