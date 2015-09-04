@@ -18,6 +18,7 @@ import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.InMemoryDataStore;
 import de.hub.emffrag.testmodels.AbstractTestModelTests;
 import de.hub.emffrag.testmodels.fobject.testmodel.fobject.meta.TestModelPackage;
+import de.hub.jstattrack.JStatTrackActivator;
 import de.hub.jstattrack.Statistics;
 
 /**
@@ -49,6 +50,7 @@ public class AbstractFragmentationTests extends AbstractTestModelTests {
 
 	@BeforeClass
 	public static void initializeEMFFragments() {
+		JStatTrackActivator.standalone();
 		EmfFragActivator.standalone(TestModelPackage.eINSTANCE);
 		EmfFragActivator.instance.logInStandAlone = true;
 		EmfFragActivator.instance.logFragmentPrettyPrints = true;
