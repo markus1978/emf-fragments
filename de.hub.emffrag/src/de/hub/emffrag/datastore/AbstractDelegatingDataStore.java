@@ -73,5 +73,11 @@ public class AbstractDelegatingDataStore implements IBaseDataStore {
 	public void close() {
 		delegate.close();
 	}
+
+	@Override
+	public Object getStats() {
+		return delegate.getStats();
+	}
+	
 	
 }

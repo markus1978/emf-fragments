@@ -13,7 +13,7 @@ public class EmfFragMongoDBActivator implements BundleActivator {
 		IDataStore.dataStoreFactoryRegistry.put("mongodb", new IDataStore.IDataStoreFactory() {			
 			@Override
 			public IDataStore createDataStore(URI uri) {
-				return MongoDBDataStore.createDataStore(uri, true);
+				return MongoDBDataStore.createDataStore(uri, false);
 			}
 		});
 	}

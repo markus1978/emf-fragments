@@ -312,4 +312,9 @@ public class HBaseDataStore implements IBaseDataStore, IBulkInsertExtension, ISc
 		this.scanCacheSize = scanCacheSize;
 	}
 
+	@Override
+	public Object getStats() {
+		// TODO
+		return null;
+	}
 }

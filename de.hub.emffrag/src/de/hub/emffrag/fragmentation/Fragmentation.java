@@ -233,7 +233,7 @@ public final class Fragmentation {
 	 */
 	protected void onChange(Notification notification) {
 		Object feature = notification.getFeature();
-		if (feature != null && feature instanceof EReference && isFragmenting((EReference) feature)) {
+		if (feature != null && feature instanceof EReference) {
 			recursivlyReactToChange(notification, true);
 		}
 	}

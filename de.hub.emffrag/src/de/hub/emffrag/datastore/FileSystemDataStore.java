@@ -141,4 +141,10 @@ public class FileSystemDataStore implements IBaseDataStore {
 		throw new UnsupportedOperationException("Not implemented.");
 	}
 
+	@Override
+	public Object getStats() {
+		return null;
+	}
+
+	
 }

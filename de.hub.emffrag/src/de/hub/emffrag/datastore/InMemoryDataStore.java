@@ -225,4 +225,9 @@ public class InMemoryDataStore implements IBaseDataStore, IBulkInsertExtension {
 	public int getNumberOfEntries() {
 		return store.size();
 	}
+
+	@Override
+	public Object getStats() {
+		return "count=" + store.keySet().size();
+	}
 }

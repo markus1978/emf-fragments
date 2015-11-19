@@ -58,9 +58,10 @@ public class EmfFragView extends ViewPart {
 	private TreeViewer viewer;
 	private DrillDownAdapter drillDownAdapter;
 	private Action addModelAction;
+	private Action refreshModelsAction;
 	private Action doubleClickAction;
 	
-	private ResourceSet rs = null;
+	private Fragmentation fragmentation = null;
 
 	public EmfFragView() {
 	}
@@ -98,8 +99,7 @@ public class EmfFragView extends ViewPart {
 		viewer.setLabelProvider(labelProvider);
 		viewer.setContentProvider(contentProvider);
 		
-		rs = new ResourceSetImpl();
-		viewer.setInput(rs);
+		viewer.setInput(new ResourceSetImpl());
 
 		// Create the help context id for the viewer's control
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "de.hub.emffrag.ui.viewer");
@@ -130,11 +130,13 @@ public class EmfFragView extends ViewPart {
 
 	private void fillLocalPullDown(IMenuManager manager) {
 		manager.add(addModelAction);
+		manager.add(refreshModelsAction);
 		manager.add(new Separator());
 	}
 
 	private void fillContextMenu(IMenuManager manager) {
 		manager.add(addModelAction);
+		manager.add(refreshModelsAction);
 		manager.add(new Separator());
 		drillDownAdapter.addNavigationActions(manager);
 		// Other plug-ins can contribute there actions here
@@ -143,6 +145,7 @@ public class EmfFragView extends ViewPart {
 	
 	private void fillLocalToolBar(IToolBarManager manager) {
 		manager.add(addModelAction);
+		manager.add(refreshModelsAction);
 		manager.add(new Separator());
 		drillDownAdapter.addNavigationActions(manager);
 	}
@@ -157,6 +160,16 @@ public class EmfFragView extends ViewPart {
 		addModelAction.setToolTipText("Add a model");
 		addModelAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 			getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
+		
+		refreshModelsAction = new Action() {
+			public void run() {
+				refreshModels();
+			}
+		};
+		refreshModelsAction.setText("Refresh models");
+		refreshModelsAction.setToolTipText("Refresh models");
+		refreshModelsAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+			getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
 				
 		doubleClickAction = new Action() {
 			public void run() {
@@ -197,7 +210,9 @@ public class EmfFragView extends ViewPart {
 		Resource resource = null;
 		try {
 			URI uri = URI.createURI(uriString);
-			resource = new Fragmentation(createDataStore(uri), 100).getRootFragment();
+			fragmentation = new Fragmentation(createDataStore(uri), 100);
+			resource = fragmentation.getRootFragment();
+			
 			viewer.setInput(resource.getResourceSet());
 		} catch (Exception e) {
 			showMessage("Could not open the model at " + uriString + ": " + e.getMessage());
@@ -209,6 +224,30 @@ public class EmfFragView extends ViewPart {
 					e1.printStackTrace();
 				}
 			}			
+		}
+	}
+	
+	private void refreshModels() {
+		if (fragmentation != null) {
+			URI uri = null;
+			Resource resource = null;
+			try {				
+				uri = fragmentation.getDataStore().getURI();
+				fragmentation.close();
+				fragmentation = new Fragmentation(createDataStore(uri), 100);
+				resource = fragmentation.getRootFragment();				
+				viewer.setInput(resource.getResourceSet());
+			} catch (Exception e) {
+				showMessage("Could not open the model at " + uri.toString() + ": " + e.getMessage());
+				e.printStackTrace();
+				if (resource != null) {
+					try {
+						resource.delete(null);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}			
+			}	
 		}
 	}
 	
@@ -241,7 +280,7 @@ public class EmfFragView extends ViewPart {
 		});
 
 		final Text text = new Text (dialog, SWT.BORDER);
-		text.setText("mongodb://jupiter.informatik.hu-berlin.de/org.eclipse.emf.java.bin");
+		text.setText("mongodb://localhost/org.eclipse.emf.cdo.git");
 		data = new FormData ();
 		data.width = 200;
 		data.left = new FormAttachment (label, 0, SWT.DEFAULT);

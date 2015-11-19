@@ -311,6 +311,18 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 		Assert.assertFalse(fragmentation.getContents().isEmpty());
 		Assert.assertNotEquals(container, fragmentation.getContents().get(0));
 	}
+	
+	@Test
+	public void testAddFragmentsOnNonProxiedObjects() {
+		TestObject root = createTO("root");
+		fragmentation.getRootFragment().getContents().add(root);
+		TestObject container = createTO("container");
+		root.getFragmentedContents().add(container);
+		TestObject contents = createTO("contents");
+		container.getFragmentedContents().add(contents);
+		
+		Assert.assertEquals(3, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
+	}
 
 //	// TODO weird cases and left overs
 //	// 1. moving a fragment root to a non fragmenting reference's value set

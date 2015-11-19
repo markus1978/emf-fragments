@@ -48,4 +48,9 @@ public interface IBaseDataStore {
 	 * Closes the datastore (not called by EMF-Fragments).
 	 */
 	void close();
+	
+	/**
+	 * Retrieve database statistics, if available. Can return null.
+	 */
+	Object getStats();
 }

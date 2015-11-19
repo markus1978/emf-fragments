@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.emf.common.util.URI;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -334,6 +335,11 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 		DBCursor cursor = collection.find(new BasicDBObject(KEY, new BasicDBObject("$gte", adoptKey(key))));
 		cursor.sort(new BasicDBObject(KEY, 1));
 		return new Cursor(cursor);		
+	}
+
+	@Override
+	public Map<?,?> getStats() {
+		CommandResult stats = collection.getStats();
+		return stats;
 	}	
-	
 }
