@@ -313,15 +313,15 @@ public class BasicFragmentationTests extends AbstractFragmentationTests {
 	}
 	
 	@Test
-	public void testAddFragmentsOnNonProxiedObjects() {
+	public void testRecursiveAddOfFragmentedContentsOfNonFragmentingContainer() {
 		TestObject root = createTO("root");
 		fragmentation.getRootFragment().getContents().add(root);
-		TestObject container = createTO("container");
-		root.getFragmentedContents().add(container);
-		TestObject contents = createTO("contents");
-		container.getFragmentedContents().add(contents);
 		
-		Assert.assertEquals(3, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
+		TestObject container = createTO("container");
+		createTO("contents", container, TestModelPackage.eINSTANCE.getTestObject_FragmentedContents());
+		root.getRegularContents().add(container);
+		
+		Assert.assertEquals(2, fragmentation.getIndexOfLastAddedAndStillExistingFragment());
 	}
 
 //	// TODO weird cases and left overs
