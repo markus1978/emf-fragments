@@ -8,8 +8,20 @@ import de.hub.emffrag.datastore.IDataStore;
 
 public class EmfFragMongoDBActivator implements BundleActivator {
 
+	public static EmfFragMongoDBActivator instance = null;
+	
 	@Override
 	public void start(BundleContext context) throws Exception {
+		instance = this;
+		init();
+	}
+
+	@Override
+	public void stop(BundleContext context) throws Exception {
+
+	}
+	
+	private void init() {
 		IDataStore.dataStoreFactoryRegistry.put("mongodb", new IDataStore.IDataStoreFactory() {			
 			@Override
 			public IDataStore createDataStore(URI uri) {
@@ -18,10 +30,8 @@ public class EmfFragMongoDBActivator implements BundleActivator {
 		});
 	}
 
-	@Override
-	public void stop(BundleContext context) throws Exception {
-		// TODO Auto-generated method stub
-
+	public static void standalone() {
+		instance = new EmfFragMongoDBActivator();
+		instance.init();
 	}
-
 }
