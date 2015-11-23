@@ -39,8 +39,9 @@ public class DataStoreURIHandler extends URIHandlerImpl {
 
 	@Override
     public boolean canHandle(URI uri) {
-        String scheme = uri.scheme();
-        return scheme == null || scheme.equals(store.getURI().scheme());
+		return uri.equals(store.getURI());
+        //String scheme = uri.scheme();
+        //return scheme == null || scheme.equals(store.getURI().scheme());
     }
 
     @Override

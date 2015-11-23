@@ -42,7 +42,7 @@ public class AbstractFragmentationTests extends AbstractTestModelTests {
 
 	protected Fragmentation fragmentation;
 	protected IDataStore dataStore;
-	private IBaseDataStore baseDataStore = null;
+	protected IBaseDataStore baseDataStore = null;
 
 	protected URI getTestFragmentationURI() {
 		return testFragmentationURI;

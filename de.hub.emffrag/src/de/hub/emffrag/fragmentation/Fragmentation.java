@@ -54,6 +54,8 @@ public final class Fragmentation {
 	private int finishedClientOperations = 0;
 	private int clientOperationsForGCCount = 0;
 	
+	private FragmentationSet fragmentationSet = null;
+	
 	public Fragmentation(IDataStore dataStore, int fragmentsCacheSize) {
 		this.dataStore = dataStore;
 		this.fragmentCacheSize = fragmentsCacheSize;
@@ -61,6 +63,19 @@ public final class Fragmentation {
 		this.fragmentDataStoreIndex = dataStore.getMap(("f_").getBytes(), LongKeyType.instance);
 		
 		this.resourceSet =  new ResourceSetImpl() {
+			@Override
+			public EObject getEObject(URI uri, boolean loadOnDemand) {
+				if (uri.trimFragment().trimSegments(1).equals(dataStore.getURI())) {
+					return super.getEObject(uri, loadOnDemand);
+				} else {
+					if (fragmentationSet != null) {
+						return fragmentationSet.getFragmentation(uri.trimFragment().trimSegments(1)).resourceSet.getEObject(uri, true);
+					} else {
+						return null;
+					}
+				}
+			}
+			
 			@Override
 			public Resource createResource(URI uri, String contentType) {
 				Fragment fragment = instantiateFragment(uri);
@@ -424,4 +439,25 @@ public final class Fragmentation {
 	public IDataStore getDataStore() {
 		return dataStore;
 	}
+
+	public FObject getFObject(URI uri, boolean loadOnDemand) {
+		EObject resultAsEObject = resourceSet.getEObject(uri, loadOnDemand);
+		if (resultAsEObject == null) {
+			return null;
+		} else if (resultAsEObject instanceof FObject) {
+			return (FObject)FragmentationProxyManager.INSTANCE.getProxy(resultAsEObject, (FragmentImpl)resultAsEObject.eResource());
+		} else {
+			throw new IllegalArgumentException("Uri does not reference an fObject.");
+		}
+	}
+
+	public FragmentationSet getFragmentationSet() {
+		return fragmentationSet;
+	}
+
+	protected void setFragmentationSet(FragmentationSet fragmentationSet) {
+		this.fragmentationSet = fragmentationSet;
+	}
+	
+	
 }
