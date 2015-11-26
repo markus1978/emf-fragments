@@ -16,16 +16,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.datastore.DataStoreImpl;
-import de.hub.emffrag.datastore.IBaseDataStore;
-import de.hub.emffrag.datastore.IBulkInsertExtension;
-import de.hub.emffrag.datastore.IDataMap;
-import de.hub.emffrag.datastore.IDataStore;
-import de.hub.emffrag.datastore.IScanExtension;
-import de.hub.emffrag.datastore.InMemoryDataStore;
-import de.hub.emffrag.datastore.LongKeyType;
-import de.hub.emffrag.datastore.ScanningDataStore;
-import de.hub.emffrag.datastore.WriteCachingDataStore;
 import de.hub.emffrag.testmodels.fobject.testmodel.fobject.meta.TestModelPackage;
 
 public abstract class AbstractDataStoreTest {

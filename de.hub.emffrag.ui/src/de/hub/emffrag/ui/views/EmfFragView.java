@@ -46,6 +46,7 @@ import org.eclipse.ui.part.ViewPart;
 import de.hub.emffrag.datastore.DataStoreImpl;
 import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.fragmentation.Fragmentation;
+import de.hub.emffrag.fragmentation.FragmentationSet;
 
 /** This view uses the MoDisco content and label providers. */
 public class EmfFragView extends ViewPart {
@@ -61,7 +62,8 @@ public class EmfFragView extends ViewPart {
 	private Action refreshModelsAction;
 	private Action doubleClickAction;
 	
-	private Fragmentation fragmentation = null;
+	private FragmentationSet fragmentationSet = null;
+	private URI currentFragmentationURI = null;
 
 	public EmfFragView() {
 	}
@@ -210,7 +212,14 @@ public class EmfFragView extends ViewPart {
 		Resource resource = null;
 		try {
 			URI uri = URI.createURI(uriString);
-			fragmentation = new Fragmentation(createDataStore(uri), 100);
+			currentFragmentationURI = uri;
+			this.fragmentationSet = new FragmentationSet(100, new IDataStore.IDataStoreFactory() {				
+				@Override
+				public IDataStore createDataStore(URI uri) {
+					return EmfFragView.this.createDataStore(uri);
+				}
+			});
+			Fragmentation fragmentation = fragmentationSet.getFragmentation(uri);
 			resource = fragmentation.getRootFragment();
 			
 			viewer.setInput(resource.getResourceSet());
@@ -228,26 +237,10 @@ public class EmfFragView extends ViewPart {
 	}
 	
 	private void refreshModels() {
-		if (fragmentation != null) {
-			URI uri = null;
-			Resource resource = null;
-			try {				
-				uri = fragmentation.getDataStore().getURI();
-				fragmentation.close();
-				fragmentation = new Fragmentation(createDataStore(uri), 100);
-				resource = fragmentation.getRootFragment();				
-				viewer.setInput(resource.getResourceSet());
-			} catch (Exception e) {
-				showMessage("Could not open the model at " + uri.toString() + ": " + e.getMessage());
-				e.printStackTrace();
-				if (resource != null) {
-					try {
-						resource.delete(null);
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-				}			
-			}	
+		if (fragmentationSet != null) {
+			fragmentationSet.close();
+			fragmentationSet = null;
+			addModel(currentFragmentationURI.toString());
 		}
 	}
 	
@@ -280,7 +273,7 @@ public class EmfFragView extends ViewPart {
 		});
 
 		final Text text = new Text (dialog, SWT.BORDER);
-		text.setText("mongodb://localhost/org.eclipse.emf.cdo.git");
+		text.setText("mongodb://localhost/git.eclipse.org");
 		data = new FormData ();
 		data.width = 200;
 		data.left = new FormAttachment (label, 0, SWT.DEFAULT);

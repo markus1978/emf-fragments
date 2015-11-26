@@ -1,23 +1,25 @@
 package de.hub.emffrag.fragmentation;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
 
-import de.hub.emffrag.datastore.IDataStore;
+import de.hub.emffrag.datastore.IDataStore.IDataStoreFactory;
 
 public class FragmentationSet {
-
-	public interface IDataStoreFactory {
-		IDataStore createDataStore(URI uri);		
-	}
 	
 	private final Map<URI, Fragmentation> fragmentations = new HashMap<URI, Fragmentation>();
 	private final IDataStoreFactory dataStoreFactory;
 	private final int fragmentationCacheSize;
 	
 	public FragmentationSet(IDataStoreFactory dataStoreFactory, int fragmentationCacheSize) {
+		this.dataStoreFactory = dataStoreFactory;
+		this.fragmentationCacheSize = fragmentationCacheSize;
+	}
+	
+	public FragmentationSet(int fragmentationCacheSize, IDataStoreFactory dataStoreFactory) {
 		this.dataStoreFactory = dataStoreFactory;
 		this.fragmentationCacheSize = fragmentationCacheSize;
 	}
@@ -43,6 +45,10 @@ public class FragmentationSet {
 		return existingFragmentation;
 	}
 	
+	public Collection<Fragmentation> getFragmentations() {
+		return fragmentations.values();
+	}
+	
 	public FObject getFObject(URI uri, boolean loadOnDemand) {
 		Fragmentation fragmentation = getFragmentation(uri.trimFragment().trimSegments(1));
 		return fragmentation.getFObject(uri, loadOnDemand);
@@ -51,6 +57,7 @@ public class FragmentationSet {
 	public void close() {
 		for (Fragmentation fragmentation: fragmentations.values()) {
 			fragmentation.close();
+			fragmentation.getDataStore().close();
 			fragmentation.setFragmentationSet(null);
 		}
 		fragmentations.clear();

@@ -2,9 +2,6 @@ package de.hub.emffrag.datastore;
 
 import org.eclipse.emf.common.util.URI;
 
-import de.hub.emffrag.datastore.IBaseDataStore;
-import de.hub.emffrag.datastore.InMemoryDataStore;
-
 public class InMemoryStoreTest extends AbstractDataStoreTest {
 	
 	protected InMemoryDataStore inMemoryDataStore;

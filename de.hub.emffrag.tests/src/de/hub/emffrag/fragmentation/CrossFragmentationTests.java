@@ -63,7 +63,7 @@ public class CrossFragmentationTests extends AbstractFragmentationTests {
 	public void fragmentationSetResovleTest() {
 		final Map<URI, IDataStore> dataStores = new HashMap<URI, IDataStore>();
 		
-		FragmentationSet fs = new FragmentationSet(new FragmentationSet.IDataStoreFactory() {			
+		FragmentationSet fs = new FragmentationSet(new IDataStore.IDataStoreFactory() {			
 			@Override
 			public IDataStore createDataStore(URI uri) {
 				IDataStore dataStore = dataStores.get(uri);
@@ -98,6 +98,52 @@ public class CrossFragmentationTests extends AbstractFragmentationTests {
 		two = fs.getFragmentation(URI.createURI("two"));
 		contents = (TestObject)two.getContents().get(0);
 		Assert.assertSame(contents, reloadedContents);
+		Assert.assertNotNull(reloadedContents.eContainer());
+		Assert.assertSame(container, reloadedContents.eContainer());
+	}
+	
+	@Test
+	public void fragemtationCrossReferenceResolveTest() {
+		final Map<URI, IDataStore> dataStores = new HashMap<URI, IDataStore>();
+		
+		FragmentationSet fs = new FragmentationSet(new IDataStore.IDataStoreFactory() {			
+			@Override
+			public IDataStore createDataStore(URI uri) {
+				IDataStore dataStore = dataStores.get(uri);
+				if (dataStore == null) {
+					dataStore = new DataStoreImpl(createBaseDataStore(), uri);
+					dataStores.put(uri, dataStore);
+				}
+				return dataStore;
+			}
+		}, 1);
+		
+		Fragmentation one = fs.getFragmentation(URI.createURI("one"));
+		Fragmentation two = fs.getFragmentation(URI.createURI("two"));
+		
+		TestObject container = createTO("container");
+		TestObject contents = createTO("contents");
+		
+		one.getContents().add(container);
+		container.getRegularContents().add(contents);
+		container.getCrossReferences().add(contents);
+		two.getContents().add(contents);
+		
+		fs.close();
+		
+		one = fs.getFragmentation(URI.createURI("one"));
+		container = (TestObject)one.getContents().get(0);		
+		
+		Assert.assertNotNull(container);
+		Assert.assertSame(1, container.getCrossReferences().size());
+		TestObject reloadedContents = container.getCrossReferences().get(0);
+		Assert.assertTrue(!reloadedContents.eIsProxy());
+		
+		two = fs.getFragmentation(URI.createURI("two"));
+		contents = (TestObject)two.getContents().get(0);
+		Assert.assertSame(contents, reloadedContents);
+		Assert.assertNotNull(reloadedContents.eContainer());
+		Assert.assertSame(container, reloadedContents.eContainer());
 	}
 	
 //	@Override
