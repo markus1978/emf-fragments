@@ -51,21 +51,22 @@ public final class Fragmentation {
 	private final IDataMap<Long> fragmentDataStoreIndex;
 	private final ResourceSet resourceSet;	
 	
-	private int finishedClientOperations = 0;
-	private int clientOperationsForGCCount = 0;
+	private int numberOfLoadCreateEvents = 0;
+	private int loadCreateEventGCThreshhold = 0;
+	private int createdFragmentsSinceLastGC = 0;
 	
 	private FragmentationSet fragmentationSet = null;
 	
 	public Fragmentation(IDataStore dataStore, int fragmentsCacheSize) {
 		this.dataStore = dataStore;
 		this.fragmentCacheSize = fragmentsCacheSize;
-		this.clientOperationsForGCCount = fragmentsCacheSize+10;
+		this.loadCreateEventGCThreshhold = fragmentsCacheSize+10;
 		this.fragmentDataStoreIndex = dataStore.getMap(("f_").getBytes(), LongKeyType.instance);
 		
 		this.resourceSet =  new ResourceSetImpl() {
 			@Override
 			public EObject getEObject(URI uri, boolean loadOnDemand) {
-				if (uri.trimFragment().trimSegments(1).equals(dataStore.getURI())) {
+				if (uri.trimFragment().trimSegments(1).equals(dataStore.getURI()) || !uri.scheme().equals(dataStore.getURI().scheme())) {
 					return super.getEObject(uri, loadOnDemand);
 				} else {
 					if (fragmentationSet != null) {
@@ -80,6 +81,7 @@ public final class Fragmentation {
 			public Resource createResource(URI uri, String contentType) {
 				Fragment fragment = instantiateFragment(uri);
 				fragment.setTrackingModification(true);
+				onLoadedOrCreatedFragment();
 				return fragment;
 			}
 
@@ -91,6 +93,7 @@ public final class Fragmentation {
 						Ansi.format("FRAGMENTATION: ", Color.BLUE) +
 						Ansi.format("loaded ", Color.GREEN) + 
 						Ansi.format(Fragmentation.this.toString(fragment), Color.values()[(int)(fragment.fFragmentId() % Color.values().length)]));
+				onLoadedOrCreatedFragment();
 			}
 		};
 		((ResourceSetImpl)resourceSet).setURIResourceMap(new HashMap<URI,Resource>());
@@ -168,9 +171,9 @@ public final class Fragmentation {
 	}
 	
 	public int gc() {
-		EmfFragActivator.instance.debug(Ansi.format("FRAGMENTATION: ", Color.BLUE) + Ansi.format("gc start", Color.BLACK));
+		EmfFragActivator.instance.debug(Ansi.format("FRAGMENTATION: ", Color.BLUE) + Ansi.format("gc start", Color.BLACK));		
 		
-		EList<Resource> resources = resourceSet.getResources();
+		EList<Resource> resources = resourceSet.getResources();		
 		gcLoadedFragmentsStat.track(resources.size());
 		Timer gcExecTimer = gcExecTimeStat.timer();
 		List<FragmentImpl> fragemntsToUnload = new ArrayList<FragmentImpl>();	
@@ -248,7 +251,7 @@ public final class Fragmentation {
 	 */
 	protected void onChange(Notification notification) {
 		Object feature = notification.getFeature();
-		if (feature != null && feature instanceof EReference) {
+		if (feature != null && feature instanceof EReference && ((EReference)feature).isContainment()) {
 			recursivlyReactToChange(notification, true);
 		}
 	}
@@ -422,20 +425,6 @@ public final class Fragmentation {
 		return resourceSet.getResources().size();
 	}
 
-	protected void onFinishedClientOperation() {
-		finishedClientOperations++;
-		if (finishedClientOperations >= clientOperationsForGCCount) {
-			int unloadedFragments = gc();
-			if (unloadedFragments == 0) {
-				clientOperationsForGCCount = clientOperationsForGCCount <= 0 ? 1 : clientOperationsForGCCount;
-				clientOperationsForGCCount  *= 10;
-			} else {
-				clientOperationsForGCCount /= 2;
-			}
-			finishedClientOperations = 0;
-		}
-	}
-	
 	public IDataStore getDataStore() {
 		return dataStore;
 	}
@@ -459,5 +448,21 @@ public final class Fragmentation {
 		this.fragmentationSet = fragmentationSet;
 	}
 	
+	protected void onLoadedOrCreatedFragment() {
+		numberOfLoadCreateEvents++;	
+	}
 	
+	protected void onFinishedClientOperation() {
+		if (numberOfLoadCreateEvents >= loadCreateEventGCThreshhold) {
+			numberOfLoadCreateEvents = 0;
+			int unloadedFragments = gc();
+			String logInfo = "GC: " + getNumberOfLoadedFragments() + "/" + "/" + unloadedFragments + loadCreateEventGCThreshhold;
+			EmfFragActivator.instance.debug(Ansi.format("FRAGMENTATION: ", Color.BLUE) + Ansi.format(logInfo, Color.BLACK));	
+			if (unloadedFragments < fragmentCacheSize) {
+				loadCreateEventGCThreshhold  += fragmentCacheSize;
+			} else {
+				loadCreateEventGCThreshhold = Math.max(fragmentCacheSize, loadCreateEventGCThreshhold - fragmentCacheSize);
+			}
+		}
+	}
 }

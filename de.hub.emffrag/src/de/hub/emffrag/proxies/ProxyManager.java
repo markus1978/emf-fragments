@@ -140,13 +140,19 @@ public abstract class ProxyManager {
 					for (int i = 0; i < array.length; i++) {
 						Object resultItem = array[i];
 						resultItem = resolve(resultItem, ((Proxy)proxy).fRoot().fContainer());
-						resultItem = proxify(resultItem, proxy, isEMFOperation);
+						if (hasProxyType(resultItem)) {
+							isEMFOperation = true;
+							resultItem = proxify(resultItem, proxy);
+						}
 						array[i] = resultItem;
 					}
 					result = array;
 				} else {
 					result = resolve(result, ((Proxy)proxy).fRoot().fContainer());
-					result = proxify(result, proxy, isEMFOperation);
+					if (hasProxyType(result)) {
+						isEMFOperation = true;
+						result = proxify(result, proxy);
+					}
 				}				
 				
 				if (isEMFOperation) {
@@ -156,19 +162,16 @@ public abstract class ProxyManager {
 			}
 		}
 		
-		private Object proxify(Object result, Object proxy, boolean isEMFOperation) {
-			if (hasProxyType(result)) {
-				isEMFOperation = true;
-				if (hasProxyRootType(result)) {
-					result = getProxy(result, getContainer(result, null));
-				} else {
-					Proxy resultProxy = getProxyWithParent(result, (Proxy)proxy);
-					if (resultProxy instanceof DynamicProxy) {
-						((DynamicProxy)resultProxy).fSetParentProxy((Proxy)proxy);
-					}
-					result = resultProxy;
-				}					
-			}
+		private Object proxify(Object result, Object proxy) {			
+			if (hasProxyRootType(result)) {
+				result = getProxy(result, getContainer(result, null));
+			} else {
+				Proxy resultProxy = getProxyWithParent(result, (Proxy)proxy);
+				if (resultProxy instanceof DynamicProxy) {
+					((DynamicProxy)resultProxy).fSetParentProxy((Proxy)proxy);
+				}
+				result = resultProxy;
+			}					
 			return result;
 		}
 
