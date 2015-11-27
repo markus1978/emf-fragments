@@ -465,4 +465,8 @@ public final class Fragmentation {
 			}
 		}
 	}
+
+	public void save() {
+		close();
+	}
 }
