@@ -35,8 +35,10 @@ import de.hub.emffrag.datastore.URIUtils;
 import de.hub.jstattrack.TimeStatistic;
 import de.hub.jstattrack.TimeStatistic.Timer;
 import de.hub.jstattrack.ValueStatistic;
+import de.hub.jstattrack.services.BatchedPlot;
 import de.hub.jstattrack.services.Histogram;
 import de.hub.jstattrack.services.Summary;
+import de.hub.jstattrack.services.WindowedPlot;
 
 public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 	
@@ -48,6 +50,12 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 			.with(Summary.class)
 			.with(Histogram.class)
 			.register(MongoDBDataStore.class, "Write execution times");
+	private static final TimeStatistic readTimeStatistic = new TimeStatistic(TimeUnit.MICROSECONDS)
+			.with(Summary.class)
+			.with(Histogram.class)
+			.with(BatchedPlot.class)
+			.with(WindowedPlot.class)
+			.register(MongoDBDataStore.class, "Read execution times");
 	
 	public static IDataStore createDataStore(URI uri, boolean useScanning) {
 		MongoDBDataStore baseDataStore = new MongoDBDataStore(uri.authority(), uri.path().substring(1));
@@ -187,8 +195,13 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 	
 	@Override
 	synchronized public InputStream openInputStream(byte[] key) {
-		DBObject result = collection.findOne(new BasicDBObject(KEY, adoptKey(key)));
-		return inputStreamFromDBObject(result);
+		Timer timer = readTimeStatistic.timer();
+		try {
+			DBObject result = collection.findOne(new BasicDBObject(KEY, adoptKey(key)));
+			return inputStreamFromDBObject(result);
+		} finally {
+			timer.track();
+		}
 	}
 	
 	private InputStream inputStreamFromDBObject(DBObject result) {
@@ -201,7 +214,7 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 			int type = typeAsInteger;
 			if (type == TYPE_BSON) {
 				byte[] value = (byte[])result.get(VALUE);
-				if (value != null) {
+				if (value != null) {					
 					return new ByteArrayInputStream(value);
 				} else {
 					return new ByteArrayInputStream(new byte[]{});

@@ -36,15 +36,17 @@ import de.hub.jstattrack.ValueStatistic;
 import de.hub.jstattrack.services.BatchedPlot;
 import de.hub.jstattrack.services.Histogram;
 import de.hub.jstattrack.services.Summary;
+import de.hub.jstattrack.services.WindowedPlot;
 import de.hub.util.Ansi;
 import de.hub.util.Ansi.Color;
 
 public final class Fragmentation {
 	
-	private final TimeStatistic gcExecTimeStat = new TimeStatistic(TimeUnit.MICROSECONDS).with(Summary.class).with(Histogram.class).register(Fragmentation.class, "GC execution time");
+	private final TimeStatistic gcExecTimeStat = new TimeStatistic(TimeUnit.MICROSECONDS).with(Summary.class).with(Histogram.class).with(WindowedPlot.class).register(Fragmentation.class, "GC execution time");
 	private final ValueStatistic gcUnloadedFragmentsStat = new ValueStatistic("#").with(Summary.class).with(Histogram.class).register(Fragmentation.class, "GC unloaded fragments per run");
 	private final ValueStatistic gcUnloadableFragmentsStat = new ValueStatistic("#").with(Summary.class).with(Histogram.class).register(Fragmentation.class, "GC unloadable fragments in each run");
 	private final ValueStatistic gcLoadedFragmentsStat = new ValueStatistic("#").with(Summary.class).with(BatchedPlot.class).register(Fragmentation.class, "Loaded fragments");
+	private final TimeStatistic loadFragmentExecTimeStat = new TimeStatistic(TimeUnit.MICROSECONDS).with(Summary.class).with(Histogram.class).with(WindowedPlot.class).register(Fragmentation.class, "Load fragment execution time");
 	
 	private final IDataStore dataStore;
 	private final int fragmentCacheSize;
@@ -53,7 +55,6 @@ public final class Fragmentation {
 	
 	private int numberOfLoadCreateEvents = 0;
 	private int loadCreateEventGCThreshhold = 0;
-	private int createdFragmentsSinceLastGC = 0;
 	
 	private FragmentationSet fragmentationSet = null;
 	
@@ -87,6 +88,7 @@ public final class Fragmentation {
 
 			@Override
 			protected void demandLoad(Resource resource) throws IOException {
+				Timer loadFragmentExecTimer = loadFragmentExecTimeStat.timer();
 				super.demandLoad(resource);
 				Fragment fragment = (Fragment)resource;
 				EmfFragActivator.instance.debug(
@@ -94,6 +96,7 @@ public final class Fragmentation {
 						Ansi.format("loaded ", Color.GREEN) + 
 						Ansi.format(Fragmentation.this.toString(fragment), Color.values()[(int)(fragment.fFragmentId() % Color.values().length)]));
 				onLoadedOrCreatedFragment();
+				loadFragmentExecTimer.track();
 			}
 		};
 		((ResourceSetImpl)resourceSet).setURIResourceMap(new HashMap<URI,Resource>());

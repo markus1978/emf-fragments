@@ -9,6 +9,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
+import de.hub.emffrag.proxies.Proxy;
 import de.hub.emffrag.proxies.ProxyContainer;
 import de.hub.emffrag.proxies.ProxyManager;
 
@@ -64,6 +65,9 @@ public class FragmentationProxyManager extends ProxyManager {
 
 	@Override
 	protected ProxyContainer getContainerFromProxyRootSource(Object source) {
+		if (source instanceof Proxy) {
+			source = ((Proxy)source).fSource();
+		}
 		if (source instanceof ProxyContainer) {
 			return (ProxyContainer)source;
 		} else if (source instanceof FObject) {

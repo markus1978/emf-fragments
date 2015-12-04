@@ -38,7 +38,7 @@ public abstract class ProxyManager {
 	private Map<Class<?>, Class<?>[]> classToInterfacesMap = new HashMap<Class<?>, Class<?>[]>();
 	
 	private Proxy createNewProxy(Object source, ProxyContainer proxyContainer) {
-		Preconditions.checkArgument(!(source instanceof Proxy));
+		Preconditions.checkArgument(!(source instanceof Proxy) && !(proxyContainer instanceof Proxy));
 		
 		Class<?> sourceClass = source.getClass();
 		Class<?>[] interfaces = classToInterfacesMap.get(sourceClass);
@@ -71,7 +71,7 @@ public abstract class ProxyManager {
 	}
 	
 	public Proxy getProxy(Object source, ProxyContainer proxyContainer) {
-		Preconditions.checkArgument(proxyContainer != null);
+		Preconditions.checkArgument(proxyContainer != null && !(proxyContainer instanceof Proxy));
 		
 		Proxy existingProxy = proxyContainer.fGetProxyIfExists(source);
 		if (existingProxy == null) {
@@ -81,7 +81,11 @@ public abstract class ProxyManager {
 	}
 	
 	protected Object resolve(Object object, ProxyContainer container) {
-		return object;
+		if (object instanceof Proxy) {
+			return ((Proxy)object).fSource();
+		} else {
+			return object;
+		}
 	}
 	
 	protected Method replace(Method method) {
