@@ -42,6 +42,13 @@ import de.hub.util.Ansi.Color;
 
 public final class Fragmentation {
 	
+	public static final byte NONE = 0;
+	public static final byte READONLY = 1;
+	public static final byte NO_PROXIES = 2;
+	public static final byte NO_NOTIFY = 3;
+	
+	public static byte config = NONE;
+	
 	private final TimeStatistic gcExecTimeStat = new TimeStatistic(TimeUnit.MICROSECONDS).with(Summary.class).with(Histogram.class).with(WindowedPlot.class).register(Fragmentation.class, "GC execution time");
 	private final ValueStatistic gcUnloadedFragmentsStat = new ValueStatistic("#").with(Summary.class).with(Histogram.class).register(Fragmentation.class, "GC unloaded fragments per run");
 	private final ValueStatistic gcUnloadableFragmentsStat = new ValueStatistic("#").with(Summary.class).with(Histogram.class).register(Fragmentation.class, "GC unloadable fragments in each run");
@@ -55,10 +62,13 @@ public final class Fragmentation {
 	
 	private int numberOfLoadCreateEvents = 0;
 	private int loadCreateEventGCThreshhold = 0;
+	private int clientHoldEvents = 0;
 	
 	private FragmentationSet fragmentationSet = null;
+	private final boolean readonly;
 	
 	public Fragmentation(IDataStore dataStore, int fragmentsCacheSize) {
+		this.readonly = (config & READONLY) == READONLY;
 		this.dataStore = dataStore;
 		this.fragmentCacheSize = fragmentsCacheSize;
 		this.loadCreateEventGCThreshhold = fragmentsCacheSize+10;
@@ -79,15 +89,15 @@ public final class Fragmentation {
 			}
 			
 			@Override
-			public Resource createResource(URI uri, String contentType) {
+			public Resource createResource(URI uri, String contentType) {		
 				Fragment fragment = instantiateFragment(uri);
-				fragment.setTrackingModification(true);
+				fragment.setTrackingModification(!readonly);
 				onLoadedOrCreatedFragment();
 				return fragment;
 			}
 
 			@Override
-			protected void demandLoad(Resource resource) throws IOException {
+			protected void demandLoad(Resource resource) throws IOException {				
 				Timer loadFragmentExecTimer = loadFragmentExecTimeStat.timer();
 				super.demandLoad(resource);
 				Fragment fragment = (Fragment)resource;
@@ -140,6 +150,11 @@ public final class Fragmentation {
 		return (Fragment)FragmentationProxyManager.INSTANCE.getProxy(root, (FragmentImpl)root);		
 	}
 	
+	public Fragment getUnprotecterdRootFragment() {
+		Fragment root = (Fragment)resourceSet.getResource(getURI(0l), true);
+		return root;
+	}
+	
 	/**
 	 * Creates a new fragment in the datastore with the next available datastore
 	 * key.
@@ -171,6 +186,12 @@ public final class Fragmentation {
 				Ansi.format(toString(fragment), Color.values()[(int)(fragment.fFragmentId() % Color.values().length)]));
 		
 		return fragment;
+	}
+	
+	protected void onClientHold() {
+		if (clientHoldEvents++ % fragmentCacheSize == 0) {
+			gc();
+		}
 	}
 	
 	public int gc() {
@@ -207,7 +228,7 @@ public final class Fragmentation {
 		return numberOfFragmentsToUnload;
 	}
 
-	private void unloadFragment(Fragment fragment) {
+	public void unloadFragment(Fragment fragment) {
 		try {
 			if (fragment.isModified()) {
 				fragment.save(getLoadOptions());
@@ -253,9 +274,11 @@ public final class Fragmentation {
 	 * fragmentation (incl. deleting fragments)
 	 */
 	protected void onChange(Notification notification) {
-		Object feature = notification.getFeature();
-		if (feature != null && feature instanceof EReference && ((EReference)feature).isContainment()) {
-			recursivlyReactToChange(notification, true);
+		if (!readonly) {
+			Object feature = notification.getFeature();
+			if (feature != null && feature instanceof EReference && ((EReference)feature).isContainment()) {
+				recursivlyReactToChange(notification, true);
+			}
 		}
 	}
 	
@@ -445,6 +468,10 @@ public final class Fragmentation {
 
 	public FragmentationSet getFragmentationSet() {
 		return fragmentationSet;
+	}
+	
+	public ResourceSet getResourceSet() {
+		return resourceSet;
 	}
 
 	protected void setFragmentationSet(FragmentationSet fragmentationSet) {

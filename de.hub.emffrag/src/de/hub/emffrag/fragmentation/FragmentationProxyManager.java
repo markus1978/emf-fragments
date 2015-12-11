@@ -1,7 +1,9 @@
 package de.hub.emffrag.fragmentation;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
@@ -103,25 +105,45 @@ public class FragmentationProxyManager extends ProxyManager {
 	private final static Method fObject_pAllContents;
 	private final static Method resource_getAllContents;
 	private final static Method fragment_pAllContents;
+	private final static Method isNotReplaced;
+	
 	static {
 		try {
 			eObject_eAllContents = EObject.class.getMethod("eAllContents", new Class<?>[]{});
 			fObject_pAllContents = FObjectImpl.class.getMethod("pAllContents", new Class<?>[]{});
 			resource_getAllContents = Resource.class.getMethod("getAllContents", new Class<?>[]{});
 			fragment_pAllContents = FragmentImpl.class.getMethod("pAllContents", new Class<?>[]{});
+			isNotReplaced = FragmentationProxyManager.class.getMethod("isNotReplaced", new Class<?>[]{});
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	public static void isNotReplaced() { 
+		// empty 		
+	}
+	
+	private final static Map<Method, Method> replaceMethodMap = new HashMap<Method, Method>();
 
 	@Override
 	protected Method replace(Method method) {
-		if (EObject.class.isAssignableFrom(method.getDeclaringClass()) && method.getName().equals(eObject_eAllContents.getName())) {
-			method = fObject_pAllContents;
-		} else if (Resource.class.isAssignableFrom(method.getDeclaringClass()) && method.getName().equals(resource_getAllContents.getName())) {
-			method = fragment_pAllContents;
+		Method replacement = replaceMethodMap.get(method);
+		if (replacement == null) {
+			if (EObject.class.isAssignableFrom(method.getDeclaringClass()) && method.getName().equals(eObject_eAllContents.getName())) {
+				replacement = fObject_pAllContents;
+			} else if (Resource.class.isAssignableFrom(method.getDeclaringClass()) && method.getName().equals(resource_getAllContents.getName())) {
+				replacement = fragment_pAllContents;
+			} else {
+				replacement = isNotReplaced;
+			}			
+			replaceMethodMap.put(method, replacement);
 		}
-		return super.replace(method);
+ 		
+		if (replacement == isNotReplaced) {
+			return super.replace(method);
+		} else {
+			return super.replace(replacement);
+		}
 	}
 	
 	

@@ -9,12 +9,13 @@ import org.eclipse.emf.common.util.AbstractTreeIterator;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
 
 import de.hub.emffrag.EmfFragActivator;
 
 public class FObjectImpl extends MinimalEObjectImpl implements FObject {
-
+	
 	@Override
 	public boolean fIsRoot() {
 		return eDirectResource() != null;
@@ -31,7 +32,7 @@ public class FObjectImpl extends MinimalEObjectImpl implements FObject {
 	}
 
 	public FragmentImpl fFragment() {
-		return (FragmentImpl) eResource();
+		return (FragmentImpl)eResource();		
 	}
 	
 	public void fUnload() {
@@ -63,25 +64,27 @@ public class FObjectImpl extends MinimalEObjectImpl implements FObject {
 	 */
 	@Override
 	public void eNotify(Notification notification) {		
-		// We have to ensure that we are not currently loading the
-		// containing fragment 
-		// TODO check for proxy instead, should be sufficient with non eager proxy resolution.
-		//
-		FragmentImpl fragment = (FragmentImpl)eResource();
-		if (fragment != null && fragment.isLoaded() && !fragment.isLoading()) {
-			Fragmentation fFragmentation = fragment.fFragmentation();
-			if (fFragmentation != null) {
-				fFragmentation.onChange(notification);
+		if ((Fragmentation.config & Fragmentation.NO_NOTIFY) == 0) {
+			if ((Fragmentation.config & Fragmentation.READONLY) == 0) {
+				// We have to ensure that we are not currently loading the
+				// containing fragment 
+				// TODO check for proxy instead, should be sufficient with non eager proxy resolution.
+				//
+				FragmentImpl fragment = (FragmentImpl)eResource();
+				if (fragment != null && fragment.isLoaded() && !fragment.isLoading()) {
+					Fragmentation fFragmentation = fragment.fFragmentation();
+					if (fFragmentation != null) {
+						fFragmentation.onChange(notification);
+					}
+				}
 			}
-		}
-		
-		if (super.eNotificationRequired()) {
-			super.eNotify(notification);
+			
+			if (super.eNotificationRequired()) {
+				super.eNotify(notification);
+			}
 		}
 	}
 	
-	
-
 	@Override
 	public boolean eNotificationRequired() {
 		return true;
@@ -94,6 +97,10 @@ public class FObjectImpl extends MinimalEObjectImpl implements FObject {
 	}
 	
 	protected void fAttachToFragment(FragmentImpl fragment) {
+		InternalEObject internalContainer = eInternalContainer();
+		if (internalContainer != null && !internalContainer.eIsProxy() && internalContainer.eDirectResource() != null) {
+			fragment.fHold(((FObject)eContainer()).fFragment().fIsHold());
+		}
 		for (Object freeProxyChildSource: freeProxyChildrenSources) {
 			FragmentationProxyManager.INSTANCE.getProxy(freeProxyChildSource, fragment);
 		}

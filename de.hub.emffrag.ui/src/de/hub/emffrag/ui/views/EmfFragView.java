@@ -213,6 +213,7 @@ public class EmfFragView extends ViewPart {
 		try {
 			URI uri = URI.createURI(uriString);
 			currentFragmentationURI = uri;
+			Fragmentation.config = Fragmentation.READONLY;
 			this.fragmentationSet = new FragmentationSet(100, new IDataStore.IDataStoreFactory() {				
 				@Override
 				public IDataStore createDataStore(URI uri) {

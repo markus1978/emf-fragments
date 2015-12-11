@@ -6,4 +6,6 @@ public interface Fragment extends Resource {
 	public long fFragmentId();
 	public boolean fIsRoot();
 	public Fragmentation fFragmentation();
+	public void fHold(boolean hold);
+	public boolean fIsHold();
 }

@@ -14,14 +14,13 @@ public class FragmentationSet {
 	private final IDataStoreFactory dataStoreFactory;
 	private final int fragmentationCacheSize;
 	
-	public FragmentationSet(IDataStoreFactory dataStoreFactory, int fragmentationCacheSize) {
+	public FragmentationSet(int fragmentationCacheSize, IDataStoreFactory dataStoreFactory) {
 		this.dataStoreFactory = dataStoreFactory;
 		this.fragmentationCacheSize = fragmentationCacheSize;
 	}
 	
-	public FragmentationSet(int fragmentationCacheSize, IDataStoreFactory dataStoreFactory) {
-		this.dataStoreFactory = dataStoreFactory;
-		this.fragmentationCacheSize = fragmentationCacheSize;
+	public FragmentationSet(IDataStoreFactory dataStoreFactory, int fragmentationCacheSize) {
+		this(fragmentationCacheSize, dataStoreFactory);
 	}
 	
 	private Fragmentation createFragmentation(URI uri) {

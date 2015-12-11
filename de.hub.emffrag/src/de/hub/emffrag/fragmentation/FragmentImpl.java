@@ -36,6 +36,10 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 	private final Cache<CacheKey, Proxy> proxyCache = CacheBuilder.newBuilder().weakValues().initialCapacity(500).build();
 	private final long id;
 	private long lastAccessCount = 0;
+
+	private boolean hold = false;
+
+	private final boolean noProxies;
 	
 	/**
 	 * TreeIterators must not work as internal objects that use internal objects internally.
@@ -100,10 +104,12 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 		id = -1;
 		fragmentation = null;
 		lastAccessCount = accessCounter++;
+		noProxies = false;
 	}
 
 	public FragmentImpl(Fragmentation fragmentation, URI uri, long id) {
 		super(uri);
+		this.noProxies = (Fragmentation.config & Fragmentation.NO_PROXIES) == Fragmentation.NO_PROXIES;
 		this.id = id;
 		this.fragmentation = fragmentation;
 		lastAccessCount = accessCounter++;
@@ -121,6 +127,9 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 
 	@Override
 	public boolean fHasProxies() {
+		if (hold) {
+			return true;
+		}
 		proxyCache.cleanUp();
 		ConcurrentMap<CacheKey, Proxy> cacheMap = proxyCache.asMap();
 		return !cacheMap.isEmpty();
@@ -195,6 +204,15 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 			}
 		}
 	}
+	
+	
+
+	@Override
+	protected void unloaded(InternalEObject internalEObject) {
+		if (!noProxies) {
+			super.unloaded(internalEObject);
+		}
+	}
 
 	public Fragmentation fFragmentation() {
 		return fragmentation;
@@ -263,4 +281,14 @@ public class FragmentImpl extends BinaryResourceImpl implements Fragment, ProxyC
 		};
 	}
 	
+	public void fHold(boolean hold) {
+		this.hold = hold;
+		if (this.hold) {
+			fFragmentation().onClientHold();
+		}
+	}
+	
+	public boolean fIsHold() {
+		return hold;
+	}
 }
