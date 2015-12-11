@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated TestMetaModel -->
+      <package
+            uri="http://hu-berlin.de/EmfFrag/4/TestModel/1"
+            class="de.hub.emffrag.tests.model.TestModelPackage"
+            genModel="model/TestMetaModel.genmodel"/>
+   </extension>
+
+</plugin>
