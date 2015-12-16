@@ -9,49 +9,23 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.InternalEObject.EStore;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-
 public class FStore implements EStore {
+	
+	private final Fragmentation fragmentation;
+	
+	public FStore(Fragmentation fragmentation) {
+		super();
+		this.fragmentation = fragmentation;
+	}
+	
+	public Fragmentation fragmentation() {
+		return fragmentation;
+	}
 
-	private final static Cache<FStoreObject, FObject> fObjectCache = CacheBuilder.newBuilder().weakValues().build();
-	protected final static FStore transientObjectsStore = new FStore();
-	
-	protected void registerProxy(FObject fObject) {
-		fObjectCache.put(fObject.fStoreObject(), fObject);
-	}
-	
-	private FObject proxify(FStoreObject fStoreObject) {
-		if (fStoreObject == null) {
-			return null;
-		}
-		FObject fObject = fObjectCache.getIfPresent(fStoreObject);
-		if (fObject == null) {
-			EObject eObject = fStoreObject.eClass().getEPackage().getEFactoryInstance().create(fStoreObject.eClass());
-			fObject = (FObject)eObject;
-			fObject.eSetStore(this);
-			fObject.fSetStoreObject(fStoreObject);
-			registerProxy(fObject);
-		}
-		return fObject;
-	}
-	
-	private Object proxifyValue(EStructuralFeature feature, Object value) {
-		if (feature instanceof EReference) {
-			return proxify((FStoreObject)value);
-		} else {
-			return value;
-		}
-	}
-	
-	private Object deProxyValue(EStructuralFeature feature, Object rawValue) {
-		Object value = (feature instanceof EReference) ? ((FObject)rawValue).fStoreObject() : rawValue;
-		return value;
-	}
-	
 	private void setProtentialContainer(EStructuralFeature feature, Object container, Object contents) {
 		if (feature instanceof EReference && ((EReference)feature).isContainment()) {
 			((FStoreObject)contents).fSetContainer((FStoreObject)container, feature.getFeatureID());
+			fragmentation.registerContainment(feature, (FStoreObject)container, (FStoreObject)contents);
 		}
 	}
 	
@@ -61,14 +35,14 @@ public class FStore implements EStore {
 		Object rawValue = fObject.fStoreObject().fGet(feature);
 
 		Object value = (feature.isMany()) ? ((List<?>)rawValue).get(index) : rawValue;
-		return proxifyValue(feature, value);
+		return fragmentation.proxifyValue(feature, value);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Object set(InternalEObject object, EStructuralFeature feature, int index, Object rawValue) {
 		FObject fObject = (FObject)object;
-		Object value = deProxyValue(feature, rawValue);
+		Object value = fragmentation.deProxyValue(feature, rawValue);
 		Object previousValue =  fObject.fStoreObject().fGet(feature);
 		if (feature.isMany()) {			
 			previousValue = ((List)previousValue).set(index, value);
@@ -77,7 +51,7 @@ public class FStore implements EStore {
 		}
 		
 		setProtentialContainer(feature, fObject.fStoreObject(), value);
-		return proxifyValue(feature, previousValue);		
+		return fragmentation.proxifyValue(feature, previousValue);		
 	}
 
 	@Override
@@ -116,7 +90,7 @@ public class FStore implements EStore {
 	public boolean contains(InternalEObject object, EStructuralFeature feature, Object value) {
 		FObject fObject = (FObject)object;
 		if (feature.isMany()) {
-			return ((List<?>)fObject.fStoreObject().fGet(feature)).contains(deProxyValue(feature, value));
+			return ((List<?>)fObject.fStoreObject().fGet(feature)).contains(fragmentation.deProxyValue(feature, value));
 		}
 		throw new IllegalArgumentException();
 	}
@@ -127,7 +101,7 @@ public class FStore implements EStore {
 	public int indexOf(InternalEObject object, EStructuralFeature feature, Object value) {
 		FObject fObject = (FObject)object;
 		if (feature.isMany()) {
-			return ((List<?>)fObject.fStoreObject().fGet(feature)).indexOf(deProxyValue(feature, value));
+			return ((List<?>)fObject.fStoreObject().fGet(feature)).indexOf(fragmentation.deProxyValue(feature, value));
 		}
 		throw new IllegalArgumentException();
 	}
@@ -136,7 +110,7 @@ public class FStore implements EStore {
 	public int lastIndexOf(InternalEObject object, EStructuralFeature feature, Object value) {
 		FObject fObject = (FObject)object;
 		if (feature.isMany()) {
-			return ((List<?>)fObject.fStoreObject().fGet(feature)).lastIndexOf(deProxyValue(feature, value));
+			return ((List<?>)fObject.fStoreObject().fGet(feature)).lastIndexOf(fragmentation.deProxyValue(feature, value));
 		}
 		throw new IllegalArgumentException();
 	}
@@ -146,7 +120,7 @@ public class FStore implements EStore {
 	public void add(InternalEObject object, EStructuralFeature feature, int index, Object rawValue) {
 		FObject fObject = (FObject)object;
 		if (feature.isMany()) {
-			Object value = deProxyValue(feature, rawValue);
+			Object value = fragmentation.deProxyValue(feature, rawValue);
 			((List)fObject.fStoreObject().fGet(feature)).add(value);
 			setProtentialContainer(feature, fObject.fStoreObject(), value);
 			return;
@@ -172,7 +146,7 @@ public class FStore implements EStore {
 		if (feature.isMany()) {
 			Object value = ((List<?>)fObject.fStoreObject().fGet(feature)).remove(sourceIndex);
 			((List)fObject.fStoreObject().fGet(feature)).add(targetIndex, value);
-			return proxifyValue(feature, value);
+			return fragmentation.proxifyValue(feature, value);
 		}
 		throw new IllegalArgumentException();
 	}
@@ -199,7 +173,7 @@ public class FStore implements EStore {
 			int size = values.size();
 			Object[] result = new Object[size];
 			for (int i = 0; i < size; i++) {
-				result[i] = proxifyValue(feature, values.get(i));				
+				result[i] = fragmentation.proxifyValue(feature, values.get(i));				
 			}
 			return result;
 		}
@@ -214,7 +188,7 @@ public class FStore implements EStore {
 			List<?> values = ((List<?>)fObject.fStoreObject().fGet(feature));
 			int size = values.size();
 			for (int i = 0; i < size; i++) {
-				array[i] = (T)proxifyValue(feature, values.get(i));				
+				array[i] = (T)fragmentation.proxifyValue(feature, values.get(i));				
 			}
 			return array;
 		}
@@ -235,7 +209,7 @@ public class FStore implements EStore {
 	@Override
 	public InternalEObject getContainer(InternalEObject object) {
 		FObject fObject = (FObject)object;
-		return proxify(fObject.fStoreObject().fContainer());
+		return fragmentation. proxify(fObject.fStoreObject().fContainer());
 	}
 
 	@Override
@@ -247,7 +221,7 @@ public class FStore implements EStore {
 	@Override
 	public EObject create(EClass eClass) {
 		FStoreObject fStoreObject = new FStoreObject(eClass);
-		return proxify(fStoreObject);
+		return fragmentation.proxify(fStoreObject);
 	}
 
 }

@@ -1,31 +1,9 @@
 package de.hub.emffrag;
 
-import org.eclipse.emf.ecore.impl.EStoreEObjectImpl;
+import org.eclipse.emf.ecore.EObject;
 
-public class FObject extends EStoreEObjectImpl {
+public interface FObject extends EObject {
 
-	private FStoreObject fStoreObject = null;
+	FStoreObject fStoreObject();
 
-	public FObject() {
-		eSetStore(FStore.transientObjectsStore);
-	}
-
-	public FStoreObject fStoreObject() {
-		if (fStoreObject == null) {
-			if (eClass() == null) {
-				throw new IllegalStateException();
-			}
-			fStoreObject = new FStoreObject(eClass());
-			((FStore) eStore()).registerProxy(this);
-		}
-		return fStoreObject;
-	}
-
-	public void fSetStoreObject(FStoreObject fStoreObject) {
-		this.fStoreObject = fStoreObject;
-	}
-
-	protected boolean eIsCaching() {
-		return false;
-	}
 }

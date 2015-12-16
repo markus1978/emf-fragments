@@ -4,19 +4,61 @@ import org.junit.Test
 import de.hub.emffrag.tests.model.TestModelFactory
 import static org.junit.Assert.*
 import de.hub.emffrag.tests.model.TestModelPackage
+import de.hub.emffrag.FAbstractStoreObject
 
-class EStoreTests {
+class EStoreTests extends AbstractTests {
 	
-	private def contents(String name) {
-		val obj = TestModelFactory.eINSTANCE.createContents
-		obj.name = "Hello"
-		return obj;
-	}
-	
-	private def container(String name) {
-		val obj = TestModelFactory.eINSTANCE.createContainer
-		obj.name = "Hello"
-		return obj;
+	@Test
+	def abstractStoreObjectTests() {
+		val one = 1 << 0
+		val two = 1 << 1
+		val three = 1 << 2
+		
+		val storeObject = new FAbstractStoreObject() {			
+			override protected fieldMask() {
+				return one.bitwiseOr(two).bitwiseOr(three)
+			}
+			
+			override protected lastField() {
+				return three
+			}
+			
+			override protected firstField() {
+				return one
+			}	
+			
+			def Object get(int field) {
+				return getField(field)
+			}		
+			
+			def void set(int field, Object value) {
+				setField(field, value)
+			}
+		}
+		
+		storeObject.set(one, "ONE")
+		assertSame("ONE", storeObject.get(one))
+		
+		storeObject.set(two, "TWO")
+		assertSame("ONE", storeObject.get(one))
+		assertSame("TWO", storeObject.get(two))
+		
+		storeObject.set(three, "THREE")
+		assertSame("ONE", storeObject.get(one))
+		assertSame("TWO", storeObject.get(two))
+		assertSame("THREE", storeObject.get(three))	
+		
+		storeObject.set(three, null)	
+		assertSame("ONE", storeObject.get(one))
+		assertSame("TWO", storeObject.get(two))
+		
+		storeObject.set(two, null)	
+		assertSame("ONE", storeObject.get(one))
+		
+		storeObject.set(one, null)
+		assertNull(storeObject.get(one))
+		assertNull(storeObject.get(two))
+		assertNull(storeObject.get(three))
 	}
 	
 	@Test

@@ -2,11 +2,17 @@ package de.hub.emffrag;
 
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.osgi.framework.BundleContext;
+
+import de.hub.emffrag.datastore.DataStoreImpl;
+import de.hub.emffrag.datastore.IDataStore;
+import de.hub.emffrag.datastore.IDataStore.IDataStoreFactory;
+import de.hub.emffrag.datastore.InMemoryDataStore;
 
 public class EmfFragActivator extends Plugin {
 	
@@ -34,6 +40,13 @@ public class EmfFragActivator extends Plugin {
 		}
 		EPackage.Registry.INSTANCE.put(EcorePackage.eINSTANCE.getNsURI(), EcorePackage.eINSTANCE);
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("ecore", new XMIResourceFactoryImpl());
+		
+		DataStoreImpl.dataStoreFactoryRegistry.put("mem", new IDataStoreFactory() {			
+			@Override
+			public IDataStore createDataStore(URI uri) {
+				return new DataStoreImpl(new InMemoryDataStore(false), uri);
+			}
+		});
 		
 		instance = new EmfFragActivator();
 		instance.init();		

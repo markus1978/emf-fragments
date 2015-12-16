@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
     xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/de.hub.emffrag4.tests/gen-src" modelPluginID="de.hub.emffrag4.tests"
-    modelName="TestMetaModel" rootExtendsClass="de.hub.emffrag.FObject" reflectiveDelegation="true"
-    importerID="org.eclipse.emf.importer.ecore" featureDelegation="Reflective" complianceLevel="8.0"
-    copyrightFields="false" operationReflection="true" importOrganizing="true">
+    modelName="TestMetaModel" rootExtendsInterface="de.hub.emffrag.FObject" rootExtendsClass="de.hub.emffrag.FObjectImpl"
+    reflectiveDelegation="true" importerID="org.eclipse.emf.importer.ecore" featureDelegation="Reflective"
+    complianceLevel="8.0" copyrightFields="false" operationReflection="true" importOrganizing="true">
   <foreignModel>TestMetaModel.ecore</foreignModel>
   <genPackages prefix="TestModel" basePackage="de.hub.emffrag.tests" disposableProviderFactory="true"
       ecorePackage="TestMetaModel.ecore#/">
@@ -15,6 +15,7 @@
     </genClasses>
     <genClasses ecoreClass="TestMetaModel.ecore#//Container">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TestMetaModel.ecore#//Container/contents"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TestMetaModel.ecore#//Container/content"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>

@@ -3,11 +3,13 @@ package de.hub.emffrag;
 public abstract class FAbstractStoreObject {
 	protected int fFlags;
 	private Object fStorage;
-	
+
 	protected abstract int firstField();
+
 	protected abstract int lastField();
+
 	protected abstract int fieldMask();
-	
+
 	protected final boolean hasField(int field) {
 		return (fFlags & field) != 0;
 	}
@@ -112,11 +114,11 @@ public abstract class FAbstractStoreObject {
 		}
 		fFlags &= ~field;
 	}
-	
+
 	protected Object[] fStorage() {
 		return fStorage();
 	}
-	
+
 	protected int fFlags() {
 		return fFlags;
 	}

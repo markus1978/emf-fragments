@@ -13,7 +13,7 @@ public class FStoreObject extends FAbstractStoreObject {
 	private static final int SETTING = 1 << 3;
 	private static final int PROXY = 1 << 4;
 
-	private static final int FIELD_MASK = CONTAINER | CLASS | SETTING | PROXY;
+	private static final int FIELD_MASK = CONTAINER | CLASS | FRAGMENT | SETTING | PROXY;
 
 	protected FStoreObject(EClass eClass) {
 		fSetClass(eClass);
@@ -113,11 +113,25 @@ public class FStoreObject extends FAbstractStoreObject {
 		return FIELD_MASK;
 	}
 
-	public Fragment fFragment() {
+	public Fragment fDirectFragment() {
 		return (Fragment)getField(FRAGMENT);
 	}	
 	
-	protected void fSetFragment(Fragment fragment) {
+	public Fragment fFragment() {
+		Fragment directFragment = fDirectFragment();
+		if (directFragment == null) {
+			FStoreObject container = fContainer();
+			if (container != null) {
+				return container.fFragment();
+			} else {
+				return null;
+			}
+		} else {
+			return directFragment;
+		}
+	}
+	
+	protected void fSetDirectFragment(Fragment fragment) {
 		setField(FRAGMENT, fragment);
 	}
 
