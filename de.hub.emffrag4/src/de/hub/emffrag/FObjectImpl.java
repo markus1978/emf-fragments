@@ -2,12 +2,16 @@ package de.hub.emffrag;
 
 import org.eclipse.emf.ecore.impl.EStoreEObjectImpl;
 
+import de.hub.emffrag.internal.FStoreObject;
+import de.hub.emffrag.internal.FStoreObjectImpl;
+
+
 public class FObjectImpl extends EStoreEObjectImpl implements FObject {
 
 	private FStoreObject fStoreObject = null;
 
 	protected FObjectImpl() {
-		eSetStore(Fragmentation.transientStore());
+		eSetStore(FStore.fINSTANCE);
 	}
 
 	@Override
@@ -16,8 +20,9 @@ public class FObjectImpl extends EStoreEObjectImpl implements FObject {
 			if (eClass() == null) {
 				throw new IllegalStateException();
 			}
-			fStoreObject = new FStoreObject(eClass());
-			((FStore) eStore()).fragmentation().registerNewObject(this);
+			fStoreObject = new FStoreObjectImpl();
+			fStoreObject.fSetClass(eClass());
+			FStore.fINSTANCE.onNewObject(this);
 		}
 		return fStoreObject;
 	}

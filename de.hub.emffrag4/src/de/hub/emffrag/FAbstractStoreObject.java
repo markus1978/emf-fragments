@@ -13,6 +13,14 @@ public abstract class FAbstractStoreObject {
 	protected final boolean hasField(int field) {
 		return (fFlags & field) != 0;
 	}
+	
+	protected final boolean hasFlag(int flag) {
+		return (fFlags & flag) != 0;		
+	}
+	
+	protected final void setFlag(int flag) {
+		fFlags |= flag;
+	}
 
 	protected final Object getField(int field) {
 		if (hasField(field)) {

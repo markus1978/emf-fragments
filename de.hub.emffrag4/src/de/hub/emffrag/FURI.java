@@ -1,5 +1,10 @@
 package de.hub.emffrag;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.emf.ecore.EReference;
+
 public class FURI extends FAbstractStoreObject {
 
 	private static final int ID = 1 << 0;
@@ -9,22 +14,6 @@ public class FURI extends FAbstractStoreObject {
 	private static final int SCHEME = 1 << 4;
 
 	private static final int FIELD_MASK = ID | FRAGMENT | DB | HOST | SCHEME;
-	
-	public FURI(int id) {
-		setField(ID, id);
-	}
-	
-	public FURI(int id, int fragment) {
-		this(id);
-		setField(FRAGMENT, fragment);
-	}
-	
-	public FURI(int id, int fragment, String db, String host, String scheme) {
-		this(id,fragment);
-		setField(DB, db);
-		setField(HOST, host);
-		setField(SCHEME, scheme);
-	}
 	
 	@Override
 	protected int firstField() {
@@ -41,31 +30,34 @@ public class FURI extends FAbstractStoreObject {
 		return FIELD_MASK;
 	}
 	
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + fFlags();
-		result = prime * result + ((fStorage() == null) ? 0 : fStorage().hashCode());
-		return result;
-	}
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		FAbstractStoreObject other = (FAbstractStoreObject) obj;
-		if (fFlags() != other.fFlags())
-			return false;
-		if (fStorage() == null) {
-			if (other.fStorage() != null)
-				return false;
-		} else if (!fStorage().equals(other.fStorage()))
-			return false;
-		return true;
+	public int fragment() {
+		return (int) getField(FRAGMENT);
 	}
 	
+	public void setFragment(int id) {
+		setField(FRAGMENT, id);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Integer> segment() {
+		return (List<Integer>) getField(ID);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void addFeatureToSegment(int featureID, int slotIndex) {
+		List<Integer> segment = null;
+		if (hasField(ID)) {
+			segment = (List<Integer>)getField(ID);
+		} else {
+			segment = new ArrayList<Integer>();
+			setField(ID, segment);
+		}
+ 		
+		segment.add(featureID);
+		segment.add(slotIndex);
+	}
+	
+	public void addFeatureToSegment(EReference feature, int slotIndex) {
+		addFeatureToSegment(feature.getFeatureID(), slotIndex);
+	}
 }
