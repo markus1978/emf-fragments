@@ -21,6 +21,7 @@ public abstract class ObjectInputStream {
 	private final BufferedInputStream in;
 	private final byte[] buffer;
 	private int index;
+	private int bufferLength = 0;
 	
 	private final Map<Integer, FStoreObject> internalObjectIDMap = new HashMap<Integer, FStoreObject>();
 
@@ -33,9 +34,10 @@ public abstract class ObjectInputStream {
 	protected abstract EPackage getPackage(int packageID);
 
 	private byte readByte() {
-		if (buffer.length <= index) {
+		if (bufferLength <= index) {
 			try {
-				if (in.read(buffer) <= 0) {
+				bufferLength = in.read(buffer);
+				if (bufferLength <= 0) {
 					throw new RuntimeException("Unexpected end of stream.");
 				}
 				index = 0;
@@ -75,6 +77,14 @@ public abstract class ObjectInputStream {
 		return new String(stringBytes.array());
 	}
 
+	private FURI readURI(int size) {
+		FURI uri = new FURI();
+		uri.setFragment(readInt());
+		for (int i = 1; i < size; i = i + 2) {
+			uri.addFeatureToSegment(readInt(), readInt());
+		}
+		return uri;
+	}
 
 	private Object readValue(EStructuralFeature feature) {
 		if (feature instanceof EReference) {
@@ -87,12 +97,7 @@ public abstract class ObjectInputStream {
 					int objectId = readInt();
 					return getObject(objectId, null);
 				} else {
-					FURI uri = new FURI();
-					uri.setFragment(readInt());
-					for (int i = 1; i < idSize; i = i + 2) {
-						uri.addFeatureToSegment(readInt(), readInt());
-					}
-					return getProxy(uri);
+					return getProxy(readURI(idSize));
 				}
 			}
 		} else {
@@ -143,7 +148,18 @@ public abstract class ObjectInputStream {
 	}
 
 	public FStoreObject readFragment() {
-		return readObject();			
+		int firstContainerInt = readInt();
+		if (firstContainerInt != -1) {
+			EPackage containerPackage = getPackage(firstContainerInt);
+			EClass containerClass = (EClass)containerPackage.getEClassifiers().get(readInt());
+			EStructuralFeature containingFeature = containerClass.getEStructuralFeature(readInt());
+			FURI containerURI = readURI(readInt());
+			FStoreObject root = readObject();
+			root.fSetContainer(getProxy(containerURI), (EReference)containingFeature);
+			return root;
+		} else {
+			return readObject();
+		}
 	}
 
 	public void close() {

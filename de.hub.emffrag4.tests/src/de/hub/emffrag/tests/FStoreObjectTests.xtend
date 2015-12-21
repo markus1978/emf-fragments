@@ -6,6 +6,23 @@ import static de.hub.emffrag.tests.FStoreObjectTestModelParser.*
 import static org.junit.Assert.*
 
 class FStoreObjectTests extends AbstractTests {
+	
+	public static val String complexFragmentText = '''
+		Container f1 {
+			contents = Contents c2;
+			contents = Container c3 {
+				content = Contents c4;
+				ref referenced = c3
+			}
+			content = Container c5 {
+				contents = Contents c6;
+				contents = Contents c7;
+				ref referenceds = f1
+				ref referenceds = c3
+			}
+		}
+	'''
+	
 	@Test
 	def emptyRootAndContainmentTest() {
 		val object = create("Contents;")
@@ -90,17 +107,17 @@ class FStoreObjectTests extends AbstractTests {
 		''')
 		val leaf = withName("leaf")		
 			
-		assertFalse(container.fModified)
-		assertFalse(leaf.fModified)
-		
-		container.fMarkModified(true)
 		assertTrue(container.fModified)
 		assertTrue(leaf.fModified)
 		
-					
-		leaf.fMarkModified(false)
+		container.fMarkModified(false)
 		assertFalse(container.fModified)
 		assertFalse(leaf.fModified)
+		
+					
+		leaf.fMarkModified(true)
+		assertTrue(container.fModified)
+		assertTrue(leaf.fModified)
 	}
 	
 	@Test

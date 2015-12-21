@@ -58,6 +58,11 @@ class SerializationTests extends AbstractTests {
 	}
 	
 	@Test
+	def attributeTest() {
+		performSaveLoadTest(create('''Container f1;'''))
+	}
+	
+	@Test
 	def containmentTest() {
 		performSaveLoadTest(create('''
 			Container {
@@ -79,20 +84,6 @@ class SerializationTests extends AbstractTests {
 	
 	@Test
 	def complexTest() {
-		performSaveLoadTest(create('''
-			Container f1 {
-				contents = Contents c2;
-				contents = Container c3 {
-					content = Contents c4;
-					ref referenced = c3
-				}
-				content = Container c5 {
-					contents = Contents c6;
-					contents = Contents c7;
-					ref referenceds = f1
-					ref referenceds = c3
-				}
-			}
-		'''))
+		performSaveLoadTest(create(FStoreObjectTests.complexFragmentText))
 	}
 }

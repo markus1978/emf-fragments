@@ -5,7 +5,6 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import de.hub.emffrag.FURI;
-import de.hub.emffrag.Fragmentation;
 
 public interface FStoreObject {
 
@@ -20,8 +19,8 @@ public interface FStoreObject {
 	public boolean fIsRoot();
 	public FStoreObject fRoot();
 	public int fFragmentID();
-	public void fSetFragmentID(Fragmentation fragmentation, int fragmentID);
-	public Fragmentation fFragmentation();
+	public void fSetFragmentID(FStoreFragmentation fragmentation, int fragmentID);
+	public FStoreFragmentation fFragmentation();
 	
 	public void fSetContainer(FStoreObject container, EReference containingFeature);
 	public FStoreObject fContainer();

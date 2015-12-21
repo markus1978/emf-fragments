@@ -23,6 +23,7 @@ public class FObjectImpl extends EStoreEObjectImpl implements FObject {
 			}
 			fStoreObject = new FStoreObjectImpl();
 			fStoreObject.fSetClass(eClass());
+			fStoreObject.fMarkModified(true);
 			FStore.fINSTANCE.onNewObject(this);
 		}
 		return fStoreObject;

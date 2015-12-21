@@ -101,6 +101,15 @@ public abstract class ObjectOutputStream {
 			writeByte(b);
 		}
 	}
+	
+	private void writeURI(FStoreObject fStoreObject) {
+		FURI uri = fStoreObject.fCreateURI();
+		writeInt(uri.segment().size() + 1);
+		writeInt(uri.fragment());
+		for (int segmentPart: uri.segment()) {
+			writeInt(segmentPart);
+		}
+	}
 
 	/** 
 	 * Write a single object, never a list of objects.
@@ -113,12 +122,7 @@ public abstract class ObjectOutputStream {
 				writeObject(fStoreObject);
 			} else {				
 				if (fStoreObject.fFragmentID() != thisFragmentID) {
-					FURI uri = fStoreObject.fCreateURI();
-					writeInt(uri.segment().size() + 1);
-					writeInt(uri.fragment());
-					for (int segmentPart: uri.segment()) {
-						writeInt(segmentPart);
-					}
+					writeURI(fStoreObject);
 				} else {
 					writeInt(-1);
 					writeInt(getObjectId(fStoreObject));
@@ -164,6 +168,18 @@ public abstract class ObjectOutputStream {
 
 	public void writeFragment(FStoreObject object) {
 		thisFragmentID = object.fFragmentID();
+		// write container info
+		FStoreObject fContainer = object.fContainer();
+		if (fContainer != null) {
+			EClass eClass = fContainer.fClass();
+			writeInt(getPackageID(eClass.getEPackage()));
+			writeInt(eClass.getClassifierID());
+			writeInt(object.fContainingFeature().getFeatureID());
+			writeURI(fContainer);
+		} else {
+			writeInt(-1);
+		}
+		
 		writeObject(object);
 	}
 	

@@ -21,7 +21,7 @@ public class FURI extends FAbstractStoreObject {
 	
 	@Override
 	protected int firstField() {
-		return FRAGMENT;
+		return SEGMENT;
 	}
 
 	@Override

@@ -269,6 +269,7 @@ public class FStoreObjectTestModelParser extends TestModelParser {
 	protected override create(EClass eClass) {
 		val result = new FStoreObjectImpl
 		result.fSetClass(eClass)
+		result.fMarkModified(true)
 		return result
 	}
 	

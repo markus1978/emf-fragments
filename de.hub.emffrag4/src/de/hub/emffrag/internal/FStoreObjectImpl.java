@@ -12,7 +12,6 @@ import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.FluentIterable;
 
 import de.hub.emffrag.FURI;
-import de.hub.emffrag.Fragmentation;
 import de.hub.emffrag.FragmentationUtil;
 
 public class FStoreObjectImpl implements FStoreObject {
@@ -26,7 +25,7 @@ public class FStoreObjectImpl implements FStoreObject {
 	private FURI proxyURI = null;
 	private Object[] settings = null;
 	
-	private Fragmentation fragmentation;
+	private FStoreFragmentation fragmentation;
 	
 	private int flags = 0;
 	
@@ -102,7 +101,7 @@ public class FStoreObjectImpl implements FStoreObject {
 	}
 
 	@Override
-	public void fSetFragmentID(Fragmentation fragmentation, int fragmentID) {
+	public void fSetFragmentID(FStoreFragmentation fragmentation, int fragmentID) {
 		if (fIsRoot()) {
 			this.fragmentID = fragmentID;
 			this.fragmentation = fragmentation;
@@ -112,7 +111,7 @@ public class FStoreObjectImpl implements FStoreObject {
 	}
 
 	@Override
-	public Fragmentation fFragmentation() {
+	public FStoreFragmentation fFragmentation() {
 		if (fIsRoot()) {
 			return fragmentation;
 		} else {
@@ -151,7 +150,7 @@ public class FStoreObjectImpl implements FStoreObject {
 				newContainer.fFragmentation().onAddToFragmentation(this);
 			}
 		} else {
-			Fragmentation oldFragmentation = fFragmentation();			
+			FStoreFragmentation oldFragmentation = fFragmentation();			
 			container = null;
 			if (oldFragmentation != null) {
 				oldFragmentation.onRemoveFromFragmentation(this);
@@ -173,7 +172,11 @@ public class FStoreObjectImpl implements FStoreObject {
 	@SuppressWarnings("unchecked")
 	@Override
 	public FURI fCreateURI() {
-		FURI uri = new FURI();		
+		if (fIsProxy()) {
+			return fProxyURI();
+		}
+		FURI uri = new FURI();	
+		uri.setFragment(fFragmentID());
 		FStoreObject i = this;
 		while (!i.fIsRoot()) {
 			EReference fContainingFeature = i.fContainingFeature();

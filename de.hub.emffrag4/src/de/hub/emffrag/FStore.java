@@ -43,7 +43,7 @@ public class FStore implements EStore {
 		}
 	}
 	
-	private Object deProxyValue(EStructuralFeature feature, Object rawValue) {
+	private Object deProxifyValue(EStructuralFeature feature, Object rawValue) {
 		Object value = (feature instanceof EReference) ? ((FObject)rawValue).fStoreObject() : rawValue;
 		return value;
 	}
@@ -72,7 +72,7 @@ public class FStore implements EStore {
 	@Override
 	public Object set(InternalEObject object, EStructuralFeature feature, int index, Object rawValue) {
 		FObject fObject = (FObject)object;
-		Object value = deProxyValue(feature, rawValue);
+		Object value = deProxifyValue(feature, rawValue);
 		Object previousValue =  fObject.fStoreObject().fGet(feature);
 		if (feature.isMany()) {			
 			previousValue = ((List)previousValue).set(index, value);
@@ -122,7 +122,7 @@ public class FStore implements EStore {
 	public boolean contains(InternalEObject object, EStructuralFeature feature, Object value) {
 		FObject fObject = (FObject)object;
 		if (feature.isMany()) {
-			return ((List<?>)fObject.fStoreObject().fGet(feature)).contains(deProxyValue(feature, value));
+			return ((List<?>)fObject.fStoreObject().fGet(feature)).contains(deProxifyValue(feature, value));
 		}
 		throw new IllegalArgumentException();
 	}
@@ -133,7 +133,7 @@ public class FStore implements EStore {
 	public int indexOf(InternalEObject object, EStructuralFeature feature, Object value) {
 		FObject fObject = (FObject)object;
 		if (feature.isMany()) {
-			return ((List<?>)fObject.fStoreObject().fGet(feature)).indexOf(deProxyValue(feature, value));
+			return ((List<?>)fObject.fStoreObject().fGet(feature)).indexOf(deProxifyValue(feature, value));
 		}
 		throw new IllegalArgumentException();
 	}
@@ -142,7 +142,7 @@ public class FStore implements EStore {
 	public int lastIndexOf(InternalEObject object, EStructuralFeature feature, Object value) {
 		FObject fObject = (FObject)object;
 		if (feature.isMany()) {
-			return ((List<?>)fObject.fStoreObject().fGet(feature)).lastIndexOf(deProxyValue(feature, value));
+			return ((List<?>)fObject.fStoreObject().fGet(feature)).lastIndexOf(deProxifyValue(feature, value));
 		}
 		throw new IllegalArgumentException();
 	}
@@ -152,7 +152,7 @@ public class FStore implements EStore {
 	public void add(InternalEObject object, EStructuralFeature feature, int index, Object rawValue) {
 		FObject fObject = (FObject)object;
 		if (feature.isMany()) {
-			Object value = deProxyValue(feature, rawValue);
+			Object value = deProxifyValue(feature, rawValue);
 			((List)fObject.fStoreObject().fGet(feature)).add(value);
 			setProtentialContainer(feature, fObject.fStoreObject(), value);
 			fObject.fStoreObject().fMarkModified(true);
@@ -258,6 +258,7 @@ public class FStore implements EStore {
 	public EObject create(EClass eClass) {
 		FStoreObject fStoreObject = new FStoreObjectImpl();
 		fStoreObject.fSetClass(eClass);
+		fStoreObject.fMarkModified(true);
 		return proxify(fStoreObject);
 	}
 
