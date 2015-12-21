@@ -11,7 +11,8 @@ public class FObjectImpl extends EStoreEObjectImpl implements FObject {
 	private FStoreObject fStoreObject = null;
 
 	protected FObjectImpl() {
-		eSetStore(FStore.fINSTANCE);
+		super(FStore.fINSTANCE);
+		eContainer = null;
 	}
 
 	@Override
@@ -29,6 +30,7 @@ public class FObjectImpl extends EStoreEObjectImpl implements FObject {
 
 	protected void fSetStoreObject(FStoreObject fStoreObject) {
 		this.fStoreObject = fStoreObject;
+		eContainer = EUNINITIALIZED_CONTAINER;
 	}
 
 	protected boolean eIsCaching() {

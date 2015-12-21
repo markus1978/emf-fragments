@@ -2,15 +2,30 @@
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="model" nsURI="http://hu-berlin.de/EmfFrag/4/TestModel/1" nsPrefix="tm">
   <eClassifiers xsi:type="ecore:EClass" name="Contents" eSuperTypes="#//AbstractClass">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="crossReferenced" eType="#//Contents"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="referenced" eType="#//Contents"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="referenceds" upperBound="-1"
+        eType="#//Contents"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="AbstractClass">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Container" eSuperTypes="#//Contents">
     <eStructuralFeatures xsi:type="ecore:EReference" name="contents" upperBound="-1"
         eType="#//Contents" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="content" eType="#//Contents"
         containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="fragments" upperBound="-1"
+        eType="#//Contents" containment="true">
+      <eAnnotations source="de.hub.emffrag" references="#//Container/contents">
+        <details key="fragments" value="true"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="fragment" eType="#//Contents"
+        containment="true">
+      <eAnnotations source="de.hub.emffrag">
+        <details key="fragments" value="true"/>
+      </eAnnotations>
+    </eStructuralFeatures>
   </eClassifiers>
 </ecore:EPackage>

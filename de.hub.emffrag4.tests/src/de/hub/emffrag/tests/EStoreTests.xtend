@@ -1,10 +1,13 @@
 package de.hub.emffrag.tests
 
-import org.junit.Test
-import de.hub.emffrag.tests.model.TestModelFactory
-import static org.junit.Assert.*
-import de.hub.emffrag.tests.model.TestModelPackage
 import de.hub.emffrag.FAbstractStoreObject
+import de.hub.emffrag.tests.model.Container
+import de.hub.emffrag.tests.model.Contents
+import de.hub.emffrag.tests.model.TestModelPackage
+import org.junit.Test
+
+import static de.hub.emffrag.tests.FObjectTestModelParser.*
+import static org.junit.Assert.*
 
 class EStoreTests extends AbstractTests {
 	
@@ -63,10 +66,9 @@ class EStoreTests extends AbstractTests {
 	
 	@Test
 	def simpleTest() {
-		val contents = TestModelFactory.eINSTANCE.createContents
-		contents.name = "Hello"
+		val Contents contents = create("Contents Hello;")
 		
-		assertSame("Hello", contents.name)
+		assertEquals("Hello", contents.name)
 		assertNull(contents.eContainer)
 	}
 	
@@ -84,6 +86,8 @@ class EStoreTests extends AbstractTests {
 	@Test
 	def singleContainmentTest() {
 		val contents = contents("contents")
+		assertNull(contents.eContainer)
+		
 		val container = container("container")
 		container.content = contents
 		
@@ -99,6 +103,42 @@ class EStoreTests extends AbstractTests {
 		assertNotNull(newContents.eContainer)
 		assertSame(container, newContents.eContainer)
 		assertSame(TestModelPackage.eINSTANCE.container_Content, newContents.eContainingFeature)
+	}
+	
+	@Test
+	def singleManyContainmentTest() {
+		val contents = contents("contents")
+		val container = container("container")
+		container.contents += contents
+		
+		assertNotNull(contents.eContainer)
+		assertSame(container, contents.eContainer)
+		assertSame(TestModelPackage.eINSTANCE.container_Contents, contents.eContainingFeature)
+		assertSame(1, container.contents.size)
+		
+		val newContents = contents("new contents")
+		container.contents.set(0, newContents)
+		
+		assertNull(contents.eContainer)
+		assertNull(contents.eContainingFeature)
+		assertNotNull(newContents.eContainer)
+		assertSame(container, newContents.eContainer)
+		assertSame(TestModelPackage.eINSTANCE.container_Contents, newContents.eContainingFeature)
+	}
+	
+	@Test
+	def complexModelTest() {
+		val Container root = create('''
+			Container c1 {
+				contents = Container c2 {
+					content = Contents c3;
+				}
+				content = Contents c4;
+			}
+		''')		
+		
+		assertSame(3, root.eAllContents.size)	
+		assertSame(3, root.fStoreObject.fAllContents.size)
 	}
 	
 }

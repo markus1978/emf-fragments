@@ -7,13 +7,17 @@ import org.eclipse.emf.ecore.EReference;
 
 public class FURI extends FAbstractStoreObject {
 
-	private static final int ID = 1 << 0;
+	private static final int SEGMENT = 1 << 0;
 	private static final int FRAGMENT = 1 << 1;
 	private static final int DB = 1 << 2;
 	private static final int HOST = 1 << 3;
 	private static final int SCHEME = 1 << 4;
 
-	private static final int FIELD_MASK = ID | FRAGMENT | DB | HOST | SCHEME;
+	private static final int FIELD_MASK = SEGMENT | FRAGMENT | DB | HOST | SCHEME;
+	
+	public FURI() {
+		setField(SEGMENT, new ArrayList<Integer>());
+	}
 	
 	@Override
 	protected int firstField() {
@@ -40,18 +44,12 @@ public class FURI extends FAbstractStoreObject {
 	
 	@SuppressWarnings("unchecked")
 	public List<Integer> segment() {
-		return (List<Integer>) getField(ID);
+		return (List<Integer>) getField(SEGMENT);
 	}
 	
 	@SuppressWarnings("unchecked")
 	public void addFeatureToSegment(int featureID, int slotIndex) {
-		List<Integer> segment = null;
-		if (hasField(ID)) {
-			segment = (List<Integer>)getField(ID);
-		} else {
-			segment = new ArrayList<Integer>();
-			setField(ID, segment);
-		}
+		List<Integer> segment = (List<Integer>) getField(SEGMENT);
  		
 		segment.add(featureID);
 		segment.add(slotIndex);

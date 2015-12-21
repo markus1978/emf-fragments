@@ -16,8 +16,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import de.hub.emffrag.FURI;
 import de.hub.emffrag.FragmentationUtil;
 
-public class ObjectOutputStream {
-	private final List<EPackage> packages = new ArrayList<EPackage>();
+public abstract class ObjectOutputStream {
 	private final Map<FStoreObject, Integer> internalObjectIDMap = new HashMap<FStoreObject, Integer>();
 	private final boolean withUnload;
 
@@ -32,7 +31,7 @@ public class ObjectOutputStream {
 	public ObjectOutputStream(java.io.OutputStream out, boolean withUnload) {
 		this.out = new BufferedOutputStream(out, 1000);
 		this.buffer = new byte[1000];
-		this.withUnload = true;
+		this.withUnload = withUnload;
 	}
 	
 	private int getObjectId(FStoreObject fStoreObject) {
@@ -110,14 +109,11 @@ public class ObjectOutputStream {
 		if (feature instanceof EReference) {
 			EReference reference = (EReference) feature;
 			FStoreObject fStoreObject = (FStoreObject) value;
-			if (reference.isContainment() && FragmentationUtil.isFragmenting(reference)) {
+			if (reference.isContainment() && !FragmentationUtil.isFragmenting(reference)) {
 				writeObject(fStoreObject);
-				if (withUnload) {
-					fStoreObject.fUnload();
-				}
 			} else {				
 				if (fStoreObject.fFragmentID() != thisFragmentID) {
-					FURI uri = fStoreObject.fUnload();
+					FURI uri = fStoreObject.fCreateURI();
 					writeInt(uri.segment().size() + 1);
 					writeInt(uri.fragment());
 					for (int segmentPart: uri.segment()) {
@@ -139,7 +135,7 @@ public class ObjectOutputStream {
 	private void writeObject(FStoreObject object) {
 		writeInt(getObjectId(object)); // write object id for intra fragment references
 		EClass eClass = object.fClass();
-		writeInt(packages.indexOf(eClass.getEPackage()));
+		writeInt(getPackageID(eClass.getEPackage()));
 		writeInt(eClass.getClassifierID());
 		List<EStructuralFeature> features = new ArrayList<EStructuralFeature>();
 		for (EStructuralFeature feature : eClass.getEAllStructuralFeatures()) {
@@ -160,10 +156,16 @@ public class ObjectOutputStream {
 				writeValue(feature, object.fGet(feature));
 			}
 		}
+		
+		if (withUnload) {
+			object.fUnload();
+		}
 	}
 
 	public void writeFragment(FStoreObject object) {
 		thisFragmentID = object.fFragmentID();
 		writeObject(object);
 	}
+	
+	protected abstract int getPackageID(EPackage pkg);
 }

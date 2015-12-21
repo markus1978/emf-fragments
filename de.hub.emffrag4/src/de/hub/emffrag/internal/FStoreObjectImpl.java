@@ -1,5 +1,6 @@
 package de.hub.emffrag.internal;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -30,11 +31,12 @@ public class FStoreObjectImpl implements FStoreObject {
 	private int flags = 0;
 	
 	public FStoreObjectImpl(FURI uri) {
+		this();
 		this.proxyURI = uri;
 	}
 	
 	public FStoreObjectImpl() {
-		
+		flags |= ROOT;
 	}
 	
 	@Override
@@ -49,23 +51,23 @@ public class FStoreObjectImpl implements FStoreObject {
 
 	@Override
 	public Object fGet(EStructuralFeature feature) {
-		return fGet(feature.getFeatureID());
+		Object value = settings()[feature.getFeatureID()];
+		if (value == null && feature.isMany()) {
+			value = new ArrayList<Object>();
+			fSet(feature, value);
+		}
+		return value;
 	}
-	
-	@Override
-	public Object fGet(int featureID) {
-		return settings()[featureID];
-	}
-
 
 	@Override
 	public void fSet(EStructuralFeature feature, Object value) {
 		settings()[feature.getFeatureID()] = value;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public boolean fIsSet(EStructuralFeature feature) {
-		return settings != null && fGet(feature) != null;
+		return fGet(feature) != null && (!feature.isMany() || !((List)fGet(feature)).isEmpty());
 	}
 
 	@Override
@@ -141,6 +143,8 @@ public class FStoreObjectImpl implements FStoreObject {
 			container = newContainer;		
 			if (FragmentationUtil.isFragmenting(containingFeature)) {
 				flags |= ROOT;
+			} else {
+				flags &= ~ROOT;
 			}
 			
 			if (isAddedToFragmentation) {
@@ -149,7 +153,9 @@ public class FStoreObjectImpl implements FStoreObject {
 		} else {
 			Fragmentation oldFragmentation = fFragmentation();			
 			container = null;
-			oldFragmentation.onRemoveFromFragmentation(this);
+			if (oldFragmentation != null) {
+				oldFragmentation.onRemoveFromFragmentation(this);
+			}
 			flags |= ROOT;				
 		}
 	}
@@ -166,7 +172,7 @@ public class FStoreObjectImpl implements FStoreObject {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public FURI fUnload() {
+	public FURI fCreateURI() {
 		FURI uri = new FURI();		
 		FStoreObject i = this;
 		while (!i.fIsRoot()) {
@@ -178,10 +184,17 @@ public class FStoreObjectImpl implements FStoreObject {
 			}
 			i = i.fContainer();
 		}
+		return uri;
+	}
+
+	@Override
+	public FURI fUnload() {
+		FURI uri = fCreateURI();
 		
 		settings = null;
 		container = null;
 		flags = 0;
+		proxyURI = uri;
 		
 		return uri;
 	}
@@ -196,17 +209,24 @@ public class FStoreObjectImpl implements FStoreObject {
 	}
 	
 	@Override
-	public void fMarkModified() {
+	public void fMarkModified(boolean modified) {
 		if (fIsRoot()) {
-			flags |= MODIFIED;	
+			if (modified) {
+				flags |= MODIFIED;	
+			} else {
+				flags &= ~MODIFIED;
+			}
+				
 		} else {
-			fRoot().fMarkModified();
+			fRoot().fMarkModified(modified);
 		}
 	}
 	
 	private Object[] settings() {
-		int size = fClass().getFeatureCount();
-		settings = new Object[size];		
+		if (settings == null) {
+			int size = fClass().getFeatureCount();
+			settings = new Object[size];
+		}
 		return settings;
 	}
 	
@@ -233,8 +253,7 @@ public class FStoreObjectImpl implements FStoreObject {
 							while (currentSettingIndex < fSetting.length) {
 								Object nextValue = fSetting[currentSettingIndex];
 								if (nextValue != null) {
-									EStructuralFeature nextFeature = fClass()
-											.getEStructuralFeature(currentSettingIndex);
+									EStructuralFeature nextFeature = fClass().getEStructuralFeature(currentSettingIndex);
 									if (nextFeature instanceof EReference && ((EReference) nextFeature).isContainment()) {
 										currentFeature = (EReference) nextFeature;
 										currentFeatureValue = nextValue;
@@ -254,7 +273,7 @@ public class FStoreObjectImpl implements FStoreObject {
 									currentFeatureIndex++;
 									return (FStoreObject) result;
 								} else {
-									currentSettingIndex = 0;
+									currentFeatureIndex = 0;
 									currentFeature = null;
 									currentFeatureValue = null;
 									return computeNext();

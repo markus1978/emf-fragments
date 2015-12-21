@@ -21,7 +21,7 @@ public class FStore implements EStore {
 	
 	private final Cache<FStoreObject, FObjectImpl> fObjectCache = CacheBuilder.newBuilder().weakValues().build();
 	
-	private FObjectImpl proxify(FStoreObject fStoreObject) {
+	public FObjectImpl proxify(FStoreObject fStoreObject) {
 		if (fStoreObject == null) {
 			return null;
 		}
@@ -81,7 +81,7 @@ public class FStore implements EStore {
 		}
 		
 		setProtentialContainer(feature, fObject.fStoreObject(), value);
-		fObject.fStoreObject().fMarkModified();
+		fObject.fStoreObject().fMarkModified(true);
 		return proxifyValue(feature, previousValue);		
 	}
 
@@ -96,7 +96,7 @@ public class FStore implements EStore {
 		FObject fObject = (FObject)object;
 		Object oldValue = fObject.fStoreObject().fGet(feature);
 		fObject.fStoreObject().fUnSet(feature);
-		fObject.fStoreObject().fMarkModified();
+		fObject.fStoreObject().fMarkModified(true);
 		setProtentialContainer(feature, null, oldValue);
 	}
 
@@ -155,7 +155,7 @@ public class FStore implements EStore {
 			Object value = deProxyValue(feature, rawValue);
 			((List)fObject.fStoreObject().fGet(feature)).add(value);
 			setProtentialContainer(feature, fObject.fStoreObject(), value);
-			fObject.fStoreObject().fMarkModified();
+			fObject.fStoreObject().fMarkModified(true);
 			return;
 		}		
 		throw new IllegalArgumentException();
@@ -167,7 +167,7 @@ public class FStore implements EStore {
 		if (feature.isMany()) {
 			Object oldValue = ((List<?>)fObject.fStoreObject().fGet(feature)).remove(index);
 			setProtentialContainer(feature, null, oldValue);
-			fObject.fStoreObject().fMarkModified();
+			fObject.fStoreObject().fMarkModified(true);
 			return oldValue;
 		}
 		throw new IllegalArgumentException();
@@ -180,7 +180,7 @@ public class FStore implements EStore {
 		if (feature.isMany()) {
 			Object value = ((List<?>)fObject.fStoreObject().fGet(feature)).remove(sourceIndex);
 			((List)fObject.fStoreObject().fGet(feature)).add(targetIndex, value);
-			fObject.fStoreObject().fMarkModified();
+			fObject.fStoreObject().fMarkModified(true);
 			return proxifyValue(feature, value);
 		}
 		throw new IllegalArgumentException();
@@ -195,7 +195,7 @@ public class FStore implements EStore {
 				setProtentialContainer(feature, null, value);
 			}
 			values.clear();
-			fObject.fStoreObject().fMarkModified();
+			fObject.fStoreObject().fMarkModified(true);
 			return;
 		}
 		throw new IllegalArgumentException();

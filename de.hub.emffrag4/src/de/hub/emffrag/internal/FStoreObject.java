@@ -13,7 +13,6 @@ public interface FStoreObject {
 	public void fSetClass(EClass eClass);
 	
 	public Object fGet(EStructuralFeature feature);
-	public Object fGet(int featureID);
 	public void fSet(EStructuralFeature feature, Object value);
 	public boolean fIsSet(EStructuralFeature feature);
 	public void fUnSet(EStructuralFeature feature);
@@ -29,11 +28,12 @@ public interface FStoreObject {
 	public EReference fContainingFeature();
 	
 	public boolean fIsProxy();
+	public FURI fCreateURI();
 	public FURI fProxyURI();
 	public FURI fUnload();
 	
 	public boolean fModified();
-	public void fMarkModified();
+	public void fMarkModified(boolean modified);
 	
 	public Iterable<FStoreObject> fContents();
 	public Iterable<FStoreObject> fAllContents();

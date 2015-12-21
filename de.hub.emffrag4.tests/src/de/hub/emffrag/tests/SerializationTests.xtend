@@ -1,59 +1,98 @@
 package de.hub.emffrag.tests
 
-import org.eclipse.emf.ecore.EObject
+import de.hub.emffrag.FObject
+import de.hub.emffrag.FStore
+import de.hub.emffrag.internal.ObjectInputStream
+import de.hub.emffrag.internal.ObjectOutputStream
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import org.eclipse.emf.ecore.util.EcoreUtil
+
+import static org.junit.Assert.*
+import de.hub.emffrag.tests.model.TestModelPackage
+import java.util.List
+import org.eclipse.emf.ecore.EPackage
+import org.junit.Test
+
+import static de.hub.emffrag.tests.FObjectTestModelParser.*
+import org.junit.Before
 
 class SerializationTests extends AbstractTests {
 	
-	private def performSaveLoadTest(EObject model) {
+	@Before
+	def void before() {
+		TestModelParser::clearNames		
+	}
 		
+	private def performSaveLoadTest(FObject model) {
+		val List<EPackage> thePackages = newArrayList(TestModelPackage.eINSTANCE)
+		val byteArrayOutputStream = new ByteArrayOutputStream
+		val objectOutputStream = new ObjectOutputStream(byteArrayOutputStream, false) {			
+			override protected getPackageID(EPackage pkg) {
+				return thePackages.indexOf(pkg)
+			}			
+		}
+		objectOutputStream.writeFragment(model.fStoreObject);
+		objectOutputStream.close;
+		
+		val byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray)
+		val objectInputStream = new ObjectInputStream(byteArrayInputStream) {			
+			override protected getPackage(int packageID) {
+				return thePackages.get(packageID)
+			}			
+		}
+		
+		val readCopy = FStore.fINSTANCE.proxify(objectInputStream.readFragment)
+		assertFalse(readCopy.fStoreObject.fIsProxy)
+		assertFalse(model.fStoreObject.fIsProxy)
+		assertTrue(readCopy.fStoreObject.fAllContents.forall[!it.fIsProxy])
+		assertTrue(model.fStoreObject.fAllContents.forall[!it.fIsProxy])
+		
+		assertSame(model.fStoreObject.fAllContents.size, readCopy.fStoreObject.fAllContents.size)
+		assertTrue(EcoreUtil.equals(model, readCopy))
 	}
 	
-//	@Test
-//	def emptyFragmentTest() {
-//		EmfFragActivator.standalone(TestModelPackage.eINSTANCE)
-//		val fragment = new AbstractFragment(DataStoreImpl.createDataStore(URI.createURI("mem://test/1")), 0)
-//		fragment.create
-//		fragment.save
-//		fragment.load
-//	}
-//	
-//	@Test
-//	def simpleTestModelTest() {
-//		EmfFragActivator.standalone(TestModelPackage.eINSTANCE)
-//		val fragment = new AbstractFragment(DataStoreImpl.createDataStore(URI.createURI("mem://test/1")), 0)
-//		
-//		fragment.addContents(contents("Hello").fStoreObject);
-//		
-//		fragment.create
-//		fragment.save
-//		
-//		fragment.load
-//		
-//		assertSame(1, fragment.fContents.size)
-//		val object = fragment.fContents.get(0)
-//		assertEquals(TestModelPackage.eINSTANCE.contents, object.eClass)
-//		assertFalse(object.fIsProxy)
-//		assertEquals("Hello", (object).fGet(TestModelPackage.eINSTANCE.abstractClass_Name))
-//	}
-//	
-//	@Test
-//	def referencesTestModelTest() {
-//		EmfFragActivator.standalone(TestModelPackage.eINSTANCE)
-//		val fragment = new AbstractFragment(DataStoreImpl.createDataStore(URI.createURI("mem://test/1")), 0)
-//		
-//		val container = container("container")
-//		fragment.addContents(container.fStoreObject);
-//		fragment.addContents(contents(container, "contents").fStoreObject);
-//		
-//		fragment.create
-//		fragment.save
-//		
-//		fragment.load
-//		
-//		assertSame(2, fragment.fContents.size)
-//		val object = fragment.fContents.get(0)
-//		assertEquals(TestModelPackage.eINSTANCE.container, object.eClass)
-//		assertFalse(object.fIsProxy)
-//		assertEquals("container", object.fGet(TestModelPackage.eINSTANCE.abstractClass_Name))
-//	}
+	@Test
+	def simpleTest() {
+		performSaveLoadTest(create('''Contents;'''))
+	}
+	
+	@Test
+	def containmentTest() {
+		performSaveLoadTest(create('''
+			Container {
+				content = Contents;
+			}
+		'''))
+	}
+	
+	@Test
+	def referenceTest() {
+		performSaveLoadTest(create('''
+			Container c1 {
+				content = Contents c2 {
+					ref referenced = c1
+				}
+			}
+		'''))
+	}
+	
+	@Test
+	def complexTest() {
+		performSaveLoadTest(create('''
+			Container f1 {
+				contents = Contents c2;
+				contents = Container c3 {
+					content = Contents c4;
+					ref referenced = c3
+				}
+				content = Container c5 {
+					contents = Contents c6;
+					contents = Contents c7;
+					ref referenceds = f1
+					ref referenceds = c3
+				}
+			}
+		'''))
+	}
 }

@@ -19,4 +19,5 @@ Bundle-ClassPath: .,
  lib/jars/commons-codec-1.10.jar
 Export-Package: de.hub.emffrag,
  de.hub.emffrag.datastore,
+ de.hub.emffrag.internal,
  de.hub.util
