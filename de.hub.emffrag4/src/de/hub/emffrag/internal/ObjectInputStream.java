@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,14 +15,22 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import com.google.common.collect.Lists;
+
+import de.hub.emffrag.FStore;
 import de.hub.emffrag.FURI;
+import de.hub.emffrag.FURIImpl;
 import de.hub.emffrag.FragmentationUtil;
 
 public abstract class ObjectInputStream {
+	private int fragmentID = -1;
+	
 	private final BufferedInputStream in;
 	private final byte[] buffer;
 	private int index;
 	private int bufferLength = 0;
+	
+	private final FStreamURIImpl currentURI = new FStreamURIImpl();
 	
 	private final Map<Integer, FStoreObject> internalObjectIDMap = new HashMap<Integer, FStoreObject>();
 
@@ -78,7 +87,7 @@ public abstract class ObjectInputStream {
 	}
 
 	private FURI readURI(int size) {
-		FURI uri = new FURI();
+		FURIImpl uri = new FURIImpl();
 		uri.setFragment(readInt());
 		for (int i = 1; i < size; i = i + 2) {
 			uri.addFeatureToSegment(readInt(), readInt());
@@ -86,18 +95,22 @@ public abstract class ObjectInputStream {
 		return uri;
 	}
 
-	private Object readValue(EStructuralFeature feature) {
+	private Object readValue(EStructuralFeature feature, int index) {
 		if (feature instanceof EReference) {
 			EReference reference = (EReference) feature;
 			if (reference.isContainment() && !FragmentationUtil.isFragmenting(reference)) {
-				return readObject();
+				currentURI.onDown(feature.getFeatureID(), index);
+				FStoreObject object = readObject();
+				FStore.fINSTANCE.proxyManager.onFStoreObjectLoaded(currentURI, object);
+				currentURI.onUp();
+				return object;
 			} else {
 				int idSize = readInt();
 				if (idSize == -1) {
 					int objectId = readInt();
 					return getObject(objectId, null);
 				} else {
-					return getProxy(readURI(idSize));
+					return createProxy(readURI(idSize));
 				}
 			}
 		} else {
@@ -106,14 +119,13 @@ public abstract class ObjectInputStream {
 		}
 	}
 	
-	private FStoreObject getProxy(FURI uri) {
-		return new FStoreObjectImpl(uri);
-	}
+	protected abstract FStoreObject createProxy(FURI uri);
+	protected abstract FStoreObject createObject();
 	
 	private FStoreObject getObject(int objectId, EClass eClass) {
 		FStoreObject object = internalObjectIDMap.get(objectId);
 		if (object == null) {
-			object = new FStoreObjectImpl();
+			object = createObject();
 			internalObjectIDMap.put(objectId, object);
 		}
 		if (eClass != null) {
@@ -137,29 +149,32 @@ public abstract class ObjectInputStream {
 				List values = (List) object.fGet(feature);
 				int valueCount = readInt();
 				for (int valueIndex = 0; valueIndex < valueCount; valueIndex++) {
-					values.add(readValue(feature));
+					values.add(readValue(feature, valueIndex));					
 				}
 			} else {
-				object.fSet(feature, readValue(feature));
+				object.fSet(feature, readValue(feature,-1));
 			}
 		}
 
 		return object;
 	}
 
-	public FStoreObject readFragment() {
+	public FStoreObject readFragment(int fragmentID) {
+		this.fragmentID = fragmentID;
 		int firstContainerInt = readInt();
+		FStoreObject root = null;
 		if (firstContainerInt != -1) {
 			EPackage containerPackage = getPackage(firstContainerInt);
 			EClass containerClass = (EClass)containerPackage.getEClassifiers().get(readInt());
 			EStructuralFeature containingFeature = containerClass.getEStructuralFeature(readInt());
 			FURI containerURI = readURI(readInt());
-			FStoreObject root = readObject();
-			root.fSetContainer(getProxy(containerURI), (EReference)containingFeature);
-			return root;
+			root = readObject();
+			root.fSetContainer(createProxy(containerURI), (EReference)containingFeature);
 		} else {
-			return readObject();
+			root = readObject();
 		}
+		FStore.fINSTANCE.proxyManager.onFStoreObjectLoaded(currentURI, root);
+		return root;
 	}
 
 	public void close() {
@@ -168,5 +183,42 @@ public abstract class ObjectInputStream {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	private class FStreamURIImpl implements FURI {
+		private final List<Integer> reversedSegment = new ArrayList<Integer>();
+		private final List<Integer> segment = Lists.reverse(reversedSegment);
+		
+		@Override
+		public int fragment() {
+			return fragmentID;
+		}
+
+		@Override
+		public List<Integer> segment() {
+			return segment;
+		}
+		
+		private void onDown(int featureID, int index) {
+			reversedSegment.add(index);
+			reversedSegment.add(featureID);
+		}
+		
+		private void onUp() {
+			int size = reversedSegment.size();
+			reversedSegment.remove(size-1);
+			reversedSegment.remove(size-2);
+		}
+
+		@Override
+		public int hashCode() {
+			return FURI.hashCode(this);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return FURI.equals(this, obj);
+		}
+		
 	}
 }

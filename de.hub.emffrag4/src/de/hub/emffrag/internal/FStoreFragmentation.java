@@ -3,6 +3,7 @@ package de.hub.emffrag.internal;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -65,7 +66,7 @@ public class FStoreFragmentation {
 		}		
 	}
 
-	public FStoreObject loadFragment(int fragmentID) {
+	public FStoreObject loadFragment(final int fragmentID) {
 		FStoreObject fragmentRoot;
 		if (fragmentDataStoreIndex.exists((long)fragmentID)) {
 			InputStream inputStream = fragmentDataStoreIndex.openInputStream((long) fragmentID);
@@ -73,9 +74,23 @@ public class FStoreFragmentation {
 				@Override
 				protected EPackage getPackage(int packageID) {
 					return packages.get(packageID);
+				}
+
+				@Override
+				protected FStoreObject createProxy(FURI uri) {
+					FStoreObjectImpl proxy = new FStoreObjectImpl(uri);
+					proxy.fSetFragmentID(FStoreFragmentation.this, fragmentID);
+					return proxy;
+				}
+
+				@Override
+				protected FStoreObject createObject() {
+					FStoreObjectImpl object = new FStoreObjectImpl();
+					object.fSetFragmentID(FStoreFragmentation.this, fragmentID);
+					return object;
 				}				
 			};
-			fragmentRoot = objectInputStream.readFragment();
+			fragmentRoot = objectInputStream.readFragment(fragmentID);
 			fragmentRoot.fSetFragmentID(this, fragmentID);
 			objectInputStream.close();
 			fragments.put(fragmentID, fragmentRoot);
@@ -190,6 +205,13 @@ public class FStoreFragmentation {
 	private void gc() {
 		if (fragments.size() > fragmentCacheSize) {
 			// TODO
+		}
+	}
+
+	public void close() {
+		Collection<FStoreObject> fragmentRootsCopy = new ArrayList(fragments.values());
+		for (FStoreObject root: fragmentRootsCopy) {
+			unloadFragment(root);
 		}
 	}
 }

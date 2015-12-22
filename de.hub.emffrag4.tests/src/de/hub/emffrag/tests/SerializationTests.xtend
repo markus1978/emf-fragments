@@ -16,6 +16,8 @@ import org.junit.Test
 
 import static de.hub.emffrag.tests.FObjectTestModelParser.*
 import org.junit.Before
+import de.hub.emffrag.FURI
+import de.hub.emffrag.internal.FStoreObjectImpl
 
 class SerializationTests extends AbstractTests {
 	
@@ -36,13 +38,20 @@ class SerializationTests extends AbstractTests {
 		objectOutputStream.close;
 		
 		val byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray)
-		val objectInputStream = new ObjectInputStream(byteArrayInputStream) {			
+		val objectInputStream = new ObjectInputStream(byteArrayInputStream) {
 			override protected getPackage(int packageID) {
 				return thePackages.get(packageID)
-			}			
+			}
+			override protected createObject() {
+				return new FStoreObjectImpl();
+			}
+			override protected createProxy(FURI uri) {
+				return new FStoreObjectImpl(uri);
+			}
+			
 		}
 		
-		val readCopy = FStore.fINSTANCE.proxify(objectInputStream.readFragment)
+		val readCopy = FStore.fINSTANCE.proxyManager.getFObject(objectInputStream.readFragment(0))
 		assertFalse(readCopy.fStoreObject.fIsProxy)
 		assertFalse(model.fStoreObject.fIsProxy)
 		assertTrue(readCopy.fStoreObject.fAllContents.forall[!it.fIsProxy])

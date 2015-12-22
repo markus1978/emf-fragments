@@ -24,12 +24,14 @@ public class FObjectImpl extends EStoreEObjectImpl implements FObject {
 			fStoreObject = new FStoreObjectImpl();
 			fStoreObject.fSetClass(eClass());
 			fStoreObject.fMarkModified(true);
-			FStore.fINSTANCE.onNewObject(this);
+			FStore.fINSTANCE.proxyManager.registerFObject(fStoreObject, this);
+		} else if (fStoreObject.fIsProxy()) {
+			fStoreObject = fStoreObject.fFragmentation().resolve(fStoreObject.fProxyURI());
 		}
 		return fStoreObject;
 	}
 
-	protected void fSetStoreObject(FStoreObject fStoreObject) {
+	public void fSetStoreObject(FStoreObject fStoreObject) {
 		this.fStoreObject = fStoreObject;
 		eContainer = EUNINITIALIZED_CONTAINER;
 	}

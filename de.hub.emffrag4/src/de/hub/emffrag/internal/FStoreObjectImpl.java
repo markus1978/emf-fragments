@@ -11,7 +11,9 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.FluentIterable;
 
+import de.hub.emffrag.FStore;
 import de.hub.emffrag.FURI;
+import de.hub.emffrag.FURIImpl;
 import de.hub.emffrag.FragmentationUtil;
 
 public class FStoreObjectImpl implements FStoreObject {
@@ -112,7 +114,7 @@ public class FStoreObjectImpl implements FStoreObject {
 
 	@Override
 	public FStoreFragmentation fFragmentation() {
-		if (fIsRoot()) {
+		if (fIsRoot() || fIsProxy()) {
 			return fragmentation;
 		} else {
 			return fRoot().fFragmentation();
@@ -136,13 +138,14 @@ public class FStoreObjectImpl implements FStoreObject {
 	@Override
 	public void fSetContainer(FStoreObject newContainer, EReference containingFeature) {
 		if (newContainer != null) {
-			boolean isAddedToFragmentation = fFragmentation() == null && fFragmentation() != newContainer.fFragmentation();
+			boolean isAddedToFragmentation = newContainer.fFragmentation() != null && fFragmentation() != newContainer.fFragmentation();
 			
 			flags = containingFeature.getFeatureID() << 16 | (flags & 0x00FF);
 			container = newContainer;		
 			if (FragmentationUtil.isFragmenting(containingFeature)) {
 				flags |= ROOT;
 			} else {
+				fragmentation = null;
 				flags &= ~ROOT;
 			}
 			
@@ -175,7 +178,7 @@ public class FStoreObjectImpl implements FStoreObject {
 		if (fIsProxy()) {
 			return fProxyURI();
 		}
-		FURI uri = new FURI();	
+		FURIImpl uri = new FURIImpl();	
 		uri.setFragment(fFragmentID());
 		FStoreObject i = this;
 		while (!i.fIsRoot()) {
@@ -192,6 +195,7 @@ public class FStoreObjectImpl implements FStoreObject {
 
 	@Override
 	public FURI fUnload() {
+		fragmentation = fFragmentation();
 		FURI uri = fCreateURI();
 		
 		settings = null;
@@ -199,6 +203,7 @@ public class FStoreObjectImpl implements FStoreObject {
 		flags = 0;
 		proxyURI = uri;
 		
+		FStore.fINSTANCE.proxyManager.onFStoreObjectUnloaded(this, uri);
 		return uri;
 	}
 
@@ -333,4 +338,15 @@ public class FStoreObjectImpl implements FStoreObject {
 			}
 		};
 	}
+
+	@Override
+	public String toString() {
+		if (fIsProxy()) {
+			return "proxy: " + fProxyURI().toString();
+		} else {
+			return fClass().getName() + "(" + System.identityHashCode(this) + ")";
+		}
+	}
+	
+	
 }

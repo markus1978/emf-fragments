@@ -17,8 +17,42 @@ import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
+import de.hub.emffrag.FObject
 
 class AbstractTests {
+	
+	public static val String complexFragmentText = '''
+		Container f1 {
+			contents = Contents c2;
+			contents = Container c3 {
+				content = Contents c4;
+				ref referenced = c3
+			}
+			content = Container c5 {
+				contents = Contents c6;
+				contents = Contents c7;
+				ref referenceds = f1
+				ref referenceds = c3
+			}
+		}
+	'''
+	
+	public static val String complexFragmentedModelText = '''
+		Container f1 {
+			contents = Contents c2;
+			fragments = Container f3 {
+				content = Contents c4;
+				ref referenced = f3
+			}
+			fragment = Container f5 {
+				contents = Contents c6;
+				contents = Contents c7;
+				ref referenceds = f1
+				ref referenceds = c4
+			}
+		}
+	'''
+	
 	protected extension val TestModelPackage testModelPackage = TestModelPackage.eINSTANCE
 	
 	protected def contents(String name) {
@@ -39,6 +73,50 @@ class AbstractTests {
 		obj.name = name
 		return obj
 	}
+	
+	private def String pretty(Object value, EStructuralFeature feature) '''
+		«IF feature instanceof EReference»
+			«IF feature.containment»
+				«feature.name» = «value.pretty»
+			«ELSE»
+				«IF value instanceof FStoreObject»
+					ref «feature.name» = «(value as FStoreObject).fCreateURI.toString»
+				«ELSE»
+					ref «feature.name» = «(value as AbstractClass).name»
+				«ENDIF»
+			«ENDIF»
+		«ELSE»
+			«feature.name» = «value.toString»
+		«ENDIF»
+	'''
+	
+	protected dispatch def String pretty(FObject fObject) '''
+		«fObject.eClass.name» {
+			«FOR feature:fObject.eClass.EAllStructuralFeatures.filter[fObject.eIsSet(it)]»
+				«IF feature.isMany»
+					«FOR value:fObject.eGet(feature) as List<?>»
+						«value.pretty(feature)»
+					«ENDFOR»
+				«ELSE»
+					«fObject.eGet(feature).pretty(feature)»
+				«ENDIF»
+			«ENDFOR»
+		}
+	'''
+	
+	protected dispatch def String pretty(FStoreObject fStoreObject) '''
+		«fStoreObject.fClass.name» {
+			«FOR feature:fStoreObject.fClass.EAllStructuralFeatures.filter[fStoreObject.fIsSet(it)]»
+				«IF feature.isMany»
+					«FOR value:fStoreObject.fGet(feature) as List<?>»
+						«value.pretty(feature)»
+					«ENDFOR»
+				«ELSE»
+					«fStoreObject.fGet(feature).pretty(feature)»
+				«ENDIF»
+			«ENDFOR»
+		}
+	'''
 }
 
 public class FStoreObjectBuilder {

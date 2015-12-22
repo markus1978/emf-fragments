@@ -9,7 +9,8 @@ import org.junit.runners.Suite.SuiteClasses;
 	FStoreObjectTests.class,
 	EStoreTests.class,
 	SerializationTests.class,
-	FStoreFragmentationTests.class
+	FStoreFragmentationTests.class,
+	FragmentationTests.class
 })
 public class EmfFragTestSuite {
 

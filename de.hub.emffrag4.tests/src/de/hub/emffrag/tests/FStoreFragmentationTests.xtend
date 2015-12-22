@@ -137,7 +137,7 @@ class FStoreFragmentationTests extends AbstractTests {
 	@Test
 	def simpleComplexFragmentUnloadTest() {
 		val root = create(FStoreObjectTests.complexFragmentText)
-		val rootCopy = EcoreUtil.copy(FStore.fINSTANCE.proxify(root))
+		val rootCopy = EcoreUtil.copy(FStore.fINSTANCE.proxyManager.getFObject(root))
 		fragmentation.root = root;
 		assertTrue(fragmentation.getRoot.fModified)
 		fragmentation.unloadFragment(root);
@@ -149,7 +149,7 @@ class FStoreFragmentationTests extends AbstractTests {
 		assertNotSame(root, fragmentation.getRoot)
 		assertSame(1, fragmentation.loadedFragments)
 		
-		assertTrue(EcoreUtil.equals(rootCopy, FStore.fINSTANCE.proxify(fragmentation.getRoot)))
+		assertTrue(EcoreUtil.equals(rootCopy, FStore.fINSTANCE.proxyManager.getFObject(fragmentation.getRoot)))
 	}
 	
 	@Test

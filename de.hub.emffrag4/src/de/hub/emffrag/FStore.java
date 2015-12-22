@@ -9,9 +9,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.InternalEObject.EStore;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-
+import de.hub.emffrag.internal.FObjectProxyManager;
 import de.hub.emffrag.internal.FStoreObject;
 import de.hub.emffrag.internal.FStoreObjectImpl;
 
@@ -19,20 +17,10 @@ public class FStore implements EStore {
 	
 	public static final FStore fINSTANCE = new FStore();
 	
-	private final Cache<FStoreObject, FObjectImpl> fObjectCache = CacheBuilder.newBuilder().weakValues().build();
+	public final FObjectProxyManager proxyManager = new FObjectProxyManager();
 	
-	public FObjectImpl proxify(FStoreObject fStoreObject) {
-		if (fStoreObject == null) {
-			return null;
-		}
-		FObjectImpl fObject = fObjectCache.getIfPresent(fStoreObject);
-		if (fObject == null) {
-			EObject eObject = fStoreObject.fClass().getEPackage().getEFactoryInstance().create(fStoreObject.fClass());
-			fObject = (FObjectImpl)eObject;
-			fObject.fSetStoreObject(fStoreObject);
-			onNewObject(fObject);
-		}
-		return fObject;
+	private FObject proxify(FStoreObject fStoreObject) {
+		return proxyManager.getFObject(fStoreObject);
 	}
 	
 	private Object proxifyValue(EStructuralFeature feature, Object value) {
@@ -46,11 +34,6 @@ public class FStore implements EStore {
 	private Object deProxifyValue(EStructuralFeature feature, Object rawValue) {
 		Object value = (feature instanceof EReference) ? ((FObject)rawValue).fStoreObject() : rawValue;
 		return value;
-	}
-
-	public void onNewObject(FObjectImpl fObject) {
-		FStoreObject fStoreObject = fObject.fStoreObject();
-		fObjectCache.put(fStoreObject, fObject);
 	}
 
 	private void setProtentialContainer(EStructuralFeature feature, Object container, Object contents) {
@@ -245,7 +228,7 @@ public class FStore implements EStore {
 	@Override
 	public InternalEObject getContainer(InternalEObject object) {
 		FObject fObject = (FObject)object;
-		return proxify(fObject.fStoreObject().fContainer());
+		return (InternalEObject)proxify(fObject.fStoreObject().fContainer());
 	}
 
 	@Override
