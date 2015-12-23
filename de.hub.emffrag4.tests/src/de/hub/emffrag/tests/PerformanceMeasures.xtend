@@ -12,6 +12,7 @@ import org.eclipse.emf.ecore.EcorePackage
 
 import static de.hub.emffrag.tests.FObjectTestModelParser.*
 import org.junit.Assert
+import org.eclipse.emf.ecore.util.EcoreUtil
 
 class PerformanceMeasures {
 	private var Fragmentation fragmentation  = null
@@ -30,7 +31,7 @@ class PerformanceMeasures {
 		val ()=>Container createPart = [create('''
 			Container o1 {
 				contents = Container o11 {
-					ref referenceds = o1
+					ref referenced = o1
 					content = Contents o111;
 					contents = Contents o112;
 					
@@ -45,22 +46,29 @@ class PerformanceMeasures {
 			}
 		''')]
 		val model = createPart.apply
-		for (i:0..10) {			
-			(withName("leave") as Container).fragment = createPart.apply;		
+		for (i:0..100) {	
+			if (i%3 == 0) {		
+				(withName("leave") as Container).fragment = createPart.apply;		
+			} else {
+				(withName("leave") as Container).content = createPart.apply;
+			}		
 		}
 		val size = model.eAllContents.size
+		val copy = EcoreUtil.copy(model)
 		println("size " + size)
 		fragmentation.root = model
+		Assert.assertTrue(EcoreUtil.equals(copy, fragmentation.root))
 		
 		while (true) {
 			val start = System.currentTimeMillis
 			var count = 0;
 			for (i:0..(100000/size)) {
 				count += size;
-				Assert.assertSame(size, fragmentation.root.eAllContents.size)						
+				//Assert.assertSame(size, fragmentation.root.eAllContents.size)
+				Assert.assertTrue(EcoreUtil.equals(copy, fragmentation.root))						
 			}		
 			val time = System.currentTimeMillis - start
-			println('''For «count» object, we need «time» ms. This are «(count/time)*1000» objects per second.''')
+			println('''For «count» object, we need «time» ms. This are «(count/time)»k objects per second.''')
 		}
 	} 
 	
