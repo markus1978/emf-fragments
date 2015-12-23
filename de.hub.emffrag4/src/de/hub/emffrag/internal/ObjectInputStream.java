@@ -95,13 +95,14 @@ public abstract class ObjectInputStream {
 		return uri;
 	}
 
-	private Object readValue(EStructuralFeature feature, int index) {
+	private Object readValue(FStoreObject container, EStructuralFeature feature, int index) {
 		if (feature instanceof EReference) {
 			EReference reference = (EReference) feature;
 			if (reference.isContainment() && !FragmentationUtil.isFragmenting(reference)) {
 				currentURI.onDown(feature.getFeatureID(), index);
 				FStoreObject object = readObject();
 				FStore.fINSTANCE.proxyManager.onFStoreObjectLoaded(currentURI, object);
+				object.fSetContainer(container, (EReference)feature);
 				currentURI.onUp();
 				return object;
 			} else {
@@ -149,10 +150,10 @@ public abstract class ObjectInputStream {
 				List values = (List) object.fGet(feature);
 				int valueCount = readInt();
 				for (int valueIndex = 0; valueIndex < valueCount; valueIndex++) {
-					values.add(readValue(feature, valueIndex));					
+					values.add(readValue(object, feature, valueIndex));					
 				}
 			} else {
-				object.fSet(feature, readValue(feature,-1));
+				object.fSet(feature, readValue(object, feature,-1));
 			}
 		}
 

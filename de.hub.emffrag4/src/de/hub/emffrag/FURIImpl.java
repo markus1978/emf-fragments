@@ -37,7 +37,7 @@ public class FURIImpl extends FAbstractStoreObject implements FURI {
 	public int fragment() {
 		Integer fragment = (Integer) getField(FRAGMENT);
 		if (fragment == null) {
-			return -1;
+			throw new IllegalArgumentException();
 		} else {
 			return (int)fragment;
 		}

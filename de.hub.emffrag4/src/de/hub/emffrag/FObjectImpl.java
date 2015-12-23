@@ -2,6 +2,7 @@ package de.hub.emffrag;
 
 import org.eclipse.emf.ecore.impl.EStoreEObjectImpl;
 
+import de.hub.emffrag.internal.FStoreFragmentation;
 import de.hub.emffrag.internal.FStoreObject;
 import de.hub.emffrag.internal.FStoreObjectImpl;
 
@@ -24,11 +25,22 @@ public class FObjectImpl extends EStoreEObjectImpl implements FObject {
 			fStoreObject = new FStoreObjectImpl();
 			fStoreObject.fSetClass(eClass());
 			fStoreObject.fMarkModified(true);
+			access(fStoreObject);
 			FStore.fINSTANCE.proxyManager.registerFObject(fStoreObject, this);
 		} else if (fStoreObject.fIsProxy()) {
 			fStoreObject = fStoreObject.fFragmentation().resolve(fStoreObject.fProxyURI());
+		} else {
+			access(fStoreObject.fRoot());
 		}
+		
 		return fStoreObject;
+	}
+	
+	private void access(FStoreObject fStoreObject) {
+		FStoreFragmentation fragmentation = fStoreObject.fFragmentation();
+		if (fragmentation != null) {
+			fragmentation.access(fStoreObject);
+		}
 	}
 
 	public void fSetStoreObject(FStoreObject fStoreObject) {

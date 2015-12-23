@@ -160,5 +160,37 @@ class FragmentationTests extends AbstractTests {
 		fragmentation.root = testModel
 		reinit()
 		assertTrue(EcoreUtil.equals(copy, fragmentation.root))
+		assertSame(3, fragmentation.FStoreFragmentation.loadedFragments)
+	}
+	
+	@Test
+	def fragmentRootReferenceTest() {
+		val Container testModel = create('''
+			Container f1 {
+				fragment = Container f2 {
+					ref referenced = f1
+				}
+			}
+		''')
+		fragmentation.root = testModel
+		fragmentation.FStoreFragmentation.close // unload all fragments
+		assertSame(0, fragmentation.FStoreFragmentation.loadedFragments)
+		assertSame(testModel, testModel.fragment.referenced)
+	}
+	
+	@Test
+	def nonFragmentRootReferenceTest() {
+		val Container testModel = create('''
+			Container f1 {
+				content = Contents c1;
+				fragment = Container f2 {
+					ref referenced = c1
+				}
+			}
+		''')
+		fragmentation.root = testModel
+		fragmentation.FStoreFragmentation.close // unload all fragments
+		assertSame(0, fragmentation.FStoreFragmentation.loadedFragments)
+		assertSame(testModel.content, testModel.fragment.referenced)
 	}
 }

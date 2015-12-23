@@ -16,19 +16,36 @@ import de.hub.emffrag.FURI;
 import de.hub.emffrag.FURIImpl;
 import de.hub.emffrag.FragmentationUtil;
 
+/**
+ * Can have different states and stores different things in different states:
+ * loaded non root object:
+ * - eClass
+ * - container
+ * - containingFeature
+ * - isModified
+ * - settings
+ * - root
+ * loaded root object
+ * - all of loaded non root object
+ * - fragmentID
+ * - fragmentation
+ * proxy
+ * - proxyURI
+ * - fragmentation
+ * 
+ * TODO minimalize storage with flexible object array
+ */
 public class FStoreObjectImpl implements FStoreObject {
 	
-	private static final int ROOT = 1 << 0;
 	private static final int MODIFIED = 1 << 1;
 	
 	private EClass fClass = null;
 	private FStoreObject container = null;
+	private FStoreObjectImpl root = null;
 	private int fragmentID = -1;
 	private FURI proxyURI = null;
 	private Object[] settings = null;
-	
 	private FStoreFragmentation fragmentation;
-	
 	private int flags = 0;
 	
 	public FStoreObjectImpl(FURI uri) {
@@ -36,8 +53,8 @@ public class FStoreObjectImpl implements FStoreObject {
 		this.proxyURI = uri;
 	}
 	
-	public FStoreObjectImpl() {
-		flags |= ROOT;
+	public FStoreObjectImpl() {	
+		this.root = this;
 	}
 	
 	@Override
@@ -78,38 +95,23 @@ public class FStoreObjectImpl implements FStoreObject {
 
 	@Override
 	public boolean fIsRoot() {
-		return (flags & ROOT) != 0;
+		return root == this;
 	}
 
 	@Override
 	public FStoreObject fRoot() {
-		if (fIsRoot()) {
-			return this;
-		} else {
-			return container.fRoot();
-		}
+		return root;
 	}
 
 	@Override
 	public int fFragmentID() {
-		if (fIsRoot()) {
-			return fragmentID;
-		} else {
-			if (fragmentID == -1) {
-				fragmentID = fRoot().fFragmentID();
-			}
-			return fragmentID;
-		}
+		return root.fragmentID;
 	}
 
 	@Override
 	public void fSetFragmentID(FStoreFragmentation fragmentation, int fragmentID) {
-		if (fIsRoot()) {
-			this.fragmentID = fragmentID;
-			this.fragmentation = fragmentation;
-		} else {
-			fRoot().fSetFragmentID(fragmentation, fragmentID);
-		}
+		root.fragmentID = fragmentID;
+		root.fragmentation = fragmentation;		
 	}
 
 	@Override
@@ -143,10 +145,10 @@ public class FStoreObjectImpl implements FStoreObject {
 			flags = containingFeature.getFeatureID() << 16 | (flags & 0x00FF);
 			container = newContainer;		
 			if (FragmentationUtil.isFragmenting(containingFeature)) {
-				flags |= ROOT;
+				root = this;
 			} else {
 				fragmentation = null;
-				flags &= ~ROOT;
+				root = (FStoreObjectImpl) newContainer.fRoot();
 			}
 			
 			if (isAddedToFragmentation) {
@@ -158,7 +160,7 @@ public class FStoreObjectImpl implements FStoreObject {
 			if (oldFragmentation != null) {
 				oldFragmentation.onRemoveFromFragmentation(this);
 			}
-			flags |= ROOT;				
+			root = this;
 		}
 	}
 
@@ -198,35 +200,27 @@ public class FStoreObjectImpl implements FStoreObject {
 		fragmentation = fFragmentation();
 		FURI uri = fCreateURI();
 		
+		FStore.fINSTANCE.proxyManager.onFStoreObjectUnloaded(this, uri);
+		
 		settings = null;
 		container = null;
 		flags = 0;
 		proxyURI = uri;
 		
-		FStore.fINSTANCE.proxyManager.onFStoreObjectUnloaded(this, uri);
 		return uri;
 	}
 
 	@Override
 	public boolean fModified() {
-		if (fIsRoot()) {
-			return (flags & MODIFIED) != 0;
-		} else {
-			return fRoot().fModified();
-		}
+		return (root.flags & MODIFIED) != 0;		
 	}
 	
 	@Override
 	public void fMarkModified(boolean modified) {
-		if (fIsRoot()) {
-			if (modified) {
-				flags |= MODIFIED;	
-			} else {
-				flags &= ~MODIFIED;
-			}
-				
+		if (modified) {
+			root.flags |= MODIFIED;	
 		} else {
-			fRoot().fMarkModified(modified);
+			root.flags &= ~MODIFIED;
 		}
 	}
 	
@@ -328,6 +322,9 @@ public class FStoreObjectImpl implements FStoreObject {
 
 						if (contentIterator.hasNext()) {
 							FStoreObject nextDirectContent = contentIterator.next();
+							if (nextDirectContent.fIsProxy()) {
+								nextDirectContent = nextDirectContent.fFragmentation().resolve(nextDirectContent.fProxyURI());
+							}
 							currentSubContentIterator = nextDirectContent.fAllContents().iterator();
 							return nextDirectContent;
 						} else {
@@ -344,7 +341,20 @@ public class FStoreObjectImpl implements FStoreObject {
 		if (fIsProxy()) {
 			return "proxy: " + fProxyURI().toString();
 		} else {
-			return fClass().getName() + "(" + System.identityHashCode(this) + ")";
+			String str = fClass().getName() + "(" + System.identityHashCode(this) + ")";
+			EStructuralFeature nameFeature = fClass().getEStructuralFeature("name");
+			if (nameFeature != null) {
+				str += " " + fGet(nameFeature);
+			}
+			str += "[";
+			if (fIsRoot()) {
+				str += "R";
+			}
+			if (fModified()) {
+				str += "M";
+			}
+			str += "]";
+			return str;
 		}
 	}
 	

@@ -13,6 +13,7 @@ import java.util.Map;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import de.hub.emffrag.EmfFragActivator;
@@ -24,16 +25,24 @@ import de.hub.util.Ansi;
 import de.hub.util.Ansi.Color;
 
 public class FStoreFragmentation {
-	private final IDataStore dataStore;
-	private final int fragmentCacheSize;
 	private final IDataMap<Long> fragmentDataStoreIndex;
 
-	private final Map<Integer, FStoreObject> fragments = new HashMap<Integer, FStoreObject>();
 	private final List<EPackage> packages;
+	private final Map<Integer, FStoreObject> fragments;
+	private FStoreObject lastAccessed = null;
 	
+	@SuppressWarnings("serial")
 	public FStoreFragmentation(List<EPackage> packages, IDataStore dataStore, int fragmentsCacheSize) {
-		this.dataStore = dataStore;
-		this.fragmentCacheSize = fragmentsCacheSize;
+		if (fragmentsCacheSize > 0) {
+			this.fragments = new LRUCache<Integer, FStoreObject>(fragmentsCacheSize) {
+				@Override
+				protected void onRemove(FStoreObject value) {
+					unloadFragment(value);
+				}
+			};
+		} else {
+			this.fragments = new HashMap<Integer, FStoreObject>();
+		}
 		this.fragmentDataStoreIndex = dataStore.getMap(("f_").getBytes(), LongKeyType.instance);
 		this.packages = new ArrayList<EPackage>(packages);
 		this.packages.sort(new Comparator<EPackage>() {
@@ -59,7 +68,6 @@ public class FStoreFragmentation {
 	public FStoreObject resolve(int fragmentID) {
 		FStoreObject fragmentRoot = fragments.get(fragmentID);
 		if (fragmentRoot == null) {
-			gc();
 			return loadFragment(fragmentID);
 		} else {
 			return fragmentRoot;
@@ -67,6 +75,11 @@ public class FStoreFragmentation {
 	}
 
 	public FStoreObject loadFragment(final int fragmentID) {
+		EmfFragActivator.instance.debug(
+				Ansi.format("FRAGMENTATION: ", Color.BLUE) +
+				Ansi.format("load ", Color.GREEN) + 
+				Ansi.format("" + fragmentID, Color.values()[(int)(fragmentID % Color.values().length)]));
+		Preconditions.checkArgument(fragmentID >= 0);
 		FStoreObject fragmentRoot;
 		if (fragmentDataStoreIndex.exists((long)fragmentID)) {
 			InputStream inputStream = fragmentDataStoreIndex.openInputStream((long) fragmentID);
@@ -103,6 +116,10 @@ public class FStoreFragmentation {
 	
 	public void unloadFragment(FStoreObject fragmentRoot) {
 		int fragmentID = fragmentRoot.fFragmentID();
+		EmfFragActivator.instance.debug(
+				Ansi.format("FRAGMENTATION: ", Color.BLUE) +
+				Ansi.format("load ", Color.RED) + 
+				Ansi.format(fragmentID + (fragmentRoot.fModified()?"*":""), Color.values()[(int)(fragmentID % Color.values().length)]));
 		if (fragmentRoot.fModified()) {
 			OutputStream outputStream = fragmentDataStoreIndex.openOutputStream((long) fragmentID);
 			ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream, true) {
@@ -113,8 +130,19 @@ public class FStoreFragmentation {
 			};
 			objectOutputStream.writeFragment(fragmentRoot);
 			objectOutputStream.close();
+		} else {
+			unloadFragmentContent(fragmentRoot);
 		}
 		fragments.remove(fragmentID);
+	}
+	
+	private void unloadFragmentContent(FStoreObject fStoreObject) {		
+		for (FStoreObject content: fStoreObject.fContents()) {
+			if (!(content.fIsProxy() || content.fIsRoot())) {
+				unloadFragmentContent(content);
+			}
+		}
+		fStoreObject.fUnload();
 	}
 	
 	public void saveFragment(FStoreObject fragmentRoot) {
@@ -175,6 +203,10 @@ public class FStoreFragmentation {
 	}
 
 	public void onAddToFragmentation(FStoreObject fStoreObject) {	
+		if (fragments instanceof LRUCache) {
+			((LRUCache<?,?>)fragments).lock();
+		}
+		
 		if (fStoreObject.fIsRoot()) {
 			createFragment(fStoreObject);
 		}
@@ -182,6 +214,10 @@ public class FStoreFragmentation {
 			if (content.fIsRoot()) {
 				createFragment(content);
 			}	
+		}
+		
+		if (fragments instanceof LRUCache) {
+			((LRUCache<?,?>)fragments).unlock();
 		}
 	}
 	
@@ -202,16 +238,18 @@ public class FStoreFragmentation {
 		return fragments.size();
 	}
 	
-	private void gc() {
-		if (fragments.size() > fragmentCacheSize) {
-			// TODO
+	public void close() {
+		Collection<FStoreObject> fragmentRootsCopy = new ArrayList<FStoreObject>(fragments.values());
+		for (FStoreObject root: fragmentRootsCopy) {
+			unloadFragment(root);
 		}
 	}
 
-	public void close() {
-		Collection<FStoreObject> fragmentRootsCopy = new ArrayList(fragments.values());
-		for (FStoreObject root: fragmentRootsCopy) {
-			unloadFragment(root);
+	public void access(FStoreObject fStoreObject) {
+		FStoreObject fragment = fStoreObject.fRoot();
+		if (lastAccessed != fragment) {
+			lastAccessed = fragment;
+			fragments.get(fragment.fFragmentID());
 		}
 	}
 }

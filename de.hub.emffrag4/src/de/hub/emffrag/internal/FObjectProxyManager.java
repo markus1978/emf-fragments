@@ -45,6 +45,7 @@ public class FObjectProxyManager {
 	}
 	
 	public void onFStoreObjectLoaded(FURI uri, FStoreObject fStoreObject) {
+//		System.out.println("<-" + fStoreObject);
 		FObject fObject = proxyCache.getIfPresent(uri);
 		if (fObject != null) {
 			proxyCache.invalidate(uri);
@@ -53,6 +54,7 @@ public class FObjectProxyManager {
 	}
 	
 	public void onFStoreObjectUnloaded(FStoreObject fStoreObject, FURI uri) {
+//		System.out.println("->" + fStoreObject);
 		FObject fObject = objectCache.getIfPresent(fStoreObject);
 		if (fObject != null) {
 			objectCache.invalidate(fStoreObject);
