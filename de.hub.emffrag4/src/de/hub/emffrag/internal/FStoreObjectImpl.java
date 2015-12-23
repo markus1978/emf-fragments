@@ -196,9 +196,13 @@ public class FStoreObjectImpl implements FStoreObject {
 	}
 
 	@Override
-	public FURI fUnload() {
+	public FURI fUnload(FURI uri) {
 		fragmentation = fFragmentation();
-		FURI uri = fCreateURI();
+		if (uri == null) {
+			uri = fCreateURI();
+		} else {
+			uri = FURI.copy(uri);
+		}
 		
 		FStore.fINSTANCE.proxyManager.onFStoreObjectUnloaded(this, uri);
 		

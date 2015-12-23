@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import com.google.common.base.Preconditions;
@@ -18,6 +19,7 @@ import com.google.common.collect.Lists;
 
 import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.FURI;
+import de.hub.emffrag.FragmentationUtil;
 import de.hub.emffrag.datastore.IDataMap;
 import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.LongKeyType;
@@ -75,15 +77,15 @@ public class FStoreFragmentation {
 	}
 
 	public FStoreObject loadFragment(final int fragmentID) {
-		EmfFragActivator.instance.debug(
-				Ansi.format("FRAGMENTATION: ", Color.BLUE) +
-				Ansi.format("load ", Color.GREEN) + 
-				Ansi.format("" + fragmentID, Color.values()[(int)(fragmentID % Color.values().length)]));
+//		EmfFragActivator.instance.debug(
+//				Ansi.format("FRAGMENTATION: ", Color.BLUE) +
+//				Ansi.format("load ", Color.GREEN) + 
+//				Ansi.format("" + fragmentID, Color.values()[(int)(fragmentID % Color.values().length)]));
 		Preconditions.checkArgument(fragmentID >= 0);
 		FStoreObject fragmentRoot;
 		if (fragmentDataStoreIndex.exists((long)fragmentID)) {
 			InputStream inputStream = fragmentDataStoreIndex.openInputStream((long) fragmentID);
-			ObjectInputStream objectInputStream = new ObjectInputStream(inputStream) {
+			ObjectInputStream objectInputStream = new ObjectInputStream(inputStream, fragmentID) {
 				@Override
 				protected EPackage getPackage(int packageID) {
 					return packages.get(packageID);
@@ -103,7 +105,7 @@ public class FStoreFragmentation {
 					return object;
 				}				
 			};
-			fragmentRoot = objectInputStream.readFragment(fragmentID);
+			fragmentRoot = objectInputStream.readFragment();
 			fragmentRoot.fSetFragmentID(this, fragmentID);
 			objectInputStream.close();
 			fragments.put(fragmentID, fragmentRoot);
@@ -116,10 +118,10 @@ public class FStoreFragmentation {
 	
 	public void unloadFragment(FStoreObject fragmentRoot) {
 		int fragmentID = fragmentRoot.fFragmentID();
-		EmfFragActivator.instance.debug(
-				Ansi.format("FRAGMENTATION: ", Color.BLUE) +
-				Ansi.format("load ", Color.RED) + 
-				Ansi.format(fragmentID + (fragmentRoot.fModified()?"*":""), Color.values()[(int)(fragmentID % Color.values().length)]));
+//		EmfFragActivator.instance.debug(
+//				Ansi.format("FRAGMENTATION: ", Color.BLUE) +
+//				Ansi.format("load ", Color.RED) + 
+//				Ansi.format(fragmentID + (fragmentRoot.fModified()?"*":""), Color.values()[(int)(fragmentID % Color.values().length)]));
 		if (fragmentRoot.fModified()) {
 			OutputStream outputStream = fragmentDataStoreIndex.openOutputStream((long) fragmentID);
 			ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream, true) {
@@ -131,18 +133,33 @@ public class FStoreFragmentation {
 			objectOutputStream.writeFragment(fragmentRoot);
 			objectOutputStream.close();
 		} else {
-			unloadFragmentContent(fragmentRoot);
+			unloadFragmentContent(fragmentRoot, new FStreamURIImpl(fragmentID));
 		}
 		fragments.remove(fragmentID);
 	}
 	
-	private void unloadFragmentContent(FStoreObject fStoreObject) {		
-		for (FStoreObject content: fStoreObject.fContents()) {
-			if (!(content.fIsProxy() || content.fIsRoot())) {
-				unloadFragmentContent(content);
+	@SuppressWarnings("unchecked")
+	private void unloadFragmentContent(FStoreObject fStoreObject, FStreamURIImpl uri) {		
+		for(EReference reference: fStoreObject.fClass().getEAllReferences()) {
+			if (reference.isContainment() && !FragmentationUtil.isFragmenting(reference)) {
+				if (fStoreObject.fIsSet(reference)) {
+					if (reference.isMany()) {
+						int index = 0;
+						for (FStoreObject content: (List<FStoreObject>)fStoreObject.fGet(reference)) {
+							uri.onDown(reference.getFeatureID(), index++);
+							unloadFragmentContent(content, uri);
+							uri.onUp();
+						}
+					} else {
+						uri.onDown(reference.getFeatureID(), -1);
+						unloadFragmentContent((FStoreObject) fStoreObject.fGet(reference), uri);
+						uri.onUp();		
+					}
+				}
 			}
 		}
-		fStoreObject.fUnload();
+			
+		fStoreObject.fUnload(uri);
 	}
 	
 	public void saveFragment(FStoreObject fragmentRoot) {

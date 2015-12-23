@@ -4,18 +4,17 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
-
-import com.google.common.collect.Lists;
+import org.eclipse.emf.ecore.EcorePackage;
 
 import de.hub.emffrag.FStore;
 import de.hub.emffrag.FURI;
@@ -23,21 +22,21 @@ import de.hub.emffrag.FURIImpl;
 import de.hub.emffrag.FragmentationUtil;
 
 public abstract class ObjectInputStream {
-	private int fragmentID = -1;
 	
 	private final BufferedInputStream in;
 	private final byte[] buffer;
 	private int index;
 	private int bufferLength = 0;
 	
-	private final FStreamURIImpl currentURI = new FStreamURIImpl();
+	private final FStreamURIImpl currentURI;
 	
 	private final Map<Integer, FStoreObject> internalObjectIDMap = new HashMap<Integer, FStoreObject>();
-
-	public ObjectInputStream(InputStream in) {
+	
+	public ObjectInputStream(InputStream in, int fragmentID) {
 		this.in = new BufferedInputStream(in, 1000);
 		this.buffer = new byte[1000];
 		index = buffer.length;
+		currentURI = new FStreamURIImpl(fragmentID);
 	}
 	
 	protected abstract EPackage getPackage(int packageID);
@@ -56,8 +55,36 @@ public abstract class ObjectInputStream {
 		}
 		return buffer[index++];
 	}
+	
+	public boolean readBoolean() throws IOException {
+		return readByte() != 0;
+	}
 
-	private int readInt() {
+	public char readChar() {
+		return (char) ((readByte() << 8) & 0xFF00 | readByte() & 0xFF);
+	}
+
+	public short readShort() {
+		return (short) ((readByte() << 8) & 0xFF00 | readByte() & 0xFF);
+	}
+
+	public int readInt() {
+		return (readByte() << 24) | (readByte() << 16) & 0xFF0000 | (readByte() << 8) & 0xFF00 | readByte() & 0xFF;
+	}
+
+	public long readLong() {
+		return (long) readInt() << 32 | readInt() & 0xFFFFFFFFL;
+	}
+
+	public float readFloat() {
+		return Float.intBitsToFloat(readInt());
+	}
+
+	public double readDouble() {
+		return Double.longBitsToDouble(readLong());
+	}
+
+	private int readCompressedInt() {
 		int initialByte = readByte();
 		int code = (initialByte >> 6) & 0x3;
 		switch (code) {
@@ -78,7 +105,7 @@ public abstract class ObjectInputStream {
 	}
 
 	private String readString() {
-		int length = readInt();
+		int length = readCompressedInt();
 		ByteBuffer stringBytes = ByteBuffer.allocate(length);
 		for (int i = 0; i < length; i++) {
 			stringBytes.put(readByte());
@@ -88,9 +115,9 @@ public abstract class ObjectInputStream {
 
 	private FURI readURI(int size) {
 		FURIImpl uri = new FURIImpl();
-		uri.setFragment(readInt());
+		uri.setFragment(readCompressedInt());
 		for (int i = 1; i < size; i = i + 2) {
-			uri.addFeatureToSegment(readInt(), readInt());
+			uri.addFeatureToSegment(readCompressedInt(), readCompressedInt());
 		}
 		return uri;
 	}
@@ -106,17 +133,35 @@ public abstract class ObjectInputStream {
 				currentURI.onUp();
 				return object;
 			} else {
-				int idSize = readInt();
+				int idSize = readCompressedInt();
 				if (idSize == -1) {
-					int objectId = readInt();
+					int objectId = readCompressedInt();
 					return getObject(objectId, null);
 				} else {
 					return createProxy(readURI(idSize));
 				}
 			}
 		} else {
-			return feature.getEType().getEPackage().getEFactoryInstance()
-					.createFromString((EDataType) feature.getEType(), readString());
+			EClassifier dataType = feature.getEType();
+			EPackage dataTypePackage = dataType.getEPackage();
+			if (dataTypePackage == EcorePackage.eINSTANCE) {
+				switch (dataType.getClassifierID()) {
+					case EcorePackage.EBYTE: { return readByte(); }
+					case EcorePackage.ECHAR: { return readChar(); }
+					case EcorePackage.EDOUBLE: { return readDouble(); }
+					case EcorePackage.EFLOAT: { return readFloat(); }
+					case EcorePackage.EINT: { return readInt(); }
+					case EcorePackage.ELONG: { return readLong(); }
+					case EcorePackage.ECHARACTER_OBJECT: { return readChar(); }
+					case EcorePackage.EDOUBLE_OBJECT: { return readDouble(); }
+					case EcorePackage.EFLOAT_OBJECT: { return readFloat(); }
+					case EcorePackage.EINTEGER_OBJECT: { return readInt(); }
+					case EcorePackage.ELONG_OBJECT: { return readLong(); }
+					case EcorePackage.ESTRING: { return readString(); }
+				}
+			}
+			
+			return feature.getEType().getEPackage().getEFactoryInstance().createFromString((EDataType) feature.getEType(), readString());
 		}
 	}
 	
@@ -137,18 +182,18 @@ public abstract class ObjectInputStream {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private FStoreObject readObject() {
-		int objectId = readInt();
-		int packageId = readInt();
-		int classifierId = readInt();
+		int objectId = readCompressedInt();
+		int packageId = readCompressedInt();
+		int classifierId = readCompressedInt();
 		EClass eClass = (EClass) getPackage(packageId).getEClassifiers().get(classifierId);
 		FStoreObject object = getObject(objectId, eClass);
 
-		int featureCount = readInt();
+		int featureCount = readCompressedInt();
 		for (int featureIndex = 0; featureIndex < featureCount; featureIndex++) {
-			EStructuralFeature feature = eClass.getEStructuralFeature(readInt());
+			EStructuralFeature feature = eClass.getEStructuralFeature(readCompressedInt());
 			if (feature.isMany()) {
 				List values = (List) object.fGet(feature);
-				int valueCount = readInt();
+				int valueCount = readCompressedInt();
 				for (int valueIndex = 0; valueIndex < valueCount; valueIndex++) {
 					values.add(readValue(object, feature, valueIndex));					
 				}
@@ -160,15 +205,14 @@ public abstract class ObjectInputStream {
 		return object;
 	}
 
-	public FStoreObject readFragment(int fragmentID) {
-		this.fragmentID = fragmentID;
-		int firstContainerInt = readInt();
+	public FStoreObject readFragment() {
+		int firstContainerInt = readCompressedInt();
 		FStoreObject root = null;
 		if (firstContainerInt != -1) {
 			EPackage containerPackage = getPackage(firstContainerInt);
-			EClass containerClass = (EClass)containerPackage.getEClassifiers().get(readInt());
-			EStructuralFeature containingFeature = containerClass.getEStructuralFeature(readInt());
-			FURI containerURI = readURI(readInt());
+			EClass containerClass = (EClass)containerPackage.getEClassifiers().get(readCompressedInt());
+			EStructuralFeature containingFeature = containerClass.getEStructuralFeature(readCompressedInt());
+			FURI containerURI = readURI(readCompressedInt());
 			root = readObject();
 			root.fSetContainer(createProxy(containerURI), (EReference)containingFeature);
 		} else {
@@ -184,42 +228,5 @@ public abstract class ObjectInputStream {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-	}
-	
-	private class FStreamURIImpl implements FURI {
-		private final List<Integer> reversedSegment = new ArrayList<Integer>();
-		private final List<Integer> segment = Lists.reverse(reversedSegment);
-		
-		@Override
-		public int fragment() {
-			return fragmentID;
-		}
-
-		@Override
-		public List<Integer> segment() {
-			return segment;
-		}
-		
-		private void onDown(int featureID, int index) {
-			reversedSegment.add(index);
-			reversedSegment.add(featureID);
-		}
-		
-		private void onUp() {
-			int size = reversedSegment.size();
-			reversedSegment.remove(size-1);
-			reversedSegment.remove(size-2);
-		}
-
-		@Override
-		public int hashCode() {
-			return FURI.hashCode(this);
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			return FURI.equals(this, obj);
-		}
-		
 	}
 }

@@ -25,6 +25,7 @@ import org.junit.Test
 import static de.hub.emffrag.tests.FObjectTestModelParser.*
 import static org.junit.Assert.*
 import de.hub.emffrag.internal.LRUCache
+import java.lang.ref.WeakReference
 
 class FragmentationCacheTests extends AbstractTests {
 	var FragmentationImpl fragmentation = null
@@ -151,12 +152,74 @@ class FragmentationCacheTests extends AbstractTests {
 	}
 	
 	@Test
-	public def void simpleComplexFragmentationTest() {
+	public def void complexFragmentationTest() {
 		val Container testModel = create(complexFragmentedModelText)			
 		val copy = EcoreUtil.copy(testModel)
 		fragmentation.root = testModel
 		assertSame(1, fragmentation.FStoreFragmentation.loadedFragments)
 		assertTrue(EcoreUtil.equals(copy, fragmentation.root))
 		assertSame(1, fragmentation.FStoreFragmentation.loadedFragments)
+	}
+	
+	@Test
+	public def void gcTest() {
+		val Container testModel = create(complexFragmentedModelText)			
+		val copy = EcoreUtil.copy(testModel)
+		fragmentation.root = testModel
+		
+		gc
+		assertSame(testModel, fragmentation.root)
+		assertTrue(EcoreUtil.equals(copy, fragmentation.root))
+		assertSame(1, fragmentation.FStoreFragmentation.loadedFragments)
+	}
+	
+	@Test
+	public def void memoryLeakTest() {
+		val ()=>Container createPart = [create('''
+			Container o1 {
+				contents = Container o11 {
+					ref referenceds = o1
+					content = Contents o111;
+					contents = Contents o112;
+					
+				}
+				contents = Contents o12;
+				contents = Container o13 {
+					ref referenced = o12
+					content = Container leave {
+						contents = Contents leave1;
+					}
+				}
+			}
+		''')]
+		val model = createPart.apply
+		for (i:0..10) {			
+			(withName("leave") as Container).fragment = createPart.apply;		
+		}
+		
+		val copy = EcoreUtil.copy(model)
+		fragmentation.root = model
+		
+		var long lastMemory = 0
+		for(i:0..5000) {
+			if (i%1000 == 0) {
+				gc
+				lastMemory = Runtime.runtime.freeMemory
+			}
+			assertTrue(EcoreUtil.equals(copy, fragmentation.root))		
+		}
+		assertTrue(Math.abs(lastMemory - Runtime.runtime.freeMemory) < lastMemory*0.01)
+	}
+	
+	def static void gc() {
+		for (i:0..2) {
+			var obj = new Object();
+			val ref = new WeakReference<Object>(obj);
+			obj = null;
+			while (ref.get() != null) {
+				System.gc();
+			}
+			System.runFinalization();
+		}
 	}
 }

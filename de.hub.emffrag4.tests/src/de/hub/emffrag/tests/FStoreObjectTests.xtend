@@ -107,7 +107,7 @@ class FStoreObjectTests extends AbstractTests {
 	@Test
 	def testSimpleUnload() {
 		val container = create('''Container;''')
-		val uri = container.fUnload
+		val uri = container.fUnload(null)
 		
 		assertNotNull(uri)
 		assertNotNull(uri.segment)

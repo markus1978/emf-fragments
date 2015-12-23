@@ -29,7 +29,7 @@ public interface FStoreObject {
 	public boolean fIsProxy();
 	public FURI fCreateURI();
 	public FURI fProxyURI();
-	public FURI fUnload();
+	public FURI fUnload(FURI uri);
 	
 	public boolean fModified();
 	public void fMarkModified(boolean modified);

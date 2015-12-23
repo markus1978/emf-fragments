@@ -38,7 +38,7 @@ class SerializationTests extends AbstractTests {
 		objectOutputStream.close;
 		
 		val byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray)
-		val objectInputStream = new ObjectInputStream(byteArrayInputStream) {
+		val objectInputStream = new ObjectInputStream(byteArrayInputStream, 0) {
 			override protected getPackage(int packageID) {
 				return thePackages.get(packageID)
 			}
@@ -51,7 +51,7 @@ class SerializationTests extends AbstractTests {
 			
 		}
 		
-		val readCopy = FStore.fINSTANCE.proxyManager.getFObject(objectInputStream.readFragment(0))
+		val readCopy = FStore.fINSTANCE.proxyManager.getFObject(objectInputStream.readFragment())
 		assertFalse(readCopy.fStoreObject.fIsProxy)
 		assertFalse(model.fStoreObject.fIsProxy)
 		assertTrue(readCopy.fStoreObject.fAllContents.forall[!it.fIsProxy])

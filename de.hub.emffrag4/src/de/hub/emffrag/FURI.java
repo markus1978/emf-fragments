@@ -22,4 +22,14 @@ public interface FURI {
 	public static int hashCode(FURI uri) {
 		return 31*Integer.hashCode(uri.fragment()+1) + uri.segment().hashCode();
 	}
+	public static FURI copy(FURI uri) {
+		if (uri instanceof FURIImpl) {
+			return uri;
+		} else {
+			FURIImpl result = new FURIImpl();
+			result.setFragment(uri.fragment());
+			result.segment().addAll(uri.segment());
+			return result;
+		}
+	}
 }
