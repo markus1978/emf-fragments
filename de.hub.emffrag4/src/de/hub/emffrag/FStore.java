@@ -38,7 +38,7 @@ public class FStore implements EStore {
 
 	private void setProtentialContainer(EStructuralFeature feature, Object container, Object contents) {
 		if (feature instanceof EReference && ((EReference)feature).isContainment()) {
-			((FStoreObject)contents).fSetContainer((FStoreObject)container, (EReference)feature);
+			((FStoreObject)contents).fSetContainer((FStoreObject)container, (EReference)feature, false);
 		}
 	}
 	

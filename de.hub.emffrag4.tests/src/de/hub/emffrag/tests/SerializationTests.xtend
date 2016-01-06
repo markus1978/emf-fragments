@@ -52,12 +52,15 @@ class SerializationTests extends AbstractTests {
 		}
 		
 		val readCopy = FStore.fINSTANCE.proxyManager.getFObject(objectInputStream.readFragment())
+		readCopy.eAllContents.forEach[
+			(it as FObject).fStoreObject.fRoot			
+		]
 		assertFalse(readCopy.fStoreObject.fIsProxy)
 		assertFalse(model.fStoreObject.fIsProxy)
-		assertTrue(readCopy.fStoreObject.fAllContents.forall[!it.fIsProxy])
-		assertTrue(model.fStoreObject.fAllContents.forall[!it.fIsProxy])
+		assertTrue(readCopy.fStoreObject.fAllContents(false).forall[!it.fIsProxy])
+		assertTrue(model.fStoreObject.fAllContents(false).forall[!it.fIsProxy])
 		
-		assertSame(model.fStoreObject.fAllContents.size, readCopy.fStoreObject.fAllContents.size)
+		assertSame(model.fStoreObject.fAllContents(false).size, readCopy.fStoreObject.fAllContents(false).size)
 		assertTrue(EcoreUtil.equals(model, readCopy))
 	}
 	

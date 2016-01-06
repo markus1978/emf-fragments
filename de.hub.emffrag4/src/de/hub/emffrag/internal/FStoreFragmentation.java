@@ -227,7 +227,7 @@ public class FStoreFragmentation {
 		if (fStoreObject.fIsRoot()) {
 			createFragment(fStoreObject);
 		}
-		for (FStoreObject content: fStoreObject.fAllContents()) {
+		for (FStoreObject content: fStoreObject.fAllContents(false)) {
 			if (content.fIsRoot()) {
 				createFragment(content);
 			}	
@@ -243,7 +243,7 @@ public class FStoreFragmentation {
 			deleteFragment(fStoreObject);
 			fStoreObject.fSetFragmentID(null, -1);
 		}
-		for (FStoreObject content: fStoreObject.fAllContents()) {
+		for (FStoreObject content: fStoreObject.fAllContents(false)) {
 			if (content.fIsRoot()) {
 				deleteFragment(fStoreObject);
 				content.fSetFragmentID(null, -1);

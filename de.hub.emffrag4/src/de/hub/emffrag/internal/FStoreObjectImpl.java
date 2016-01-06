@@ -55,6 +55,7 @@ public class FStoreObjectImpl implements FStoreObject {
 	
 	public FStoreObjectImpl() {	
 		this.root = this;
+		checkRootCondition();
 	}
 	
 	@Override
@@ -100,7 +101,19 @@ public class FStoreObjectImpl implements FStoreObject {
 
 	@Override
 	public FStoreObject fRoot() {
+		checkRootCondition();
 		return root;
+	}
+	
+	private void fSetRoot(FStoreObject root, boolean isEmpty) {
+		checkRootCondition();
+		this.root = (FStoreObjectImpl) root;
+		if (!isEmpty) {
+			for(FStoreObject content: this.fAllContents(true)) {
+				((FStoreObjectImpl)content).root = (FStoreObjectImpl)root;
+			}
+		}
+		checkRootCondition();
 	}
 
 	@Override
@@ -119,7 +132,18 @@ public class FStoreObjectImpl implements FStoreObject {
 		if (fIsRoot() || fIsProxy()) {
 			return fragmentation;
 		} else {
-			return fRoot().fFragmentation();
+			checkRootCondition();
+			return root.fragmentation;
+		}
+	}
+
+	private void checkRootCondition() {
+		if (!(root.fIsRoot() || root.fIsProxy()) || root == null) {
+			if (root == null) {
+				throw new IllegalStateException("Root cannot be null");
+			} else {
+				throw new IllegalStateException("A root must be root or at least a proxy");
+			}
 		}
 	}
 
@@ -138,17 +162,17 @@ public class FStoreObjectImpl implements FStoreObject {
 	}
 	
 	@Override
-	public void fSetContainer(FStoreObject newContainer, EReference containingFeature) {
+	public void fSetContainer(FStoreObject newContainer, EReference containingFeature, boolean isEmpty) {
 		if (newContainer != null) {
 			boolean isAddedToFragmentation = newContainer.fFragmentation() != null && fFragmentation() != newContainer.fFragmentation();
 			
 			flags = containingFeature.getFeatureID() << 16 | (flags & 0x00FF);
 			container = newContainer;		
 			if (FragmentationUtil.isFragmenting(containingFeature)) {
-				root = this;
+				fSetRoot(this, isEmpty);
 			} else {
 				fragmentation = null;
-				root = (FStoreObjectImpl) newContainer.fRoot();
+				fSetRoot(newContainer.fRoot(), isEmpty);
 			}
 			
 			if (isAddedToFragmentation) {
@@ -160,8 +184,9 @@ public class FStoreObjectImpl implements FStoreObject {
 			if (oldFragmentation != null) {
 				oldFragmentation.onRemoveFromFragmentation(this);
 			}
-			root = this;
+			fSetRoot(this, isEmpty);
 		}
+		checkRootCondition();
 	}
 
 	@Override
@@ -239,10 +264,11 @@ public class FStoreObjectImpl implements FStoreObject {
 	/**
 	 * @return An unmodifiable iterable that allows to iterate all direct
 	 *         contents of this object that is contained in the same fragment
-	 *         (including null) as this object. It uses fragmenting references to
+	 *         as this object. It uses fragmenting references to
 	 *         determine if contents is supposed to be in the same fragment.
 	 */
-	public Iterable<FStoreObject> fContents() {
+	@Override
+	public Iterable<FStoreObject> fContents(boolean onlyWithInSameFragment) {
 		return new FluentIterable<FStoreObject>() {
 			@Override
 			public Iterator<FStoreObject> iterator() {
@@ -260,7 +286,8 @@ public class FStoreObjectImpl implements FStoreObject {
 								Object nextValue = fSetting[currentSettingIndex];
 								if (nextValue != null) {
 									EStructuralFeature nextFeature = fClass().getEStructuralFeature(currentSettingIndex);
-									if (nextFeature instanceof EReference && ((EReference) nextFeature).isContainment()) {
+									if (nextFeature instanceof EReference && ((EReference) nextFeature).isContainment() && 
+											(!onlyWithInSameFragment || !FragmentationUtil.isFragmenting((EReference) nextFeature))) {
 										currentFeature = (EReference) nextFeature;
 										currentFeatureValue = nextValue;
 										currentSettingIndex++;
@@ -302,16 +329,17 @@ public class FStoreObjectImpl implements FStoreObject {
 	/**
 	 * @return An unmodifiable iterable that allows to iterate all direct and
 	 *         recursive contents of this object that is contained in the same
-	 *         fragment (including null) as this object. It will not recurse
+	 *         fragment as this object. It will not recurse
 	 *         into other fragments, based on fragmenting containment
 	 *         references.
 	 */
-	public Iterable<FStoreObject> fAllContents() {
+	@Override
+	public Iterable<FStoreObject> fAllContents(boolean onlyWithInSameFragment) {
 		return new FluentIterable<FStoreObject>() {
 			@Override
 			public Iterator<FStoreObject> iterator() {
 				return new AbstractIterator<FStoreObject>() {
-					Iterator<FStoreObject> contentIterator = fContents().iterator();
+					Iterator<FStoreObject> contentIterator = fContents(onlyWithInSameFragment).iterator();
 					Iterator<FStoreObject> currentSubContentIterator = null;
 
 					@Override
@@ -329,7 +357,7 @@ public class FStoreObjectImpl implements FStoreObject {
 							if (nextDirectContent.fIsProxy()) {
 								nextDirectContent = nextDirectContent.fFragmentation().resolve(nextDirectContent.fProxyURI());
 							}
-							currentSubContentIterator = nextDirectContent.fAllContents().iterator();
+							currentSubContentIterator = nextDirectContent.fAllContents(onlyWithInSameFragment).iterator();
 							return nextDirectContent;
 						} else {
 							return endOfData();
@@ -345,7 +373,7 @@ public class FStoreObjectImpl implements FStoreObject {
 		if (fIsProxy()) {
 			return "proxy: " + fProxyURI().toString();
 		} else {
-			String str = fClass().getName() + "(" + System.identityHashCode(this) + ")";
+			String str = fClass().getName(); // + "(" + System.identityHashCode(this) + ")";
 			EStructuralFeature nameFeature = fClass().getEStructuralFeature("name");
 			if (nameFeature != null) {
 				str += " " + fGet(nameFeature);
@@ -357,7 +385,12 @@ public class FStoreObjectImpl implements FStoreObject {
 			if (fModified()) {
 				str += "M";
 			}
-			str += "]";
+//			str += "#" + flags;
+//			str += "#" + fragmentID;
+//			if (fRoot() != this) {
+//				str += "{" + fRoot() + "}";	
+//			}
+			str += "]"; 
 			return str;
 		}
 	}

@@ -138,7 +138,7 @@ class EStoreTests extends AbstractTests {
 		''')		
 		
 		assertSame(3, root.eAllContents.size)	
-		assertSame(3, root.fStoreObject.fAllContents.size)
+		assertSame(3, root.fStoreObject.fAllContents(false).size)
 	}
 	
 }

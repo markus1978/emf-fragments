@@ -58,7 +58,12 @@ class FStoreFragmentationTests extends AbstractTests {
 				}
 				content = Contents c4;
 			}
-		''')		
+		''')
+		assertTrue(withName("f1").fIsRoot)
+		assertTrue(withName("f2").fIsRoot)
+		assertFalse(withName("c3").fIsRoot)
+		assertFalse(withName("c4").fIsRoot)
+				
 		fragmentation.root = root
 		
 		assertSame(root, fragmentation.getRoot)
@@ -85,10 +90,10 @@ class FStoreFragmentationTests extends AbstractTests {
 			}
 		''')
 		root.fSet(container_Fragment, f2)
-		f2.fSetContainer(root, container_Fragment);
+		f2.fSetContainer(root, container_Fragment, false);
 		val c4 = create("Contents c4")
 		root.fSet(container_Content, c4)
-		c4.fSetContainer(root, container_Content);
+		c4.fSetContainer(root, container_Content, false);
 		
 		assertSame(root, fragmentation.getRoot)
 		assertSame(2, fragmentation.loadedFragments)
@@ -110,14 +115,21 @@ class FStoreFragmentationTests extends AbstractTests {
 				fragment = Contents f3;
 			}
 		''')
+		assertTrue(withName("f1").fIsRoot)
+		assertTrue(withName("f3").fIsRoot)
+		assertTrue(withName("c2").fIsRoot)
+		
 		root.fSet(container_Content, c2)
-		c2.fSetContainer(root, container_Content);		
+		c2.fSetContainer(root, container_Content, false);		
+		
+		assertTrue(withName("f1").fIsRoot)
+		assertTrue(withName("f3").fIsRoot)
+		assertFalse(withName("c2").fIsRoot)
 		
 		assertSame(root, fragmentation.getRoot)
 		assertSame(2, fragmentation.loadedFragments)
 		assertSame(fragmentation, c2.fFragmentation)
-		assertSame(fragmentation, withName("f3").fFragmentation)
-		assertTrue(withName("f3").fIsRoot)
+		assertSame(fragmentation, withName("f3").fFragmentation)		
 	}
 	
 	@Test

@@ -91,7 +91,7 @@ class AbstractTests {
 	'''
 	
 	protected dispatch def String pretty(FObject fObject) '''
-		«fObject.eClass.name» {
+		«fObject.eClass.name» («fObject.fStoreObject»){
 			«FOR feature:fObject.eClass.EAllStructuralFeatures.filter[fObject.eIsSet(it)]»
 				«IF feature.isMany»
 					«FOR value:fObject.eGet(feature) as List<?>»
@@ -133,7 +133,7 @@ public class FStoreObjectBuilder {
 	private def checkContainment(EStructuralFeature feature, Object value) {
 		if (feature instanceof EReference) {
 			if (feature.containment) {
-				(value as FStoreObject).fSetContainer(object, feature)
+				(value as FStoreObject).fSetContainer(object, feature, false)
 			}
 		}
 	}
@@ -359,7 +359,7 @@ public class FStoreObjectTestModelParser extends TestModelParser {
 		}
 		if (feature instanceof EReference) {
 			if (feature.isContainment) {
-				(value as FStoreObject).fSetContainer(object as FStoreObject, feature)		
+				(value as FStoreObject).fSetContainer(object as FStoreObject, feature, false)		
 			}
 		}
 	}

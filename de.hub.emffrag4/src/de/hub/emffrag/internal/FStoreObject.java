@@ -22,7 +22,18 @@ public interface FStoreObject {
 	public void fSetFragmentID(FStoreFragmentation fragmentation, int fragmentID);
 	public FStoreFragmentation fFragmentation();
 	
-	public void fSetContainer(FStoreObject container, EReference containingFeature);
+	/**
+	 * Sets the container for this object. Updates fRoot and fIsRoot in this
+	 * object and its content accordingly.
+	 * 
+	 * @param container
+	 *            The container.
+	 * @param containingFeature
+	 *            The container feature that contains this object.
+	 * @param isEmtpy
+	 *            A performance hint that this object has no contents.
+	 */
+	public void fSetContainer(FStoreObject container, EReference containingFeature, boolean isEmtpy);
 	public FStoreObject fContainer();
 	public EReference fContainingFeature();
 	
@@ -34,6 +45,23 @@ public interface FStoreObject {
 	public boolean fModified();
 	public void fMarkModified(boolean modified);
 	
-	public Iterable<FStoreObject> fContents();
-	public Iterable<FStoreObject> fAllContents();
+	/**
+	 * @return An unmodifiable iterable that allows to iterate the direct
+	 *         contents of this object. Results do not contain the object
+	 *         itself.
+	 * @param onlyWithInSameFragment
+	 *            If true, only objects that are contained in the same fragment
+	 *            as this object.
+	 */
+	public Iterable<FStoreObject> fContents(boolean onlyWithInSameFragment);
+	
+	/**
+	 * @return An unmodifiable iterable that allows to iterate all direct and
+	 *         recursive contents of this object. Results do not contain the
+	 *         object itself.
+	 * @param onlyWithInSameFragment
+	 *            If true, only objects that are contained in the same fragment
+	 *            as this object.
+	 */
+	public Iterable<FStoreObject> fAllContents(boolean onlyWithInSameFragment);
 }

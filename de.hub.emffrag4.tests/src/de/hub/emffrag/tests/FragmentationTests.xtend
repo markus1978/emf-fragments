@@ -39,6 +39,7 @@ class FragmentationTests extends AbstractTests {
 		TestModelParser::clearNames
 		dataStore = new DataStoreImpl(new InMemoryDataStore(false), URI.createURI("test"))
 		fragmentation = new FragmentationImpl(newArrayList(TestModelPackage.eINSTANCE), dataStore, 0)
+		FStore.fINSTANCE.proxyManager.fullReset
 	}
 	
 	def void reinit() {
@@ -81,6 +82,7 @@ class FragmentationTests extends AbstractTests {
 	}
 	
 	def hasUniqueProxies(FObject object) {
+		assertNotNull(object)
 		val Map<FStoreObject, FObject> fStoreObjectMap = newHashMap
 		object.allContentsAndReferences.forall[
 			val original = it as FObject

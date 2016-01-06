@@ -127,9 +127,8 @@ public abstract class ObjectInputStream {
 			EReference reference = (EReference) feature;
 			if (reference.isContainment() && !FragmentationUtil.isFragmenting(reference)) {
 				currentURI.onDown(feature.getFeatureID(), index);
-				FStoreObject object = readObject();
+				FStoreObject object = readObject(container, (EReference)feature);
 				FStore.fINSTANCE.proxyManager.onFStoreObjectLoaded(currentURI, object);
-				object.fSetContainer(container, (EReference)feature);
 				currentURI.onUp();
 				return object;
 			} else {
@@ -181,12 +180,15 @@ public abstract class ObjectInputStream {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private FStoreObject readObject() {
+	private FStoreObject readObject(FStoreObject container, EReference containingFeature) {
 		int objectId = readCompressedInt();
 		int packageId = readCompressedInt();
 		int classifierId = readCompressedInt();
 		EClass eClass = (EClass) getPackage(packageId).getEClassifiers().get(classifierId);
 		FStoreObject object = getObject(objectId, eClass);
+		if (container != null) {
+			object.fSetContainer(container, containingFeature, true);
+		}
 
 		int featureCount = readCompressedInt();
 		for (int featureIndex = 0; featureIndex < featureCount; featureIndex++) {
@@ -213,10 +215,9 @@ public abstract class ObjectInputStream {
 			EClass containerClass = (EClass)containerPackage.getEClassifiers().get(readCompressedInt());
 			EStructuralFeature containingFeature = containerClass.getEStructuralFeature(readCompressedInt());
 			FURI containerURI = readURI(readCompressedInt());
-			root = readObject();
-			root.fSetContainer(createProxy(containerURI), (EReference)containingFeature);
+			root = readObject(createProxy(containerURI), (EReference)containingFeature);
 		} else {
-			root = readObject();
+			root = readObject(null, null);
 		}
 		FStore.fINSTANCE.proxyManager.onFStoreObjectLoaded(currentURI, root);
 		return root;

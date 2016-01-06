@@ -9,12 +9,12 @@ import de.hub.emffrag.tests.model.Container
 import de.hub.emffrag.tests.model.TestModelPackage
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EcorePackage
+import org.eclipse.emf.ecore.util.EcoreUtil
+import org.junit.Assert
 
 import static de.hub.emffrag.tests.FObjectTestModelParser.*
-import org.junit.Assert
-import org.eclipse.emf.ecore.util.EcoreUtil
 
-class PerformanceMeasures {
+class PerformanceMeasures extends AbstractTests {
 	private var Fragmentation fragmentation  = null
 	static def void beforeClass() {
 		EmfFragActivator.standalone(EcorePackage.eINSTANCE, TestModelPackage.eINSTANCE)
@@ -38,7 +38,7 @@ class PerformanceMeasures {
 				}
 				contents = Contents o12;
 				contents = Container o13 {
-					ref referenced = o12
+					ref referenced = o1
 					content = Container leave {
 						contents = Contents leave1;
 					}
@@ -64,8 +64,7 @@ class PerformanceMeasures {
 			var count = 0;
 			for (i:0..(100000/size)) {
 				count += size;
-				//Assert.assertSame(size, fragmentation.root.eAllContents.size)
-				Assert.assertTrue(EcoreUtil.equals(copy, fragmentation.root))						
+				Assert.assertEquals(size, fragmentation.root.eAllContents.size)						
 			}		
 			val time = System.currentTimeMillis - start
 			println('''For «count» object, we need «time» ms. This are «(count/time)»k objects per second.''')
