@@ -15,6 +15,8 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcorePackage;
 
+import com.google.common.base.Preconditions;
+
 import de.hub.emffrag.FURI;
 import de.hub.emffrag.FragmentationUtil;
 
@@ -31,6 +33,9 @@ public abstract class ObjectOutputStream {
 	
 	private int thisFragmentID = -1;
 	private FStreamURIImpl currentURI = null;
+	
+//	private StringBuilder humanReadableOutput = new StringBuilder();
+//	private int humanReadableIndent = 0;
 
 	public ObjectOutputStream(java.io.OutputStream out, boolean withUnload) {
 		this.out = new BufferedOutputStream(out, 1000);
@@ -134,38 +139,44 @@ public abstract class ObjectOutputStream {
 	}
 
 	private void writeString(String value) {
-		writeCompressedInt(value.length());
-		for (byte b : value.getBytes()) {
+		byte[] bytes = value.getBytes();
+		writeInt(bytes.length);
+		for (byte b : bytes) {
 			writeByte(b);
 		}
 	}
 	
-	private void writeURI(FStoreObject fStoreObject) {
+	private FURI writeURI(FStoreObject fStoreObject) {
 		FURI uri = fStoreObject.fCreateURI();
+		Preconditions.checkArgument(uri.fragment() != -1, "Cannot store reference to dangling object:\n" + fStoreObject);
 		writeCompressedInt(uri.segment().size() + 1);
 		writeCompressedInt(uri.fragment());
 		for (int segmentPart: uri.segment()) {
 			writeCompressedInt(segmentPart);
 		}
+		return uri;
 	}
 
 	/** 
 	 * Write a single object, never a list of objects.
 	 */
-	private void writeValue(EStructuralFeature feature, Object value, int index) {
+	private void writeValue(FStoreObject object, EStructuralFeature feature, Object value, int index) {
 		if (feature instanceof EReference) {
 			EReference reference = (EReference) feature;
 			FStoreObject fStoreObject = (FStoreObject) value;
 			if (reference.isContainment() && !FragmentationUtil.isFragmenting(reference)) {
-				currentURI.onDown(feature.getFeatureID(), index);
+				currentURI.onDown(object.fClass().getFeatureID(feature), index);
 				writeObject(fStoreObject);
 				currentURI.onUp();
 			} else {				
 				if (fStoreObject.fFragmentID() != thisFragmentID) {
-					writeURI(fStoreObject);
+					FURI uri = writeURI(fStoreObject);
+					hr(uri.toString());
 				} else {
 					writeCompressedInt(-1);
 					writeCompressedInt(getObjectId(fStoreObject));
+					hr("id:");
+					hr(""+getObjectId(fStoreObject));
 				}
 			}				
 		} else {
@@ -173,31 +184,35 @@ public abstract class ObjectOutputStream {
 			EPackage dataTypePackage = dataType.getEPackage();
 			if (dataTypePackage == EcorePackage.eINSTANCE) {
 				switch (dataType.getClassifierID()) {
-					case EcorePackage.EBYTE: { writeByte((byte)value); return; }
-					case EcorePackage.ECHAR: { writeChar((int)value); return; }
-					case EcorePackage.EDOUBLE: { writeDouble((double)value); return; }
-					case EcorePackage.EFLOAT: { writeFloat((float)value); return; }
-					case EcorePackage.EINT: { writeInt((int)value); return; }
-					case EcorePackage.ELONG: { writeLong((long)value); return; }
-					case EcorePackage.ECHARACTER_OBJECT: { writeChar((int)value); return; }
-					case EcorePackage.EDOUBLE_OBJECT: { writeDouble((double)value); return; }
-					case EcorePackage.EFLOAT_OBJECT: { writeFloat((float)value); return; }
-					case EcorePackage.EINTEGER_OBJECT: { writeInt((int)value); return; }
-					case EcorePackage.ELONG_OBJECT: { writeLong((long)value); return; }
-					case EcorePackage.ESTRING: { writeString((String)value); return; }
-				}
+					case EcorePackage.EBYTE: { writeByte((byte)value); hr(value); return; }
+					case EcorePackage.ECHAR: { writeChar((int)value); hr(value); return; }
+					case EcorePackage.EDOUBLE: { writeDouble((double)value); hr(value); return; }
+					case EcorePackage.EFLOAT: { writeFloat((float)value); hr(value); return; }
+					case EcorePackage.EINT: { writeInt((int)value); hr(value); return; }
+					case EcorePackage.ELONG: { writeLong((long)value); hr(value); return; }
+					case EcorePackage.ECHARACTER_OBJECT: { writeChar((int)value); hr(value); return; }
+					case EcorePackage.EDOUBLE_OBJECT: { writeDouble((double)value); hr(value); return; }
+					case EcorePackage.EFLOAT_OBJECT: { writeFloat((float)value); hr(value); return; }
+					case EcorePackage.EINTEGER_OBJECT: { writeInt((int)value); hr(value); return; }
+					case EcorePackage.ELONG_OBJECT: { writeLong((long)value); hr(value); return; }
+					case EcorePackage.ESTRING: { writeString((String)value); hr(value); return; }
+				}				
 			}
+			
 			String stringValue = dataTypePackage.getEFactoryInstance().convertToString((EDataType) dataType, value);
 			writeString(stringValue);
+			hr(dataType.getName() + ":" + stringValue);
 		}
 	}
 
 	@SuppressWarnings("rawtypes")
 	private void writeObject(FStoreObject object) {
-		writeCompressedInt(getObjectId(object)); // write object id for intra fragment references
+		writeCompressedInt(getObjectId(object)); // write object id for inter fragment references
+		hr(getObjectId(object)); hr(":");
 		EClass eClass = object.fClass();
 		writeCompressedInt(getPackageID(eClass.getEPackage()));
 		writeCompressedInt(eClass.getClassifierID());
+		hr(eClass.getName());
 		List<EStructuralFeature> features = new ArrayList<EStructuralFeature>();
 		for (EStructuralFeature feature : eClass.getEAllStructuralFeatures()) {
 			if (object.fIsSet(feature)) {
@@ -205,19 +220,28 @@ public abstract class ObjectOutputStream {
 			}
 		}
 		writeCompressedInt(features.size());
+		hr("("); hr(features.size()); hr(")\n", 1);
 		for (EStructuralFeature feature : features) {
-			writeCompressedInt(feature.getFeatureID());
+			int featureID = object.fClass().getFeatureID(feature);
+			writeCompressedInt(featureID);
+			hr(feature.getName()); hr("("); hr(featureID); hr(")=");
 			if (feature.isMany()) {
+				hr("{");
 				List values = (List) object.fGet(feature);
 				writeCompressedInt(values.size());
+				hr("("); hr(Integer.toString(values.size())); hr(")\n, 1");
 				int i = 0;
 				for (Object value : values) {
-					writeValue(feature, value, i++);
+					writeValue(object, feature, value, i++);
+					hr("\n");
 				}
+				hr("}",-1);
 			} else {
-				writeValue(feature, object.fGet(feature), -1);
+				writeValue(object, feature, object.fGet(feature), -1);
 			}
+			hr("\n");
 		}
+		hr("", -1);
 		
 		if (withUnload) {
 			object.fUnload(currentURI);
@@ -232,15 +256,53 @@ public abstract class ObjectOutputStream {
 		if (fContainer != null) {
 			EClass eClass = fContainer.fClass();
 			writeCompressedInt(getPackageID(eClass.getEPackage()));
+			hr(eClass.getEPackage().getNsURI());
 			writeCompressedInt(eClass.getClassifierID());
-			writeCompressedInt(object.fContainingFeature().getFeatureID());
-			writeURI(fContainer);
+			hr(" "); hr(eClass.getName());
+			writeCompressedInt(object.fContainer().fClass().getFeatureID(object.fContainingFeature()));
+			hr("."); hr(object.fContainingFeature().getName());
+			FURI uri = writeURI(fContainer);
+			hr("="); hr(uri.toString()); hr("\n");
 		} else {
 			writeCompressedInt(-1);
+			hr("=ROOT=\n");
 		}
 		
 		writeObject(object);
+//		writeString(humanReadableOutput.toString());
 	}
+	
+	private void hr(Object value, int indentChange) {
+//		if (indentChange < 0) {
+//			humanReadableOutput.deleteCharAt(humanReadableOutput.length()-1);
+//			humanReadableOutput.deleteCharAt(humanReadableOutput.length()-1);
+//		}
+//		humanReadableIndent += indentChange;
+//		hr(value);
+	}
+	
+	private void hr(Object value) {
+//		if (value instanceof String) {
+//			String str = (String) value;
+//			hr("\"");
+//			if (str.length() > 40) {
+//				appendHumanReadableOutput(str.substring(0, 40));
+//				hr("...");
+//			} else {
+//				appendHumanReadableOutput(str);
+//			}
+//			hr("\"");
+//		} else {
+//			appendHumanReadableOutput(value.toString());
+//		}
+	}
+	
+//	private void appendHumanReadableOutput(String str) {
+//		humanReadableOutput.append(str);
+//		if (str.endsWith("\n")) {
+//			for (int i = 0; i < humanReadableIndent; i++) humanReadableOutput.append("  ");
+//		}
+//	}
 	
 	protected abstract int getPackageID(EPackage pkg);
 }

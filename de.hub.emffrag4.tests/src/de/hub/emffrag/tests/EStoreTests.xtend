@@ -141,4 +141,53 @@ class EStoreTests extends AbstractTests {
 		assertSame(3, root.fStoreObject.fAllContents(false).size)
 	}
 	
+	@Test
+	def removeTest() {
+		val Container model = create('''
+			Container {
+				contents = Contents c1;
+				contents = Contents c2;
+			}
+		''')
+		
+		val c1 = withName("c1")
+		val c2 = withName("c2")
+		
+		assertSame(c1, model.contents.remove(0))
+		assertSame(c2, model.contents.remove(0))
+	}
+	
+	@Test
+	def getNullValueTest() {
+		val model = create('''Container;''') as Container
+		assertNull(model.name)	
+		assertNull(model.content)
+		assertNull(model.fragment)
+		assertNull(model.referenced)
+		assertNotNull(model.referenceds)
+		assertNotNull(model.contents)
+		assertNotNull(model.fragments)
+		assertSame(0, model.referenceds.size)
+		assertSame(0, model.contents.size)
+		assertSame(0, model.fragments.size)
+	}
+	
+	@Test
+	def setNullValueTest() {
+		val model = create('''Container a {
+				content = Contents;
+				fragment = Contents;
+				ref referenced = a
+			}
+		''') as Container
+		model.name = null
+		model.content = null
+		model.fragment = null
+		model.referenced = null
+		
+		assertNull(model.name)
+		assertNull(model.content)
+		assertNull(model.fragment)
+		assertNull(model.referenced)
+	}
 }

@@ -15,7 +15,6 @@ import de.hub.emffrag.datastore.IDataStore.IDataStoreFactory;
 import de.hub.emffrag.datastore.InMemoryDataStore;
 
 public class EmfFragActivator extends Plugin {
-	
 	public static EmfFragActivator instance = null;
 	
 	public boolean logInStandAlone = false;

@@ -1,45 +1,18 @@
 package de.hub.emffrag.tests
 
-import de.hub.emffrag.EmfFragActivator
-import de.hub.emffrag.FStore
-import de.hub.emffrag.FragmentationImpl
-import de.hub.emffrag.datastore.DataStoreImpl
-import de.hub.emffrag.datastore.IDataStore
-import de.hub.emffrag.datastore.InMemoryDataStore
 import de.hub.emffrag.internal.LRUCache
 import de.hub.emffrag.tests.model.Container
-import de.hub.emffrag.tests.model.TestModelPackage
 import java.lang.ref.WeakReference
-import org.eclipse.emf.common.util.URI
-import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.emf.ecore.util.EcoreUtil
-import org.junit.Before
-import org.junit.BeforeClass
 import org.junit.Test
 
 import static de.hub.emffrag.tests.FObjectTestModelParser.*
 import static org.junit.Assert.*
 
-class FragmentationCacheTests extends AbstractTests {
-	var FragmentationImpl fragmentation = null
-	var IDataStore dataStore = null
+class FragmentationCacheTests extends AbstractDataStoreTests {
 	
-	@BeforeClass
-	static def void beforeClass() {
-		EmfFragActivator.standalone(EcorePackage.eINSTANCE, TestModelPackage.eINSTANCE)
-	}
-	
-	@Before
-	def void before() {
-		TestModelParser::clearNames
-		dataStore = new DataStoreImpl(new InMemoryDataStore(false), URI.createURI("test"))
-		fragmentation = new FragmentationImpl(newArrayList(TestModelPackage.eINSTANCE), dataStore, 1)
-	}
-	
-	def void reinit() {
-		fragmentation.close();
-		fragmentation = new FragmentationImpl(newArrayList(TestModelPackage.eINSTANCE), dataStore, 1)
-		FStore.fINSTANCE.proxyManager.reset
+	override cacheSize() {
+		return 1
 	}
 	
 	@Test

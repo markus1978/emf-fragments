@@ -1,5 +1,7 @@
 package de.hub.emffrag;
 
+import de.hub.emffrag.datastore.IDataStore;
+
 public interface Fragmentation {
 	public <T extends FObject> T getRoot();
 
@@ -19,4 +21,6 @@ public interface Fragmentation {
 	 * discard the fragmentation.
 	 */
 	public void close();
+	
+	public IDataStore getDataStore();
 }

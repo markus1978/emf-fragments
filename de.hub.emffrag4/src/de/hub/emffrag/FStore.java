@@ -32,7 +32,7 @@ public class FStore implements EStore {
 	}
 	
 	private Object deProxifyValue(EStructuralFeature feature, Object rawValue) {
-		Object value = (feature instanceof EReference) ? ((FObject)rawValue).fStoreObject() : rawValue;
+		Object value = (feature instanceof EReference && rawValue != null) ? ((FObject)rawValue).fStoreObject() : rawValue;
 		return value;
 	}
 
@@ -63,7 +63,9 @@ public class FStore implements EStore {
 			fObject.fStoreObject().fSet(feature, value);
 		}
 		
-		setProtentialContainer(feature, fObject.fStoreObject(), value);
+		if (value != null) {
+			setProtentialContainer(feature, fObject.fStoreObject(), value);
+		}
 		fObject.fStoreObject().fMarkModified(true);
 		return proxifyValue(feature, previousValue);		
 	}
@@ -151,7 +153,7 @@ public class FStore implements EStore {
 			Object oldValue = ((List<?>)fObject.fStoreObject().fGet(feature)).remove(index);
 			setProtentialContainer(feature, null, oldValue);
 			fObject.fStoreObject().fMarkModified(true);
-			return oldValue;
+			return proxifyValue(feature, oldValue);
 		}
 		throw new IllegalArgumentException();
 	}
@@ -239,8 +241,7 @@ public class FStore implements EStore {
 
 	@Override
 	public EObject create(EClass eClass) {
-		FStoreObject fStoreObject = new FStoreObjectImpl();
-		fStoreObject.fSetClass(eClass);
+		FStoreObject fStoreObject = new FStoreObjectImpl(eClass);
 		fStoreObject.fMarkModified(true);
 		return proxify(fStoreObject);
 	}

@@ -22,8 +22,7 @@ public class FObjectImpl extends EStoreEObjectImpl implements FObject {
 			if (eClass() == null) {
 				throw new IllegalStateException();
 			}
-			fStoreObject = new FStoreObjectImpl();
-			fStoreObject.fSetClass(eClass());
+			fStoreObject = new FStoreObjectImpl(eClass());
 			fStoreObject.fMarkModified(true);
 			access(fStoreObject);
 			FStore.fINSTANCE.proxyManager.registerFObject(fStoreObject, this);
@@ -50,5 +49,15 @@ public class FObjectImpl extends EStoreEObjectImpl implements FObject {
 
 	protected boolean eIsCaching() {
 		return false;
+	}
+
+	@Override
+	public Fragmentation fFragmentation() {
+		return FragmentationImpl.get(fStoreObject.fFragmentation());
+	}
+	
+	@Override
+	public String toString() {
+		return fStoreObject().toString();
 	}
 }

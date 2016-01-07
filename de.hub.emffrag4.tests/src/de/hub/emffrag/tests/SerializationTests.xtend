@@ -18,6 +18,7 @@ import static de.hub.emffrag.tests.FObjectTestModelParser.*
 import org.junit.Before
 import de.hub.emffrag.FURI
 import de.hub.emffrag.internal.FStoreObjectImpl
+import org.eclipse.emf.ecore.EClass
 
 class SerializationTests extends AbstractTests {
 	
@@ -42,11 +43,11 @@ class SerializationTests extends AbstractTests {
 			override protected getPackage(int packageID) {
 				return thePackages.get(packageID)
 			}
-			override protected createObject() {
-				return new FStoreObjectImpl();
+			override protected createObject(EClass eClass) {
+				return new FStoreObjectImpl(eClass);
 			}
-			override protected createProxy(FURI uri) {
-				return new FStoreObjectImpl(uri);
+			override protected createProxy(FURI uri, EClass eClass) {
+				return new FStoreObjectImpl(uri, eClass);
 			}
 			
 		}

@@ -105,7 +105,7 @@ public abstract class ObjectInputStream {
 	}
 
 	private String readString() {
-		int length = readCompressedInt();
+		int length = readInt();
 		ByteBuffer stringBytes = ByteBuffer.allocate(length);
 		for (int i = 0; i < length; i++) {
 			stringBytes.put(readByte());
@@ -126,7 +126,7 @@ public abstract class ObjectInputStream {
 		if (feature instanceof EReference) {
 			EReference reference = (EReference) feature;
 			if (reference.isContainment() && !FragmentationUtil.isFragmenting(reference)) {
-				currentURI.onDown(feature.getFeatureID(), index);
+				currentURI.onDown(container.fClass().getFeatureID(feature), index);
 				FStoreObject object = readObject(container, (EReference)feature);
 				FStore.fINSTANCE.proxyManager.onFStoreObjectLoaded(currentURI, object);
 				currentURI.onUp();
@@ -137,7 +137,7 @@ public abstract class ObjectInputStream {
 					int objectId = readCompressedInt();
 					return getObject(objectId, null);
 				} else {
-					return createProxy(readURI(idSize));
+					return createProxy(readURI(idSize), (EClass)feature.getEType());
 				}
 			}
 		} else {
@@ -164,17 +164,18 @@ public abstract class ObjectInputStream {
 		}
 	}
 	
-	protected abstract FStoreObject createProxy(FURI uri);
-	protected abstract FStoreObject createObject();
+	protected abstract FStoreObject createProxy(FURI uri, EClass eClass);
+	protected abstract FStoreObject createObject(EClass eClass);
 	
 	private FStoreObject getObject(int objectId, EClass eClass) {
 		FStoreObject object = internalObjectIDMap.get(objectId);
 		if (object == null) {
-			object = createObject();
+			object = createObject(eClass);
 			internalObjectIDMap.put(objectId, object);
-		}
-		if (eClass != null) {
-			object.fSetClass(eClass);
+		} else {
+			if (object.fClass() == null && eClass != null) {
+				object.fSetClass(eClass);
+			}
 		}
 		return object;
 	}
@@ -192,7 +193,8 @@ public abstract class ObjectInputStream {
 
 		int featureCount = readCompressedInt();
 		for (int featureIndex = 0; featureIndex < featureCount; featureIndex++) {
-			EStructuralFeature feature = eClass.getEStructuralFeature(readCompressedInt());
+			int featureID = readCompressedInt();
+			EStructuralFeature feature = eClass.getEStructuralFeature(featureID);
 			if (feature.isMany()) {
 				List values = (List) object.fGet(feature);
 				int valueCount = readCompressedInt();
@@ -215,11 +217,12 @@ public abstract class ObjectInputStream {
 			EClass containerClass = (EClass)containerPackage.getEClassifiers().get(readCompressedInt());
 			EStructuralFeature containingFeature = containerClass.getEStructuralFeature(readCompressedInt());
 			FURI containerURI = readURI(readCompressedInt());
-			root = readObject(createProxy(containerURI), (EReference)containingFeature);
+			root = readObject(createProxy(containerURI, containerClass), (EReference)containingFeature);
 		} else {
 			root = readObject(null, null);
 		}
 		FStore.fINSTANCE.proxyManager.onFStoreObjectLoaded(currentURI, root);
+//		readString(); // read human readable output
 		return root;
 	}
 

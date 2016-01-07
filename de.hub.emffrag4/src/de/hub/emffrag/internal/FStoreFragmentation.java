@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
@@ -28,6 +29,7 @@ import de.hub.util.Ansi.Color;
 
 public class FStoreFragmentation {
 	private final IDataMap<Long> fragmentDataStoreIndex;
+	private final IDataStore dataStore;
 
 	private final List<EPackage> packages;
 	private final Map<Integer, FStoreObject> fragments;
@@ -45,6 +47,7 @@ public class FStoreFragmentation {
 		} else {
 			this.fragments = new HashMap<Integer, FStoreObject>();
 		}
+		this.dataStore = dataStore;
 		this.fragmentDataStoreIndex = dataStore.getMap(("f_").getBytes(), LongKeyType.instance);
 		this.packages = new ArrayList<EPackage>(packages);
 		this.packages.sort(new Comparator<EPackage>() {
@@ -92,15 +95,15 @@ public class FStoreFragmentation {
 				}
 
 				@Override
-				protected FStoreObject createProxy(FURI uri) {
-					FStoreObjectImpl proxy = new FStoreObjectImpl(uri);
+				protected FStoreObject createProxy(FURI uri, EClass eClass) {
+					FStoreObjectImpl proxy = new FStoreObjectImpl(uri, eClass);
 					proxy.fSetFragmentID(FStoreFragmentation.this, fragmentID);
 					return proxy;
 				}
 
 				@Override
-				protected FStoreObject createObject() {
-					FStoreObjectImpl object = new FStoreObjectImpl();
+				protected FStoreObject createObject(EClass eClass) {
+					FStoreObjectImpl object = new FStoreObjectImpl(eClass);
 					object.fSetFragmentID(FStoreFragmentation.this, fragmentID);
 					return object;
 				}				
@@ -268,5 +271,9 @@ public class FStoreFragmentation {
 			lastAccessed = fragment;
 			fragments.get(fragment.fFragmentID());
 		}
+	}
+
+	public IDataStore getDataStore() {
+		return dataStore;
 	}
 }

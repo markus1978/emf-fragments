@@ -1,52 +1,20 @@
 package de.hub.emffrag.tests
 
-import de.hub.emffrag.EmfFragActivator
 import de.hub.emffrag.FObject
-import de.hub.emffrag.FStore
-import de.hub.emffrag.FragmentationImpl
-import de.hub.emffrag.datastore.DataStoreImpl
-import de.hub.emffrag.datastore.IDataStore
-import de.hub.emffrag.datastore.InMemoryDataStore
 import de.hub.emffrag.internal.FStoreObject
 import de.hub.emffrag.tests.model.AbstractClass
 import de.hub.emffrag.tests.model.Container
-import de.hub.emffrag.tests.model.TestModelPackage
 import java.util.ArrayList
 import java.util.List
 import java.util.Map
-import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
-import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.emf.ecore.util.EcoreUtil
-import org.junit.Before
-import org.junit.BeforeClass
 import org.junit.Test
 
 import static de.hub.emffrag.tests.FObjectTestModelParser.*
 import static org.junit.Assert.*
 
-class FragmentationTests extends AbstractTests {
-	var FragmentationImpl fragmentation = null
-	var IDataStore dataStore = null
-	
-	@BeforeClass
-	static def void beforeClass() {
-		EmfFragActivator.standalone(EcorePackage.eINSTANCE, TestModelPackage.eINSTANCE)
-	}
-	
-	@Before
-	def void before() {
-		TestModelParser::clearNames
-		dataStore = new DataStoreImpl(new InMemoryDataStore(false), URI.createURI("test"))
-		fragmentation = new FragmentationImpl(newArrayList(TestModelPackage.eINSTANCE), dataStore, 0)
-		FStore.fINSTANCE.proxyManager.fullReset
-	}
-	
-	def void reinit() {
-		fragmentation.close();
-		fragmentation = new FragmentationImpl(newArrayList(TestModelPackage.eINSTANCE), dataStore, 0)
-		FStore.fINSTANCE.proxyManager.reset
-	}
+class FragmentationTests extends AbstractDataStoreTests {
 	
 	@Test
 	public def void rootTest() {		

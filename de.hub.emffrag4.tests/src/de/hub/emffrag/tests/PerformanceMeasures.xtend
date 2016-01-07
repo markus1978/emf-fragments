@@ -1,31 +1,19 @@
 package de.hub.emffrag.tests
 
-import de.hub.emffrag.EmfFragActivator
-import de.hub.emffrag.Fragmentation
-import de.hub.emffrag.FragmentationImpl
-import de.hub.emffrag.datastore.DataStoreImpl
-import de.hub.emffrag.datastore.InMemoryDataStore
 import de.hub.emffrag.tests.model.Container
-import de.hub.emffrag.tests.model.TestModelPackage
-import org.eclipse.emf.common.util.URI
-import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.junit.Assert
+import org.junit.Test
 
 import static de.hub.emffrag.tests.FObjectTestModelParser.*
 
-class PerformanceMeasures extends AbstractTests {
-	private var Fragmentation fragmentation  = null
-	static def void beforeClass() {
-		EmfFragActivator.standalone(EcorePackage.eINSTANCE, TestModelPackage.eINSTANCE)
+class PerformanceMeasures extends AbstractDataStoreTests {
+	
+	override cacheSize() {
+		return 10
 	}
 	
-	def void before() {
-		TestModelParser::clearNames
-		val dataStore = new DataStoreImpl(new InMemoryDataStore(false), URI.createURI("test"))
-		fragmentation = new FragmentationImpl(newArrayList(TestModelPackage.eINSTANCE), dataStore, 3)
-	}
-	
+	@Test
 	def void measureModelTraversal() {
 		before
 		val ()=>Container createPart = [create('''
@@ -70,10 +58,4 @@ class PerformanceMeasures extends AbstractTests {
 			println('''For «count» object, we need «time» ms. This are «(count/time)»k objects per second.''')
 		}
 	} 
-	
-	public static def void main(String[] args) {
-		beforeClass
-		val pm = new PerformanceMeasures()
-		pm.measureModelTraversal
-	}
 }

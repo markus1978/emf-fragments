@@ -7,5 +7,6 @@ import de.hub.emffrag.internal.FStoreObject;
 public interface FObject extends EObject {
 
 	FStoreObject fStoreObject();
-
+	Fragmentation fFragmentation();
+	
 }

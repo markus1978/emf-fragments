@@ -1,11 +1,14 @@
 package de.hub.emffrag.tests
 
+import de.hub.emffrag.EmfFragActivator
+import de.hub.emffrag.FObject
 import de.hub.emffrag.internal.FStoreObject
 import de.hub.emffrag.internal.FStoreObjectImpl
 import de.hub.emffrag.tests.model.AbstractClass
 import de.hub.emffrag.tests.model.Container
 import de.hub.emffrag.tests.model.TestModelFactory
 import de.hub.emffrag.tests.model.TestModelPackage
+import de.hub.jstattrack.JStatTrackActivator
 import java.io.ByteArrayInputStream
 import java.text.ParseException
 import java.util.HashMap
@@ -17,9 +20,16 @@ import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
-import de.hub.emffrag.FObject
+import org.eclipse.emf.ecore.EcorePackage
+import org.junit.BeforeClass
 
 class AbstractTests {
+	
+	@BeforeClass
+	static def activateRequiredPlugins() {
+		JStatTrackActivator.standalone
+		EmfFragActivator.standalone(EcorePackage.eINSTANCE, TestModelPackage.eINSTANCE)
+	}
 	
 	public static val String complexFragmentText = '''
 		Container f1 {
@@ -125,8 +135,7 @@ public class FStoreObjectBuilder {
 	
 	public static  def FStoreObjectBuilder newBuilder(EClass eClass) {
 		val builder = new FStoreObjectBuilder
-		builder.object = new FStoreObjectImpl
-		builder.object.fSetClass(eClass)
+		builder.object = new FStoreObjectImpl(eClass)
 		return builder;
 	}
 	
@@ -345,8 +354,7 @@ public class FStoreObjectTestModelParser extends TestModelParser {
 	}
 	
 	protected override create(EClass eClass) {
-		val result = new FStoreObjectImpl
-		result.fSetClass(eClass)
+		val result = new FStoreObjectImpl(eClass)
 		result.fMarkModified(true)
 		return result
 	}

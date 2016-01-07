@@ -1,10 +1,11 @@
 package de.hub.emffrag.tests
 
+import de.hub.emffrag.internal.FStoreObjectImpl
+import org.eclipse.emf.ecore.EReference
 import org.junit.Test
 
 import static de.hub.emffrag.tests.FStoreObjectTestModelParser.*
 import static org.junit.Assert.*
-import org.eclipse.emf.ecore.EReference
 
 class FStoreObjectTests extends AbstractTests {
 	
@@ -177,5 +178,12 @@ class FStoreObjectTests extends AbstractTests {
 		assertSame(4, model.fAllContents(true).size)
 		assertSame(4, model.fContents(false).size)
 		assertSame(7, model.fAllContents(false).size)		
+	}
+	
+	@Test
+	def testToString() {
+		val model = create(complexFragmentedModelText);
+		val str = (model as FStoreObjectImpl).toFullTreeString()
+		assertNotNull(str)
 	}
 }

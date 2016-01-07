@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.FluentIterable;
 
@@ -48,13 +50,14 @@ public class FStoreObjectImpl implements FStoreObject {
 	private FStoreFragmentation fragmentation;
 	private int flags = 0;
 	
-	public FStoreObjectImpl(FURI uri) {
-		this();
+	public FStoreObjectImpl(FURI uri, EClass eClass) {
+		this(eClass);
 		this.proxyURI = uri;
 	}
 	
-	public FStoreObjectImpl() {	
+	public FStoreObjectImpl(EClass eClass) {
 		this.root = this;
+		this.fClass = eClass;
 		checkRootCondition();
 	}
 	
@@ -62,15 +65,16 @@ public class FStoreObjectImpl implements FStoreObject {
 	public EClass fClass() {
 		return fClass;
 	}
-
+	
 	@Override
 	public void fSetClass(EClass eClass) {
+		Preconditions.checkArgument(eClass != null);
 		this.fClass = eClass;
 	}
 
 	@Override
 	public Object fGet(EStructuralFeature feature) {
-		Object value = settings()[feature.getFeatureID()];
+		Object value = settings()[fClass.getFeatureID(feature)];
 		if (value == null && feature.isMany()) {
 			value = new ArrayList<Object>();
 			fSet(feature, value);
@@ -79,8 +83,8 @@ public class FStoreObjectImpl implements FStoreObject {
 	}
 
 	@Override
-	public void fSet(EStructuralFeature feature, Object value) {
-		settings()[feature.getFeatureID()] = value;
+	public void fSet(EStructuralFeature feature, Object value) {	
+		settings()[fClass.getFeatureID(feature)] = value;
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -101,12 +105,10 @@ public class FStoreObjectImpl implements FStoreObject {
 
 	@Override
 	public FStoreObject fRoot() {
-		checkRootCondition();
 		return root;
 	}
 	
 	private void fSetRoot(FStoreObject root, boolean isEmpty) {
-		checkRootCondition();
 		this.root = (FStoreObjectImpl) root;
 		if (!isEmpty) {
 			for(FStoreObject content: this.fAllContents(true)) {
@@ -132,7 +134,6 @@ public class FStoreObjectImpl implements FStoreObject {
 		if (fIsRoot() || fIsProxy()) {
 			return fragmentation;
 		} else {
-			checkRootCondition();
 			return root.fragmentation;
 		}
 	}
@@ -166,7 +167,7 @@ public class FStoreObjectImpl implements FStoreObject {
 		if (newContainer != null) {
 			boolean isAddedToFragmentation = newContainer.fFragmentation() != null && fFragmentation() != newContainer.fFragmentation();
 			
-			flags = containingFeature.getFeatureID() << 16 | (flags & 0x00FF);
+			flags = newContainer.fClass().getFeatureID(containingFeature) << 16 | (flags & 0x00FF);
 			container = newContainer;		
 			if (FragmentationUtil.isFragmenting(containingFeature)) {
 				fSetRoot(this, isEmpty);
@@ -186,7 +187,6 @@ public class FStoreObjectImpl implements FStoreObject {
 			}
 			fSetRoot(this, isEmpty);
 		}
-		checkRootCondition();
 	}
 
 	@Override
@@ -206,14 +206,16 @@ public class FStoreObjectImpl implements FStoreObject {
 			return fProxyURI();
 		}
 		FURIImpl uri = new FURIImpl();	
-		uri.setFragment(fFragmentID());
+		int fragmentID = fFragmentID();
+		uri.setFragment(fragmentID);
 		FStoreObject i = this;
 		while (!i.fIsRoot()) {
 			EReference fContainingFeature = i.fContainingFeature();
+			int fContainingFeatureID = i.fContainer().fClass().getFeatureID(fContainingFeature);
 			if (fContainingFeature.isMany()) {
-				uri.addFeatureToSegment(fContainingFeature, ((List<FStoreObjectImpl>)i.fContainer().fGet(fContainingFeature)).indexOf(i));	
+				uri.addFeatureToSegment(fContainingFeatureID, ((List<FStoreObjectImpl>)i.fContainer().fGet(fContainingFeature)).indexOf(i));	
 			} else {
-				uri.addFeatureToSegment(fContainingFeature, -1);
+				uri.addFeatureToSegment(fContainingFeatureID, -1);
 			}
 			i = i.fContainer();
 		}
@@ -368,12 +370,11 @@ public class FStoreObjectImpl implements FStoreObject {
 		};
 	}
 
-	@Override
-	public String toString() {
+	private String toBaseString() {
 		if (fIsProxy()) {
 			return "proxy: " + fProxyURI().toString();
 		} else {
-			String str = fClass().getName(); // + "(" + System.identityHashCode(this) + ")";
+			String str = fClass().getName();
 			EStructuralFeature nameFeature = fClass().getEStructuralFeature("name");
 			if (nameFeature != null) {
 				str += " " + fGet(nameFeature);
@@ -385,15 +386,98 @@ public class FStoreObjectImpl implements FStoreObject {
 			if (fModified()) {
 				str += "M";
 			}
-//			str += "#" + flags;
-//			str += "#" + fragmentID;
-//			if (fRoot() != this) {
-//				str += "{" + fRoot() + "}";	
-//			}
+			if (fContainer() != null) {
+				str += "C";
+			}
 			str += "]"; 
 			return str;
 		}
 	}
 	
+	@Override
+	public String toString() {
+		return toFullTreeString();
+	}
+
+	private class FullTreeHelper {
+		int indent = 0;
+		StringBuilder out = new StringBuilder();
+		
+		@SuppressWarnings("unchecked")
+		FullTreeHelper appendObject(FStoreObject object) {
+			append(((FStoreObjectImpl) object).toBaseString());
+			append(" {\n", 1);
+				for (EStructuralFeature feature: object.fClass().getEAllStructuralFeatures()) {
+					if (object.fIsSet(feature)) { 
+						append(feature.getName());
+						append("=");
+						if (feature.isMany()) {
+							append("[\n", 1);
+							for(Object value: (List<Object>)object.fGet(feature)) { 
+								appendValue(value, feature);
+								append("\n");
+							}
+							append("]", -1);
+						} else {
+							appendValue(object.fGet(feature), feature);
+						}
+						append("\n");
+					}
+				}
+			append("}", -1);
+			return this;
+		}
+		
+		String getResult() {
+			return out.toString();
+		}
+		
+		void appendValue(Object value, EStructuralFeature feature) {
+			if (value == null) {
+				append("null");
+			} else if (value instanceof String) {
+				String stringValue = (String) value;
+				append("\"");
+				if (stringValue.length() > 10) {					
+					append(stringValue.substring(0, 10));
+					append("...");
+				} else {
+					append(stringValue);
+				}
+				append("\"");
+			} else if (feature instanceof EAttribute) {
+				append(value.toString());
+			} else {
+				EReference reference = (EReference) feature;
+				FStoreObject objectValue = (FStoreObject)value;
+				if (reference.isContainment()) {
+					appendObject(objectValue);
+				} else {
+					append("<ref> ");
+					append(((FStoreObjectImpl) objectValue).toBaseString());
+				}
+			}
+		}
+		
+		void append(String str) {
+			append(str, 0);
+		}
+		
+		void append(String str, int indentChange) {
+			if (indentChange < 0) {
+				out.deleteCharAt(out.length()-1);
+				out.deleteCharAt(out.length()-1);
+			}
+			out.append(str);
+			indent += indentChange;
+			if (str.endsWith("\n")) {
+				for (int i = 0; i < indent; i++) out.append("  ");
+			}
+		}
+	}
+	
+	public String toFullTreeString() {
+		return new FullTreeHelper().appendObject(this).getResult();
+	}
 	
 }

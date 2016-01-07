@@ -3,8 +3,6 @@ package de.hub.emffrag;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.emf.ecore.EReference;
-
 public class FURIImpl implements FURI {
 
 	private final List<Integer> segment = new ArrayList<Integer>();
@@ -25,10 +23,6 @@ public class FURIImpl implements FURI {
 	public void addFeatureToSegment(int featureID, int slotIndex) {
 		segment.add(featureID);
 		segment.add(slotIndex);
-	}
-	
-	public void addFeatureToSegment(EReference feature, int slotIndex) {
-		addFeatureToSegment(feature.getFeatureID(), slotIndex);
 	}
 	
 	@Override
