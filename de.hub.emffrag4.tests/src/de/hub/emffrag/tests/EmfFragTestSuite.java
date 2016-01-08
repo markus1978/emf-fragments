@@ -11,7 +11,8 @@ import org.junit.runners.Suite.SuiteClasses;
 	SerializationTests.class,
 	FStoreFragmentationTests.class,
 	FragmentationTests.class,
-	FragmentationCacheTests.class
+	FragmentationCacheTests.class,
+	FragmentationSetTests.class
 })
 public class EmfFragTestSuite {
 

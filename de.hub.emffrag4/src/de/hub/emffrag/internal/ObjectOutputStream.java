@@ -89,7 +89,7 @@ public abstract class ObjectOutputStream {
 	}
 
 	public void writeCompressedInt(int value) {
-		++value;
+		value = value + 2;
 		if (value < 0) {
 			handleInvalidValue(value);
 		} else if (value <= 0x3F) {
@@ -148,7 +148,7 @@ public abstract class ObjectOutputStream {
 		}
 	}
 	
-	private FURI writeURI(FStoreObject fStoreObject) {
+	private void writeURI(FStoreObject fStoreObject) {
 		FURI uri = fStoreObject.fCreateURI();
 		if (uri.fragment() == -1) {
 			writeCompressedInt(-1);
@@ -159,15 +159,17 @@ public abstract class ObjectOutputStream {
 		} else {
 			if (fStoreObject.fFragmentation() != thisFragmentation) {
 				writeCompressedInt(-2);
-				writeString(fStoreObject.fFragmentation().getURI().toString());
+				String fragmentationURIString = fStoreObject.fFragmentation().getURI().toString();
+				writeString(fragmentationURIString);
+				hr(fragmentationURIString); hr("/");
 			}
 			writeCompressedInt(uri.segment().size() + 1);
 			writeCompressedInt(uri.fragment());
 			for (int segmentPart: uri.segment()) {
 				writeCompressedInt(segmentPart);
-			}		
+			}
+			hr(uri.toString());
 		}
-		return uri;
 	}
 
 	/** 
@@ -183,8 +185,7 @@ public abstract class ObjectOutputStream {
 				currentURI.onUp();
 			} else {			
 				if ((fStoreObject.fFragmentation() != thisFragmentation) || (fStoreObject.fFragmentID() != thisFragmentID)) {
-					FURI uri = writeURI(fStoreObject);
-					hr(uri.toString());
+					writeURI(fStoreObject);
 				} else {
 					writeCompressedInt(-1);
 					writeCompressedInt(getObjectId(fStoreObject));
@@ -276,8 +277,9 @@ public abstract class ObjectOutputStream {
 			hr(" "); hr(eClass.getName());
 			writeCompressedInt(object.fContainer().fClass().getFeatureID(object.fContainingFeature()));
 			hr("."); hr(object.fContainingFeature().getName());
-			FURI uri = writeURI(fContainer);
-			hr("="); hr(uri.toString()); hr("\n");
+			hr("="); 
+			writeURI(fContainer);
+			hr("\n");
 		} else {
 			writeCompressedInt(-1);
 			hr("=ROOT=\n");

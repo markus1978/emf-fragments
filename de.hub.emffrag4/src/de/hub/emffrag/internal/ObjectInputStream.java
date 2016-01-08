@@ -90,17 +90,17 @@ public abstract class ObjectInputStream {
 		int code = (initialByte >> 6) & 0x3;
 		switch (code) {
 		case 0: {
-			return initialByte - 1;
+			return initialByte - 2;
 		}
 		case 1: {
-			return (initialByte << 8 & 0x3F00 | readByte() & 0xFF) - 1;
+			return (initialByte << 8 & 0x3F00 | readByte() & 0xFF) - 2;
 		}
 		case 2: {
-			return ((initialByte << 16) & 0x3F0000 | (readByte() << 8) & 0xFF00 | readByte() & 0xFF) - 1;
+			return ((initialByte << 16) & 0x3F0000 | (readByte() << 8) & 0xFF00 | readByte() & 0xFF) - 2;
 		}
 		default: {
 			return ((initialByte << 24) & 0x3F000000 | (readByte() << 16) & 0xFF0000 | (readByte() << 8) & 0xFF00
-					| readByte() & 0xFF) - 1;
+					| readByte() & 0xFF) - 2;
 		}
 		}
 	}
@@ -122,6 +122,7 @@ public abstract class ObjectInputStream {
 			if (size == -2) {
 				String uriString = readString();
 				uri.setFragmentation(URI.createURI(uriString));
+				size = readCompressedInt();
 			}
 			int fragment = readCompressedInt();
 			uri.setFragment(fragment);

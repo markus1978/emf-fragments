@@ -24,7 +24,12 @@ public class FObjectProxyManager {
 		} else if (fStoreObject.fIsProxy()) {
 			FURI uri = fStoreObject.fProxyURI();
 			fObject = proxyCache.getIfPresent(uri);
-			fStoreObject = fStoreObject.fFragmentation().resolve(fStoreObject.fProxyURI());			
+			FStoreObject resolved = fStoreObject.fFragmentation().resolve(fStoreObject.fProxyURI());
+			if (resolved == null) {
+				throw new RuntimeException("Could not resolve " + fStoreObject.fFragmentation().getURI() + "/" + fStoreObject.fProxyURI());
+			} else {
+				fStoreObject = resolved;
+			}
 		} 
 		
 		if (fObject == null) {
@@ -45,7 +50,6 @@ public class FObjectProxyManager {
 	}
 	
 	public void onFStoreObjectLoaded(FURI uri, FStoreObject fStoreObject) {
-//		System.out.println("<-" + fStoreObject);
 		FObject fObject = proxyCache.getIfPresent(uri);
 		if (fObject != null) {
 			proxyCache.invalidate(uri);
@@ -54,7 +58,6 @@ public class FObjectProxyManager {
 	}
 	
 	public void onFStoreObjectUnloaded(FStoreObject fStoreObject, FURI uri) {
-//		System.out.println("->" + fStoreObject);
 		FObject fObject = objectCache.getIfPresent(fStoreObject);
 		if (fObject != null) {
 			objectCache.invalidate(fStoreObject);
