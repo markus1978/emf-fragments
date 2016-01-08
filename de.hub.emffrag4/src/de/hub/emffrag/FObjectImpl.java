@@ -2,6 +2,7 @@ package de.hub.emffrag;
 
 import org.eclipse.emf.ecore.impl.EStoreEObjectImpl;
 
+import de.hub.emffrag.internal.FStore;
 import de.hub.emffrag.internal.FStoreFragmentation;
 import de.hub.emffrag.internal.FStoreObject;
 import de.hub.emffrag.internal.FStoreObjectImpl;

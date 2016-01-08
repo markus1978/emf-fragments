@@ -7,8 +7,6 @@ import org.eclipse.emf.common.util.URI;
 
 import com.google.common.collect.Lists;
 
-import de.hub.emffrag.FURI;
-
 public class FStreamURIImpl implements FURI {
 	private final List<Integer> reversedSegment = new ArrayList<Integer>();
 	private final List<Integer> segment = Lists.reverse(reversedSegment);

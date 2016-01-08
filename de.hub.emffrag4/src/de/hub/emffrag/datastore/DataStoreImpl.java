@@ -2,6 +2,10 @@ package de.hub.emffrag.datastore;
 
 import org.eclipse.emf.common.util.URI;
 
+import de.hub.emffrag.datastore.internal.DataMap;
+import de.hub.emffrag.datastore.internal.IDataMap;
+import de.hub.emffrag.datastore.internal.KeyType;
+
 
 public class DataStoreImpl extends AbstractDelegatingDataStore implements IDataStore {
 	

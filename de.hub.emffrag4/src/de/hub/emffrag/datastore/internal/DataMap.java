@@ -1,4 +1,4 @@
-package de.hub.emffrag.datastore;
+package de.hub.emffrag.datastore.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +10,8 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
 import org.eclipse.emf.common.util.URI;
+
+import de.hub.emffrag.datastore.IBaseDataStore;
 
 
 public class DataMap<KT> implements IDataMap<KT> {

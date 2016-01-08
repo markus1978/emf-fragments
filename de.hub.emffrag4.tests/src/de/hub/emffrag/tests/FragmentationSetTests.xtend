@@ -1,19 +1,19 @@
 package de.hub.emffrag.tests
 
-import de.hub.emffrag.FStore
 import de.hub.emffrag.FragmentationSet
 import de.hub.emffrag.datastore.DataStoreImpl
+import de.hub.emffrag.datastore.IDataStore
+import de.hub.emffrag.internal.FStore
+import de.hub.emffrag.tests.model.Container
+import de.hub.emffrag.tests.model.Contents
+import java.util.Map
 import org.eclipse.emf.common.util.URI
+import org.eclipse.emf.ecore.util.EcoreUtil
 import org.junit.Before
 import org.junit.Test
 
 import static de.hub.emffrag.tests.FObjectTestModelParser.*
 import static org.junit.Assert.*
-import org.eclipse.emf.ecore.util.EcoreUtil
-import de.hub.emffrag.datastore.IDataStore
-import java.util.Map
-import de.hub.emffrag.tests.model.Container
-import de.hub.emffrag.tests.model.Contents
 
 class FragmentationSetTests extends AbstractDataStoreTests {
 	override cacheSize() {

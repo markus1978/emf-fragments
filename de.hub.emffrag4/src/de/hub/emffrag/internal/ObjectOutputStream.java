@@ -18,7 +18,6 @@ import org.eclipse.emf.ecore.EcorePackage;
 import com.google.common.base.Preconditions;
 
 import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.FURI;
 import de.hub.emffrag.FragmentationUtil;
 
 public abstract class ObjectOutputStream {

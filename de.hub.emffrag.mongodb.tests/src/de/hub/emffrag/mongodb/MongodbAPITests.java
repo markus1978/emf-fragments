@@ -14,10 +14,10 @@ import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 
-import de.hub.emffrag.datastore.DataMap;
-import de.hub.emffrag.datastore.IDataMap;
 import de.hub.emffrag.datastore.InMemoryDataStore;
-import de.hub.emffrag.datastore.LongKeyType;
+import de.hub.emffrag.datastore.internal.DataMap;
+import de.hub.emffrag.datastore.internal.IDataMap;
+import de.hub.emffrag.datastore.internal.LongKeyType;
 
 public class MongodbAPITests {
 

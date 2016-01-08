@@ -1,4 +1,4 @@
-package de.hub.emffrag.datastore;
+package de.hub.emffrag.datastore.internal;
 
 import org.apache.commons.codec.binary.Base64;
 

@@ -13,9 +13,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.FluentIterable;
 
-import de.hub.emffrag.FStore;
-import de.hub.emffrag.FURI;
-import de.hub.emffrag.FURIImpl;
 import de.hub.emffrag.FragmentationUtil;
 
 /**

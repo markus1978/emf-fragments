@@ -1,19 +1,19 @@
 package de.hub.emffrag.tests
 
 import de.hub.emffrag.EmfFragActivator
-import de.hub.emffrag.FStore
 import de.hub.emffrag.FragmentationImpl
 import de.hub.emffrag.datastore.DataStoreImpl
+import de.hub.emffrag.datastore.IBaseDataStore
 import de.hub.emffrag.datastore.IDataStore
 import de.hub.emffrag.datastore.InMemoryDataStore
+import de.hub.emffrag.internal.FStore
 import de.hub.emffrag.tests.model.TestModelPackage
+import java.util.List
 import org.eclipse.emf.common.util.URI
+import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EcorePackage
 import org.junit.Before
 import org.junit.BeforeClass
-import de.hub.emffrag.datastore.IBaseDataStore
-import java.util.List
-import org.eclipse.emf.ecore.EPackage
 
 class AbstractDataStoreTests extends AbstractTests {
 	protected var FragmentationImpl fragmentation = null

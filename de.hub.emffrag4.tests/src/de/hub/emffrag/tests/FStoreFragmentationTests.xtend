@@ -1,10 +1,11 @@
 package de.hub.emffrag.tests
 
 import de.hub.emffrag.EmfFragActivator
-import de.hub.emffrag.FStore
 import de.hub.emffrag.datastore.DataStoreImpl
 import de.hub.emffrag.datastore.InMemoryDataStore
+import de.hub.emffrag.internal.FStore
 import de.hub.emffrag.internal.FStoreFragmentation
+import de.hub.emffrag.internal.FStoreObject
 import de.hub.emffrag.tests.model.TestModelPackage
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EcorePackage
@@ -15,7 +16,6 @@ import org.junit.Test
 
 import static de.hub.emffrag.tests.FStoreObjectTestModelParser.*
 import static org.junit.Assert.*
-import de.hub.emffrag.internal.FStoreObject
 
 class FStoreFragmentationTests extends AbstractTests {
 	

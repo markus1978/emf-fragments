@@ -1,6 +1,6 @@
 package de.hub.emffrag.tests
 
-import de.hub.emffrag.FAbstractStoreObject
+import de.hub.emffrag.internal.FAbstractStoreObject
 import de.hub.emffrag.tests.model.Container
 import de.hub.emffrag.tests.model.Contents
 import de.hub.emffrag.tests.model.TestModelPackage

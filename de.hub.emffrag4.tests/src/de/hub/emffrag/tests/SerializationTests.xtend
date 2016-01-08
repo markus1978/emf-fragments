@@ -1,24 +1,23 @@
 package de.hub.emffrag.tests
 
 import de.hub.emffrag.FObject
-import de.hub.emffrag.FStore
+import de.hub.emffrag.internal.FStore
+import de.hub.emffrag.internal.FStoreObjectImpl
+import de.hub.emffrag.internal.FURI
 import de.hub.emffrag.internal.ObjectInputStream
 import de.hub.emffrag.internal.ObjectOutputStream
+import de.hub.emffrag.tests.model.TestModelPackage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import org.eclipse.emf.ecore.util.EcoreUtil
-
-import static org.junit.Assert.*
-import de.hub.emffrag.tests.model.TestModelPackage
 import java.util.List
+import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EPackage
+import org.eclipse.emf.ecore.util.EcoreUtil
+import org.junit.Before
 import org.junit.Test
 
 import static de.hub.emffrag.tests.FObjectTestModelParser.*
-import org.junit.Before
-import de.hub.emffrag.FURI
-import de.hub.emffrag.internal.FStoreObjectImpl
-import org.eclipse.emf.ecore.EClass
+import static org.junit.Assert.*
 
 class SerializationTests extends AbstractTests {
 	

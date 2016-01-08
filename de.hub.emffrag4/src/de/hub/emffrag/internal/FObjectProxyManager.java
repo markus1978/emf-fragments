@@ -10,7 +10,6 @@ import com.google.common.cache.CacheBuilder;
 
 import de.hub.emffrag.FObject;
 import de.hub.emffrag.FObjectImpl;
-import de.hub.emffrag.FURI;
 
 public class FObjectProxyManager {
 

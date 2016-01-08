@@ -30,8 +30,8 @@ import de.hub.emffrag.datastore.DataStoreImpl;
 import de.hub.emffrag.datastore.IBaseDataStore;
 import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.IScanExtension;
-import de.hub.emffrag.datastore.ScanningDataStore;
-import de.hub.emffrag.datastore.URIUtils;
+import de.hub.emffrag.datastore.ScanDataStore;
+import de.hub.emffrag.datastore.internal.URIUtils;
 import de.hub.jstattrack.TimeStatistic;
 import de.hub.jstattrack.TimeStatistic.Timer;
 import de.hub.jstattrack.ValueStatistic;
@@ -60,7 +60,7 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 	public static IDataStore createDataStore(URI uri, boolean useScanning) {
 		MongoDBDataStore baseDataStore = new MongoDBDataStore(uri.authority(), uri.path().substring(1));
 		if (useScanning) {
-			return new DataStoreImpl(new ScanningDataStore(baseDataStore, baseDataStore), uri);
+			return new DataStoreImpl(new ScanDataStore(baseDataStore, baseDataStore), uri);
 		} else {
 			return new DataStoreImpl(baseDataStore, uri);
 		}				

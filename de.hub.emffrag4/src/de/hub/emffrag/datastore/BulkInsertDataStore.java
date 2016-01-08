@@ -10,7 +10,7 @@ import java.util.TreeMap;
 import de.hub.emffrag.EmfFragActivator;
 
 
-public class WriteCachingDataStore extends AbstractDelegatingDataStore {
+public class BulkInsertDataStore extends AbstractDelegatingDataStore {
 	
 	private final TreeMap<byte[], byte[]> cache = new TreeMap<byte[], byte[]>(InMemoryDataStore.byteComparator);
 	private final IBulkInsertExtension bulkInsertExtension;
@@ -20,7 +20,7 @@ public class WriteCachingDataStore extends AbstractDelegatingDataStore {
 		this.bulkInsertSize = bulkInsertSize;
 	}
 
-	public WriteCachingDataStore(IBaseDataStore baseDataStore, IBulkInsertExtension bulkInsertExtension, int bulkInsertSize) {
+	public BulkInsertDataStore(IBaseDataStore baseDataStore, IBulkInsertExtension bulkInsertExtension, int bulkInsertSize) {
 		super(baseDataStore);
 		this.bulkInsertExtension = bulkInsertExtension;
 		if (EmfFragActivator.instance != null) {
@@ -49,6 +49,9 @@ public class WriteCachingDataStore extends AbstractDelegatingDataStore {
 			@Override
 			public void close() throws IOException {
 				super.close();
+				if (check(key)) {
+					throw new IOException("Key " + key + " does not exist.");
+				}
 				cache.put(key, toByteArray());
 				if (cache.size() > bulkInsertSize) {
 					performBulkInsert();

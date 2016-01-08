@@ -1,4 +1,4 @@
-package de.hub.emffrag;
+package de.hub.emffrag.internal;
 
 import java.util.ArrayList;
 import java.util.List;

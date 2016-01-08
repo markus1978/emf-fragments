@@ -11,12 +11,12 @@ import com.google.common.cache.RemovalNotification;
 
 import de.hub.emffrag.datastore.IScanExtension.ICursor;
 
-public class ScanningDataStore extends AbstractDelegatingDataStore implements RemovalListener<BigInteger, ICursor> {
+public class ScanDataStore extends AbstractDelegatingDataStore implements RemovalListener<BigInteger, ICursor> {
 
 	private final IScanExtension scanExtension;
 	private final Cache<BigInteger, ICursor> cachedScanCursors = CacheBuilder.newBuilder().maximumSize(100).removalListener(this).build();
 	
-	public ScanningDataStore(IBaseDataStore baseDataStore, IScanExtension scanExtension) {
+	public ScanDataStore(IBaseDataStore baseDataStore, IScanExtension scanExtension) {
 		super(baseDataStore);
 		this.scanExtension = scanExtension;
 	}

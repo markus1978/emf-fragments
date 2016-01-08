@@ -17,9 +17,6 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcorePackage;
 
-import de.hub.emffrag.FStore;
-import de.hub.emffrag.FURI;
-import de.hub.emffrag.FURIImpl;
 import de.hub.emffrag.FragmentationUtil;
 
 public abstract class ObjectInputStream {

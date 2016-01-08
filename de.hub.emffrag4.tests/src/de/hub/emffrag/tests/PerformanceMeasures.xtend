@@ -1,9 +1,6 @@
 package de.hub.emffrag.tests
 
-import de.hub.emffrag.datastore.DataStoreImpl
-import de.hub.emffrag.datastore.InMemoryDataStore
 import de.hub.emffrag.tests.model.Container
-import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.junit.Assert
 import org.junit.Test

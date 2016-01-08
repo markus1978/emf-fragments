@@ -9,6 +9,8 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import de.hub.emffrag.datastore.internal.URIUtils;
+
 
 public class InMemoryDataStore implements IBaseDataStore, IBulkInsertExtension {
 	

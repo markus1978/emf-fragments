@@ -5,6 +5,9 @@ import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
 
+import de.hub.emffrag.datastore.internal.IDataMap;
+import de.hub.emffrag.datastore.internal.KeyType;
+
 
 public interface IDataStore extends IBaseDataStore {
 	

@@ -1,4 +1,4 @@
-package de.hub.emffrag.datastore;
+package de.hub.emffrag.datastore.internal;
 
 import java.util.Comparator;
 import java.util.HashMap;

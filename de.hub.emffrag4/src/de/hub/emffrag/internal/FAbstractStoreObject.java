@@ -1,4 +1,4 @@
-package de.hub.emffrag;
+package de.hub.emffrag.internal;
 
 public abstract class FAbstractStoreObject {
 	protected int fFlags;

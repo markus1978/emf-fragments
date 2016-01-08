@@ -8,6 +8,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EPackage;
 
 import de.hub.emffrag.datastore.IDataStore;
+import de.hub.emffrag.internal.FStore;
 import de.hub.emffrag.internal.FStoreFragmentation;
 import de.hub.emffrag.internal.FStoreFragmentationSet;
 import de.hub.emffrag.internal.FStoreObject;

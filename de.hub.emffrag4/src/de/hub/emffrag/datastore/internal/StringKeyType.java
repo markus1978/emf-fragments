@@ -1,4 +1,4 @@
-package de.hub.emffrag.datastore;
+package de.hub.emffrag.datastore.internal;
 
 public class StringKeyType implements KeyType<String> {
 

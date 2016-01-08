@@ -10,8 +10,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
@@ -22,11 +20,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import de.hub.emffrag.EmfFragActivator;
-import de.hub.emffrag.FURI;
 import de.hub.emffrag.FragmentationUtil;
-import de.hub.emffrag.datastore.IDataMap;
 import de.hub.emffrag.datastore.IDataStore;
-import de.hub.emffrag.datastore.LongKeyType;
+import de.hub.emffrag.datastore.internal.IDataMap;
+import de.hub.emffrag.datastore.internal.LongKeyType;
 import de.hub.util.Ansi;
 import de.hub.util.Ansi.Color;
 

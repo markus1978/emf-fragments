@@ -1,4 +1,4 @@
-package de.hub.emffrag;
+package de.hub.emffrag.internal;
 
 import java.util.List;
 
@@ -9,9 +9,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.InternalEObject.EStore;
 
-import de.hub.emffrag.internal.FObjectProxyManager;
-import de.hub.emffrag.internal.FStoreObject;
-import de.hub.emffrag.internal.FStoreObjectImpl;
+import de.hub.emffrag.FObject;
 
 public class FStore implements EStore {
 	

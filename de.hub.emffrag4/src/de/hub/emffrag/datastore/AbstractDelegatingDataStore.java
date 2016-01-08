@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import de.hub.emffrag.EmfFragActivator;
+import de.hub.emffrag.datastore.internal.URIUtils;
 import de.hub.util.Ansi;
 import de.hub.util.Ansi.Color;
 

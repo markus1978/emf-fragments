@@ -19,26 +19,26 @@ import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.datastore.DataStoreImpl;
 import de.hub.emffrag.datastore.IBaseDataStore;
 import de.hub.emffrag.datastore.IBulkInsertExtension;
-import de.hub.emffrag.datastore.IDataMap;
 import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.IScanExtension;
 import de.hub.emffrag.datastore.InMemoryDataStore;
-import de.hub.emffrag.datastore.LongKeyType;
-import de.hub.emffrag.datastore.ScanningDataStore;
-import de.hub.emffrag.datastore.WriteCachingDataStore;
+import de.hub.emffrag.datastore.ScanDataStore;
+import de.hub.emffrag.datastore.internal.IDataMap;
+import de.hub.emffrag.datastore.internal.LongKeyType;
+import de.hub.emffrag.datastore.BulkInsertDataStore;
 import de.hub.emffrag.tests.model.TestModelPackage;
 
 public abstract class AbstractDataStoreTest {
 
 	protected abstract IBaseDataStore createBaseDataStore();
 	/**
-	 * @return null if no scan extension shall be used. See {@link ScanningDataStore}.
+	 * @return null if no scan extension shall be used. See {@link ScanDataStore}.
 	 */
 	protected IScanExtension createScanExtension() {
 		return null;
 	}
 	/**
-	 * @return null if no bulk insert shall be used. See {@link WriteCachingDataStore}.
+	 * @return null if no bulk insert shall be used. See {@link BulkInsertDataStore}.
 	 */
 	protected IBulkInsertExtension createBulkInsertExtension() {
 		return null;
@@ -51,7 +51,7 @@ public abstract class AbstractDataStoreTest {
 	@BeforeClass
 	public static void initializeEMFFragments() {
 		EmfFragActivator.standalone(TestModelPackage.eINSTANCE);
-		EmfFragActivator.instance.logInStandAlone = true;
+		EmfFragActivator.instance.logInStandAlone = false;
 	}
 	
 	@Before
@@ -62,10 +62,10 @@ public abstract class AbstractDataStoreTest {
 		URI uri = createURI();
 		
 		if (scanExtension != null) {
-			baseDataStore = new ScanningDataStore(baseDataStore, scanExtension);
+			baseDataStore = new ScanDataStore(baseDataStore, scanExtension);
 		}
 		if (bulkInsertExtension != null) {
-			baseDataStore = new WriteCachingDataStore(baseDataStore, bulkInsertExtension, 100);
+			baseDataStore = new BulkInsertDataStore(baseDataStore, bulkInsertExtension, 100);
 		}
 		dataStore = new DataStoreImpl(baseDataStore, uri);
 	}
@@ -75,6 +75,7 @@ public abstract class AbstractDataStoreTest {
 		for (int i = 0; i < 5000; i++) {
 			byte[] key = createKey(i);
 			byte[] value = createValue(i);
+			dataStore.checkAndCreate(key);
 			write(key, value);
 		}
 		
@@ -128,6 +129,7 @@ public abstract class AbstractDataStoreTest {
 			BigInteger bigIntegerKey = BigInteger.valueOf(randomKey);
 			byte[] key = bigIntegerKey.toByteArray();
 			byte[] value = createValue(i);
+			dataStore.checkAndCreate(key);
 			write(key, value);
 			reference.put(bigIntegerKey, value);
 			read(key, value);
@@ -149,6 +151,7 @@ public abstract class AbstractDataStoreTest {
 	private void writePattern() {
 		int[] keyPattern = new int[] {0, 1, 6, 10, 20};
 		for (int key: keyPattern) {
+			dataStore.checkAndCreate(createKey(key));
 			write(createKey(key), createValue(key));
 		}
 	}
@@ -196,10 +199,11 @@ public abstract class AbstractDataStoreTest {
 	public void testWriteDeleted() {
 		boolean exceptionCatched = false;
 		byte[] key = createKey(0);
-		dataStore.checkAndCreate(key);		
+		Assert.assertTrue(dataStore.checkAndCreate(key));		
 		dataStore.delete(key);
 		try {
-			dataStore.openOutputStream(key);
+			OutputStream out = dataStore.openOutputStream(key);
+			out.close();
 		} catch (Exception e) {
 			exceptionCatched = true;
 		}
