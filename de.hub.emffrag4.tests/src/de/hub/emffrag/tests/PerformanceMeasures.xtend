@@ -1,6 +1,9 @@
 package de.hub.emffrag.tests
 
+import de.hub.emffrag.datastore.DataStoreImpl
+import de.hub.emffrag.datastore.InMemoryDataStore
 import de.hub.emffrag.tests.model.Container
+import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.junit.Assert
 import org.junit.Test
@@ -11,6 +14,48 @@ class PerformanceMeasures extends AbstractDataStoreTests {
 	
 	override cacheSize() {
 		return 10
+	}
+	
+	@Test
+	def void measureModelCreate() {
+		before
+		val ()=>Container createPart = [create('''
+			Container o1 {
+				contents = Container o11 {
+					ref referenced = o1
+					content = Contents o111;
+					contents = Contents o112;
+					
+				}
+				contents = Contents o12;
+				contents = Container o13 {
+					ref referenced = o1
+					content = Container leave {
+						contents = Contents leave1;
+					}
+				}
+			}
+		''')]
+		fragmentation.root = createPart.apply
+		val size = fragmentation.root.eAllContents.size + 1
+		var objectsCreated = 0
+		var start = System.currentTimeMillis
+		var i = 0
+		while(true) {
+			i++;
+			if (i%100 == 0) {		
+				(withName("leave") as Container).fragment = createPart.apply;		
+			} else {
+				(withName("leave") as Container).content = createPart.apply;
+			}		
+			objectsCreated += size
+			if (i%5000 == 0) {			
+				val time = System.currentTimeMillis - start
+				println('''For «objectsCreated» object, we need «time» ms. This are «(objectsCreated/time)»k objects per second.''')
+				objectsCreated = 0
+				start = System.currentTimeMillis
+			}
+		}
 	}
 	
 	@Test

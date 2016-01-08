@@ -17,6 +17,7 @@ import org.eclipse.emf.ecore.EcorePackage;
 
 import com.google.common.base.Preconditions;
 
+import de.hub.emffrag.EmfFragActivator;
 import de.hub.emffrag.FURI;
 import de.hub.emffrag.FragmentationUtil;
 
@@ -32,6 +33,7 @@ public abstract class ObjectOutputStream {
 	private int objectIDCounter = 0;
 	
 	private int thisFragmentID = -1;
+	private FStoreFragmentation thisFragmentation = null;
 	private FStreamURIImpl currentURI = null;
 	
 //	private StringBuilder humanReadableOutput = new StringBuilder();
@@ -148,11 +150,22 @@ public abstract class ObjectOutputStream {
 	
 	private FURI writeURI(FStoreObject fStoreObject) {
 		FURI uri = fStoreObject.fCreateURI();
-		Preconditions.checkArgument(uri.fragment() != -1, "Cannot store reference to dangling object:\n" + fStoreObject);
-		writeCompressedInt(uri.segment().size() + 1);
-		writeCompressedInt(uri.fragment());
-		for (int segmentPart: uri.segment()) {
-			writeCompressedInt(segmentPart);
+		if (uri.fragment() == -1) {
+			writeCompressedInt(-1);
+			EmfFragActivator.instance.warning("Dangling object reference. Cannot store the value. Some model data might get lost.");
+			if (!fStoreObject.fRoot().getClass().getName().toLowerCase().equals("javadoc")) {
+				EmfFragActivator.instance.warning("Dangling object reference was not just a MoDisco javadoc."); // TODO remove	
+			}
+		} else {
+			if (fStoreObject.fFragmentation() != thisFragmentation) {
+				writeCompressedInt(-2);
+				writeString(fStoreObject.fFragmentation().getURI().toString());
+			}
+			writeCompressedInt(uri.segment().size() + 1);
+			writeCompressedInt(uri.fragment());
+			for (int segmentPart: uri.segment()) {
+				writeCompressedInt(segmentPart);
+			}		
 		}
 		return uri;
 	}
@@ -168,14 +181,14 @@ public abstract class ObjectOutputStream {
 				currentURI.onDown(object.fClass().getFeatureID(feature), index);
 				writeObject(fStoreObject);
 				currentURI.onUp();
-			} else {				
-				if (fStoreObject.fFragmentID() != thisFragmentID) {
+			} else {			
+				if ((fStoreObject.fFragmentation() != thisFragmentation) || (fStoreObject.fFragmentID() != thisFragmentID)) {
 					FURI uri = writeURI(fStoreObject);
 					hr(uri.toString());
 				} else {
 					writeCompressedInt(-1);
 					writeCompressedInt(getObjectId(fStoreObject));
-					hr("id:");
+					hr("ref:");
 					hr(""+getObjectId(fStoreObject));
 				}
 			}				
@@ -220,28 +233,28 @@ public abstract class ObjectOutputStream {
 			}
 		}
 		writeCompressedInt(features.size());
-		hr("("); hr(features.size()); hr(")\n", 1);
+		hr("("); hr(features.size()); hr(") {\n", 1);
 		for (EStructuralFeature feature : features) {
 			int featureID = object.fClass().getFeatureID(feature);
 			writeCompressedInt(featureID);
 			hr(feature.getName()); hr("("); hr(featureID); hr(")=");
 			if (feature.isMany()) {
-				hr("{");
+				hr("[");
 				List values = (List) object.fGet(feature);
 				writeCompressedInt(values.size());
-				hr("("); hr(Integer.toString(values.size())); hr(")\n, 1");
+				hr("("); hr(Integer.toString(values.size())); hr(")\n", 1);
 				int i = 0;
 				for (Object value : values) {
 					writeValue(object, feature, value, i++);
 					hr("\n");
 				}
-				hr("}",-1);
+				hr("]",-1);
 			} else {
 				writeValue(object, feature, object.fGet(feature), -1);
 			}
 			hr("\n");
 		}
-		hr("", -1);
+		hr("}", -1);
 		
 		if (withUnload) {
 			object.fUnload(currentURI);
@@ -249,7 +262,9 @@ public abstract class ObjectOutputStream {
 	}
 
 	public void writeFragment(FStoreObject object) {
+		thisFragmentation = object.fFragmentation();
 		thisFragmentID = object.fFragmentID();
+		Preconditions.checkArgument(thisFragmentID != -1);
 		currentURI = new FStreamURIImpl(thisFragmentID);
 		// write container info
 		FStoreObject fContainer = object.fContainer();
@@ -269,7 +284,10 @@ public abstract class ObjectOutputStream {
 		}
 		
 		writeObject(object);
-//		writeString(humanReadableOutput.toString());
+		
+//		String hrOut = humanReadableOutput.toString();
+//		writeString(hrOut);
+//		System.out.println(">>> " + object.fFragmentID() + ": " + hrOut);
 	}
 	
 	private void hr(Object value, int indentChange) {
@@ -284,14 +302,12 @@ public abstract class ObjectOutputStream {
 	private void hr(Object value) {
 //		if (value instanceof String) {
 //			String str = (String) value;
-//			hr("\"");
 //			if (str.length() > 40) {
 //				appendHumanReadableOutput(str.substring(0, 40));
 //				hr("...");
 //			} else {
 //				appendHumanReadableOutput(str);
 //			}
-//			hr("\"");
 //		} else {
 //			appendHumanReadableOutput(value.toString());
 //		}

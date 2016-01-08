@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EDataType;
@@ -115,11 +116,20 @@ public abstract class ObjectInputStream {
 
 	private FURI readURI(int size) {
 		FURIImpl uri = new FURIImpl();
-		uri.setFragment(readCompressedInt());
-		for (int i = 1; i < size; i = i + 2) {
-			uri.addFeatureToSegment(readCompressedInt(), readCompressedInt());
+		if (size == -1) {
+			return null;
+		} else {
+			if (size == -2) {
+				String uriString = readString();
+				uri.setFragmentation(URI.createURI(uriString));
+			}
+			int fragment = readCompressedInt();
+			uri.setFragment(fragment);
+			for (int i = 1; i < size; i = i + 2) {
+				uri.addFeatureToSegment(readCompressedInt(), readCompressedInt());
+			}
+			return uri;
 		}
-		return uri;
 	}
 
 	private Object readValue(FStoreObject container, EStructuralFeature feature, int index) {
@@ -137,7 +147,12 @@ public abstract class ObjectInputStream {
 					int objectId = readCompressedInt();
 					return getObject(objectId, null);
 				} else {
-					return createProxy(readURI(idSize), (EClass)feature.getEType());
+					FURI uri = readURI(idSize);
+					if (uri == null || uri.fragment() == -1) {
+						return null;
+					} else {
+						return createProxy(uri, (EClass)feature.getEType());
+					}
 				}
 			}
 		} else {
@@ -222,7 +237,10 @@ public abstract class ObjectInputStream {
 			root = readObject(null, null);
 		}
 		FStore.fINSTANCE.proxyManager.onFStoreObjectLoaded(currentURI, root);
-//		readString(); // read human readable output
+		
+//		String humanReadable = readString(); // read human readable output
+//		System.out.println("<<< " + root.fFragmentID() + ": " + humanReadable);
+		
 		return root;
 	}
 

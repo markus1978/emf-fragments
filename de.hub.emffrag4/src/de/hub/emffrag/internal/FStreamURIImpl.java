@@ -3,6 +3,8 @@ package de.hub.emffrag.internal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.emf.common.util.URI;
+
 import com.google.common.collect.Lists;
 
 import de.hub.emffrag.FURI;
@@ -36,6 +38,11 @@ public class FStreamURIImpl implements FURI {
 		int size = reversedSegment.size();
 		reversedSegment.remove(size-1);
 		reversedSegment.remove(size-2);
+	}
+
+	@Override
+	public URI fragmentation() {
+		return null;
 	}
 
 	@Override

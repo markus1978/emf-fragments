@@ -23,4 +23,6 @@ public interface Fragmentation {
 	public void close();
 	
 	public IDataStore getDataStore();
+	
+	public FragmentationSet getFragmentationSet();
 }

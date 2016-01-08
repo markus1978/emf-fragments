@@ -62,11 +62,11 @@ public class FStore implements EStore {
 		} else {
 			fObject.fStoreObject().fSet(feature, value);
 		}
+		fObject.fStoreObject().fMarkModified(true); // this needs to be happen before the container is set! Otherwise set container might try to unload fObject and will not save it, since it is not yet marked modified.
 		
 		if (value != null) {
-			setProtentialContainer(feature, fObject.fStoreObject(), value);
+			setProtentialContainer(feature, fObject.fStoreObject(), value); // TODO only get fStoreObject once, prevent potential unload/immediate load scenaries.
 		}
-		fObject.fStoreObject().fMarkModified(true);
 		return proxifyValue(feature, previousValue);		
 	}
 

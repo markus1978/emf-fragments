@@ -188,4 +188,32 @@ class FragmentationCacheTests extends AbstractDataStoreTests {
 			System.runFinalization();
 		}
 	}
+	
+	@Test
+	def delayedAddFragmentsTest() {
+		val Container model = create('''
+			Container root;
+		''')
+		
+		fragmentation.root = model
+		for (i:1..5) model.fragments += create('''Container c«i»;''')
+		
+		assertEquals(5, fragmentation.root.eAllContents.size)
+		fragmentation.root.eAllContents.map[it as Container].forEach[assertTrue(it.name.startsWith("c"))]
+	}
+	
+	@Test
+	def delayedAddFragmentTest() {
+		val Container model = create('''Container root;''')
+		
+		fragmentation.root = model
+		val Container cf1 = create('''Container cf1;''')
+		model.fragment = cf1
+		val cf2 = create('''Container cf2;''')
+		cf1.fragment = cf2
+		
+		assertNotNull(cf1.fragment)
+		assertEquals(2, fragmentation.root.eAllContents.size)
+		fragmentation.root.eAllContents.map[it as Container].forEach[assertTrue(it.name.startsWith("c"))]
+	}
 }

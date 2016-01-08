@@ -8,7 +8,6 @@ import java.util.Map;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EPackage;
 
-import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.IDataStore.IDataStoreFactory;
 
 public class FragmentationSet {
@@ -27,8 +26,7 @@ public class FragmentationSet {
 	private Fragmentation createFragmentation(URI uri) {
 		Fragmentation existingFragmentation = fragmentations.get(uri);
 		if (existingFragmentation == null) {
-			Fragmentation result = new FragmentationImpl(packages, dataStoreFactory.createDataStore(uri), fragmentationCacheSize);
-			// result.setFragmentationSet(this); TODO
+			Fragmentation result = new FragmentationImpl(this, uri, packages, dataStoreFactory.createDataStore(uri), fragmentationCacheSize);
 			fragmentations.put(uri, result);
 			return result;
 		} else {
@@ -49,16 +47,14 @@ public class FragmentationSet {
 		return fragmentations.values();
 	}
 	
-	public FObject getFObject(URI uri, boolean loadOnDemand) {
-		Fragmentation fragmentation = getFragmentation(uri.trimFragment().trimSegments(1));
-		return null; // TODO fragmentation.getFObject(uri, loadOnDemand);
+	public FObject getFObject(URI uri) {
+		return getFragmentation(uri).getRoot();
 	}
 	
 	public void close() {
 		for (Fragmentation fragmentation: fragmentations.values()) {
 			fragmentation.close();
 			fragmentation.getDataStore().close();
-			// fragmentation.setFragmentationSet(null); TODO
 		}
 		fragmentations.clear();
 	}

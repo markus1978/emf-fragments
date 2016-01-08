@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
@@ -35,8 +36,17 @@ public class FStoreFragmentation {
 	private final Map<Integer, FStoreObject> fragments;
 	private FStoreObject lastAccessed = null;
 	
-	@SuppressWarnings("serial")
+	private final URI uri;
+	private final FStoreFragmentationSet set;
+	
 	public FStoreFragmentation(List<EPackage> packages, IDataStore dataStore, int fragmentsCacheSize) {
+		this(null, null, packages, dataStore, fragmentsCacheSize);
+	}
+	
+	@SuppressWarnings("serial")
+	public FStoreFragmentation(FStoreFragmentationSet set, URI uri, List<EPackage> packages, IDataStore dataStore, int fragmentsCacheSize) {
+		this.set = set;
+		this.uri = uri;
 		if (fragmentsCacheSize > 0) {
 			this.fragments = new LRUCache<Integer, FStoreObject>(fragmentsCacheSize) {
 				@Override
@@ -97,7 +107,14 @@ public class FStoreFragmentation {
 				@Override
 				protected FStoreObject createProxy(FURI uri, EClass eClass) {
 					FStoreObjectImpl proxy = new FStoreObjectImpl(uri, eClass);
-					proxy.fSetFragmentID(FStoreFragmentation.this, fragmentID);
+					URI fragmentationURI = uri.fragmentation();
+					FStoreFragmentation fragmentation = null;
+					if (fragmentationURI == null) {
+						fragmentation = FStoreFragmentation.this;
+					} else {
+						fragmentation = set.getFragmentation(fragmentationURI);
+					}
+					proxy.fSetFragmentID(fragmentation, uri.fragment());
 					return proxy;
 				}
 
@@ -275,5 +292,9 @@ public class FStoreFragmentation {
 
 	public IDataStore getDataStore() {
 		return dataStore;
+	}
+
+	public URI getURI() {
+		return uri;
 	}
 }

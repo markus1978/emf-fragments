@@ -3,13 +3,24 @@ package de.hub.emffrag;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.emf.common.util.URI;
+
 public class FURIImpl implements FURI {
 
 	private final List<Integer> segment = new ArrayList<Integer>();
 	private int fragment = -1;
+	private URI uri = null;
 		
 	public int fragment() {
 		return fragment;
+	}
+	
+	public URI fragmentation() {
+		return uri;
+	}
+	
+	public void setFragmentation(URI uri) {
+		this.uri = uri;
 	}
 	
 	public void setFragment(int id) {

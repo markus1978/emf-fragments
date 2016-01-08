@@ -2,6 +2,8 @@ package de.hub.emffrag;
 
 import java.util.List;
 
+import org.eclipse.emf.common.util.URI;
+
 /**
  * Stores segments from last to first.
  */
@@ -9,6 +11,7 @@ public interface FURI {
 
 	public int fragment();
 	public List<Integer> segment();
+	public URI fragmentation();
 	
 	public static boolean equals(FURI self, Object obj) {
 		if (obj == null || !(obj instanceof FURI)) {

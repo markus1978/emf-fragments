@@ -35,8 +35,9 @@ class SerializationTests extends AbstractTests {
 				return thePackages.indexOf(pkg)
 			}			
 		}
-		objectOutputStream.writeFragment(model.fStoreObject);
-		objectOutputStream.close;
+		model.fStoreObject.fSetFragmentID(null, 0)
+		objectOutputStream.writeFragment(model.fStoreObject)
+		objectOutputStream.close
 		
 		val byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray)
 		val objectInputStream = new ObjectInputStream(byteArrayInputStream, 0) {

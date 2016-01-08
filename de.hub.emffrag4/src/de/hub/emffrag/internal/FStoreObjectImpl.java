@@ -370,7 +370,7 @@ public class FStoreObjectImpl implements FStoreObject {
 		};
 	}
 
-	private String toBaseString() {
+	public String toBaseString() {
 		if (fIsProxy()) {
 			return "proxy: " + fProxyURI().toString();
 		} else {
@@ -438,8 +438,8 @@ public class FStoreObjectImpl implements FStoreObject {
 			} else if (value instanceof String) {
 				String stringValue = (String) value;
 				append("\"");
-				if (stringValue.length() > 10) {					
-					append(stringValue.substring(0, 10));
+				if (stringValue.length() > 40) {					
+					append(stringValue.substring(0, 40));
 					append("...");
 				} else {
 					append(stringValue);
@@ -450,7 +450,7 @@ public class FStoreObjectImpl implements FStoreObject {
 			} else {
 				EReference reference = (EReference) feature;
 				FStoreObject objectValue = (FStoreObject)value;
-				if (reference.isContainment()) {
+				if (reference.isContainment() && !objectValue.fIsProxy()) {
 					appendObject(objectValue);
 				} else {
 					append("<ref> ");

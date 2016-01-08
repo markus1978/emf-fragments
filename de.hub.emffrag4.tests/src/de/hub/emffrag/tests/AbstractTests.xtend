@@ -101,7 +101,7 @@ class AbstractTests {
 	'''
 	
 	protected dispatch def String pretty(FObject fObject) '''
-		«fObject.eClass.name» («fObject.fStoreObject»){
+		«fObject.eClass.name» («(fObject.fStoreObject as FStoreObjectImpl).toBaseString()»){
 			«FOR feature:fObject.eClass.EAllStructuralFeatures.filter[fObject.eIsSet(it)]»
 				«IF feature.isMany»
 					«FOR value:fObject.eGet(feature) as List<?>»
