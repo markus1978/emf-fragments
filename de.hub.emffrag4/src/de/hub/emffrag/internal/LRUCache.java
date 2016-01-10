@@ -13,7 +13,7 @@ public abstract class LRUCache<K, V> extends LinkedHashMap<K, V> {
 
 	public LRUCache(int cacheSize) {
 		super(16, 0.75f, true);
-		this.cacheSize = cacheSize;
+		this.cacheSize = cacheSize <= 0 ? Integer.MAX_VALUE : cacheSize;
 	}
 	
 	public void lock() {

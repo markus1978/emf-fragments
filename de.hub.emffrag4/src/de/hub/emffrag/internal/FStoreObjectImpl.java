@@ -161,6 +161,7 @@ public class FStoreObjectImpl implements FStoreObject {
 	
 	@Override
 	public void fSetContainer(FStoreObject newContainer, EReference containingFeature, boolean isEmpty) {
+		FStoreFragmentation oldFragmentation = fFragmentation();
 		if (newContainer != null) {
 			boolean isAddedToFragmentation = newContainer.fFragmentation() != null && fFragmentation() != newContainer.fFragmentation();
 			
@@ -174,10 +175,12 @@ public class FStoreObjectImpl implements FStoreObject {
 			}
 			
 			if (isAddedToFragmentation) {
+				if (oldFragmentation != null) {
+					oldFragmentation.onRemoveFromFragmentation(this);
+				}
 				newContainer.fFragmentation().onAddToFragmentation(this);
 			}
-		} else {
-			FStoreFragmentation oldFragmentation = fFragmentation();			
+		} else {			
 			container = null;
 			if (oldFragmentation != null) {
 				oldFragmentation.onRemoveFromFragmentation(this);

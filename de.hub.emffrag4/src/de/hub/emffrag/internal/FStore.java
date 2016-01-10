@@ -1,5 +1,6 @@
 package de.hub.emffrag.internal;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.emf.ecore.EClass;
@@ -16,6 +17,23 @@ public class FStore implements EStore {
 	public static final FStore fINSTANCE = new FStore();
 	
 	public final FObjectProxyManager proxyManager = new FObjectProxyManager();
+	private final List<FStoreFragmentation> lockedFragmentations = new ArrayList<FStoreFragmentation>(1);
+	
+	private void lock(Object object) {
+		if (object instanceof FStoreObject) {
+			FStoreFragmentation fragmentation = ((FStoreObject)object).fFragmentation();
+			if (fragmentation != null && !lockedFragmentations.contains(fragmentation)) {
+				lockedFragmentations.add(fragmentation);
+				fragmentation.lock();
+			}
+		}		
+	}
+	
+	private void unlock() {
+		for(FStoreFragmentation fragmentation: lockedFragmentations) {
+			fragmentation.unlock();
+		}
+	}
 	
 	private FObject proxify(FStoreObject fStoreObject) {
 		return proxyManager.getFObject(fStoreObject);
@@ -54,17 +72,20 @@ public class FStore implements EStore {
 	public Object set(InternalEObject object, EStructuralFeature feature, int index, Object rawValue) {
 		FObject fObject = (FObject)object;
 		Object value = deProxifyValue(feature, rawValue);
-		Object previousValue =  fObject.fStoreObject().fGet(feature);
+		FStoreObject fStoreObject = fObject.fStoreObject();
+		Object previousValue =  fStoreObject.fGet(feature);
+		lock(fStoreObject); lock(value);
 		if (feature.isMany()) {			
 			previousValue = ((List)previousValue).set(index, value);
 		} else {
-			fObject.fStoreObject().fSet(feature, value);
+			fStoreObject.fSet(feature, value);
 		}
-		fObject.fStoreObject().fMarkModified(true); // this needs to be happen before the container is set! Otherwise set container might try to unload fObject and will not save it, since it is not yet marked modified.
+		fStoreObject.fMarkModified(true); // this needs to be happen before the container is set! Otherwise set container might try to unload fObject and will not save it, since it is not yet marked modified.
 		
 		if (value != null) {
-			setProtentialContainer(feature, fObject.fStoreObject(), value); // TODO only get fStoreObject once, prevent potential unload/immediate load scenaries.
+			setProtentialContainer(feature, fStoreObject, value); // TODO only get fStoreObject once, prevent potential unload/immediate load scenaries.
 		}
+		unlock();
 		return proxifyValue(feature, previousValue);		
 	}
 
@@ -77,10 +98,13 @@ public class FStore implements EStore {
 	@Override
 	public void unset(InternalEObject object, EStructuralFeature feature) {
 		FObject fObject = (FObject)object;
-		Object oldValue = fObject.fStoreObject().fGet(feature);
-		fObject.fStoreObject().fUnSet(feature);
-		fObject.fStoreObject().fMarkModified(true);
+		FStoreObject fStoreObject = fObject.fStoreObject();
+		Object oldValue = fStoreObject.fGet(feature);
+		lock(fStoreObject); lock(oldValue);
+		fStoreObject.fUnSet(feature);
+		fStoreObject.fMarkModified(true);
 		setProtentialContainer(feature, null, oldValue);
+		unlock();
 	}
 
 	@Override
@@ -136,9 +160,12 @@ public class FStore implements EStore {
 		FObject fObject = (FObject)object;
 		if (feature.isMany()) {
 			Object value = deProxifyValue(feature, rawValue);
-			((List)fObject.fStoreObject().fGet(feature)).add(value);
-			setProtentialContainer(feature, fObject.fStoreObject(), value);
-			fObject.fStoreObject().fMarkModified(true);
+			FStoreObject fStoreObject = fObject.fStoreObject();
+			lock(fStoreObject); lock(value);
+			((List)fStoreObject.fGet(feature)).add(value);
+			setProtentialContainer(feature, fStoreObject, value);
+			fStoreObject.fMarkModified(true);
+			unlock();
 			return;
 		}		
 		throw new IllegalArgumentException();
@@ -148,9 +175,13 @@ public class FStore implements EStore {
 	public Object remove(InternalEObject object, EStructuralFeature feature, int index) {
 		FObject fObject = (FObject)object;
 		if (feature.isMany()) {
-			Object oldValue = ((List<?>)fObject.fStoreObject().fGet(feature)).remove(index);
+			FStoreObject fStoreObject = fObject.fStoreObject();
+			lock(fStoreObject);
+			Object oldValue = ((List<?>)fStoreObject.fGet(feature)).remove(index);
+			lock(oldValue);
 			setProtentialContainer(feature, null, oldValue);
-			fObject.fStoreObject().fMarkModified(true);
+			fStoreObject.fMarkModified(true);
+			unlock();
 			return proxifyValue(feature, oldValue);
 		}
 		throw new IllegalArgumentException();
@@ -161,9 +192,13 @@ public class FStore implements EStore {
 	public Object move(InternalEObject object, EStructuralFeature feature, int targetIndex, int sourceIndex) {
 		FObject fObject = (FObject)object;
 		if (feature.isMany()) {
-			Object value = ((List<?>)fObject.fStoreObject().fGet(feature)).remove(sourceIndex);
-			((List)fObject.fStoreObject().fGet(feature)).add(targetIndex, value);
-			fObject.fStoreObject().fMarkModified(true);
+			FStoreObject fStoreObject = fObject.fStoreObject();
+			lock(fStoreObject);			
+			Object value = ((List<?>)fStoreObject.fGet(feature)).remove(sourceIndex);
+			lock(value);
+			((List)fStoreObject.fGet(feature)).add(targetIndex, value);
+			fStoreObject.fMarkModified(true);
+			unlock();
 			return proxifyValue(feature, value);
 		}
 		throw new IllegalArgumentException();
@@ -173,12 +208,16 @@ public class FStore implements EStore {
 	public void clear(InternalEObject object, EStructuralFeature feature) {
 		FObject fObject = (FObject)object;
 		if (feature.isMany()) {
-			List<?> values = (List<?>)fObject.fStoreObject().fGet(feature);
+			FStoreObject fStoreObject = fObject.fStoreObject();
+			List<?> values = (List<?>)fStoreObject.fGet(feature);
+			lock(fStoreObject);
 			for (Object value: values) {
+				lock(value);
 				setProtentialContainer(feature, null, value);
 			}
 			values.clear();
-			fObject.fStoreObject().fMarkModified(true);
+			fStoreObject.fMarkModified(true);
+			unlock();
 			return;
 		}
 		throw new IllegalArgumentException();

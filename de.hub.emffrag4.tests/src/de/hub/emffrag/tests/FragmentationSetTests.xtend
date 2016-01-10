@@ -14,6 +14,7 @@ import org.junit.Test
 
 import static de.hub.emffrag.tests.FObjectTestModelParser.*
 import static org.junit.Assert.*
+import de.hub.emffrag.tests.model.TestModelPackage
 
 class FragmentationSetTests extends AbstractDataStoreTests {
 	override cacheSize() {
@@ -107,5 +108,29 @@ class FragmentationSetTests extends AbstractDataStoreTests {
 		val Container f2c1 = fs.getFragmentation(URI.createURI("f2")).root
 		assertNotNull(((f2c1.fragment as Container).content as Container).referenced)
 		assertSame((f1c1.fragment as Container).content, ((f2c1.fragment as Container).content as Container).referenced)
+	}
+	
+	@Test
+	def moveFragmentToDifferentFragmentationTest() {
+		val Container original = create('''Container root {
+			fragments = Container child1 {
+
+			}
+			fragments = Container child2 {
+
+			}
+		}''')
+		val originalCopy = EcoreUtil.copy(original)
+		fs.getFragmentation(URI.createURI("root")).root = original
+		
+		fs.getFragmentation(URI.createURI("child1")).root = withName("child1")
+		fs.getFragmentation(URI.createURI("child2")).root = withName("child2")
+		
+		assertSame(3, fs.fragmentations.size)
+		assertNotSame(original.fFragmentation, withName("child1").fFragmentation)
+		assertSame(original, withName("child1").eContainer)
+		assertSame(TestModelPackage.eINSTANCE.container_Fragments, withName("child1").eContainingFeature)
+		assertSame(withName("child1"), fs.getFragmentation(URI.createURI("child1")).root)
+		assertTrue(EcoreUtil.equals(originalCopy, original))
 	}
 }

@@ -35,8 +35,8 @@ public abstract class ObjectOutputStream {
 	private FStoreFragmentation thisFragmentation = null;
 	private FStreamURIImpl currentURI = null;
 	
-//	private StringBuilder humanReadableOutput = new StringBuilder();
-//	private int humanReadableIndent = 0;
+	private StringBuilder humanReadableOutput = new StringBuilder();
+	private int humanReadableIndent = 0;
 
 	public ObjectOutputStream(java.io.OutputStream out, boolean withUnload) {
 		this.out = new BufferedOutputStream(out, 1000);
@@ -286,40 +286,44 @@ public abstract class ObjectOutputStream {
 		
 		writeObject(object);
 		
-//		String hrOut = humanReadableOutput.toString();
-//		writeString(hrOut);
-//		System.out.println(">>> " + object.fFragmentID() + ": " + hrOut);
+		String hrOut = humanReadableOutput.toString();
+		writeString(hrOut);
+		String hrUriString = "";
+		if (object.fFragmentation() != null && object.fFragmentation().getURI() != null) {
+			hrUriString = object.fFragmentation().getURI().toString();
+		}
+		System.out.println(">>> " + hrUriString + "/"+ object.fFragmentID() + ": " + hrOut);
 	}
 	
 	private void hr(Object value, int indentChange) {
-//		if (indentChange < 0) {
-//			humanReadableOutput.deleteCharAt(humanReadableOutput.length()-1);
-//			humanReadableOutput.deleteCharAt(humanReadableOutput.length()-1);
-//		}
-//		humanReadableIndent += indentChange;
-//		hr(value);
+		if (indentChange < 0) {
+			humanReadableOutput.deleteCharAt(humanReadableOutput.length()-1);
+			humanReadableOutput.deleteCharAt(humanReadableOutput.length()-1);
+		}
+		humanReadableIndent += indentChange;
+		hr(value);
 	}
 	
 	private void hr(Object value) {
-//		if (value instanceof String) {
-//			String str = (String) value;
-//			if (str.length() > 40) {
-//				appendHumanReadableOutput(str.substring(0, 40));
-//				hr("...");
-//			} else {
-//				appendHumanReadableOutput(str);
-//			}
-//		} else {
-//			appendHumanReadableOutput(value.toString());
-//		}
+		if (value instanceof String) {
+			String str = (String) value;
+			if (str.length() > 40) {
+				appendHumanReadableOutput(str.substring(0, 40));
+				hr("...");
+			} else {
+				appendHumanReadableOutput(str);
+			}
+		} else {
+			appendHumanReadableOutput(value.toString());
+		}
 	}
 	
-//	private void appendHumanReadableOutput(String str) {
-//		humanReadableOutput.append(str);
-//		if (str.endsWith("\n")) {
-//			for (int i = 0; i < humanReadableIndent; i++) humanReadableOutput.append("  ");
-//		}
-//	}
+	private void appendHumanReadableOutput(String str) {
+		humanReadableOutput.append(str);
+		if (str.endsWith("\n")) {
+			for (int i = 0; i < humanReadableIndent; i++) humanReadableOutput.append("  ");
+		}
+	}
 	
 	protected abstract int getPackageID(EPackage pkg);
 }

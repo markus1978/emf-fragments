@@ -5,10 +5,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
@@ -32,7 +30,7 @@ public class FStoreFragmentation {
 	private final IDataStore dataStore;
 
 	private final List<EPackage> packages;
-	private final Map<Integer, FStoreObject> fragments;
+	private final LRUCache<Integer, FStoreObject> fragments;
 	private FStoreObject lastAccessed = null;
 	
 	private final URI uri;
@@ -46,16 +44,12 @@ public class FStoreFragmentation {
 	public FStoreFragmentation(FStoreFragmentationSet set, URI uri, List<EPackage> packages, IDataStore dataStore, int fragmentsCacheSize) {
 		this.set = set;
 		this.uri = uri;
-		if (fragmentsCacheSize > 0) {
-			this.fragments = new LRUCache<Integer, FStoreObject>(fragmentsCacheSize) {
-				@Override
-				protected void onRemove(FStoreObject value) {
-					unloadFragment(value);
-				}
-			};
-		} else {
-			this.fragments = new HashMap<Integer, FStoreObject>();
-		}
+		this.fragments = new LRUCache<Integer, FStoreObject>(fragmentsCacheSize) {
+			@Override
+			protected void onRemove(FStoreObject value) {
+				unloadFragment(value);
+			}
+		};
 		this.dataStore = dataStore;
 		this.fragmentDataStoreIndex = dataStore.getMap(("f_").getBytes(), LongKeyType.instance);
 		this.packages = new ArrayList<EPackage>(packages);
@@ -72,11 +66,19 @@ public class FStoreFragmentation {
 	}
 	
 	public void setRoot(FStoreObject root) {
-		if (!fragmentDataStoreIndex.exists((long)0)) {
-			onAddToFragmentation(root);
-		} else {
-			throw new IllegalArgumentException("Fragmentation already has a root.");
-		}		
+		lock();
+		if (root.fFragmentation() != null) {
+			root.fFragmentation().onRemoveFromFragmentation(root);
+		}
+		try {
+			if (!fragmentDataStoreIndex.exists((long)0)) {
+				onAddToFragmentation(root);
+			} else {
+				throw new IllegalArgumentException("Fragmentation already has a root.");
+			}
+		} finally {
+			unlock();
+		}
 	}
 	
 	public FStoreObject resolve(int fragmentID) {
@@ -239,10 +241,6 @@ public class FStoreFragmentation {
 	}
 
 	public void onAddToFragmentation(FStoreObject fStoreObject) {	
-		if (fragments instanceof LRUCache) {
-			((LRUCache<?,?>)fragments).lock();
-		}
-		
 		if (fStoreObject.fIsRoot()) {
 			createFragment(fStoreObject);
 		}
@@ -250,10 +248,6 @@ public class FStoreFragmentation {
 			if (content.fIsRoot()) {
 				createFragment(content);
 			}	
-		}
-		
-		if (fragments instanceof LRUCache) {
-			((LRUCache<?,?>)fragments).unlock();
 		}
 	}
 	
@@ -295,5 +289,13 @@ public class FStoreFragmentation {
 
 	public URI getURI() {
 		return uri;
+	}
+
+	public void lock() {
+		fragments.lock();
+	}
+	
+	public void unlock() {
+		fragments.unlock();
 	}
 }
