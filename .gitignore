@@ -10,3 +10,4 @@ log.*
 !db/hbase-0.90.3/bin/
 de.hub.emffrag.testmodels/models/
 apidocs/
+*.xtendbin
