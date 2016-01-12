@@ -23,7 +23,7 @@ public class FObjectProxyManager {
 		} else if (fStoreObject.fIsProxy()) {
 			FURI uri = fStoreObject.fProxyURI();
 			fObject = proxyCache.getIfPresent(uri);
-			FStoreObject resolved = fStoreObject.fFragmentation().resolve(fStoreObject.fProxyURI());
+			FStoreObject resolved = fStoreObject.resolve(true);
 			if (resolved == null) {
 				throw new RuntimeException("Could not resolve " + fStoreObject.fFragmentation().getURI() + "/" + fStoreObject.fProxyURI());
 			} else {

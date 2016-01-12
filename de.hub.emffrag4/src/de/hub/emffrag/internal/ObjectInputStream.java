@@ -30,11 +30,11 @@ public abstract class ObjectInputStream {
 	
 	private final Map<Integer, FStoreObject> internalObjectIDMap = new HashMap<Integer, FStoreObject>();
 	
-	public ObjectInputStream(InputStream in, int fragmentID) {
+	public ObjectInputStream(InputStream in, URI fragmentationURI, int fragmentID) {
 		this.in = new BufferedInputStream(in, 1000);
 		this.buffer = new byte[1000];
 		index = buffer.length;
-		currentURI = new FStreamURIImpl(fragmentID);
+		currentURI = new FStreamURIImpl(fragmentationURI, fragmentID);
 	}
 	
 	protected abstract EPackage getPackage(int packageID);
@@ -149,7 +149,9 @@ public abstract class ObjectInputStream {
 					if (uri == null || uri.fragment() == -1) {
 						return null;
 					} else {
-						return createProxy(uri, (EClass)feature.getEType());
+						FStoreObject proxy = createProxy(uri, (EClass)feature.getEType());
+						FStoreObject resolved = proxy.resolve(false);
+						return resolved == null ? proxy : resolved;
 					}
 				}
 			}

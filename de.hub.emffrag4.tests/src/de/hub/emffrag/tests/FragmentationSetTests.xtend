@@ -6,6 +6,7 @@ import de.hub.emffrag.datastore.IDataStore
 import de.hub.emffrag.internal.FStore
 import de.hub.emffrag.tests.model.Container
 import de.hub.emffrag.tests.model.Contents
+import de.hub.emffrag.tests.model.TestModelPackage
 import java.util.Map
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.util.EcoreUtil
@@ -14,7 +15,6 @@ import org.junit.Test
 
 import static de.hub.emffrag.tests.FObjectTestModelParser.*
 import static org.junit.Assert.*
-import de.hub.emffrag.tests.model.TestModelPackage
 
 class FragmentationSetTests extends AbstractDataStoreTests {
 	override cacheSize() {
@@ -111,12 +111,9 @@ class FragmentationSetTests extends AbstractDataStoreTests {
 	}
 	
 	@Test
-	def moveFragmentToDifferentFragmentationTest() {
+	def void moveFragmentToDifferentFragmentationTest() {
 		val Container original = create('''Container root {
 			fragments = Container child1 {
-
-			}
-			fragments = Container child2 {
 
 			}
 		}''')
@@ -124,9 +121,9 @@ class FragmentationSetTests extends AbstractDataStoreTests {
 		fs.getFragmentation(URI.createURI("root")).root = original
 		
 		fs.getFragmentation(URI.createURI("child1")).root = withName("child1")
-		fs.getFragmentation(URI.createURI("child2")).root = withName("child2")
 		
-		assertSame(3, fs.fragmentations.size)
+		assertSame(1, original.fragments.size)		
+		assertSame(2, fs.fragmentations.size)
 		assertNotSame(original.fFragmentation, withName("child1").fFragmentation)
 		assertSame(original, withName("child1").eContainer)
 		assertSame(TestModelPackage.eINSTANCE.container_Fragments, withName("child1").eContainingFeature)

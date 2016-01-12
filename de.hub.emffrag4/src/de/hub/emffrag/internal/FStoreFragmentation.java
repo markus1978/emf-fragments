@@ -46,7 +46,7 @@ public class FStoreFragmentation {
 		this.uri = uri;
 		this.fragments = new LRUCache<Integer, FStoreObject>(fragmentsCacheSize) {
 			@Override
-			protected void onRemove(FStoreObject value) {
+			protected void doRemove(FStoreObject value) {
 				unloadFragment(value);
 			}
 		};
@@ -62,13 +62,25 @@ public class FStoreFragmentation {
 	}
 	
 	public FStoreObject getRoot() {
-		return resolve(0);
+		return resolve(0, true);
 	}
 	
 	public void setRoot(FStoreObject root) {
+		FStoreFragmentation oldFragmentation = root.fFragmentation();
+		FStoreFragmentation containerFragmentation = null;
 		lock();
-		if (root.fFragmentation() != null) {
-			root.fFragmentation().onRemoveFromFragmentation(root);
+		if (oldFragmentation != null) {
+			oldFragmentation.lock();
+		}
+		FStoreObject container = root.fContainer();
+		if (container != null) {
+			container = container.resolve(true);
+			containerFragmentation = container.fFragmentation();
+			containerFragmentation.lock();			
+			container.fMarkModified(true);
+		}
+		if (oldFragmentation != null) {
+			oldFragmentation.onRemoveFromFragmentation(root);			
 		}
 		try {
 			if (!fragmentDataStoreIndex.exists((long)0)) {
@@ -78,12 +90,18 @@ public class FStoreFragmentation {
 			}
 		} finally {
 			unlock();
+			if (oldFragmentation != null) {
+				oldFragmentation.unlock();
+			}
+			if (containerFragmentation != null) {
+				containerFragmentation.unlock();
+			}
 		}
 	}
 	
-	public FStoreObject resolve(int fragmentID) {
+	public FStoreObject resolve(int fragmentID, boolean loadOnDemand) {
 		FStoreObject fragmentRoot = fragments.get(fragmentID);
-		if (fragmentRoot == null) {
+		if (fragmentRoot == null && loadOnDemand) {
 			return loadFragment(fragmentID);
 		} else {
 			return fragmentRoot;
@@ -91,15 +109,15 @@ public class FStoreFragmentation {
 	}
 
 	public FStoreObject loadFragment(final int fragmentID) {
-//		EmfFragActivator.instance.debug(
-//				Ansi.format("FRAGMENTATION: ", Color.BLUE) +
-//				Ansi.format("load ", Color.GREEN) + 
-//				Ansi.format("" + fragmentID, Color.values()[(int)(fragmentID % Color.values().length)]));
+		EmfFragActivator.instance.debug(
+				Ansi.format("FRAGMENTATION: ", Color.BLUE) +
+				Ansi.format("<<< ", Color.GREEN) + 
+				Ansi.format(uri != null ? uri.toString() + "/" + fragmentID : Integer.toString(fragmentID), Color.values()[(int)(fragmentID % Color.values().length)]));
 		Preconditions.checkArgument(fragmentID >= 0);
 		FStoreObject fragmentRoot;
 		if (fragmentDataStoreIndex.exists((long)fragmentID)) {
 			InputStream inputStream = fragmentDataStoreIndex.openInputStream((long) fragmentID);
-			ObjectInputStream objectInputStream = new ObjectInputStream(inputStream, fragmentID) {
+			ObjectInputStream objectInputStream = new ObjectInputStream(inputStream,  getURI(), fragmentID) {
 				@Override
 				protected EPackage getPackage(int packageID) {
 					return packages.get(packageID);
@@ -138,11 +156,14 @@ public class FStoreFragmentation {
 	}
 	
 	public void unloadFragment(FStoreObject fragmentRoot) {
+		Preconditions.checkArgument(fragmentRoot.fFragmentation() == this);
+		Preconditions.checkArgument(fragments.get(fragmentRoot.fFragmentID()) != null);
+		
 		int fragmentID = fragmentRoot.fFragmentID();
-//		EmfFragActivator.instance.debug(
-//				Ansi.format("FRAGMENTATION: ", Color.BLUE) +
-//				Ansi.format("load ", Color.RED) + 
-//				Ansi.format(fragmentID + (fragmentRoot.fModified()?"*":""), Color.values()[(int)(fragmentID % Color.values().length)]));
+		EmfFragActivator.instance.debug(
+				Ansi.format("FRAGMENTATION: ", Color.BLUE) +
+				Ansi.format(">>> ", Color.RED) + 
+				Ansi.format(uri != null ? uri.toString() + "/" + fragmentID : Integer.toString(fragmentID), Color.values()[(int)(fragmentID % Color.values().length)]));
 		if (fragmentRoot.fModified()) {
 			OutputStream outputStream = fragmentDataStoreIndex.openOutputStream((long) fragmentID);
 			ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream, true) {
@@ -154,7 +175,7 @@ public class FStoreFragmentation {
 			objectOutputStream.writeFragment(fragmentRoot);
 			objectOutputStream.close();
 		} else {
-			unloadFragmentContent(fragmentRoot, new FStreamURIImpl(fragmentID));
+			unloadFragmentContent(fragmentRoot, new FStreamURIImpl(getURI(), fragmentID));
 		}
 		fragments.remove(fragmentID);
 	}
@@ -198,8 +219,11 @@ public class FStoreFragmentation {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public FStoreObject resolve(FURI uri) {
-		FStoreObject root = resolve(uri.fragment());
+	public FStoreObject resolve(FURI uri, boolean loadOnDemand) {
+		FStoreObject root = resolve(uri.fragment(), loadOnDemand);
+		if (root == null) {
+			return null;
+		}
 		FStoreObject object = root;
 		Iterator<Integer> segmentIterator = Lists.reverse(uri.segment()).iterator();
 		while(segmentIterator.hasNext()) {
@@ -217,33 +241,38 @@ public class FStoreFragmentation {
 	}
 	
 	private int createFragment(FStoreObject root) {
-		long id = fragmentDataStoreIndex.add();
+		long idAsLong = fragmentDataStoreIndex.add();
+		int fragmentID = (int)idAsLong;
 		
 		EmfFragActivator.instance.debug(
 				Ansi.format("FRAGMENTATION: ", Color.BLUE) +
-				Ansi.format("created ", Color.YELLOW) + 
-				Ansi.format(Integer.toString((int)id), Color.values()[(int)(id % Color.values().length)]));		
+				Ansi.format("*** ", Color.YELLOW) + 
+				Ansi.format(uri != null ? uri.toString() + "/" + fragmentID : Integer.toString(fragmentID), Color.values()[(int)(fragmentID % Color.values().length)]));		
 		
-		root.fSetFragmentID(this, (int)id);
-		fragments.put((int)id, root);
+		root.fSetFragmentID(this, fragmentID);
+		root.fMarkModified(true);
+		fragments.put(fragmentID, root);
 		
-		return (int)id;
+		return fragmentID;
 	}
 	
 	private void deleteFragment(FStoreObject root) {
-		int id = root.fFragmentID();
-		fragmentDataStoreIndex.remove((long)id);
+		Preconditions.checkArgument(root.fFragmentation() == this);
+		
+		int fragmentID = root.fFragmentID();
+		fragmentDataStoreIndex.remove((long)fragmentID);
+		fragments.remove(root.fFragmentID());
 
 		EmfFragActivator.instance.debug(
 				Ansi.format("FRAGMENTATION: ", Color.BLUE) +
-				Ansi.format("deleted ", Color.MAGENTA) + 
-				Ansi.format(Integer.toString((int)id), Color.values()[(int)id % Color.values().length]));
+				Ansi.format("xxx ", Color.MAGENTA) + 
+				Ansi.format(uri != null ? uri.toString() + "/" + fragmentID : Integer.toString(fragmentID), Color.values()[(int)(fragmentID % Color.values().length)]));
 	}
 
-	public void onAddToFragmentation(FStoreObject fStoreObject) {	
+	public void onAddToFragmentation(FStoreObject fStoreObject) {
 		if (fStoreObject.fIsRoot()) {
-			createFragment(fStoreObject);
-		}
+			createFragment(fStoreObject);			
+		}		
 		for (FStoreObject content: fStoreObject.fAllContents(false)) {
 			if (content.fIsRoot()) {
 				createFragment(content);
@@ -297,5 +326,14 @@ public class FStoreFragmentation {
 	
 	public void unlock() {
 		fragments.unlock();
+	}
+	
+	@Override
+	public String toString() {
+		if (uri != null) {
+			return "F(" + uri + ")";
+		} else {
+			return "F";
+		}
 	}
 }

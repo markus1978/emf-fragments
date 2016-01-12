@@ -39,6 +39,7 @@ public interface FStoreObject {
 	public FURI fCreateURI();
 	public FURI fProxyURI();
 	public FURI fUnload(FURI uri);
+	public FStoreObject resolve(boolean loadOnDemand);
 	
 	public boolean fModified();
 	public void fMarkModified(boolean modified);

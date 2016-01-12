@@ -49,6 +49,10 @@ public class FURIImpl implements FURI {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
+		if (fragmentation() != null) {
+			builder.append(fragmentation().toString());
+			builder.append("/");
+		}
 		builder.append(fragment());
 		for (int i = 0; i < segment().size(); i = i + 2) {
 			builder.append("/");

@@ -28,12 +28,21 @@ public class FObjectImpl extends EStoreEObjectImpl implements FObject {
 			access(fStoreObject);
 			FStore.fINSTANCE.proxyManager.registerFObject(fStoreObject, this);
 		} else if (fStoreObject.fIsProxy()) {
-			fStoreObject = fStoreObject.fFragmentation().resolve(fStoreObject.fProxyURI());
+			fStoreObject = fStoreObject.resolve(true);
 		} else {
 			access(fStoreObject.fRoot());
 		}
 		
 		return fStoreObject;
+	}
+	
+	// TODO remove
+	public String debugId() {
+		if (fStoreObject == null) {
+			return "null";
+		} else {
+			return ""+fStoreObject.fProxyURI();
+		}
 	}
 	
 	private void access(FStoreObject fStoreObject) {

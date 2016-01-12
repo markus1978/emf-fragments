@@ -198,11 +198,11 @@ class FStoreFragmentationTests extends AbstractTests {
 		fragmentation.root = root
 		fragmentation.unloadFragment(withName("f2"))
 		assertTrue(withName("f2").fIsProxy)
-		val resolved = fragmentation.resolve(withName("f2").fProxyURI)
+		val resolved = fragmentation.resolve(withName("f2").fProxyURI, true)
 		assertFalse(resolved.fIsProxy)	
 		assertNotNull(resolved.fContainer)
 		assertTrue(resolved.fContainer.fIsProxy)
-		assertSame(root, fragmentation.resolve(resolved.fContainer.fProxyURI))
+		assertSame(root, fragmentation.resolve(resolved.fContainer.fProxyURI, true))
 		assertSame(3, fragmentation.loadedFragments)	
 	}
 }

@@ -33,6 +33,7 @@ public class FStore implements EStore {
 		for(FStoreFragmentation fragmentation: lockedFragmentations) {
 			fragmentation.unlock();
 		}
+		lockedFragmentations.clear();
 	}
 	
 	private FObject proxify(FStoreObject fStoreObject) {

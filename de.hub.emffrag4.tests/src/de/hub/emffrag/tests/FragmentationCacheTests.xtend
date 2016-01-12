@@ -19,8 +19,9 @@ class FragmentationCacheTests extends AbstractDataStoreTests {
 	public def void lruCacheEvictionTest() {
 		val counter = newArrayList
 		val cache = new LRUCache<String,String>(1) {			
-			override protected onRemove(String value) {
+			override protected doRemove(String value) {
 				counter.add(value)
+				this.remove(value)
 			}			
 		}
 		cache.put("Hello", "Hello")
@@ -36,8 +37,9 @@ class FragmentationCacheTests extends AbstractDataStoreTests {
 	public def void lruCacheLRUEvictionTest() {
 		val counter = newArrayList
 		val cache = new LRUCache<String,String>(3) {			
-			override protected onRemove(String value) {
+			override protected doRemove(String value) {
 				counter.add(value)
+				this.remove(value)
 			}			
 		}
 		cache.put("1", "1")
@@ -196,7 +198,10 @@ class FragmentationCacheTests extends AbstractDataStoreTests {
 		''')
 		
 		fragmentation.root = model
-		for (i:1..5) model.fragments += create('''Container c«i»;''')
+		for (i:1..5) {
+			model.fragments += create('''Container c«i»;''')
+			assertEquals(i, fragmentation.root.eAllContents.size)			
+		}
 		
 		assertEquals(5, fragmentation.root.eAllContents.size)
 		fragmentation.root.eAllContents.map[it as Container].forEach[assertTrue(it.name.startsWith("c"))]

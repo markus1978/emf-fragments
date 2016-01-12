@@ -39,7 +39,7 @@ class SerializationTests extends AbstractTests {
 		objectOutputStream.close
 		
 		val byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray)
-		val objectInputStream = new ObjectInputStream(byteArrayInputStream, 0) {
+		val objectInputStream = new ObjectInputStream(byteArrayInputStream, null, 0) {
 			override protected getPackage(int packageID) {
 				return thePackages.get(packageID)
 			}

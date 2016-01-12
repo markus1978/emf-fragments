@@ -11,9 +11,11 @@ public class FStreamURIImpl implements FURI {
 	private final List<Integer> reversedSegment = new ArrayList<Integer>();
 	private final List<Integer> segment = Lists.reverse(reversedSegment);
 	private final int fragmentID;
+	private final URI fragmentationURI;
 	
-	public FStreamURIImpl(int fragmentID) {
+	public FStreamURIImpl(URI fragmentationURI, int fragmentID) {
 		super();
+		this.fragmentationURI = fragmentationURI;
 		this.fragmentID = fragmentID;
 	}
 
@@ -40,7 +42,7 @@ public class FStreamURIImpl implements FURI {
 
 	@Override
 	public URI fragmentation() {
-		return null;
+		return fragmentationURI;
 	}
 
 	@Override
@@ -53,4 +55,8 @@ public class FStreamURIImpl implements FURI {
 		return FURI.equals(this, obj);
 	}
 	
+	@Override
+	public String toString() {
+		return FURI.toString(this);
+	}
 }

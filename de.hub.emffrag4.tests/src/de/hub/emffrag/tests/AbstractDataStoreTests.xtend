@@ -24,6 +24,7 @@ class AbstractDataStoreTests extends AbstractTests {
 	@BeforeClass
 	static def void beforeClass() {
 		EmfFragActivator.standalone(EcorePackage.eINSTANCE, TestModelPackage.eINSTANCE)
+		EmfFragActivator.instance.logInStandAlone = false
 	}
 	
 	@Before

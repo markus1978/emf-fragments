@@ -123,7 +123,7 @@ public class FStoreObjectImpl implements FStoreObject {
 	@Override
 	public void fSetFragmentID(FStoreFragmentation fragmentation, int fragmentID) {
 		root.fragmentID = fragmentID;
-		root.fragmentation = fragmentation;		
+		root.fragmentation = fragmentation;
 	}
 
 	@Override
@@ -161,12 +161,17 @@ public class FStoreObjectImpl implements FStoreObject {
 	
 	@Override
 	public void fSetContainer(FStoreObject newContainer, EReference containingFeature, boolean isEmpty) {
+		if (newContainer != container) {
+			fMarkModified(true);
+		}
+		
 		FStoreFragmentation oldFragmentation = fFragmentation();
 		if (newContainer != null) {
 			boolean isAddedToFragmentation = newContainer.fFragmentation() != null && fFragmentation() != newContainer.fFragmentation();
 			
 			flags = newContainer.fClass().getFeatureID(containingFeature) << 16 | (flags & 0x00FF);
-			container = newContainer;		
+			container = newContainer;
+			fMarkModified(true);
 			if (FragmentationUtil.isFragmenting(containingFeature)) {
 				fSetRoot(this, isEmpty);
 			} else {
@@ -208,6 +213,10 @@ public class FStoreObjectImpl implements FStoreObject {
 		FURIImpl uri = new FURIImpl();	
 		int fragmentID = fFragmentID();
 		uri.setFragment(fragmentID);
+		FStoreFragmentation fFragmentation = fFragmentation();
+		if (fFragmentation != null) {
+			uri.setFragmentation(fFragmentation.getURI());
+		}
 		FStoreObject i = this;
 		while (!i.fIsRoot()) {
 			EReference fContainingFeature = i.fContainingFeature();
@@ -220,6 +229,20 @@ public class FStoreObjectImpl implements FStoreObject {
 			i = i.fContainer();
 		}
 		return uri;
+	}
+	
+	@Override
+	public FStoreObject resolve(boolean loadOnDemand) {
+		if (fIsProxy()) {
+			FStoreObject resolved = fFragmentation().resolve(fProxyURI(), loadOnDemand);
+			if (resolved == null && !loadOnDemand) {
+				return this;
+			} else {
+				return resolved;
+			}
+		} else {
+			return this;
+		}
 	}
 
 	@Override
@@ -356,9 +379,7 @@ public class FStoreObjectImpl implements FStoreObject {
 
 						if (contentIterator.hasNext()) {
 							FStoreObject nextDirectContent = contentIterator.next();
-							if (nextDirectContent.fIsProxy()) {
-								nextDirectContent = nextDirectContent.fFragmentation().resolve(nextDirectContent.fProxyURI());
-							}
+							nextDirectContent = nextDirectContent.resolve(true);							
 							currentSubContentIterator = nextDirectContent.fAllContents(onlyWithInSameFragment).iterator();
 							return nextDirectContent;
 						} else {
@@ -479,5 +500,4 @@ public class FStoreObjectImpl implements FStoreObject {
 	public String toFullTreeString() {
 		return new FullTreeHelper().appendObject(this).getResult();
 	}
-	
 }
