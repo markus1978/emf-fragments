@@ -217,11 +217,6 @@ public class FStoreObjectImpl implements FStoreObject {
 			EReference fContainingFeature = i.fContainingFeature();
 			EClass eClass = i.fContainer().fClass();
 			int fContainingFeatureID = eClass.getFeatureID(fContainingFeature);
-			if (fContainingFeatureID == 3 && fragmentID == 247) {  // TODO remove
-				if (eClass.getName().equals("FieldDeclaration")) {
-					System.out.println("### " + fContainingFeature.getName());
-				}
-			}
 			if (fContainingFeature.isMany()) {
 				uri.addFeatureToSegment(fContainingFeatureID, ((List<FStoreObjectImpl>)i.fContainer().fGet(fContainingFeature)).indexOf(i));	
 			} else {

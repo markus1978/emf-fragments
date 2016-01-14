@@ -26,24 +26,15 @@ public class FURIImpl implements FURI {
 	
 	public void setFragment(int id) {
 		this.fragment = id;
-		if (fragment == 247 && segment.size() >=1 && segment.get(0) == 3) {
-			System.out.println("ddd");
-		}
 	}
 	
 	public List<Integer> segment() {
-		if (fragment == 247 && segment.size() >=1 && segment.get(0) == 3) {
-			System.out.println("ddd");
-		}
-		return Collections.unmodifiableList(segment);
+		return segment;
 	}
 	
 	public void addFeatureToSegment(int featureID, int slotIndex) {
 		segment.add(featureID);
 		segment.add(slotIndex);
-		if (fragment == 247 && segment.size() >=1 && segment.get(0) == 3) {
-			System.out.println("ddd");
-		}
 	}
 	
 	@Override

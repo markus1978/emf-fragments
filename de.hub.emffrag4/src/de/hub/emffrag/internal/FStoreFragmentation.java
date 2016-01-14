@@ -224,9 +224,6 @@ public class FStoreFragmentation {
 		while(segmentIterator.hasNext()) {
 			Integer index = segmentIterator.next();
 			Integer featureID = segmentIterator.next();
-			if (featureID == 3 && object.fClass().getName().equals("FieldDeclaration")) { // TODO remove
-				System.out.println("..");
-			}
 			EStructuralFeature feature = object.fClass().getEStructuralFeature(featureID);
 			if (index == -1) {				
 				object = (FStoreObject) object.fGet(feature);

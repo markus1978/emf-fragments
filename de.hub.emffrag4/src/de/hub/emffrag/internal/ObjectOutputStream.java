@@ -166,11 +166,6 @@ public abstract class ObjectOutputStream {
 			for (int segmentPart: uri.segment()) {
 				writeCompressedInt(segmentPart);
 			}
-			if (uri.fragment() == 247) {
-				if (uri.segment().size() >=1 && uri.segment().get(1) == 3) { // TODO remove			
-					System.out.println("....");
-				}
-			}
 			hr(uri.toString());
 		}
 	}
