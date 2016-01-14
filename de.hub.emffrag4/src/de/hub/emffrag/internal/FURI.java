@@ -40,7 +40,10 @@ public interface FURI {
 			FURIImpl result = new FURIImpl();
 			result.setFragmentation(uri.fragmentation());
 			result.setFragment(uri.fragment());
-			result.segment().addAll(uri.segment());
+			for (int i = 0; i < uri.segment().size(); i = i + 2) { // TODO remove
+				result.addFeatureToSegment(uri.segment().get(i), uri.segment().get(i+1));
+			}
+			// result.segment().addAll(uri.segment());
 			return result;
 		}
 	}

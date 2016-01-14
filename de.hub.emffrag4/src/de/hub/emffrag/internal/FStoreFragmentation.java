@@ -175,18 +175,19 @@ public class FStoreFragmentation {
 	
 	@SuppressWarnings("unchecked")
 	private void unloadFragmentContent(FStoreObject fStoreObject, FStreamURIImpl uri) {		
-		for(EReference reference: fStoreObject.fClass().getEAllReferences()) {
+		EClass fClass = fStoreObject.fClass();
+		for(EReference reference: fClass.getEAllReferences()) {
 			if (reference.isContainment() && !FragmentationUtil.isFragmenting(reference)) {
 				if (fStoreObject.fIsSet(reference)) {
 					if (reference.isMany()) {
 						int index = 0;
 						for (FStoreObject content: (List<FStoreObject>)fStoreObject.fGet(reference)) {
-							uri.onDown(reference.getFeatureID(), index++);
+							uri.onDown(fClass.getFeatureID(reference), index++);
 							unloadFragmentContent(content, uri);
 							uri.onUp();
 						}
 					} else {
-						uri.onDown(reference.getFeatureID(), -1);
+						uri.onDown(fClass.getFeatureID(reference), -1);
 						unloadFragmentContent((FStoreObject) fStoreObject.fGet(reference), uri);
 						uri.onUp();		
 					}
@@ -223,6 +224,9 @@ public class FStoreFragmentation {
 		while(segmentIterator.hasNext()) {
 			Integer index = segmentIterator.next();
 			Integer featureID = segmentIterator.next();
+			if (featureID == 3 && object.fClass().getName().equals("FieldDeclaration")) { // TODO remove
+				System.out.println("..");
+			}
 			EStructuralFeature feature = object.fClass().getEStructuralFeature(featureID);
 			if (index == -1) {				
 				object = (FStoreObject) object.fGet(feature);

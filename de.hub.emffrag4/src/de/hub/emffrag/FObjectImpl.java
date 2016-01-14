@@ -28,9 +28,12 @@ public class FObjectImpl extends EStoreEObjectImpl implements FObject {
 			access(fStoreObject);
 			FStore.fINSTANCE.proxyManager.registerFObject(fStoreObject, this);
 		} else if (fStoreObject.fIsProxy()) {
-			fStoreObject = fStoreObject.resolve(true);
-			if (fStoreObject.fIsProxy()) {
+			FStoreObject resolved = fStoreObject.resolve(true);
+			if (resolved == null || resolved.fIsProxy()) {
+				fStoreObject.resolve(true);
 				throw new IllegalArgumentException("Could not resolve proxy. You probably accessed a closed fragmentation.");
+			} else {
+				fStoreObject = resolved;
 			}
 		} else {
 			access(fStoreObject.fRoot());

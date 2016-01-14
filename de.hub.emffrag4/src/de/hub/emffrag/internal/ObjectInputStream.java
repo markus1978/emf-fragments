@@ -126,6 +126,13 @@ public abstract class ObjectInputStream {
 			for (int i = 1; i < size; i = i + 2) {
 				uri.addFeatureToSegment(readCompressedInt(), readCompressedInt());
 			}
+			
+			if (uri.fragment() == 247) {
+				if (uri.segment().size() >=1 && uri.segment().get(0) == 3) { // TOO remove			
+					System.out.println("....");
+				}
+			}
+			
 			return uri;
 		}
 	}

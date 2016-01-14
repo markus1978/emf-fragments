@@ -1,6 +1,7 @@
 package de.hub.emffrag.internal;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.emf.common.util.URI;
@@ -25,15 +26,24 @@ public class FURIImpl implements FURI {
 	
 	public void setFragment(int id) {
 		this.fragment = id;
+		if (fragment == 247 && segment.size() >=1 && segment.get(0) == 3) {
+			System.out.println("ddd");
+		}
 	}
 	
 	public List<Integer> segment() {
-		return segment;
+		if (fragment == 247 && segment.size() >=1 && segment.get(0) == 3) {
+			System.out.println("ddd");
+		}
+		return Collections.unmodifiableList(segment);
 	}
 	
 	public void addFeatureToSegment(int featureID, int slotIndex) {
 		segment.add(featureID);
 		segment.add(slotIndex);
+		if (fragment == 247 && segment.size() >=1 && segment.get(0) == 3) {
+			System.out.println("ddd");
+		}
 	}
 	
 	@Override
