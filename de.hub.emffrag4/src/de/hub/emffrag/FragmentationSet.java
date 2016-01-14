@@ -58,4 +58,10 @@ public class FragmentationSet {
 		}
 		fragmentations.clear();
 	}
+
+	public void save() {
+		for (Fragmentation fragmentation: fragmentations.values()) {
+			fragmentation.save();			
+		}
+	}
 }

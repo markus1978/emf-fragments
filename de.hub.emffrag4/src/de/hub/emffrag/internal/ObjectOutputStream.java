@@ -160,7 +160,6 @@ public abstract class ObjectOutputStream {
 				writeCompressedInt(-2);
 				String fragmentationURIString = fStoreObject.fFragmentation().getURI().toString();
 				writeString(fragmentationURIString);
-				hr(fragmentationURIString); hr("/");
 			}
 			writeCompressedInt(uri.segment().size() + 1);
 			writeCompressedInt(uri.fragment());
@@ -236,6 +235,7 @@ public abstract class ObjectOutputStream {
 		hr("("); hr(features.size()); hr(") {\n", 1);
 		for (EStructuralFeature feature : features) {
 			int featureID = object.fClass().getFeatureID(feature);
+			Preconditions.checkState(featureID >= 0, "Invalid freature id.");
 			writeCompressedInt(featureID);
 			hr(feature.getName()); hr("("); hr(featureID); hr(")=");
 			if (feature.isMany()) {

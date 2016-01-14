@@ -35,12 +35,12 @@ public class FStoreFragmentation {
 	
 	private final URI uri;
 	private final FStoreFragmentationSet set;
+	private boolean closed = false;
 	
 	public FStoreFragmentation(List<EPackage> packages, IDataStore dataStore, int fragmentsCacheSize) {
 		this(null, null, packages, dataStore, fragmentsCacheSize);
 	}
 	
-	@SuppressWarnings("serial")
 	public FStoreFragmentation(FStoreFragmentationSet set, URI uri, List<EPackage> packages, IDataStore dataStore, int fragmentsCacheSize) {
 		this.set = set;
 		this.uri = uri;
@@ -99,7 +99,7 @@ public class FStoreFragmentation {
 		}
 	}
 	
-	public FStoreObject resolve(int fragmentID, boolean loadOnDemand) {
+	private FStoreObject resolve(int fragmentID, boolean loadOnDemand) {
 		FStoreObject fragmentRoot = fragments.get(fragmentID);
 		if (fragmentRoot == null && loadOnDemand) {
 			return loadFragment(fragmentID);
@@ -108,7 +108,7 @@ public class FStoreFragmentation {
 		}		
 	}
 
-	public FStoreObject loadFragment(final int fragmentID) {
+	private FStoreObject loadFragment(final int fragmentID) {
 		EmfFragActivator.instance.debug(
 				Ansi.format("FRAGMENTATION: ", Color.BLUE) +
 				Ansi.format("<<< ", Color.GREEN) + 
@@ -158,6 +158,7 @@ public class FStoreFragmentation {
 	public void unloadFragment(FStoreObject fragmentRoot) {
 		Preconditions.checkArgument(fragmentRoot.fFragmentation() == this);
 		Preconditions.checkArgument(fragments.get(fragmentRoot.fFragmentID()) != null);
+		Preconditions.checkState(!closed);
 		
 		int fragmentID = fragmentRoot.fFragmentID();
 		EmfFragActivator.instance.debug(
@@ -165,15 +166,7 @@ public class FStoreFragmentation {
 				Ansi.format(">>> ", Color.RED) + 
 				Ansi.format(uri != null ? uri.toString() + "/" + fragmentID : Integer.toString(fragmentID), Color.values()[(int)(fragmentID % Color.values().length)]));
 		if (fragmentRoot.fModified()) {
-			OutputStream outputStream = fragmentDataStoreIndex.openOutputStream((long) fragmentID);
-			ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream, true) {
-				@Override
-				protected int getPackageID(EPackage pkg) {
-					return packages.indexOf(pkg);
-				}			
-			};
-			objectOutputStream.writeFragment(fragmentRoot);
-			objectOutputStream.close();
+			saveFragment(fragmentRoot, true);
 		} else {
 			unloadFragmentContent(fragmentRoot, new FStreamURIImpl(getURI(), fragmentID));
 		}
@@ -204,10 +197,10 @@ public class FStoreFragmentation {
 		fStoreObject.fUnload(uri);
 	}
 	
-	public void saveFragment(FStoreObject fragmentRoot) {
+	private void saveFragment(FStoreObject fragmentRoot, boolean withUnload) {
 		int fragmentID = fragmentRoot.fFragmentID();
 		OutputStream outputStream = fragmentDataStoreIndex.openOutputStream((long) fragmentID);
-		ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream, true) {
+		ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream, withUnload) {
 			@Override
 			protected int getPackageID(EPackage pkg) {
 				return packages.indexOf(pkg);
@@ -220,6 +213,7 @@ public class FStoreFragmentation {
 	
 	@SuppressWarnings("unchecked")
 	public FStoreObject resolve(FURI uri, boolean loadOnDemand) {
+		Preconditions.checkState(!closed);
 		FStoreObject root = resolve(uri.fragment(), loadOnDemand);
 		if (root == null) {
 			return null;
@@ -298,9 +292,19 @@ public class FStoreFragmentation {
 	}
 	
 	public void close() {
+		Preconditions.checkState(!closed);
 		Collection<FStoreObject> fragmentRootsCopy = new ArrayList<FStoreObject>(fragments.values());
 		for (FStoreObject root: fragmentRootsCopy) {
 			unloadFragment(root);
+		}
+		FStore.fINSTANCE.proxyManager.removeProxies(uri);
+		closed = true;
+	}
+	
+	public void save() {
+		Preconditions.checkState(!closed);
+		for (FStoreObject fragmentRoot: fragments.values()) {
+			saveFragment(fragmentRoot, false);
 		}
 	}
 

@@ -1,6 +1,5 @@
 package de.hub.emffrag.ui.views;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,10 +42,10 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.DrillDownAdapter;
 import org.eclipse.ui.part.ViewPart;
 
+import de.hub.emffrag.Fragmentation;
+import de.hub.emffrag.FragmentationSet;
 import de.hub.emffrag.datastore.DataStoreImpl;
 import de.hub.emffrag.datastore.IDataStore;
-import de.hub.emffrag.fragmentation.Fragmentation;
-import de.hub.emffrag.fragmentation.FragmentationSet;
 
 /** This view uses the MoDisco content and label providers. */
 public class EmfFragView extends ViewPart {
@@ -209,28 +208,25 @@ public class EmfFragView extends ViewPart {
 	}
 	
 	private void addModel(String uriString) {
-		Resource resource = null;
+		Fragmentation fragmentation = null;
 		try {
 			URI uri = URI.createURI(uriString);
 			currentFragmentationURI = uri;
-			Fragmentation.config = Fragmentation.READONLY;
-			this.fragmentationSet = new FragmentationSet(100, new IDataStore.IDataStoreFactory() {				
+			this.fragmentationSet = new FragmentationSet(null, new IDataStore.IDataStoreFactory() {				
 				@Override
 				public IDataStore createDataStore(URI uri) {
 					return EmfFragView.this.createDataStore(uri);
 				}
-			});
-			Fragmentation fragmentation = fragmentationSet.getFragmentation(uri);
-			resource = fragmentation.getRootFragment();
-			
-			viewer.setInput(resource.getResourceSet());
+			}, 100);
+			fragmentation = fragmentationSet.getFragmentation(uri);			
+			viewer.setInput(fragmentation.getRoot());
 		} catch (Exception e) {
 			showMessage("Could not open the model at " + uriString + ": " + e.getMessage());
 			e.printStackTrace();
-			if (resource != null) {
+			if (fragmentation != null) {
 				try {
-					resource.delete(null);
-				} catch (IOException e1) {
+					fragmentation.close();
+				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
 			}			

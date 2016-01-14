@@ -22,6 +22,11 @@ public interface Fragmentation {
 	 */
 	public void close();
 	
+	/**
+	 * Saves all open fragments.
+	 */
+	public void save();
+	
 	public IDataStore getDataStore();
 	
 	public FragmentationSet getFragmentationSet();

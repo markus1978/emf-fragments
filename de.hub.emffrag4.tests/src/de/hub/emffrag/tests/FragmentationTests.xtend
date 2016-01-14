@@ -145,7 +145,7 @@ class FragmentationTests extends AbstractDataStoreTests {
 		fragmentation.root = testModel
 		fragmentation.FStoreFragmentation.close // unload all fragments
 		assertSame(0, fragmentation.FStoreFragmentation.loadedFragments)
-		assertSame(testModel, testModel.fragment.referenced)
+		assertException[testModel.fragment.referenced]		
 	}
 	
 	@Test
@@ -161,6 +161,6 @@ class FragmentationTests extends AbstractDataStoreTests {
 		fragmentation.root = testModel
 		fragmentation.FStoreFragmentation.close // unload all fragments
 		assertSame(0, fragmentation.FStoreFragmentation.loadedFragments)
-		assertSame(testModel.content, testModel.fragment.referenced)
+		assertException[testModel.fragment.referenced]
 	}
 }

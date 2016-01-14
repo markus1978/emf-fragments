@@ -39,13 +39,13 @@ class AbstractDataStoreTests extends AbstractTests {
 	protected def void reinit() {
 		fragmentation.close();
 		fragmentation = new FragmentationImpl(packages, dataStore, cacheSize)
-		FStore.fINSTANCE.proxyManager.reset
+//		FStore.fINSTANCE.proxyManager.reset
 	}
 	
 	protected def void reinit(IDataStore dataStore) {
 		fragmentation.close();
 		fragmentation = new FragmentationImpl(packages, dataStore, cacheSize)
-		FStore.fINSTANCE.proxyManager.reset
+//		FStore.fINSTANCE.proxyManager.reset
 	}
 	
 	protected def IBaseDataStore createDataStore() {

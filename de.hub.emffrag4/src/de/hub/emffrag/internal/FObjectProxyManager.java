@@ -1,8 +1,10 @@
 package de.hub.emffrag.internal;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 
 import com.google.common.cache.Cache;
@@ -25,7 +27,7 @@ public class FObjectProxyManager {
 			fObject = proxyCache.getIfPresent(uri);
 			FStoreObject resolved = fStoreObject.resolve(true);
 			if (resolved == null) {
-				throw new RuntimeException("Could not resolve " + fStoreObject.fFragmentation().getURI() + "/" + fStoreObject.fProxyURI());
+				throw new RuntimeException("Could not resolve " + fStoreObject.fProxyURI());
 			} else {
 				fStoreObject = resolved;
 			}
@@ -77,5 +79,16 @@ public class FObjectProxyManager {
 	public void fullReset() {		
 		objectCache.invalidateAll();
 		proxyCache.invalidateAll();
+	}
+	
+	public void removeProxies(URI fragmentationURI) {
+		Iterator<FURI> iterator = proxyCache.asMap().keySet().iterator();
+		while(iterator.hasNext()) {
+			FURI proxyURI = iterator.next();
+			URI proxyURIsFragmentation = proxyURI.fragmentation();
+			if ((fragmentationURI != null && fragmentationURI.equals(proxyURIsFragmentation)) || fragmentationURI == proxyURIsFragmentation) {
+				iterator.remove();
+			}
+		}
 	}
 }

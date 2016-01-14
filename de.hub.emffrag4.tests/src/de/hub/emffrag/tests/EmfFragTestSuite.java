@@ -15,7 +15,8 @@ import de.hub.emffrag.datastore.tests.EmfFragDataStoreTestSuite;
 	FStoreFragmentationTests.class,
 	FragmentationTests.class,
 	FragmentationCacheTests.class,
-	FragmentationSetTests.class
+	FragmentationSetTests.class,
+	FragmentationSetCacheTests.class
 })
 public class EmfFragTestSuite {
 

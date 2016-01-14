@@ -17,9 +17,6 @@ import static de.hub.emffrag.tests.FObjectTestModelParser.*
 import static org.junit.Assert.*
 
 class FragmentationSetTests extends AbstractDataStoreTests {
-	override cacheSize() {
-		return 1
-	}
 	
 	var FragmentationSet fs = null
 	val Map<URI, IDataStore> datastores = newHashMap()
@@ -124,7 +121,6 @@ class FragmentationSetTests extends AbstractDataStoreTests {
 		
 		assertSame(1, original.fragments.size)		
 		assertSame(2, fs.fragmentations.size)
-		assertNotSame(original.fFragmentation, withName("child1").fFragmentation)
 		assertSame(original, withName("child1").eContainer)
 		assertSame(TestModelPackage.eINSTANCE.container_Fragments, withName("child1").eContainingFeature)
 		assertSame(withName("child1"), fs.getFragmentation(URI.createURI("child1")).root)

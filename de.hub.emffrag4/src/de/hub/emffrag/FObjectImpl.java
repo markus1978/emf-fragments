@@ -29,20 +29,14 @@ public class FObjectImpl extends EStoreEObjectImpl implements FObject {
 			FStore.fINSTANCE.proxyManager.registerFObject(fStoreObject, this);
 		} else if (fStoreObject.fIsProxy()) {
 			fStoreObject = fStoreObject.resolve(true);
+			if (fStoreObject.fIsProxy()) {
+				throw new IllegalArgumentException("Could not resolve proxy. You probably accessed a closed fragmentation.");
+			}
 		} else {
 			access(fStoreObject.fRoot());
 		}
 		
 		return fStoreObject;
-	}
-	
-	// TODO remove
-	public String debugId() {
-		if (fStoreObject == null) {
-			return "null";
-		} else {
-			return ""+fStoreObject.fProxyURI();
-		}
 	}
 	
 	private void access(FStoreObject fStoreObject) {
@@ -61,11 +55,6 @@ public class FObjectImpl extends EStoreEObjectImpl implements FObject {
 		return false;
 	}
 
-	@Override
-	public Fragmentation fFragmentation() {
-		return FragmentationImpl.get(fStoreObject.fFragmentation());
-	}
-	
 	@Override
 	public String toString() {
 		return fStoreObject().toString();

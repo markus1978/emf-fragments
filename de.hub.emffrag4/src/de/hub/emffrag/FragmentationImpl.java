@@ -1,8 +1,6 @@
 package de.hub.emffrag;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EPackage;
@@ -14,12 +12,7 @@ import de.hub.emffrag.internal.FStoreFragmentationSet;
 import de.hub.emffrag.internal.FStoreObject;
 
 public class FragmentationImpl implements Fragmentation {
-	private static final Map<FStoreFragmentation, Fragmentation> fragmentations = new HashMap<FStoreFragmentation, Fragmentation>();
 	private final FragmentationSet set;
-	
-	public static Fragmentation get(FStoreFragmentation fStoreFragmentation) {
-		return fragmentations.get(fStoreFragmentation);
-	}
 	
 	private final FStoreFragmentation fStoreFragmentation;
 
@@ -35,7 +28,6 @@ public class FragmentationImpl implements Fragmentation {
 				return ((FragmentationImpl)set.getFragmentation(uri)).fStoreFragmentation;
 			}
 		}, uri, packages, dataStore, fragmentsCacheSize);
-		fragmentations.put(fStoreFragmentation, this);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -59,7 +51,11 @@ public class FragmentationImpl implements Fragmentation {
 	@Override
 	public void close() {		
 		fStoreFragmentation.close();
-		fragmentations.remove(fStoreFragmentation);
+	}
+	
+	@Override
+	public void save() {
+		fStoreFragmentation.save();
 	}
 
 	@Override

@@ -1,9 +1,7 @@
 package de.hub.emffrag.ui.views;
 
-import java.io.IOException;
-
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
@@ -40,9 +38,10 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.DrillDownAdapter;
 import org.eclipse.ui.part.ViewPart;
 
+import de.hub.emffrag.Fragmentation;
+import de.hub.emffrag.FragmentationImpl;
 import de.hub.emffrag.datastore.DataStoreImpl;
 import de.hub.emffrag.datastore.IDataStore;
-import de.hub.emffrag.fragmentation.Fragmentation;
 
 
 /** This view uses the standard generated ImportProviderAdatpers to create Content and Labels.*/
@@ -175,18 +174,19 @@ public class EmfFragViewBasedOnEMF extends ViewPart {
 	}
 	
 	private void addModel(String uriString) {
-		Resource resource = null;
+		Fragmentation fragmentation = null; 
 		try {
 			URI uri = URI.createURI(uriString);
-			resource = new Fragmentation(createDataStore(uri), 100).getRootFragment();
-			viewer.setInput(resource.getResourceSet());
+			fragmentation = new FragmentationImpl(null, createDataStore(uri), 100);
+			EObject object = fragmentation.getRoot();
+			viewer.setInput(object);
 		} catch (Exception e) {
 			showMessage("Could not open the model at " + uriString + ": " + e.getMessage());
 			e.printStackTrace();
-			if (resource != null) {
+			if (fragmentation != null) {
 				try {
-					resource.delete(null);
-				} catch (IOException e1) {
+					fragmentation.close();
+				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
 			}			

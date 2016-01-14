@@ -166,9 +166,7 @@ public class FStoreObjectImpl implements FStoreObject {
 		}
 		
 		FStoreFragmentation oldFragmentation = fFragmentation();
-		if (newContainer != null) {
-			boolean isAddedToFragmentation = newContainer.fFragmentation() != null && fFragmentation() != newContainer.fFragmentation();
-			
+		if (newContainer != null) {			
 			flags = newContainer.fClass().getFeatureID(containingFeature) << 16 | (flags & 0x00FF);
 			container = newContainer;
 			fMarkModified(true);
@@ -179,17 +177,14 @@ public class FStoreObjectImpl implements FStoreObject {
 				fSetRoot(newContainer.fRoot(), isEmpty);
 			}
 			
-			if (isAddedToFragmentation) {
-				if (oldFragmentation != null) {
-					oldFragmentation.onRemoveFromFragmentation(this);
-				}
+			if (oldFragmentation == null && newContainer.fFragmentation() != null) {				
 				newContainer.fFragmentation().onAddToFragmentation(this);
 			}
 		} else {			
-			container = null;
 			if (oldFragmentation != null) {
 				oldFragmentation.onRemoveFromFragmentation(this);
 			}
+			container = null;
 			fSetRoot(this, isEmpty);
 		}
 	}

@@ -22,6 +22,7 @@ import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.ecore.EcorePackage
 import org.junit.BeforeClass
+import org.junit.Assert
 
 class AbstractTests {
 	
@@ -127,6 +128,16 @@ class AbstractTests {
 			«ENDFOR»
 		}
 	'''
+	
+	protected def void assertException(()=>void function) {
+		var caught = false
+		try {
+			function.apply
+		} catch (Exception e) {
+			caught = true
+		}
+		Assert.assertTrue(caught)
+	}
 }
 
 public class FStoreObjectBuilder {
