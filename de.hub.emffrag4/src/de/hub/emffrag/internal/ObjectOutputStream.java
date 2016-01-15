@@ -234,7 +234,7 @@ public abstract class ObjectOutputStream {
 		writeCompressedInt(features.size());
 		hr("("); hr(features.size()); hr(") {\n", 1);
 		for (EStructuralFeature feature : features) {
-			int featureID = object.fClass().getFeatureID(feature);
+			int featureID = eClass.getFeatureID(feature);
 			Preconditions.checkState(featureID >= 0, "Invalid freature id.");
 			writeCompressedInt(featureID);
 			hr(feature.getName()); hr("("); hr(featureID); hr(")=");
