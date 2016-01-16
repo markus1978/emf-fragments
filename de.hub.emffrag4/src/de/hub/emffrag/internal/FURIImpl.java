@@ -1,7 +1,6 @@
 package de.hub.emffrag.internal;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.emf.common.util.URI;

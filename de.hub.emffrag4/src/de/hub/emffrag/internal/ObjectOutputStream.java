@@ -150,6 +150,7 @@ public abstract class ObjectOutputStream {
 	private void writeURI(FStoreObject fStoreObject) {
 		FURI uri = fStoreObject.fCreateURI();
 		if (uri.fragment() == -1) {
+			writeCompressedInt(0);
 			writeCompressedInt(-1);
 			EmfFragActivator.instance.warning("Dangling object reference. Cannot store the value. Some model data might get lost.");
 			if (!fStoreObject.fRoot().getClass().getName().toLowerCase().equals("javadoc")) {

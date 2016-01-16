@@ -2,14 +2,19 @@ package de.hub.emffrag.tests
 
 import de.hub.emffrag.EmfFragActivator
 import de.hub.emffrag.FObject
+import de.hub.emffrag.internal.FStore
 import de.hub.emffrag.internal.FStoreObject
 import de.hub.emffrag.internal.FStoreObjectImpl
+import de.hub.emffrag.internal.FURI
+import de.hub.emffrag.internal.ObjectInputStream
+import de.hub.emffrag.internal.ObjectOutputStream
 import de.hub.emffrag.tests.model.AbstractClass
 import de.hub.emffrag.tests.model.Container
 import de.hub.emffrag.tests.model.TestModelFactory
 import de.hub.emffrag.tests.model.TestModelPackage
 import de.hub.jstattrack.JStatTrackActivator
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.text.ParseException
 import java.util.HashMap
 import java.util.List
@@ -18,11 +23,15 @@ import java.util.Scanner
 import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.ecore.EcorePackage
-import org.junit.BeforeClass
+import org.eclipse.emf.ecore.util.EcoreUtil
 import org.junit.Assert
+import org.junit.BeforeClass
+
+import static org.junit.Assert.*
 
 class AbstractTests {
 	
@@ -137,6 +146,44 @@ class AbstractTests {
 			caught = true
 		}
 		Assert.assertTrue(caught)
+	}
+	
+	protected def performSaveLoadTest(FObject model, List<EPackage> thePackages) {
+		val byteArrayOutputStream = new ByteArrayOutputStream
+		val objectOutputStream = new ObjectOutputStream(byteArrayOutputStream, false) {			
+			override protected getPackageID(EPackage pkg) {
+				return thePackages.indexOf(pkg)
+			}			
+		}
+		model.fStoreObject.fSetFragmentID(null, 0)
+		objectOutputStream.writeFragment(model.fStoreObject)
+		objectOutputStream.close
+		
+		val byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray)
+		val objectInputStream = new ObjectInputStream(byteArrayInputStream, null, 0) {
+			override protected getPackage(int packageID) {
+				return thePackages.get(packageID)
+			}
+			override protected createObject(EClass eClass) {
+				return new FStoreObjectImpl(eClass);
+			}
+			override protected createProxy(FURI uri, EClass eClass) {
+				return new FStoreObjectImpl(uri, eClass);
+			}
+			
+		}
+		
+		val readCopy = FStore.fINSTANCE.proxyManager.getFObject(objectInputStream.readFragment())
+		readCopy.eAllContents.forEach[
+			(it as FObject).fStoreObject.fRoot			
+		]
+		assertFalse(readCopy.fStoreObject.fIsProxy)
+		assertFalse(model.fStoreObject.fIsProxy)
+		assertTrue(readCopy.fStoreObject.fAllContents(false).forall[!it.fIsProxy])
+		assertTrue(model.fStoreObject.fAllContents(false).forall[!it.fIsProxy])
+		
+		assertEquals(model.fStoreObject.fAllContents(false).size, readCopy.fStoreObject.fAllContents(false).size)
+		assertTrue(EcoreUtil.equals(model, readCopy))
 	}
 }
 

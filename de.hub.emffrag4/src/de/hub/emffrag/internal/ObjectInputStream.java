@@ -215,10 +215,16 @@ public abstract class ObjectInputStream {
 				List values = (List) object.fGet(feature);
 				int valueCount = readCompressedInt();
 				for (int valueIndex = 0; valueIndex < valueCount; valueIndex++) {
-					values.add(readValue(object, feature, valueIndex));					
+					Object value = readValue(object, feature, valueIndex);
+					if (value != null) { // there are rare situations where a value could not be written
+						values.add(value);	
+					}
 				}
 			} else {
-				object.fSet(feature, readValue(object, feature,-1));
+				Object value = readValue(object, feature,-1);
+				if (value != null) { // there are rare situations where a value could not be written
+					object.fSet(feature, value);
+				}
 			}
 		}
 
