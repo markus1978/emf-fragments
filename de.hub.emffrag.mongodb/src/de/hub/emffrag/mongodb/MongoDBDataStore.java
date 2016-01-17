@@ -49,13 +49,13 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 	private static final TimeStatistic writeTimeStatistic = new TimeStatistic(TimeUnit.MICROSECONDS)
 			.with(Summary.class)
 			.with(Histogram.class)
-			.register(MongoDBDataStore.class, "Write execution times");
+			.register(MongoDBDataStore.class, "DataWriteET");
 	private static final TimeStatistic readTimeStatistic = new TimeStatistic(TimeUnit.MICROSECONDS)
 			.with(Summary.class)
 			.with(Histogram.class)
 			.with(BatchedPlot.class)
 			.with(WindowedPlot.class)
-			.register(MongoDBDataStore.class, "Read execution times");
+			.register(MongoDBDataStore.class, "DataReadET");
 	
 	public static IDataStore createDataStore(URI uri, boolean useScanning) {
 		MongoDBDataStore baseDataStore = new MongoDBDataStore(uri.authority(), uri.path().substring(1));

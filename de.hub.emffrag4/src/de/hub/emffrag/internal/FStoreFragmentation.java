@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
@@ -22,10 +23,20 @@ import de.hub.emffrag.FragmentationUtil;
 import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.internal.IDataMap;
 import de.hub.emffrag.datastore.internal.LongKeyType;
+import de.hub.jstattrack.TimeStatistic;
+import de.hub.jstattrack.TimeStatistic.Timer;
+import de.hub.jstattrack.services.Summary;
 import de.hub.util.Ansi;
 import de.hub.util.Ansi.Color;
 
 public class FStoreFragmentation {
+	private static final TimeStatistic saveTimeStatistic = new TimeStatistic(TimeUnit.MICROSECONDS)
+			.with(Summary.class).register(FStoreFragmentation.class, "FragSaveET");
+	private static final TimeStatistic loadTimeStatistic = new TimeStatistic(TimeUnit.MICROSECONDS)
+			.with(Summary.class).register(FStoreFragmentation.class, "FragLoadET");
+	private static final TimeStatistic unloadTimeStatistic = new TimeStatistic(TimeUnit.MICROSECONDS)
+			.with(Summary.class).register(FStoreFragmentation.class, "FragUnloadET");
+	
 	private final IDataMap<Long> fragmentDataStoreIndex;
 	private final IDataStore dataStore;
 
@@ -117,6 +128,7 @@ public class FStoreFragmentation {
 		FStoreObject fragmentRoot;
 		if (fragmentDataStoreIndex.exists((long)fragmentID)) {
 			InputStream inputStream = fragmentDataStoreIndex.openInputStream((long) fragmentID);
+			Timer timer = loadTimeStatistic.timer();
 			ObjectInputStream objectInputStream = new ObjectInputStream(inputStream,  getURI(), fragmentID) {
 				@Override
 				protected EPackage getPackage(int packageID) {
@@ -146,6 +158,7 @@ public class FStoreFragmentation {
 			};
 			fragmentRoot = objectInputStream.readFragment();
 			fragmentRoot.fSetFragmentID(this, fragmentID);
+			timer.track();
 			objectInputStream.close();
 			fragments.put(fragmentID, fragmentRoot);
 			fragmentRoot.fMarkModified(false);
@@ -155,11 +168,12 @@ public class FStoreFragmentation {
 		}
 	}
 	
-	public void unloadFragment(FStoreObject fragmentRoot) {
+	public void unloadFragment(FStoreObject fragmentRoot) {		
 		Preconditions.checkArgument(fragmentRoot.fFragmentation() == this);
 		Preconditions.checkArgument(fragments.get(fragmentRoot.fFragmentID()) != null);
 		Preconditions.checkState(!closed);
 		
+		Timer timer = unloadTimeStatistic.timer();
 		int fragmentID = fragmentRoot.fFragmentID();
 		EmfFragActivator.instance.debug(
 				Ansi.format("FRAGMENTATION: ", Color.BLUE) +
@@ -171,6 +185,7 @@ public class FStoreFragmentation {
 			unloadFragmentContent(fragmentRoot, new FStreamURIImpl(getURI(), fragmentID));
 		}
 		fragments.remove(fragmentID);
+		timer.track();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -201,6 +216,7 @@ public class FStoreFragmentation {
 	private void saveFragment(FStoreObject fragmentRoot, boolean withUnload) {
 		int fragmentID = fragmentRoot.fFragmentID();
 		OutputStream outputStream = fragmentDataStoreIndex.openOutputStream((long) fragmentID);
+		Timer timer = saveTimeStatistic.timer();
 		ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream, withUnload) {
 			@Override
 			protected int getPackageID(EPackage pkg) {
@@ -208,6 +224,7 @@ public class FStoreFragmentation {
 			}			
 		};
 		objectOutputStream.writeFragment(fragmentRoot);
+		timer.track();
 		objectOutputStream.close();
 		fragmentRoot.fMarkModified(false);
 	}

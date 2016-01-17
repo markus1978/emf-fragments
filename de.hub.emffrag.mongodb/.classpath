@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry exported="true" kind="lib" path="lib/jars/jsr305-1.3.9.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jars/mongo-java-driver-2.13.2.jar" sourcepath="lib/jars/mongo-java-driver-2.13.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jars/mongo-java-driver-2.13.2.jar" sourcepath="lib/sources/mongo-java-driver-2.13.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/bundles/guava-18.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="bin/" sourcepath="src"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
