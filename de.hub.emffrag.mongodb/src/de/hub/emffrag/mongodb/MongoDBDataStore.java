@@ -41,20 +41,12 @@ import de.hub.jstattrack.services.Summary;
 import de.hub.jstattrack.services.WindowedPlot;
 
 public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
-	
-	private static final ValueStatistic entrySizeStatistic = new ValueStatistic("b")
-			.with(Summary.class)
-			.with(Histogram.class)
-			.register(MongoDBDataStore.class, "Entry size");
-	private static final TimeStatistic writeTimeStatistic = new TimeStatistic(TimeUnit.MICROSECONDS)
-			.with(Summary.class)
-			.with(Histogram.class)
-			.register(MongoDBDataStore.class, "DataWriteET");
-	private static final TimeStatistic readTimeStatistic = new TimeStatistic(TimeUnit.MICROSECONDS)
-			.with(Summary.class)
-			.with(Histogram.class)
-			.with(BatchedPlot.class)
-			.with(WindowedPlot.class)
+	public static final ValueStatistic entrySizeStatistic = new ValueStatistic("b")
+			.with(Summary.class).with(Histogram.class).register(MongoDBDataStore.class, "Entry size");
+	public static final TimeStatistic writeTimeStatistic = new TimeStatistic(TimeUnit.MICROSECONDS)
+			.with(Summary.class).with(Histogram.class).register(MongoDBDataStore.class, "DataWriteET");
+	public static final TimeStatistic readTimeStatistic = new TimeStatistic(TimeUnit.MICROSECONDS)
+			.with(Summary.class).with(Histogram.class).with(BatchedPlot.class).with(WindowedPlot.class)
 			.register(MongoDBDataStore.class, "DataReadET");
 	
 	public static IDataStore createDataStore(URI uri, boolean useScanning) {
@@ -86,6 +78,29 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 			dataBases.put(host+port, dataBase);
 		}
 		return dataBase;				
+	}
+	
+	public static void dropDatabase(URI uri) {
+		String hostName = null;
+		int hostPort = -1;
+		
+		String host = uri.authority();
+		String[] hostParts = host.split(":");
+		if (hostParts.length == 1) {
+			hostName = hostParts[0];
+		} else if (hostParts.length == 2) {
+			hostName = hostParts[0];
+			try {
+				hostPort = Integer.parseInt(hostParts[1]);
+			} catch (NumberFormatException e) {
+				throw new IllegalArgumentException("Invalid host format: " + host);
+			}
+		} else {
+			throw new IllegalArgumentException("Invalid host format: " + host);			
+		}
+
+		DB db = MongoDBDataStore.getDataBase(hostName, hostPort);
+		db.dropDatabase();
 	}
 	
 	public static void dropCollection(URI uri) {

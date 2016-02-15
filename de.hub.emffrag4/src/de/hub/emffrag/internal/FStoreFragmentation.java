@@ -30,12 +30,10 @@ import de.hub.util.Ansi;
 import de.hub.util.Ansi.Color;
 
 public class FStoreFragmentation {
-	private static final TimeStatistic saveTimeStatistic = new TimeStatistic(TimeUnit.MICROSECONDS)
-			.with(Summary.class).register(FStoreFragmentation.class, "FragSaveET");
-	private static final TimeStatistic loadTimeStatistic = new TimeStatistic(TimeUnit.MICROSECONDS)
-			.with(Summary.class).register(FStoreFragmentation.class, "FragLoadET");
-	private static final TimeStatistic unloadTimeStatistic = new TimeStatistic(TimeUnit.MICROSECONDS)
-			.with(Summary.class).register(FStoreFragmentation.class, "FragUnloadET");
+	
+	public static final TimeStatistic saveETStat = new TimeStatistic(TimeUnit.MICROSECONDS).with(Summary.class).register(FStoreFragmentation.class, "FragSaveET");
+	public static final TimeStatistic loadETStat = new TimeStatistic(TimeUnit.MICROSECONDS).with(Summary.class).register(FStoreFragmentation.class, "FragLoadET");
+	public static final TimeStatistic unloadETStat = new TimeStatistic(TimeUnit.MICROSECONDS).with(Summary.class).register(FStoreFragmentation.class, "FragUnloadET");
 	
 	private final IDataMap<Long> fragmentDataStoreIndex;
 	private final IDataStore dataStore;
@@ -128,7 +126,7 @@ public class FStoreFragmentation {
 		FStoreObject fragmentRoot;
 		if (fragmentDataStoreIndex.exists((long)fragmentID)) {
 			InputStream inputStream = fragmentDataStoreIndex.openInputStream((long) fragmentID);
-			Timer timer = loadTimeStatistic.timer();
+			Timer timer = loadETStat.timer();
 			ObjectInputStream objectInputStream = new ObjectInputStream(inputStream,  getURI(), fragmentID) {
 				@Override
 				protected EPackage getPackage(int packageID) {
@@ -173,7 +171,7 @@ public class FStoreFragmentation {
 		Preconditions.checkArgument(fragments.get(fragmentRoot.fFragmentID()) != null);
 		Preconditions.checkState(!closed);
 		
-		Timer timer = unloadTimeStatistic.timer();
+		Timer timer = unloadETStat.timer();
 		int fragmentID = fragmentRoot.fFragmentID();
 		EmfFragActivator.instance.debug(
 				Ansi.format("FRAGMENTATION: ", Color.BLUE) +
@@ -216,7 +214,7 @@ public class FStoreFragmentation {
 	private void saveFragment(FStoreObject fragmentRoot, boolean withUnload) {
 		int fragmentID = fragmentRoot.fFragmentID();
 		OutputStream outputStream = fragmentDataStoreIndex.openOutputStream((long) fragmentID);
-		Timer timer = saveTimeStatistic.timer();
+		Timer timer = saveETStat.timer();
 		ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream, withUnload) {
 			@Override
 			protected int getPackageID(EPackage pkg) {
