@@ -50,7 +50,7 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 			.register(MongoDBDataStore.class, "DataReadET");
 	
 	public static IDataStore createDataStore(URI uri, boolean useScanning) {
-		MongoDBDataStore baseDataStore = new MongoDBDataStore(uri.authority(), uri.path().substring(1));
+		MongoDBDataStore baseDataStore = new MongoDBDataStore(uri.authority(), uri.port(), uri.path().substring(1));
 		if (useScanning) {
 			return new DataStoreImpl(new ScanDataStore(baseDataStore, baseDataStore), uri);
 		} else {
@@ -144,12 +144,12 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 	private DB db;
 	private GridFS gridFs;
 	
-	public MongoDBDataStore(String host, String dataStoreId) {
-		this(host, dataStoreId, false);
+	public MongoDBDataStore(String host, String port, String dataStoreId) {
+		this(host, port, dataStoreId, false);
 	}
 
 	@SuppressWarnings("deprecation")
-	public MongoDBDataStore(String host, String dataStoreId, boolean dropFirst) {
+	public MongoDBDataStore(String host, String port, String dataStoreId, boolean dropFirst) {
 		String hostName = null;
 		int hostPort = -1;
 		
@@ -165,6 +165,10 @@ public class MongoDBDataStore implements IBaseDataStore, IScanExtension {
 			}
 		} else {
 			throw new IllegalArgumentException("Invalid host format: " + host);			
+		}
+		
+		if (hostPort == -1 && port != null && !port.trim().equals("")) {
+			hostPort = Integer.parseInt(port.trim());
 		}
 
 		db = getDataBase(hostName, hostPort);

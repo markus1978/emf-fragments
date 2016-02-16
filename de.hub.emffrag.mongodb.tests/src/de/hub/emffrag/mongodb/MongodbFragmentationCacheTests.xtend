@@ -4,6 +4,6 @@ import de.hub.emffrag.tests.FragmentationCacheTests
 
 class MongodbFragmentationCacheTests extends FragmentationCacheTests {
 	override createDataStore() {
-		return new MongoDBDataStore("localhost", "testmodel", true);	
+		return new MongoDBDataStore("localhost", null, "testmodel", true);	
 	}
 }
