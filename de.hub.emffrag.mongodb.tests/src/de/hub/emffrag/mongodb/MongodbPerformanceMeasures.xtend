@@ -5,7 +5,7 @@ import org.junit.Test
 
 class MongodbPerformanceMeasures extends PerformanceMeasures {
 	override createDataStore() {
-		return new MongoDBDataStore("localhost", null, "testmodel", true);	
+		return new MongoDBDataStore("localhost", null, "testmodel", true)
 	}
 	
 	@Test

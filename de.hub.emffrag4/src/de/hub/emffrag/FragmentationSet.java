@@ -17,6 +17,11 @@ public class FragmentationSet {
 	private final IDataStoreFactory dataStoreFactory;
 	private final int fragmentationCacheSize;
 	
+	public FragmentationSet(List<EPackage> packages, IDataStoreFactory dataStoreFactory) {
+		this(packages, dataStoreFactory, 50);
+	}
+	
+	
 	public FragmentationSet(List<EPackage> packages, IDataStoreFactory dataStoreFactory, int fragmentsCacheSize) {
 		this.packages = packages;
 		this.dataStoreFactory = dataStoreFactory;

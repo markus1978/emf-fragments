@@ -13,6 +13,7 @@ import de.hub.emffrag.datastore.DataStoreImpl;
 import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.IDataStore.IDataStoreFactory;
 import de.hub.emffrag.datastore.InMemoryDataStore;
+import de.hub.emffrag.internal.FStore;
 
 public class EmfFragActivator extends Plugin {
 	public static EmfFragActivator instance = null;
