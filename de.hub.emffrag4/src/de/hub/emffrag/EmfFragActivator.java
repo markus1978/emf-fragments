@@ -13,9 +13,10 @@ import de.hub.emffrag.datastore.DataStoreImpl;
 import de.hub.emffrag.datastore.IDataStore;
 import de.hub.emffrag.datastore.IDataStore.IDataStoreFactory;
 import de.hub.emffrag.datastore.InMemoryDataStore;
-import de.hub.emffrag.internal.FStore;
 
 public class EmfFragActivator extends Plugin {
+	public static final String commit = "$Id$";
+	
 	public static EmfFragActivator instance = null;
 	
 	public boolean logInStandAlone = false;
