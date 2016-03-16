@@ -15,7 +15,7 @@ import de.hub.emffrag.datastore.IDataStore.IDataStoreFactory;
 import de.hub.emffrag.datastore.InMemoryDataStore;
 
 public class EmfFragActivator extends Plugin {
-	public static final String commit = "$Id$";
+	public static final String commit = "$Id:85c5c3b0003a4d9bcf92f88b9bb47659ba89e48d:emffrag4.0$";
 	
 	public static EmfFragActivator instance = null;
 	
