@@ -1,5 +1,8 @@
 package de.hub.emffrag;
 
+import java.io.PrintStream;
+import java.util.function.Supplier;
+
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.emf.common.util.URI;
@@ -18,7 +21,12 @@ public class EmfFragActivator extends Plugin {
 	public static final String commit = "$git$";
 	
 	public static EmfFragActivator instance = null;
-	
+	public Supplier<PrintStream> logOutSupplier = new Supplier<PrintStream>() {
+		@Override
+		public PrintStream get() {
+			return System.out;
+		}
+	};
 	public boolean logInStandAlone = false;
 	public boolean logFragmentPrettyPrints = false;
 	
@@ -69,7 +77,7 @@ public class EmfFragActivator extends Plugin {
 		}
 		if (isStandAlone) {
 			if (logInStandAlone) {
-				System.out.println("LOG(" + level + "): " + (msg != null ? msg : "(null)") + (e != null ? ": " + e.getMessage() : ""));
+				logOutSupplier.get().println("LOG(" + level + "): " + (msg != null ? msg : "(null)") + (e != null ? ": " + e.getMessage() : ""));
 			}
 		}		
 	}
