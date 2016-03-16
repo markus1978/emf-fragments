@@ -1,0 +1,5 @@
+#!/usr/bin/ruby
+data = STDIN.read
+commit = `git rev-parse HEAD`
+branch = `git rev-parse --abbrev-ref HEAD`
+puts data.gsub('$git$', '$git:' + commit.strip + ':' + branch.strip + '$')

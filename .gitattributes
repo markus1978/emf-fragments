@@ -1,1 +1,2 @@
-test.txt filter=gitinfo
+*.java filter=gitinfo
+*.xtend filter=gitinfo
